@@ -14,6 +14,10 @@ Input envelope:
 tuple val(meta), path(reference), path(annotation), val(index_params)
 ```
 
+`annotation` is a staged path when the provider uses annotations and an empty
+list for providers that do not. A provider must reject a missing annotation
+when it is scientifically required.
+
 Required `meta` fields:
 
 - `id`: stable reference identifier;
@@ -66,7 +70,7 @@ projects these into the semantic channels above.
 
 ## Provenance requirements
 
-Each execution record contains:
+The execution metadata and partial manifest collectively contain:
 
 - the exact command and configured extra arguments;
 - tool versions;

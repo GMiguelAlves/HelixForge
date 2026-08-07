@@ -8,7 +8,7 @@ level orchestrator with one `--step` and forces local execution.
 
 | Nextflow alias | Legacy coarse step | Scripts reached by the existing orchestrator |
 |---|---|---|
-| `RNASEQ_REFERENCE_STEP` | `reference` | `salmon_index.sh`, `star_index.sh`, `star_index_gtf.sh`, conditional on existing config flags |
+| `RNASEQ_REFERENCE_STEP` | `reference` | Prepares the unchanged FASTA/GTF. For native STAR, `star_index_gtf.sh` stops before index construction; Salmon remains fully legacy |
 | `RNASEQ_DOWNLOAD_STEP` | `download` | `download_final.sh` per project |
 | `RNASEQ_METADATA_STEP` | `metadata` | `run_metaqc.sh`, `run_parse.sh`, `run_merge.sh` |
 | `RNASEQ_QC_PLAN` | compatibility adapter | Calls unchanged `generate_qc_plan.py` and annotates its Nextflow-owned copy with `TRIM_QUALITY`/`TRIM_LENGTH` from the legacy config |
@@ -19,7 +19,10 @@ level orchestrator with one `--step` and forces local execution.
 | `FASTQC_MERGED` | native per-FASTQ process | Replaces `fastqc_merged_plan.sh` and writes to `fastqc_merged` |
 | `MULTIQC` | native reusable process | Replaces `multiqc_plan.sh`; consumes generic compatible artifacts and writes the same named report under `multiqc_030` |
 | `RNASEQ_QC_STEP` | legacy fallback only | Runs the unchanged complete `qc` step when `rnaseq_native_qc=false` |
-| `RNASEQ_ALIGNMENT_STEP` | `salmon` | `run_alignment_project.sh` or `run_star_quant_project.sh`; their plan generators and array-task scripts execute sequentially in local mode |
+| `RNASEQ_ALIGNMENT_PLAN` | compatibility adapter | Sources the legacy config and invokes unchanged `generate_star_plan.py`; no scientific command is copied into Nextflow |
+| `REFERENCE_INDEX` / `STAR_INDEX` | native index API/provider | Replaces STAR `genomeGenerate` in `star_index_gtf.sh` with the same parameters and resources |
+| `ALIGNMENT` / `STAR_ALIGN` | native alignment API/provider | Replaces `run_star_quant_project.sh` / `star_quant_array_task.sh` with one task per sample and preserves every STAR filename |
+| `RNASEQ_ALIGNMENT_STEP` | `salmon` or legacy fallback | Salmon remains wrapped; when `rnaseq_native_alignment=false`, STAR also follows the unchanged legacy path |
 | `RNASEQ_QUANTIFICATION_STEP` | `tximport` | `quantification_job.sh`, `run_quantification.sh`, `txtimport_quant.R` or `import_star_counts.py` |
 | `RNASEQ_BATCH_STEP` | `batch` | `batch_correction_job.sh`, `run_batch_correction.sh`, `apply_batch_correction.py`; skipped when `RUN_BATCH_CORRECTION=0` |
 | `RNASEQ_DEG_STEP` | `deg` | `run_deg_analysis_slurm.sh` in local mode, `generate_deg_plan.py`, `deseq2_plan_job.sh`, `deseq2_analysis.R` |

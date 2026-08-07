@@ -87,10 +87,8 @@ The development host has no Docker executable, so the complete real-tool
 comparison was not run here. The versioned regression harness is ready for a
 Linux/HPC runner with the pinned tools or containers.
 
-## Next migration: alignment
+## Alignment status
 
-Start with a contract audit of STAR and Salmon inputs/outputs rather than
-migrating both at once. Keep reference-index construction wrapped initially,
-then implement independent per-sample STAR and Salmon modules, preserve all
-current flags from `pipeline_config.sh`, and compare BAM/count or quantification
-tables with a reduced golden dataset before changing tximport.
+The next stage is now implemented for STAR through the generic Alignment API.
+Salmon remains wrapped. See [native-rnaseq-alignment.md](native-rnaseq-alignment.md)
+for the contract, regression, benchmark, and quantification migration plan.
