@@ -26,7 +26,12 @@ level orchestrator with one `--step` and forces local execution.
 | `TRANSCRIPTOME_INDEX` / `SALMON_INDEX` | native index API/provider | Replaces scientific execution in `salmon_index.sh` with the same transcriptome, k-mer, threads, resources, and filenames |
 | `QUANTIFICATION` / `SALMON_QUANT` | native quantification API/provider | Replaces `run_alignment_project.sh` / `salmon_quant_plan.sh` with one task per sample and preserves the complete Salmon directory |
 | `RNASEQ_ANALYSIS_FALLBACK_STEP` | `salmon` fallback | Used only when the provider selected by `QUANT_METHOD` has its native flag disabled in `config` mode |
-| `RNASEQ_IMPORT_STEP` | `tximport` | Unchanged `quantification_job.sh`, `run_quantification.sh`, `txtimport_quant.R` or `import_star_counts.py` |
+| `RNASEQ_IMPORT_CONTEXT` | compatibility adapter | Reads metadata, GTF, target directory, provider, and STAR count-column settings from the unchanged config; it performs no scientific import |
+| `IMPORT_SOURCE` | native manifest adapter | Validates provider, semantic role, sample identity, compatibility path, and SHA-256 before staging each upstream artifact |
+| `IMPORT_SAMPLE_TABLE` | native metadata adapter | Replaces the inline legacy sample-table assembly with deterministic, manifest-backed sample mapping |
+| `TX2GENE_BUILD` | native annotation module | Separates the unchanged GTF transcript/gene normalization previously embedded in `txtimport_quant.R` |
+| `TXIMPORT` / `SALMON_IMPORT` | native Salmon import provider | Replaces `quantification_job.sh`, `run_quantification.sh`, and `txtimport_quant.R`; preserves all tximport scientific arguments and legacy filenames |
+| `STAR_IMPORT` | native STAR import provider | Replaces `import_star_counts.py`; preserves count-column selection, gene normalization, outer join, integer counts, CPM, and legacy filenames |
 | `RNASEQ_BATCH_STEP` | `batch` | `batch_correction_job.sh`, `run_batch_correction.sh`, `apply_batch_correction.py`; skipped when `RUN_BATCH_CORRECTION=0` |
 | `RNASEQ_DEG_STEP` | `deg` | `run_deg_analysis_slurm.sh` in local mode, `generate_deg_plan.py`, `deseq2_plan_job.sh`, `deseq2_analysis.R` |
 | `RNASEQ_REPORT_STEP` | `report` | `gene_report_job.sh`, `gene_set_report.R`; skipped when `RUN_GENE_REPORT=0` |

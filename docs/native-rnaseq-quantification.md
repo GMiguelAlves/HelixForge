@@ -2,8 +2,9 @@
 
 The RNA-seq Salmon path implements Quantification API 1.0. Workflows call the
 generic `TRANSCRIPTOME_INDEX` and `QUANTIFICATION` subworkflows; they do not
-call Salmon processes directly. tximport, DESeq2, batch correction, and final
-reports remain unchanged compatibility steps.
+call Salmon processes directly. The native Import API consumes Salmon
+manifests; DESeq2, batch correction, and final reports remain unchanged
+compatibility steps.
 
 ## Legacy audit
 
@@ -26,10 +27,9 @@ remain 8 CPUs, 32 GB, and 12 hours. `SALMON_KMER_SIZE` remains 31 by default.
 Nextflow owns local or Slurm scheduling; neither native module submits jobs.
 
 Salmon produces `quant.sf`, `cmd_info.json`, `lib_format_counts.json`,
-`aux_info/`, and `logs/salmon_quant.log`. The tximport wrapper reads only
-`quant.sf` plus metadata and GTF, resolving the fixed path
-`QUANT_DIR/<dataset>/<sample_id>/quant.sf`. That path and every Salmon filename
-are preserved.
+`aux_info/`, and `logs/salmon_quant.log`. The Import API reads `quant.sf` only
+through its upstream manifest, plus metadata and GTF. Every Salmon filename and
+legacy compatibility path is preserved.
 
 ## Execution graph
 
@@ -50,13 +50,13 @@ flowchart TD
     QC --> SQ
     SA --> STAROUT["BAM + gene counts"]
     SQ --> SALMONOUT["quant.sf + JSON + aux_info + logs"]
-    STAROUT -. "configured import method" .-> TX["tximport / STAR import wrapper"]
+    STAROUT -. "configured import method" .-> TX["Native Import API"]
     SALMONOUT -. "configured import method" .-> TX
     TX --> DEG["DESeq2 wrapper"]
 ```
 
 `--rnaseq_analysis_mode both` fans the same QC outputs into STAR and Salmon.
-The two APIs have no edge between them. tximport waits only for the method in
+The two provider APIs have no edge between them. Import waits only for the method in
 `QUANT_METHOD`, allowing the other provider to continue independently.
 
 ## API and modules
@@ -124,9 +124,9 @@ not change. Providers without a native equivalent for a semantic file must
 emit a documented stable placeholder rather than leak a tool-specific branch
 into callers.
 
-## Recommended tximport migration
+## Completed tximport migration
 
-Treat tximport as a separate import/aggregation layer, not as part of Salmon:
+tximport is now a separate import/aggregation layer, not part of Salmon:
 
 1. split transcript-to-gene extraction from matrix import;
 2. consume Quantification API manifests/channels instead of searching result
@@ -134,8 +134,10 @@ Treat tximport as a separate import/aggregation layer, not as part of Salmon:
 3. preserve the current transcript/gene ID normalization exactly;
 4. keep `countsFromAbundance="no"`, `ignoreTxVersion=TRUE`, and
    `ignoreAfterBar=TRUE` unchanged;
-5. regress counts, TPM, sample table, and `tx2gene.tsv` before removing the
-   wrapper.
+5. regress counts, TPM, sample table, and `tx2gene.tsv` before selecting the
+   native provider.
 
 The main risks for that stage are metadata/sample ordering, missing-sample
 behavior, GTF normalization, and accidental coupling to Salmon-only filenames.
+See [import_api.md](import_api.md) and
+[native-rnaseq-import.md](native-rnaseq-import.md).
