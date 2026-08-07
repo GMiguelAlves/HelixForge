@@ -1,0 +1,17 @@
+name: tx2gene_build
+description: Build the legacy-compatible transcript-to-gene table from GTF/GFF
+keywords: [tx2gene, gtf, gff, import]
+tools:
+  - rtracklayer:
+      description: R interface for genome annotation formats
+      homepage: https://bioconductor.org/packages/rtracklayer
+input:
+  - annotation: GTF or GFF annotation
+  - tx2gene_params: explicit normalization parameters
+output:
+  - artifacts: tx2gene.tsv
+  - reports: log and R session information
+  - versions: versions.yml
+  - execution_metadata: execution.json
+  - manifest: tx2gene_manifest.json
+  - status: tx2gene_build.done

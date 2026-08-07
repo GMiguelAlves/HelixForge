@@ -18,12 +18,16 @@ workflow ALIGNMENT {
     bam_index_ch = STAR_ALIGN.out.artifacts.map { meta, _bam, bai -> tuple(meta, bai) }
     logs_ch = STAR_ALIGN.out.reports.map { meta, logs, _statistics -> tuple(meta, logs) }
     statistics_ch = STAR_ALIGN.out.reports.map { meta, _logs, statistics -> tuple(meta, statistics) }
+    gene_counts_ch = STAR_ALIGN.out.reports.map { meta, _logs, statistics ->
+        tuple(meta, statistics.resolve('ReadsPerGene.out.tab'))
+    }
 
     emit:
     aligned_bam        = aligned_bam_ch
     bam_index          = bam_index_ch
     logs               = logs_ch
     statistics         = statistics_ch
+    gene_counts         = gene_counts_ch
     versions           = STAR_ALIGN.out.versions
     execution_metadata = STAR_ALIGN.out.execution_metadata
     manifest           = STAR_ALIGN.out.manifest

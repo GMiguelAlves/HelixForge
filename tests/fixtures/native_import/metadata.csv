@@ -1,0 +1,3 @@
+dataset,sample_id,condition,batch
+SYNTHETIC,sample_a,control,b1
+SYNTHETIC,sample_b,treated,b1

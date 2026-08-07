@@ -1,0 +1,1 @@
+{"schema_version":"1.0","type":"quantification","id":"SYNTHETIC.sample_a.quantification","quantifier":"salmon","dataset":"SYNTHETIC","sample_id":"sample_a","artifacts":{"quantification":{"path":"quant.sf","compatibility_path":"/legacy/quants/SYNTHETIC/sample_a/quant.sf","sha256":"0ac7d64b76becfe39ce815e7e76a3a7d3229b081446d5c6f9ee27bb9ca490de7"}}}

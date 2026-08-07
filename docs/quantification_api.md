@@ -79,8 +79,9 @@ tool-specific filename.
 For Salmon the primary table is `quant.sf`, command metadata is
 `cmd_info.json`, library-format metadata is `lib_format_counts.json`, and the
 auxiliary directory is `aux_info/`. The complete native output directory is
-published unchanged at `QUANT_DIR/<dataset>/<sample_id>` so the existing
-tximport wrapper continues to resolve `quant.sf` without modification.
+published unchanged at `QUANT_DIR/<dataset>/<sample_id>`. The Import API
+resolves `quant.sf` exclusively from the emitted manifest and semantic artifact
+channel.
 
 ## Provenance requirements
 

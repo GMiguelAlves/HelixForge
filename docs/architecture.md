@@ -14,6 +14,7 @@ flowchart TB
     RSW --> QC["Native RNA QC subworkflow"]
     RSW --> RNAALIGN["Generic Alignment API"]
     RSW --> RNAQUANT["Generic Quantification API"]
+    RSW --> RNAIMPORT["Generic Import API"]
     RSW --> WRAP["LEGACY_STEP module"]
     CSW --> WRAP
     ISW --> WRAP
@@ -37,8 +38,16 @@ flowchart TB
     QUANTIFY --> SALMONQUANT["SALMON_QUANT"]
     SALMONINDEX --> SALMONQUANT
     SALMONQUANT --> SALMONOUT["Legacy-compatible quant.sf, JSON, aux_info, logs"]
-    STAROUT --> WRAP
-    SALMONOUT --> WRAP
+    STAROUT --> RNAIMPORT
+    SALMONOUT --> RNAIMPORT
+    RNAIMPORT --> SOURCE["IMPORT_SOURCE manifest validation"]
+    SOURCE --> PROVIDER{"Provider"}
+    PROVIDER -->|Salmon| TX2GENE["TX2GENE_BUILD"]
+    TX2GENE --> TXIMPORT["TXIMPORT"]
+    PROVIDER -->|STAR| STARIMPORT["STAR_IMPORT"]
+    TXIMPORT --> COMMON["Counts + abundance + metadata + provenance"]
+    STARIMPORT --> COMMON
+    COMMON --> WRAP
     TRIM --> TRIMMED["Legacy-compatible run FASTQs"]
     MERGE --> MERGED["Legacy-compatible sample FASTQs"]
 ```
@@ -59,6 +68,8 @@ Quantification API tuples. Each API owns an independent content-tracked index
 and per-sample provider. `rnaseq_analysis_mode=both` fans merged FASTQs into
 both branches; no STAR output is an input to Salmon.
 
-The tximport/import wrapper consumes only the provider selected by the
-authoritative `QUANT_METHOD`. DESeq2, batch correction, and final reports remain
-compatibility wrappers.
+The Import API consumes only the provider selected by authoritative
+`QUANT_METHOD`. It validates upstream manifests, builds a sample table, then
+normalizes Salmon through `TX2GENE_BUILD` + `TXIMPORT` or STAR gene counts
+through `STAR_IMPORT`. DESeq2, batch correction, and final reports consume the
+common matrices and remain compatibility wrappers.

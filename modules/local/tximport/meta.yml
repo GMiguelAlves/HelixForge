@@ -1,0 +1,23 @@
+name: tximport
+description: Salmon implementation of the OmicsFlow Import API
+keywords: [salmon, tximport, counts, tpm, summarizedexperiment]
+tools:
+  - tximport:
+      description: Import transcript-level estimates and summarize to genes
+      homepage: https://bioconductor.org/packages/tximport
+input:
+  - sample_table: ordered manifest-backed sample table
+  - tx2gene: transcript-to-gene table
+  - sources: validated quant.sf sources
+  - import_params: explicit tximport parameters
+output:
+  - counts: counts_matrix.tsv
+  - abundance: tpm_matrix.tsv
+  - lengths: length_matrix.tsv
+  - experiment: summarized_experiment.rds
+  - metadata: quant_samples.tsv
+  - reports: log and statistics
+  - versions: versions.yml
+  - execution_metadata: execution.json and sessionInfo.txt
+  - manifest: import_manifest.json
+  - status: tximport.done

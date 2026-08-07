@@ -4,7 +4,7 @@ This document defines the interface required for every new native Nextflow DSL2
 module in OmicsFlow. The contract standardizes orchestration and provenance; it
 does not force unrelated scientific tools to produce the same file types.
 
-Contract version: `1.2`
+Contract version: `1.3`
 
 This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
 later native module.
@@ -205,7 +205,8 @@ migration note for existing native modules.
 Modules may participate in a stricter domain API in addition to this common
 envelope. Domain APIs must define stable semantic roles independently from a
 specific tool. The Alignment API is defined in `docs/alignment_api.md`; the
-Quantification API is defined in `docs/quantification_api.md`.
+Quantification API is defined in `docs/quantification_api.md`; the Import API
+is defined in `docs/import_api.md`.
 
 Contract 1.1 adds `meta.yml`, module-local documentation, tests, and formal
 domain contracts. Existing QC modules remain valid under 1.0 and can adopt the
@@ -215,3 +216,12 @@ Contract 1.2 adds the independent transcriptome-index and abundance-estimation
 roles of the Quantification API. Quantification providers must preserve their
 complete native output directory while also projecting stable semantic
 channels for downstream workflows.
+
+Contract 1.3 adds aggregation modules. An aggregation item carries a global
+`meta` map followed by content-tracked manifests, provider artifacts, sample
+metadata, and explicit parameters. Aggregators must expose matrices through
+semantic emissions (`counts`, `abundance`, and `lengths`) and must not discover
+provider files by reconstructing pipeline-specific directory names. A semantic
+role unavailable from a provider is represented in its manifest as
+`available: false`; modules must not fabricate scientific values to satisfy an
+interface.
