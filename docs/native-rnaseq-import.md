@@ -65,7 +65,7 @@ and is not a throughput claim:
 | Provider | Legacy | Native Import API | Threads |
 |---|---:|---:|---:|
 | STAR | 44.711 s | 28.408 s | 1 |
-| Salmon | 29.413 s | 84.907 s | 1 |
+| Salmon | 41.012 s | 80.190 s | 1 |
 
 Salmon's native timing includes the additive length matrix,
 `SummarizedExperiment`, `sessionInfo()`, checksums, and provenance. On this tiny

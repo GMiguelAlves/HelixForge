@@ -50,8 +50,10 @@ def main() -> None:
         compatibility_path = str(Path(args.target_root) / artifact_spec["path"])
 
     args.output.mkdir(parents=True, exist_ok=False)
-    shutil.copy2(args.artifact, args.output / "artifact")
-    shutil.copy2(args.manifest, args.output / "manifest.json")
+    # Preserve content, not host timestamps/ownership. copy2() calls copystat(),
+    # which is not portable to every Docker/Apptainer bind mount.
+    shutil.copyfile(args.artifact, args.output / "artifact")
+    shutil.copyfile(args.manifest, args.output / "manifest.json")
 
     source = {
         "schema_version": "1.0",
