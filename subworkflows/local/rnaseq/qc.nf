@@ -12,6 +12,9 @@ workflow RNASEQ_QC {
 
     main:
     no_dep = channel.value('none')
+    native_trim_enabled = params.rnaseq_native_trim_galore instanceof Boolean \
+        ? params.rnaseq_native_trim_galore \
+        : params.rnaseq_native_trim_galore.toString().toBoolean()
 
     RNASEQ_DOWNLOAD_STEP(
         'rnaseq', 'download', 'medium', config_file, legacy_root,
@@ -21,7 +24,7 @@ workflow RNASEQ_QC {
         'rnaseq', 'metadata', 'medium', config_file, legacy_root,
         seed, no_dep, no_dep
     )
-    if (params.rnaseq_native_trim_galore) {
+    if (native_trim_enabled) {
         RNASEQ_QC_PLAN(
             config_file,
             file("${projectDir}/bin/annotate_qc_plan.py", checkIfExists: true),
