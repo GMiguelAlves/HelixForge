@@ -64,23 +64,10 @@ process STAR_ALIGN {
     printf '%q ' "\${CMD[@]}" > "\$logs_dir/command.txt"
     printf '\n' >> "\$logs_dir/command.txt"
 
-    if [[ -n '${target_dir}' && -s '${target_dir}/ReadsPerGene.out.tab' && -s '${target_dir}/Aligned.sortedByCoord.out.bam' ]]; then
-        echo '[SKIP] STAR output ja existe: ${meta.id}' | tee "\$logs_dir/star_align.log"
-        for existing in \
-            Aligned.sortedByCoord.out.bam Aligned.sortedByCoord.out.bam.bai \
-            ReadsPerGene.out.tab SJ.out.tab Log.out Log.progress.out Log.final.out \
-            Aligned.sortedByCoord.out.bam.stats Aligned.sortedByCoord.out.bam.flagstat \
-            Aligned.sortedByCoord.out.bam.idxstats; do
-            if [[ -e '${target_dir}'/"\$existing" ]]; then
-                cp '${target_dir}'/"\$existing" "\$existing"
-            fi
-        done
-    else
-        echo '[INFO] STAR alignment: ${meta.id}' | tee "\$logs_dir/star_align.log"
-        printf '+ %q ' "\${CMD[@]}" | tee -a "\$logs_dir/star_align.log"
-        printf '\n' | tee -a "\$logs_dir/star_align.log"
-        "\${CMD[@]}" 2>&1 | tee -a "\$logs_dir/star_align.log"
-    fi
+    echo '[INFO] STAR alignment: ${meta.id}' | tee "\$logs_dir/star_align.log"
+    printf '+ %q ' "\${CMD[@]}" | tee -a "\$logs_dir/star_align.log"
+    printf '\n' | tee -a "\$logs_dir/star_align.log"
+    "\${CMD[@]}" 2>&1 | tee -a "\$logs_dir/star_align.log"
 
     [[ -s "\$bam" && -s ReadsPerGene.out.tab && -s Log.final.out ]]
 
@@ -97,7 +84,7 @@ process STAR_ALIGN {
         samtools idxstats "\$bam" > "\$bam.idxstats"
     fi
 
-    awk -F'|' 'NF == 2 { key=\$1; value=\$2; gsub(/^[[:space:]]+|[[:space:]]+$/, "", key); gsub(/^[[:space:]]+|[[:space:]]+$/, "", value); print key "\t" value }' \
+    awk -F'|' 'NF == 2 { key=\$1; value=\$2; sub(/^[[:space:]]+/, "", key); sub(/[[:space:]]+\$/, "", key); sub(/^[[:space:]]+/, "", value); sub(/[[:space:]]+\$/, "", value); print key "\t" value }' \
         Log.final.out > "\$stats_dir/mapping_summary.tsv"
     {
         printf 'mapq\talignments\n'
@@ -118,8 +105,8 @@ process STAR_ALIGN {
             Log.out Log.progress.out Log.final.out \
             "\$bam.stats" "\$bam.flagstat" "\$bam.idxstats"; do
             if [[ -e "\$artifact" ]]; then
-                cp "\$artifact" '${target_dir}'/"\$artifact.nextflow.tmp"
-                mv '${target_dir}'/"\$artifact.nextflow.tmp" '${target_dir}'/"\$artifact"
+                cp "\$artifact" '${target_dir}/'"\${artifact}.nextflow.tmp"
+                mv '${target_dir}/'"\${artifact}.nextflow.tmp" '${target_dir}/'"\${artifact}"
             fi
         done
     fi
@@ -132,7 +119,7 @@ process STAR_ALIGN {
     bam_sha=\$(sha256sum "\$bam" | awk '{ print \$1 }')
     bai_sha=\$(sha256sum "\$bai" | awk '{ print \$1 }')
     end_epoch=\$(date +%s)
-    command_json=\$(sed 's/\\/\\\\/g; s/"/\\"/g' "\$logs_dir/command.txt" | tr -d '\n')
+    command_base64=\$(base64 -w0 "\$logs_dir/command.txt")
 
     printf '"%s":\n    star: %s\n    samtools: %s\n    htslib: %s\n' \
         '${task.process}' \
@@ -141,8 +128,8 @@ process STAR_ALIGN {
         "\$(htsfile --version 2>&1 | awk 'NR==1 { print \$NF }')" \
         > '${meta.id}.versions.yml'
 
-    printf '{"id":"%s","process":"%s","command":"%s","cpus":%s,"memory_bytes":%s,"time":"%s","index":"%s","index_sha256":"%s","reference":"%s","reference_sha256":"%s","annotation_sha256":"%s","reads_sha256":"%s","started_epoch":%s,"ended_epoch":%s,"elapsed_seconds":%s}\n' \
-        '${meta.id}' '${task.process}' "\$command_json" '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
+    printf '{"id":"%s","process":"%s","command_base64":"%s","cpus":%s,"memory_bytes":%s,"time":"%s","index":"%s","index_sha256":"%s","reference":"%s","reference_sha256":"%s","annotation_sha256":"%s","reads_sha256":"%s","started_epoch":%s,"ended_epoch":%s,"elapsed_seconds":%s}\n' \
+        '${meta.id}' '${task.process}' "\$command_base64" '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         '${alignment_index}' "\$index_sha" '${reference}' "\$reference_sha" "\$annotation_sha" "\$reads_sha" \
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" \
         > '${meta.id}.execution.json'

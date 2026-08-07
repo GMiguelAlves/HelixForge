@@ -92,9 +92,16 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
                 )
             }
 
-        alignment_inputs = sample_specs
-            .combine(REFERENCE_INDEX.out.artifacts)
-            .map { meta, reads, reference, annotation, alignment_params, _index_meta, index ->
+        samples_by_index_key = sample_specs.map { meta, reads, reference, annotation, alignment_params ->
+            tuple(meta.dataset, meta, reads, reference, annotation, alignment_params)
+        }
+        indexes_by_project = REFERENCE_INDEX.out.artifacts.map { index_meta, index ->
+            tuple(index_meta.project, index)
+        }
+
+        alignment_inputs = samples_by_index_key
+            .join(indexes_by_project)
+            .map { _project, meta, reads, reference, annotation, alignment_params, index ->
                 tuple(meta, reads, reference, annotation, index, alignment_params)
             }
 

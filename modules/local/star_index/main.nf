@@ -17,6 +17,10 @@ process STAR_INDEX {
     publishDir "${params.outdir}/pipeline_info/native_alignment/star_index",
         mode: 'copy', overwrite: true,
         pattern: '*.{json,yml,done}'
+    publishDir { meta.target_dir ?: "${params.outdir}/alignment_index/${meta.id}" },
+        mode: 'copy', overwrite: true,
+        pattern: 'star_index/*',
+        saveAs: { filename -> filename.replaceFirst('^star_index/', '') }
 
     input:
     tuple val(meta), path(reference), path(annotation), val(index_params)
@@ -44,33 +48,16 @@ process STAR_INDEX {
         "STAR --runMode genomeGenerate --runThreadN ${task.cpus} --genomeDir ${command_index_dir} --genomeFastaFiles ${reference} --sjdbGTFfile ${annotation} --genomeSAindexNbases ${sa_bases} --limitGenomeGenerateRAM ${limit_ram}" \
         > '${meta.id}.star_index_reports/command.txt'
 
-    if [[ -n '${target_dir}' && -d '${target_dir}' && -n "\$(find '${target_dir}' -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ]]; then
-        echo '[SKIP] STAR index ja existe: ${target_dir}' \
-            | tee '${meta.id}.star_index_reports/star_index.log'
-        cp -a '${target_dir}/.' star_index/
-    else
-        STAR --runMode genomeGenerate \
-            --runThreadN ${task.cpus} \
-            --genomeDir star_index \
-            --genomeFastaFiles '${reference}' \
-            --sjdbGTFfile '${annotation}' \
-            --genomeSAindexNbases '${sa_bases}' \
-            --limitGenomeGenerateRAM '${limit_ram}' \
-            2>&1 | tee '${meta.id}.star_index_reports/star_index.log'
+    STAR --runMode genomeGenerate \
+        --runThreadN ${task.cpus} \
+        --genomeDir star_index \
+        --genomeFastaFiles '${reference}' \
+        --sjdbGTFfile '${annotation}' \
+        --genomeSAindexNbases '${sa_bases}' \
+        --limitGenomeGenerateRAM '${limit_ram}' \
+        2>&1 | tee '${meta.id}.star_index_reports/star_index.log'
 
-        [[ -s star_index/Genome && -s star_index/SA && -s star_index/SAindex ]]
-
-        if [[ -n '${target_dir}' ]]; then
-            target_tmp='${target_dir}.nextflow.tmp.${task.index}'
-            mkdir -p "\$(dirname '${target_dir}')"
-            mkdir "\$target_tmp"
-            cp -a star_index/. "\$target_tmp/"
-            if [[ -d '${target_dir}' ]]; then
-                rmdir '${target_dir}'
-            fi
-            mv "\$target_tmp" '${target_dir}'
-        fi
-    fi
+    [[ -s star_index/Genome && -s star_index/SA && -s star_index/SAindex ]]
 
     index_sha=\$(find star_index -type f -print0 \
         | sort -z \
