@@ -1,0 +1,8 @@
+.nextflow/
+.nextflow.log*
+.nf-test/
+work/
+results/
+benchmark/reports/*
+!benchmark/reports/.gitkeep
+

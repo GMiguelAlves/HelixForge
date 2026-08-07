@@ -1,0 +1,25 @@
+include { RNASEQ as ALL_RNASEQ }         from './rnaseq'
+include { CHIPSEQ as ALL_CHIPSEQ }       from './chipseq'
+include { INTEGRATIVE as ALL_INTEGRATIVE } from './integrative'
+
+workflow ALL {
+    take:
+    seed
+
+    main:
+    ALL_RNASEQ(seed)
+    ALL_CHIPSEQ(seed)
+
+    integration_seed = ALL_RNASEQ.out.completed
+        .mix(ALL_CHIPSEQ.out.completed)
+        .collect()
+
+    ALL_INTEGRATIVE(integration_seed)
+
+    emit:
+    completed = ALL_INTEGRATIVE.out.completed
+    logs      = ALL_RNASEQ.out.logs
+        .mix(ALL_CHIPSEQ.out.logs)
+        .mix(ALL_INTEGRATIVE.out.logs)
+}
+
