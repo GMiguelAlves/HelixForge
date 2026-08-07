@@ -107,8 +107,8 @@ process SALMON_QUANT {
     ' salmon_quant/quant.sf > "\$stats_dir/quantification.tsv"
 
     for metric in num_processed num_mapped percent_mapped; do
-        value=\$(sed -n "s/.*\"\${metric}\"[[:space:]]*:[[:space:]]*\\([^,}]*\\).*/\\1/p" \
-            salmon_quant/aux_info/meta_info.json | head -n 1 | tr -d '" ')
+        value=\$(sed -n "/\\\"\${metric}\\\"/ { s/^[^:]*:[[:space:]]*//; s/[,\\\"]//g; p; q; }" \
+            salmon_quant/aux_info/meta_info.json | tr -d ' ')
         [[ -z "\$value" ]] || printf '%s\t%s\n' "\$metric" "\$value" >> "\$stats_dir/quantification.tsv"
     done
     cp salmon_quant/lib_format_counts.json "\$stats_dir/"
