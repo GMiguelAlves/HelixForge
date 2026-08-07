@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omicsflow.dev/schemas/reference-bundle-v1.json",
+  "title": "OmicsFlow reference bundle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["reference_bundle_version", "reference_id", "organism", "assembly", "files"],
+  "properties": {
+    "reference_bundle_version": { "const": "1" },
+    "reference_id": { "type": "string", "minLength": 1 },
+    "organism": { "type": "string", "minLength": 1 },
+    "assembly": { "type": "string", "minLength": 1 },
+    "files": {
+      "type": "object",
+      "required": ["genome", "annotation"],
+      "properties": {
+        "genome": { "type": "string" },
+        "annotation": { "type": "string" },
+        "transcripts": { "type": "string" },
+        "chrom_sizes": { "type": "string" },
+        "blacklist": { "type": "string" }
+      }
+    },
+    "indexes": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  }
+}
+

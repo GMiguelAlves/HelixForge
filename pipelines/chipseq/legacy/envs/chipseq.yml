@@ -1,0 +1,22 @@
+name: chipseq
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python>=3.9
+  - r-base>=4.2
+  - fastqc
+  - multiqc
+  - fastp
+  - trim-galore
+  - bowtie2
+  - bwa
+  - samtools
+  - bedtools
+  - deeptools
+  - macs3
+  - subread
+  - bioconductor-deseq2
+  - r-ggplot2
+  - r-pheatmap

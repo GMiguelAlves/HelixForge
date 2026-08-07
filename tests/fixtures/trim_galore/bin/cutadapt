@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+if [[ "${1:-}" == "--version" ]]; then
+    echo "4.0-test"
+    exit 0
+fi
+
+echo "Mock cutadapt supports only --version" >&2
+exit 2

@@ -1,0 +1,19 @@
+{
+  "manifest_version": "1",
+  "pipeline": "omicsflow-rnaseq",
+  "pipeline_version": "0.1.0-dev",
+  "reference_id": "example-reference",
+  "artifacts": [
+    {
+      "type": "gene_counts",
+      "path": "tables/counts_matrix.tsv",
+      "format": "tsv"
+    },
+    {
+      "type": "normalized_expression",
+      "path": "tables/tpm_matrix.tsv",
+      "format": "tsv"
+    }
+  ]
+}
+
