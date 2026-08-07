@@ -1,0 +1,3 @@
+sample_id	assay	source_file	stage	sex	condition	treatment	tissue	mark_or_factor	contrast_id	replicate	notes
+sample_1	RNA	/path/to/file	stage_a	unknown	control	none	tissue_a	NA	contrast_a	1	Edit this row
+chip_1	ChIP	/path/to/file	stage_a	unknown	control	none	tissue_a	H3K27ac	contrast_a	1	Edit this row
