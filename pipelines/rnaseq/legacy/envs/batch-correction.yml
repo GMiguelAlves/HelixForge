@@ -1,0 +1,15 @@
+name: batch-correction
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.10
+  - numpy
+  - pandas
+  - scipy
+  - matplotlib
+  - seaborn
+  - pip
+  - pip:
+      - inmoose

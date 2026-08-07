@@ -1,0 +1,23 @@
+name: r-analysis
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-base=4.3
+  - r-tidyverse
+  - r-wgcna
+  - bioconductor-deseq2
+  - bioconductor-tximport
+  - bioconductor-drimseq
+  - bioconductor-isoformswitchanalyzer
+  - r-heatmaply
+  - r-pheatmap
+  - r-ggplot2
+  - r-ggrepel
+  - r-rcolorbrewer
+  - r-seqinr
+  - r-statix
+  - bioconductor-reportingtools
+  - bioconductor-rtracklayer
+  - bioconductor-clusterprofiler
