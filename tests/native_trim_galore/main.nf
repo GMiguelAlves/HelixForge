@@ -5,6 +5,7 @@ include { TRIM_GALORE } from '../../modules/local/trim_galore/main'
 workflow {
     def target_dir = file(params.target_dir)
     def meta = [
+        id             : 'SYNTHETIC.synthetic_sample.synthetic_run.trim_galore',
         dataset        : 'SYNTHETIC',
         sample_id      : 'synthetic_sample',
         run_accession  : 'synthetic_run',

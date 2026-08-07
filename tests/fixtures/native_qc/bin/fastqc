@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ "${1:-}" == "--version" ]]; then
+    echo "FastQC v0.12.1-test"
+    exit 0
+fi
+
+outdir=.
+input=
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --outdir)
+            outdir=$2
+            shift 2
+            ;;
+        --threads)
+            shift 2
+            ;;
+        *)
+            input=$1
+            shift
+            ;;
+    esac
+done
+
+[[ -n "$input" ]]
+mkdir -p "$outdir"
+name=$(basename "$input")
+prefix=${name%.gz}
+prefix=${prefix%.fastq}
+prefix=${prefix%.fq}
+reads=$(gzip -dc "$input" | awk 'END { print NR / 4 }')
+printf 'sample\treads\n%s\t%s\n' "$prefix" "$reads" > "${outdir}/${prefix}_fastqc.zip"
+printf '<html><body>%s reads=%s</body></html>\n' "$prefix" "$reads" > "${outdir}/${prefix}_fastqc.html"

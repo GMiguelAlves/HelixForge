@@ -7,3 +7,4 @@
 *.json text eol=lf
 *.tsv text eol=lf
 tests/fixtures/trim_galore/bin/* text eol=lf
+tests/fixtures/native_qc/bin/* text eol=lf

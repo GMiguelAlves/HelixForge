@@ -4,12 +4,21 @@ set -euo pipefail
 
 project_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 nextflow_bin=${NEXTFLOW_BIN:-nextflow}
+nextflow_jar=${NEXTFLOW_JAR:-}
 image=${TRIM_GALORE_CONTAINER:-quay.io/biocontainers/trim-galore:0.6.10--hdfd78af_0}
 case_root="${project_root}/results/test/trim-galore-comparison"
 input_dir="${case_root}/input"
 legacy_dir="${case_root}/legacy"
 native_dir="${case_root}/native"
 nextflow_out="${case_root}/nextflow"
+
+run_nextflow() {
+    if [[ -n "$nextflow_jar" ]]; then
+        java -jar "$nextflow_jar" "$@"
+    else
+        "$nextflow_bin" "$@"
+    fi
+}
 
 mkdir -p "$input_dir" "$legacy_dir" "$native_dir" "$nextflow_out"
 gzip -n -c "${project_root}/tests/fixtures/trim_galore/input_R1.fastq" > "${input_dir}/input_R1.fastq.gz"
@@ -32,7 +41,7 @@ mv "${legacy_dir}/input_R1_val_1.fq.gz" "${legacy_dir}/synthetic_R1_trimmed.fast
 mv "${legacy_dir}/input_R2_val_2.fq.gz" "${legacy_dir}/synthetic_R2_trimmed.fastq.gz"
 
 start_native=$(date +%s%N)
-"$nextflow_bin" run "${project_root}/tests/native_trim_galore/main.nf" \
+run_nextflow run "${project_root}/tests/native_trim_galore/main.nf" \
     -c "${project_root}/tests/native_trim_galore/nextflow.config" \
     -profile docker \
     -ansi-log false \
