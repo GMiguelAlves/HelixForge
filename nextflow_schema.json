@@ -11,10 +11,18 @@
     },
     "outdir": { "type": "string" },
     "legacy_dry_run": { "type": "boolean", "default": false },
+    "rnaseq_native_trim_galore": {
+      "type": "boolean",
+      "default": true,
+      "description": "Run RNA-seq run-level trimming as a native Nextflow process."
+    },
+    "trim_galore_container": {
+      "type": "string",
+      "default": "quay.io/biocontainers/trim-galore:0.6.10--hdfd78af_0"
+    },
     "rnaseq_config": { "type": "string" },
     "chipseq_config": { "type": "string" },
     "integrative_config": { "type": "string" }
   },
   "required": ["workflow"]
 }
-

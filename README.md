@@ -1,13 +1,13 @@
 # OmicsFlow
 
-OmicsFlow is a compatibility-first Nextflow DSL2 skeleton for the existing
+OmicsFlow is a compatibility-first Nextflow DSL2 implementation for the existing
 RNA-seq, ChIP-seq, and IntegrateSeq pipelines. The scientific Bash, Python, and
 R implementations are preserved under `pipelines/*/legacy` and remain directly
 executable.
 
-This first version delegates scheduling to Nextflow while invoking each legacy
-coarse step in local mode. It does not replace tools, algorithms, parameters,
-filenames, or result layouts.
+RNA-seq run-level trimming is the first hybrid stage: Trim Galore is a native
+per-run process while the remaining tools retain their legacy wrappers. The
+same tool, command options, filenames, and result directories are preserved.
 
 ## Workflows
 
@@ -41,6 +41,6 @@ each legacy pipeline. Create their existing untracked user configuration files
 before a real run.
 
 See [docs/nextflow.md](docs/nextflow.md),
+[docs/native-trim-galore.md](docs/native-trim-galore.md),
 [docs/script-mapping.md](docs/script-mapping.md), and
 [docs/limitations.md](docs/limitations.md).
-

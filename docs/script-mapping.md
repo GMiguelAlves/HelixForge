@@ -11,7 +11,9 @@ level orchestrator with one `--step` and forces local execution.
 | `RNASEQ_REFERENCE_STEP` | `reference` | `salmon_index.sh`, `star_index.sh`, `star_index_gtf.sh`, conditional on existing config flags |
 | `RNASEQ_DOWNLOAD_STEP` | `download` | `download_final.sh` per project |
 | `RNASEQ_METADATA_STEP` | `metadata` | `run_metaqc.sh`, `run_parse.sh`, `run_merge.sh` |
-| `RNASEQ_QC_STEP` | `qc` | `run_qc_project.sh`, `generate_qc_plan.py`, run-level FastQC/trimming scripts, `merge_sample_from_plan.py`, `multiqc_plan.sh` |
+| `RNASEQ_QC_PLAN` | compatibility adapter | Calls unchanged `generate_qc_plan.py` and annotates its Nextflow-owned copy with `TRIM_QUALITY`/`TRIM_LENGTH` from the legacy config |
+| `TRIM_GALORE` | native per-run process | Executes the same `trim_galore --paired --quality --length --cores --output_dir` command previously in `trim_runs_plan.sh` |
+| `RNASEQ_QC_STEP` | `qc` | `run_qc_project.sh`; FastQC, merge, merged FastQC, and MultiQC remain legacy. `trim_runs_plan.sh` observes native outputs and returns `[SKIP]` |
 | `RNASEQ_ALIGNMENT_STEP` | `salmon` | `run_alignment_project.sh` or `run_star_quant_project.sh`; their plan generators and array-task scripts execute sequentially in local mode |
 | `RNASEQ_QUANTIFICATION_STEP` | `tximport` | `quantification_job.sh`, `run_quantification.sh`, `txtimport_quant.R` or `import_star_counts.py` |
 | `RNASEQ_BATCH_STEP` | `batch` | `batch_correction_job.sh`, `run_batch_correction.sh`, `apply_batch_correction.py`; skipped when `RUN_BATCH_CORRECTION=0` |
@@ -61,4 +63,3 @@ because deleting intermediates can invalidate future cache/provenance work.
 
 `server_inventory.sh` remains a manual deployment utility and is not a
 scientific workflow stage.
-

@@ -32,10 +32,11 @@ nextflow run . --workflow rnaseq \
 - `local`: Nextflow local executor.
 - `slurm`: one Nextflow task per compatibility step; legacy scripts run locally
   inside the allocation and never submit child jobs.
-- `docker`: preparation profile; a container image must still be assigned.
-- `singularity`: preparation profile.
-- `apptainer`: preparation profile.
-- `conda`: preparation profile; legacy scripts still activate their own envs.
+- `docker`: uses the pinned Trim Galore image; other tools still need images.
+- `singularity`: uses the same OCI image for native Trim Galore.
+- `apptainer`: uses the same OCI image for native Trim Galore.
+- `conda`: creates the native Trim Galore environment; legacy scripts still
+  activate their own named environments.
 - `test`: reduced local settings for stub tests.
 
 ## Dry-run modes
@@ -60,3 +61,16 @@ PYTHON_BIN=python3 nextflow run . -profile test --workflow chipseq \
 
 Every run enables timeline, trace, execution report, and DAG under
 `<outdir>/pipeline_info/`.
+
+## Hybrid RNA-seq trimming
+
+Native trimming is enabled by default. Disable it to reproduce the completely
+legacy orchestration path:
+
+```bash
+nextflow run . -profile local --workflow rnaseq \
+  --rnaseq_native_trim_galore false
+```
+
+`TRIM_QUALITY`, `TRIM_LENGTH`, projects, metadata, scratch paths, and output
+names continue to come from the selected RNA-seq `pipeline_config.sh`.
