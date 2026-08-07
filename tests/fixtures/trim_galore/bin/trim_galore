@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ "${1:-}" == "--version" ]]; then
+    echo "Trim Galore version: 0.6.10-test"
+    exit 0
+fi
+
+output_dir=.
+inputs=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --paired)
+            shift
+            ;;
+        --quality|--length|--cores)
+            shift 2
+            ;;
+        --output_dir)
+            output_dir=$2
+            shift 2
+            ;;
+        *)
+            inputs+=("$1")
+            shift
+            ;;
+    esac
+done
+
+[[ ${#inputs[@]} -eq 2 ]]
+mkdir -p "$output_dir"
+
+r1_name=$(basename "${inputs[0]}")
+r2_name=$(basename "${inputs[1]}")
+cp "${inputs[0]}" "${output_dir}/${r1_name%.fastq.gz}_val_1.fq.gz"
+cp "${inputs[1]}" "${output_dir}/${r2_name%.fastq.gz}_val_2.fq.gz"
+printf 'mock report for %s\n' "$r1_name" > "${output_dir}/${r1_name}_trimming_report.txt"
+printf 'mock report for %s\n' "$r2_name" > "${output_dir}/${r2_name}_trimming_report.txt"
+echo "Mock Trim Galore completed"
