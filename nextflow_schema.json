@@ -21,6 +21,17 @@
       "default": true,
       "description": "Use the generic Alignment API with native STAR when QUANT_METHOD=star."
     },
+    "rnaseq_native_quantification": {
+      "type": "boolean",
+      "default": true,
+      "description": "Use the generic Quantification API with native Salmon."
+    },
+    "rnaseq_analysis_mode": {
+      "type": "string",
+      "enum": ["config", "alignment", "quantification", "both"],
+      "default": "config",
+      "description": "Run the configured provider, STAR only, Salmon only, or both independent layers."
+    },
     "rnaseq_native_trim_galore": {
       "type": "boolean",
       "default": true,
@@ -52,6 +63,16 @@
     },
     "star_index_queue": { "type": ["string", "null"], "default": null },
     "star_align_queue": { "type": ["string", "null"], "default": null },
+    "salmon_container": {
+      "type": "string",
+      "default": "quay.io/biocontainers/salmon@sha256:f83ebb158845ee8138d793347f83b92c75e83c58dd8f4600c6fea2a2453ef08e"
+    },
+    "salmon_apptainer_container": {
+      "type": "string",
+      "default": "https://depot.galaxyproject.org/singularity/salmon:1.10.3--h6dccd9a_2"
+    },
+    "salmon_index_queue": { "type": ["string", "null"], "default": null },
+    "salmon_quant_queue": { "type": ["string", "null"], "default": null },
     "rnaseq_config": { "type": "string" },
     "chipseq_config": { "type": "string" },
     "integrative_config": { "type": "string" }

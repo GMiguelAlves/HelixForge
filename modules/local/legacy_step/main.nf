@@ -39,6 +39,8 @@ process LEGACY_STEP {
     def log_name  = "${pipeline}.${step}.log"
     """
     export OMICSFLOW_NATIVE_STAR_ALIGNMENT='${params.rnaseq_native_alignment}'
+    export OMICSFLOW_NATIVE_SALMON_QUANTIFICATION='${params.rnaseq_native_quantification}'
+    export OMICSFLOW_RNASEQ_ANALYSIS_MODE='${params.rnaseq_analysis_mode}'
     bash "${projectDir}/bin/run_legacy_step.sh" \
         "${pipeline}" \
         "${step}" \

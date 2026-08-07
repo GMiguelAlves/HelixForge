@@ -8,7 +8,7 @@ level orchestrator with one `--step` and forces local execution.
 
 | Nextflow alias | Legacy coarse step | Scripts reached by the existing orchestrator |
 |---|---|---|
-| `RNASEQ_REFERENCE_STEP` | `reference` | Prepares the unchanged FASTA/GTF. For native STAR, `star_index_gtf.sh` stops before index construction; Salmon remains fully legacy |
+| `RNASEQ_REFERENCE_STEP` | `reference` | Prepares unchanged FASTA/GTF/transcriptome inputs. Native STAR and Salmon compatibility flags stop the scripts before index construction |
 | `RNASEQ_DOWNLOAD_STEP` | `download` | `download_final.sh` per project |
 | `RNASEQ_METADATA_STEP` | `metadata` | `run_metaqc.sh`, `run_parse.sh`, `run_merge.sh` |
 | `RNASEQ_QC_PLAN` | compatibility adapter | Calls unchanged `generate_qc_plan.py` and annotates its Nextflow-owned copy with `TRIM_QUALITY`/`TRIM_LENGTH` from the legacy config |
@@ -22,8 +22,11 @@ level orchestrator with one `--step` and forces local execution.
 | `RNASEQ_ALIGNMENT_PLAN` | compatibility adapter | Sources the legacy config and invokes unchanged `generate_star_plan.py`; no scientific command is copied into Nextflow |
 | `REFERENCE_INDEX` / `STAR_INDEX` | native index API/provider | Replaces STAR `genomeGenerate` in `star_index_gtf.sh` with the same parameters and resources |
 | `ALIGNMENT` / `STAR_ALIGN` | native alignment API/provider | Replaces `run_star_quant_project.sh` / `star_quant_array_task.sh` with one task per sample and preserves every STAR filename |
-| `RNASEQ_ALIGNMENT_STEP` | `salmon` or legacy fallback | Salmon remains wrapped; when `rnaseq_native_alignment=false`, STAR also follows the unchanged legacy path |
-| `RNASEQ_QUANTIFICATION_STEP` | `tximport` | `quantification_job.sh`, `run_quantification.sh`, `txtimport_quant.R` or `import_star_counts.py` |
+| `RNASEQ_QUANTIFICATION_PLAN` | compatibility adapter | Sources the legacy config and invokes unchanged `generate_salmon_plan.py`; emits generic Quantification API inputs |
+| `TRANSCRIPTOME_INDEX` / `SALMON_INDEX` | native index API/provider | Replaces scientific execution in `salmon_index.sh` with the same transcriptome, k-mer, threads, resources, and filenames |
+| `QUANTIFICATION` / `SALMON_QUANT` | native quantification API/provider | Replaces `run_alignment_project.sh` / `salmon_quant_plan.sh` with one task per sample and preserves the complete Salmon directory |
+| `RNASEQ_ANALYSIS_FALLBACK_STEP` | `salmon` fallback | Used only when the provider selected by `QUANT_METHOD` has its native flag disabled in `config` mode |
+| `RNASEQ_IMPORT_STEP` | `tximport` | Unchanged `quantification_job.sh`, `run_quantification.sh`, `txtimport_quant.R` or `import_star_counts.py` |
 | `RNASEQ_BATCH_STEP` | `batch` | `batch_correction_job.sh`, `run_batch_correction.sh`, `apply_batch_correction.py`; skipped when `RUN_BATCH_CORRECTION=0` |
 | `RNASEQ_DEG_STEP` | `deg` | `run_deg_analysis_slurm.sh` in local mode, `generate_deg_plan.py`, `deseq2_plan_job.sh`, `deseq2_analysis.R` |
 | `RNASEQ_REPORT_STEP` | `report` | `gene_report_job.sh`, `gene_set_report.R`; skipped when `RUN_GENE_REPORT=0` |
