@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-if [[ "$#" -ne 6 ]]; then
-    echo "Usage: run_legacy_step.sh PIPELINE STEP LEGACY_ROOT CONFIG LOG DONE" >&2
+if [[ "$#" -ne 7 ]]; then
+    echo "Usage: run_legacy_step.sh PIPELINE STEP LEGACY_ROOT CONFIG LOG DONE DRY_RUN" >&2
     exit 2
 fi
 
@@ -13,6 +13,7 @@ legacy_root="$3"
 config_file="$4"
 log_file="$5"
 done_file="$6"
+dry_run="$7"
 
 [[ -d "$legacy_root" ]] || { echo "Legacy root not found: $legacy_root" >&2; exit 2; }
 [[ -f "$config_file" ]] || { echo "Legacy config not found: $config_file" >&2; exit 2; }
@@ -35,6 +36,10 @@ case "$pipeline" in
         exit 2
         ;;
 esac
+
+if [[ "$dry_run" == "true" ]]; then
+    command+=(--dry-run)
+fi
 
 [[ -f "$orchestrator" ]] || { echo "Legacy orchestrator not found: $orchestrator" >&2; exit 2; }
 
@@ -67,4 +72,3 @@ fi
 
 printf '{"pipeline":"%s","step":"%s","status":"complete","scheduler":"nextflow"}\n' \
     "$pipeline" "$step" > "$done_file"
-

@@ -9,7 +9,7 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
     qc_status
 
     main:
-    no_dep = Channel.value('none')
+    no_dep = channel.value('none')
 
     // The legacy "salmon" coarse step chooses Salmon or STAR from
     // QUANT_METHOD in pipeline_config.sh.
@@ -26,4 +26,3 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
     status = RNASEQ_QUANTIFICATION_STEP.out.status
     logs   = RNASEQ_ALIGNMENT_STEP.out.log.mix(RNASEQ_QUANTIFICATION_STEP.out.log)
 }
-

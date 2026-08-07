@@ -14,7 +14,7 @@ workflow CHIPSEQ_PEAK_ANALYSIS {
     bam_qc_status
 
     main:
-    no_dep = Channel.value('none')
+    no_dep = channel.value('none')
 
     CHIPSEQ_PEAK_CALLING_STEP(
         'chipseq', 'peaks', 'high_cpu', config_file, legacy_root,
@@ -52,4 +52,3 @@ workflow CHIPSEQ_PEAK_ANALYSIS {
         .mix(CHIPSEQ_TRACKS_STEP.out.log)
         .mix(CHIPSEQ_REPORT_STEP.out.log)
 }
-

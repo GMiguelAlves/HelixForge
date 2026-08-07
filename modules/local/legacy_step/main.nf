@@ -42,9 +42,10 @@ process LEGACY_STEP {
         "${pipeline}" \
         "${step}" \
         "${legacy_root}" \
-        "${config_file}" \
+        "\$PWD/${config_file}" \
         "${log_name}" \
-        "${done_name}"
+        "${done_name}" \
+        "${params.legacy_dry_run}"
     """
 
     stub:

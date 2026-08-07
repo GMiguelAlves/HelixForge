@@ -12,7 +12,7 @@ workflow CHIPSEQ_QC_ALIGNMENT {
     seed
 
     main:
-    no_dep = Channel.value('none')
+    no_dep = channel.value('none')
 
     CHIPSEQ_QC_STEP(
         'chipseq', 'qc', 'medium', config_file, legacy_root,
@@ -44,4 +44,3 @@ workflow CHIPSEQ_QC_ALIGNMENT {
         .mix(CHIPSEQ_FILTER_STEP.out.log)
         .mix(CHIPSEQ_BAM_QC_STEP.out.log)
 }
-

@@ -17,7 +17,7 @@ workflow INTEGRATION {
     seed
 
     main:
-    no_dep = Channel.value('none')
+    no_dep = channel.value('none')
 
     INTEGRATIVE_VALIDATE_STEP('integrative', 'validate', 'low', config_file, legacy_root, seed, no_dep, no_dep)
     INTEGRATIVE_PREPARE_STEP('integrative', 'prepare', 'medium', config_file, legacy_root, INTEGRATIVE_VALIDATE_STEP.out.status, no_dep, no_dep)
@@ -61,4 +61,3 @@ workflow INTEGRATION {
         .mix(INTEGRATIVE_FUNCTIONAL_STEP.out.log)
         .mix(INTEGRATIVE_REPORT_STEP.out.log)
 }
-

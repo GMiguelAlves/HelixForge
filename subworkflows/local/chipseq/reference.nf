@@ -7,7 +7,7 @@ workflow CHIPSEQ_REFERENCE {
     seed
 
     main:
-    no_dep = Channel.value('none')
+    no_dep = channel.value('none')
     CHIPSEQ_REFERENCE_STEP(
         'chipseq', 'reference', 'high_memory', config_file, legacy_root,
         seed, no_dep, no_dep
@@ -17,4 +17,3 @@ workflow CHIPSEQ_REFERENCE {
     status = CHIPSEQ_REFERENCE_STEP.out.status
     logs   = CHIPSEQ_REFERENCE_STEP.out.log
 }
-

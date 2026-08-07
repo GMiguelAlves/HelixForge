@@ -7,7 +7,7 @@ workflow RNASEQ_REFERENCE {
     seed
 
     main:
-    no_dep = Channel.value('none')
+    no_dep = channel.value('none')
     RNASEQ_REFERENCE_STEP(
         'rnaseq', 'reference', 'high_memory', config_file, legacy_root,
         seed, no_dep, no_dep
@@ -17,4 +17,3 @@ workflow RNASEQ_REFERENCE {
     status = RNASEQ_REFERENCE_STEP.out.status
     logs   = RNASEQ_REFERENCE_STEP.out.log
 }
-

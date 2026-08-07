@@ -9,7 +9,7 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
     quantification_status
 
     main:
-    no_dep = Channel.value('none')
+    no_dep = channel.value('none')
 
     // batch and report are skipped by the compatibility wrapper when their
     // existing RUN_* flags are disabled in pipeline_config.sh.
@@ -32,4 +32,3 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
         .mix(RNASEQ_DEG_STEP.out.log)
         .mix(RNASEQ_REPORT_STEP.out.log)
 }
-

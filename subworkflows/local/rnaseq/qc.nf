@@ -9,7 +9,7 @@ workflow RNASEQ_QC {
     seed
 
     main:
-    no_dep = Channel.value('none')
+    no_dep = channel.value('none')
 
     RNASEQ_DOWNLOAD_STEP(
         'rnaseq', 'download', 'medium', config_file, legacy_root,
@@ -32,4 +32,3 @@ workflow RNASEQ_QC {
         .mix(RNASEQ_METADATA_STEP.out.log)
         .mix(RNASEQ_QC_STEP.out.log)
 }
-

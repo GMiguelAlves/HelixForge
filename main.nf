@@ -7,23 +7,17 @@ include { ALL }        from './workflows/all'
 
 workflow {
     def selected = params.workflow.toString().toLowerCase()
-    def seed = Channel.value('omicsflow-start')
+    def seed = channel.value('omicsflow-start')
 
-    switch (selected) {
-        case 'rnaseq':
-            RNASEQ(seed)
-            break
-        case 'chipseq':
-            CHIPSEQ(seed)
-            break
-        case 'integrative':
-            INTEGRATIVE(seed)
-            break
-        case 'all':
-            ALL(seed)
-            break
-        default:
-            error "Unknown workflow '${params.workflow}'. Use rnaseq, chipseq, integrative, or all."
+    if (selected == 'rnaseq') {
+        RNASEQ(seed)
+    } else if (selected == 'chipseq') {
+        CHIPSEQ(seed)
+    } else if (selected == 'integrative') {
+        INTEGRATIVE(seed)
+    } else if (selected == 'all') {
+        ALL(seed)
+    } else {
+        error "Unknown workflow '${params.workflow}'. Use rnaseq, chipseq, integrative, or all."
     }
 }
-
