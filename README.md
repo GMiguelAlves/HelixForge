@@ -5,9 +5,12 @@ RNA-seq, ChIP-seq, and IntegrateSeq pipelines. The scientific Bash, Python, and
 R implementations are preserved under `pipelines/*/legacy` and remain directly
 executable.
 
-RNA-seq run-level trimming is the first hybrid stage: Trim Galore is a native
-per-run process while the remaining tools retain their legacy wrappers. The
-same tool, command options, filenames, and result directories are preserved.
+The RNA-seq QC layer is native: FastQC before trimming, Trim Galore, FastQC
+after trimming, per-sample FASTQ merge, merged-read FastQC, and MultiQC are
+separate DSL2 processes. Download and metadata preparation remain wrappers,
+and STAR, Salmon, tximport, DESeq2, batch correction, and final reports remain
+unchanged behind compatibility wrappers. Existing filenames and result
+directories are preserved.
 
 ## Workflows
 
@@ -42,6 +45,7 @@ before a real run.
 
 See [docs/nextflow.md](docs/nextflow.md),
 [docs/native-trim-galore.md](docs/native-trim-galore.md),
+[docs/native-rnaseq-qc.md](docs/native-rnaseq-qc.md),
 [docs/module_contracts.md](docs/module_contracts.md),
 [docs/script-mapping.md](docs/script-mapping.md), and
 [docs/limitations.md](docs/limitations.md).

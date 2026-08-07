@@ -12,8 +12,13 @@ level orchestrator with one `--step` and forces local execution.
 | `RNASEQ_DOWNLOAD_STEP` | `download` | `download_final.sh` per project |
 | `RNASEQ_METADATA_STEP` | `metadata` | `run_metaqc.sh`, `run_parse.sh`, `run_merge.sh` |
 | `RNASEQ_QC_PLAN` | compatibility adapter | Calls unchanged `generate_qc_plan.py` and annotates its Nextflow-owned copy with `TRIM_QUALITY`/`TRIM_LENGTH` from the legacy config |
+| `FASTQC_RAW` | native per-FASTQ process | Replaces `fastqc_raw_plan.sh`; invokes the same FastQC command and writes to `fastqc_raw` |
 | `TRIM_GALORE` | native per-run process | Executes the same `trim_galore --paired --quality --length --cores --output_dir` command previously in `trim_runs_plan.sh` |
-| `RNASEQ_QC_STEP` | `qc` | `run_qc_project.sh`; FastQC, merge, merged FastQC, and MultiQC remain legacy. `trim_runs_plan.sh` observes native outputs and returns `[SKIP]` |
+| `FASTQC_TRIMMED` | native per-FASTQ process | Replaces `fastqc_trimmed_runs_plan.sh` and writes to `fastqc_trimmed_runs` |
+| `MERGE_FASTQ` | native per-sample process | Replaces `merge_samples_plan.sh` / `merge_sample_from_plan.py`; concatenates ordered gzip members without recompression |
+| `FASTQC_MERGED` | native per-FASTQ process | Replaces `fastqc_merged_plan.sh` and writes to `fastqc_merged` |
+| `MULTIQC` | native reusable process | Replaces `multiqc_plan.sh`; consumes generic compatible artifacts and writes the same named report under `multiqc_030` |
+| `RNASEQ_QC_STEP` | legacy fallback only | Runs the unchanged complete `qc` step when `rnaseq_native_qc=false` |
 | `RNASEQ_ALIGNMENT_STEP` | `salmon` | `run_alignment_project.sh` or `run_star_quant_project.sh`; their plan generators and array-task scripts execute sequentially in local mode |
 | `RNASEQ_QUANTIFICATION_STEP` | `tximport` | `quantification_job.sh`, `run_quantification.sh`, `txtimport_quant.R` or `import_star_counts.py` |
 | `RNASEQ_BATCH_STEP` | `batch` | `batch_correction_job.sh`, `run_batch_correction.sh`, `apply_batch_correction.py`; skipped when `RUN_BATCH_CORRECTION=0` |

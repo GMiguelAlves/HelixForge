@@ -24,3 +24,16 @@ bash tests/native_trim_galore/run_comparison.sh
 The comparison checks decompressed FASTQ SHA-256 values, read counts, trimming
 reports, and writes a small elapsed-time benchmark. It requires Docker access
 to `quay.io`.
+
+## Native RNA-seq QC
+
+Run the two-run integration and regression fixture:
+
+```bash
+bash tests/native_qc/run_mock_regression.sh
+```
+
+It executes the legacy command sequence and the native Nextflow QC graph with
+the same deterministic mock tools. It compares byte-level merged FASTQs,
+FastQC reports, and the MultiQC data table, then writes `comparison.tsv` and
+`benchmark.tsv` under `results/test/native-qc-regression/`.

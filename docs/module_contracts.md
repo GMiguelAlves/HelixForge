@@ -6,10 +6,8 @@ does not force unrelated scientific tools to produce the same file types.
 
 Contract version: `1.0`
 
-This contract applies immediately to FastQC, FASTQ merge, MultiQC, and every
-later native module. The existing Trim Galore module predates version 1.0; its
-channel names and `meta.id` will be aligned during QC integration without
-changing its command, parameters, or scientific outputs.
+This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
+later native module.
 
 ## Module layout
 
