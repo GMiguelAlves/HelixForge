@@ -5,4 +5,5 @@ work/
 results/
 benchmark/reports/*
 !benchmark/reports/.gitkeep
-
+__pycache__/
+*.py[cod]
