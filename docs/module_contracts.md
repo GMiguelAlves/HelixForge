@@ -4,7 +4,7 @@ This document defines the interface required for every new native Nextflow DSL2
 module in OmicsFlow. The contract standardizes orchestration and provenance; it
 does not force unrelated scientific tools to produce the same file types.
 
-Contract version: `1.0`
+Contract version: `1.1`
 
 This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
 later native module.
@@ -16,7 +16,10 @@ Each module must live under `modules/local/<tool>/` and contain:
 ```text
 modules/local/<tool>/
 ├── main.nf
-└── environment.yml
+├── environment.yml
+├── meta.yml
+├── README.md
+└── tests/
 ```
 
 The process name must be uppercase and unambiguous. Scientific logic must remain
@@ -196,3 +199,13 @@ Before a module is accepted, confirm:
 
 Changes to this contract require a documented contract-version increment and a
 migration note for existing native modules.
+
+## Domain contracts
+
+Modules may participate in a stricter domain API in addition to this common
+envelope. Domain APIs must define stable semantic roles independently from a
+specific tool. The Alignment API is defined in `docs/alignment_api.md`.
+
+Contract 1.1 adds `meta.yml`, module-local documentation, tests, and formal
+domain contracts. Existing QC modules remain valid under 1.0 and can adopt the
+additional layout incrementally; all modules created after 1.1 must use it.

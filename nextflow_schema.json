@@ -16,6 +16,11 @@
       "default": true,
       "description": "Run the RNA-seq quality-control layer as native Nextflow processes."
     },
+    "rnaseq_native_alignment": {
+      "type": "boolean",
+      "default": true,
+      "description": "Use the generic Alignment API with native STAR when QUANT_METHOD=star."
+    },
     "rnaseq_native_trim_galore": {
       "type": "boolean",
       "default": true,
@@ -37,6 +42,16 @@
       "type": "string",
       "default": "quay.io/biocontainers/multiqc:1.17--pyhdfd78af_1"
     },
+    "star_container": {
+      "type": "string",
+      "default": "community.wave.seqera.io/library/htslib_samtools_star_gawk:ae438e9a604351a4"
+    },
+    "star_apptainer_container": {
+      "type": "string",
+      "default": "https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/26/268b4c9c6cbf8fa6606c9b7fd4fafce18bf2c931d1a809a0ce51b105ec06c89d/data"
+    },
+    "star_index_queue": { "type": ["string", "null"], "default": null },
+    "star_align_queue": { "type": ["string", "null"], "default": null },
     "rnaseq_config": { "type": "string" },
     "chipseq_config": { "type": "string" },
     "integrative_config": { "type": "string" }

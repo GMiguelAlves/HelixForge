@@ -60,10 +60,17 @@ else
     export PROJECT_DIR="$legacy_root"
     export PIPELINE_CONFIG="$config_file"
     export PIPELINE_EXECUTOR=local
-    export RUN_MODE=local
-    export SKIP_SLURM_CHECK=true
+export RUN_MODE=local
+export SKIP_SLURM_CHECK=true
 
-    set +e
+if [[ "$pipeline" == "rnaseq" && "$step" == "reference" && "${OMICSFLOW_NATIVE_STAR_ALIGNMENT:-false}" == "true" ]]; then
+    quant_method="$({ PROJECT_DIR="$legacy_root" PIPELINE_EXECUTOR=local bash -c 'source "$1"; printf "%s" "${QUANT_METHOD:-salmon}"' _ "$config_file"; })"
+    if [[ "$quant_method" == "star" ]]; then
+        export OMICSFLOW_PREPARE_REFERENCE_ONLY=true
+    fi
+fi
+
+set +e
     "${command[@]}" 2>&1 | tee -a "$log_file"
     command_status=${PIPESTATUS[0]}
     set -e

@@ -17,7 +17,8 @@ workflow RNASEQ {
         config_file,
         legacy_root,
         RNASEQ_REFERENCE.out.status,
-        RNASEQ_QC.out.status
+        RNASEQ_QC.out.status,
+        RNASEQ_QC.out.plans
     )
     RNASEQ_DIFFERENTIAL_EXPRESSION(
         config_file,
@@ -32,4 +33,3 @@ workflow RNASEQ {
         .mix(RNASEQ_ALIGNMENT_QUANTIFICATION.out.logs)
         .mix(RNASEQ_DIFFERENTIAL_EXPRESSION.out.logs)
 }
-

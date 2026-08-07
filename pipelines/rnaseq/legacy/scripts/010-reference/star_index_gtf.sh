@@ -53,6 +53,11 @@ if [[ ! -s "$REF_GTF" ]]; then
     fi
 fi
 
+if [[ "${OMICSFLOW_PREPARE_REFERENCE_ONLY:-false}" == "true" ]]; then
+    echo "[OK] FASTA/GTF preparados; construcao do indice delegada ao Nextflow."
+    exit 0
+fi
+
 echo "[INFO] Criando indice STAR com GTF para ${ORGANISM_NAME}"
 STAR --runMode genomeGenerate \
   --runThreadN "${SLURM_CPUS_PER_TASK:-$THREADS}" \
