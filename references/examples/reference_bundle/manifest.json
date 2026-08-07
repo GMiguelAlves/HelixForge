@@ -1,0 +1,19 @@
+{
+  "reference_bundle_version": "1",
+  "reference_id": "example-reference",
+  "organism": "Example organism",
+  "assembly": "example-v1",
+  "files": {
+    "genome": "genome.fa.gz",
+    "annotation": "annotation.gtf.gz",
+    "transcripts": "transcripts.fa.gz",
+    "chrom_sizes": "chrom.sizes",
+    "blacklist": "blacklist.bed"
+  },
+  "indexes": {
+    "star": "indexes/star",
+    "salmon": "indexes/salmon",
+    "bowtie2": "indexes/bowtie2"
+  }
+}
+

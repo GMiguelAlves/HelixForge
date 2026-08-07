@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omicsflow.dev/schemas/nextflow-params.json",
+  "title": "OmicsFlow parameters",
+  "type": "object",
+  "properties": {
+    "workflow": {
+      "type": "string",
+      "enum": ["rnaseq", "chipseq", "integrative", "all"],
+      "default": "all"
+    },
+    "outdir": { "type": "string" },
+    "legacy_dry_run": { "type": "boolean", "default": false },
+    "rnaseq_config": { "type": "string" },
+    "chipseq_config": { "type": "string" },
+    "integrative_config": { "type": "string" }
+  },
+  "required": ["workflow"]
+}
+

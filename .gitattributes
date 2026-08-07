@@ -1,0 +1,9 @@
+*.sh text eol=lf
+*.nf text eol=lf
+*.config text eol=lf
+*.py text eol=lf
+*.R text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.tsv text eol=lf
+

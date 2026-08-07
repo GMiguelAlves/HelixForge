@@ -1,0 +1,5 @@
+{
+  "workflow": "rnaseq",
+  "config": "config/pipeline_config.sh"
+}
+
