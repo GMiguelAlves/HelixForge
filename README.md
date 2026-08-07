@@ -42,5 +42,6 @@ before a real run.
 
 See [docs/nextflow.md](docs/nextflow.md),
 [docs/native-trim-galore.md](docs/native-trim-galore.md),
+[docs/module_contracts.md](docs/module_contracts.md),
 [docs/script-mapping.md](docs/script-mapping.md), and
 [docs/limitations.md](docs/limitations.md).
