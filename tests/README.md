@@ -56,6 +56,33 @@ Validate cache reuse and parameter/read invalidation:
 bash tests/native_alignment/run_cache_tests.sh
 ```
 
+## Native Quantification API / Salmon
+
+Validate the channel and output contract without scientific software:
+
+```bash
+bash tests/native_quantification/run_stub.sh
+```
+
+Run Salmon 1.10.3 through the unchanged legacy command and the native API,
+then compare `quant.sf`, JSON metadata, `aux_info`, logs, and mapping statistics:
+
+```bash
+bash tests/native_quantification/run_regression.sh
+```
+
+Validate deep-cache reuse and invalidation by parameter, FASTQ, and
+transcriptome content:
+
+```bash
+bash tests/native_quantification/run_cache_tests.sh
+```
+
+The regression writes `comparison.tsv` and `benchmark.tsv` under
+`results/test/native-quantification-regression/`. The fragment-length
+distribution is compared semantically because Salmon samples that distribution
+stochastically even when the command and inputs are identical.
+
 Set `NEXTFLOW_BIN` or `NEXTFLOW_JAR` when Nextflow is not on `PATH`. Cache
 validation is pinned to the tested official Nextflow 26.04.2 runtime; Docker
 must be available.

@@ -87,8 +87,10 @@ The development host has no Docker executable, so the complete real-tool
 comparison was not run here. The versioned regression harness is ready for a
 Linux/HPC runner with the pinned tools or containers.
 
-## Alignment status
+## Downstream status
 
-The next stage is now implemented for STAR through the generic Alignment API.
-Salmon remains wrapped. See [native-rnaseq-alignment.md](native-rnaseq-alignment.md)
-for the contract, regression, benchmark, and quantification migration plan.
+STAR now implements the generic Alignment API and Salmon implements the
+independent Quantification API. See
+[native-rnaseq-alignment.md](native-rnaseq-alignment.md) and
+[native-rnaseq-quantification.md](native-rnaseq-quantification.md) for their
+contracts, regressions, and benchmarks.

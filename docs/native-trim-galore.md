@@ -2,9 +2,10 @@
 
 ## Scope
 
-Only RNA-seq run-level Trim Galore is native. Reference preparation, download,
-metadata parsing, FastQC, sample merge, MultiQC, STAR, Salmon, tximport, batch
-correction, DESeq2, and reporting remain behind existing scripts.
+This document records the first incremental migration, when only run-level
+Trim Galore was native. The current workflow also has native FastQC, FASTQ
+merge, MultiQC, STAR, and Salmon modules. Download, metadata parsing, tximport,
+batch correction, DESeq2, and reporting remain behind existing scripts.
 
 The legacy `pipeline_config.sh` is authoritative. The native process consumes
 the unchanged values of `TRIM_QUALITY`, `TRIM_LENGTH`, `SCRATCH_ROOT`, project
@@ -18,17 +19,16 @@ flowchart LR
     D["Legacy download"] --> P["Legacy metadata parser"]
     D --> QP["QC plan adapter"]
     P --> QP
+    QP --> FR["Native raw FastQC"]
     QP --> TG["Native Trim Galore per run"]
-    TG --> QC["Legacy QC coordinator"]
-    QC --> FR["Legacy raw FastQC"]
-    QC --> SKIP["Legacy trim script: SKIP"]
-    QC --> FT["Legacy trimmed FastQC"]
-    QC --> M["Legacy sample merge"]
-    M --> FM["Legacy merged FastQC"]
-    FR --> MQ["Legacy MultiQC"]
+    TG --> FT["Native trimmed FastQC"]
+    TG --> M["Native sample merge"]
+    M --> FM["Native merged FastQC"]
+    FR --> MQ["Native MultiQC"]
     FT --> MQ
     FM --> MQ
-    MQ --> A["Legacy STAR or Salmon wrapper"]
+    M --> A["Alignment API / STAR"]
+    M --> Q["Quantification API / Salmon"]
 ```
 
 ## Compatibility contract

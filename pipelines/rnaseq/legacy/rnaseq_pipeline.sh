@@ -261,7 +261,7 @@ BATCH_JOB=""
 DEG_JOB=""
 
 if has_step reference; then
-  if [[ "${RUN_SALMON_INDEX}" == "1" ]]; then
+  if [[ "${RUN_SALMON_INDEX}" == "1" || "${OMICSFLOW_PREPARE_TRANSCRIPTOME_ONLY:-false}" == "true" ]]; then
     submit_or_print --chdir="${REF_DIR}" --export="${config_export}" "${REF_SCRIPTS_DIR}/salmon_index.sh"
     REF_JOBS+=("${SUBMITTED_JOB_ID}")
   fi
@@ -269,7 +269,7 @@ if has_step reference; then
     submit_or_print --chdir="${REF_DIR}" --export="${config_export}" "${REF_SCRIPTS_DIR}/star_index.sh"
     REF_JOBS+=("${SUBMITTED_JOB_ID}")
   fi
-  if [[ "${RUN_STAR_GTF_INDEX}" == "1" ]]; then
+  if [[ "${RUN_STAR_GTF_INDEX}" == "1" || "${OMICSFLOW_PREPARE_REFERENCE_ONLY:-false}" == "true" ]]; then
     submit_or_print --chdir="${REF_DIR}" --export="${config_export}" "${REF_SCRIPTS_DIR}/star_index_gtf.sh"
     REF_JOBS+=("${SUBMITTED_JOB_ID}")
   fi

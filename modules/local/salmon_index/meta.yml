@@ -1,0 +1,22 @@
+name: salmon_index
+description: Build a Salmon transcriptome index through the OmicsFlow Quantification API.
+keywords: [index, quantification, rna-seq, salmon, transcriptome]
+tools:
+  - salmon:
+      description: Highly accurate and fast transcript-level quantification
+      homepage: https://combine-lab.github.io/salmon/
+      doi: 10.1038/nmeth.4197
+      licence: [GPL-3.0-or-later]
+input:
+  - meta: {type: map, required: true}
+  - transcriptome: {type: file, required: true}
+  - index_params: {type: map, required: true}
+output:
+  - artifacts: {type: directory, pattern: salmon_index}
+  - reports: {type: directory, pattern: '*.salmon_index_reports'}
+  - versions: {type: file, pattern: '*.versions.yml'}
+  - execution_metadata: {type: file, pattern: '*.execution.json'}
+  - manifest: {type: file, pattern: '*.manifest.json'}
+  - status: {type: file, pattern: '*.salmon_index.done'}
+authors:
+  - OmicsFlow contributors

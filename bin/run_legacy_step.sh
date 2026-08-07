@@ -20,8 +20,13 @@ dry_run="$7"
 
 case "$pipeline" in
     rnaseq)
-        orchestrator="${legacy_root}/rnaseq_pipeline.sh"
-        command=(bash "$orchestrator" --config "$config_file" --step "$step" --local)
+        if [[ "$step" == "tximport" && "${OMICSFLOW_RNASEQ_ANALYSIS_MODE:-config}" == "quantification" ]]; then
+            orchestrator="${legacy_root}/scripts/050-quantification/run_quantification.sh"
+            command=(bash "$orchestrator" --all --method salmon)
+        else
+            orchestrator="${legacy_root}/rnaseq_pipeline.sh"
+            command=(bash "$orchestrator" --config "$config_file" --step "$step" --local)
+        fi
         ;;
     chipseq)
         orchestrator="${legacy_root}/chipseq_pipeline.sh"
@@ -63,10 +68,18 @@ else
 export RUN_MODE=local
 export SKIP_SLURM_CHECK=true
 
-if [[ "$pipeline" == "rnaseq" && "$step" == "reference" && "${OMICSFLOW_NATIVE_STAR_ALIGNMENT:-false}" == "true" ]]; then
+if [[ "$pipeline" == "rnaseq" && "$step" == "reference" ]]; then
     quant_method="$({ PROJECT_DIR="$legacy_root" PIPELINE_EXECUTOR=local bash -c 'source "$1"; printf "%s" "${QUANT_METHOD:-salmon}"' _ "$config_file"; })"
-    if [[ "$quant_method" == "star" ]]; then
+    analysis_mode="${OMICSFLOW_RNASEQ_ANALYSIS_MODE:-config}"
+    if [[ "${OMICSFLOW_NATIVE_STAR_ALIGNMENT:-false}" == "true" ]] && \
+       { [[ "$analysis_mode" == "alignment" || "$analysis_mode" == "both" ]] || \
+         [[ "$analysis_mode" == "config" && "$quant_method" == "star" ]]; }; then
         export OMICSFLOW_PREPARE_REFERENCE_ONLY=true
+    fi
+    if [[ "${OMICSFLOW_NATIVE_SALMON_QUANTIFICATION:-false}" == "true" ]] && \
+       { [[ "$analysis_mode" == "quantification" || "$analysis_mode" == "both" ]] || \
+         [[ "$analysis_mode" == "config" && "$quant_method" == "salmon" ]]; }; then
+        export OMICSFLOW_PREPARE_TRANSCRIPTOME_ONLY=true
     fi
 fi
 

@@ -2,8 +2,9 @@
 
 The RNA-seq STAR path now implements Alignment API 1.0. Workflows call the
 generic `REFERENCE_INDEX` and `ALIGNMENT` subworkflows; they do not call STAR
-modules directly. Salmon, tximport, DESeq2, batch correction, and final reports
-remain unchanged compatibility steps.
+modules directly. Salmon now implements the independent Quantification API;
+tximport, DESeq2, batch correction, and final reports remain compatibility
+steps.
 
 ## Legacy audit
 
@@ -50,9 +51,9 @@ flowchart TD
     TX --> DEG["DESeq2 wrapper"]
 ```
 
-When `QUANT_METHOD=salmon`, the existing Salmon alignment wrapper is selected
-and no STAR task is created. Set `--rnaseq_native_alignment false` to select
-the complete legacy alignment path.
+In the default `config` mode, STAR runs when `QUANT_METHOD=star`. Explicit
+`alignment` and `both` modes also enable STAR. The `both` mode runs STAR and
+Salmon independently from the same merged FASTQs.
 
 ## Modules and outputs
 
@@ -118,8 +119,7 @@ Existing ChIP filtering and peak-calling scripts need not change.
 
 ## Next migration
 
-Define a separate Quantification API before migrating Salmon or tximport.
-Keep transcriptome indexing separate from quantification, preserve the current
-Salmon directory and `quant.sf` contract, and let STAR gene counts and Salmon
-transcript abundance become independent providers. Only after regression
-fixtures exist for both paths should the tximport wrapper be replaced.
+The separate Quantification API and Salmon provider are now implemented. The
+next migration should split transcript-to-gene extraction from tximport,
+consume semantic quantification channels instead of directory discovery, and
+regress gene-level counts/TPM before removing the existing R wrapper.

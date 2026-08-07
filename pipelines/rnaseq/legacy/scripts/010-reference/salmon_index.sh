@@ -16,9 +16,6 @@ source "${PIPELINE_CONFIG:-${PROJECT_DIR}/config/pipeline_config.sh}"
 
 mkdir -p "$REF_DATA_DIR" "$SALMON_INDEX_DIR" "$REF_LOG_DIR"
 
-activate_rna_tools
-check_command salmon
-
 if [[ ! -s "$REF_TRANSCRIPTS_FA" ]]; then
     if [[ -n "$TRANSCRIPTS_URL" && -n "$TRANSCRIPTS_FA_GZ" ]]; then
         download_if_needed "$TRANSCRIPTS_URL" "${REF_DATA_DIR}/${TRANSCRIPTS_FA_GZ}"
@@ -28,6 +25,14 @@ if [[ ! -s "$REF_TRANSCRIPTS_FA" ]]; then
         exit 1
     fi
 fi
+
+if [[ "${OMICSFLOW_PREPARE_TRANSCRIPTOME_ONLY:-false}" == "true" ]]; then
+    echo "[OK] Transcriptoma preparado para indexacao nativa do Salmon: $REF_TRANSCRIPTS_FA"
+    exit 0
+fi
+
+activate_rna_tools
+check_command salmon
 
 echo "[INFO] Criando indice Salmon para ${ORGANISM_NAME}"
 echo "[INFO] Transcritos: $REF_TRANSCRIPTS_FA"
