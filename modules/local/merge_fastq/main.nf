@@ -71,6 +71,11 @@ process MERGE_FASTQ {
     """
     printf '@stub/1\nACGT\n+\nIIII\n' | gzip -c > '${meta.output_r1_name}'
     printf '@stub/2\nTGCA\n+\nIIII\n' | gzip -c > '${meta.output_r2_name}'
+    if [[ -n '${meta.target_dir ?: ''}' ]]; then
+        mkdir -p '${meta.target_dir ?: ''}'
+        cp '${meta.output_r1_name}' '${meta.output_r1}'
+        cp '${meta.output_r2_name}' '${meta.output_r2}'
+    fi
     printf 'role\tpath\tsha256\noutput_r1\t%s\tstub\noutput_r2\t%s\tstub\n' \
         '${meta.output_r1_name}' '${meta.output_r2_name}' > '${meta.id}.merge.tsv'
     printf '"MERGE_FASTQ":\n    coreutils: stub\n' > '${meta.id}.versions.yml'
