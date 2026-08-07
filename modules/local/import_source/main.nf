@@ -29,7 +29,7 @@ process IMPORT_SOURCE {
     def provider = meta.provider
     def targetRoot = meta.target_dir ?: ''
     """
-    python '${moduleDir}/bin/validate_source.py' \
+    import_validate_source.py \
         --manifest '${provider_manifest}' \
         --artifact '${provider_artifact}' \
         --role '${role}' \
@@ -38,7 +38,7 @@ process IMPORT_SOURCE {
         --target-root '${targetRoot}' \
         --output '${meta.id}.import_source' \
         > '${meta.id}.source_validation.json'
-    printf '"%s":\n    python: "%s"\n' '${task.process}' "\$(python --version 2>&1 | awk '{print \$2}')" \
+    printf '"%s":\n    python: "%s"\n' '${task.process}' "\$(python3 --version 2>&1 | awk '{print \$2}')" \
         > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' \
         '${meta.id}' '${task.process}' > '${meta.id}.import_source.done'

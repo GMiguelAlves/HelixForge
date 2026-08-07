@@ -33,7 +33,7 @@ process TX2GENE_BUILD {
     script:
     """
     start_epoch=\$(date +%s)
-    Rscript '${moduleDir}/bin/tx2gene_build.R' '${annotation}' tx2gene.tsv \
+    tx2gene_build.R '${annotation}' tx2gene.tsv \
         > tx2gene_build.log 2>&1
     Rscript -e 'sessionInfo()' > sessionInfo.txt
 
@@ -57,7 +57,9 @@ process TX2GENE_BUILD {
 
     stub:
     """
-    printf 'transcript_id\tgene_id\ntx_stub\tgene_stub\n' > tx2gene.tsv
+    annotation_key=\$(sha256sum '${annotation}' | awk '{print substr(\$1,1,12)}')
+    printf 'transcript_id\tgene_id\ntx_%s\tgene_%s\n' \
+        "\$annotation_key" "\$annotation_key" > tx2gene.tsv
     printf '[STUB] tx2gene\n' > tx2gene_build.log
     printf 'stub\n' > sessionInfo.txt
     printf '"TX2GENE_BUILD":\n    r: "stub"\n    bioconductor: "stub"\n    rtracklayer: "stub"\n' > versions.yml

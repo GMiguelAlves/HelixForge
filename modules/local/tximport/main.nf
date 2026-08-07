@@ -40,10 +40,10 @@ process TXIMPORT {
         path('summarized_experiment.rds'), path('quant_samples.tsv'), emit: artifacts
 
     script:
-    def sourceArgs = sources.collect { "'${it}'" }.join(' ')
+    def sourceArgs = sources.collect { source -> "'${source}'" }.join(' ')
     """
     start_epoch=\$(date +%s)
-    Rscript '${moduleDir}/bin/tximport_quant.R' \
+    tximport_quant.R \
         --sample-table '${sample_table}' \
         --tx2gene '${tx2gene}' \
         --counts-name counts_matrix.tsv \
@@ -63,9 +63,15 @@ process TXIMPORT {
     sources_sha=\$(find ${sourceArgs} -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print \$1}')
     sample_count=\$(awk 'END {print NR-1}' quant_samples.tsv)
     end_epoch=\$(date +%s)
+    r_version=\$(Rscript -e 'cat(as.character(getRversion()))')
+    tximport_version=\$(Rscript -e 'cat(as.character(packageVersion("tximport")))')
+    summarized_experiment_version=\$(Rscript -e 'cat(as.character(packageVersion("SummarizedExperiment")))')
+    readr_version=\$(Rscript -e 'cat(as.character(packageVersion("readr")))')
+    data_table_version=\$(Rscript -e 'cat(as.character(packageVersion("data.table")))')
 
-    NF_PROCESS='${task.process}' Rscript -e 'pkgs <- c("tximport","SummarizedExperiment","readr","data.table"); v <- vapply(pkgs, function(x) if (requireNamespace(x, quietly=TRUE)) as.character(packageVersion(x)) else "not-installed", ""); cat(sprintf("\"%s\":\n    r: \"%s\"\n    bioconductor: \"3.18\"\n%s", Sys.getenv("NF_PROCESS"), getRversion(), paste(sprintf("    %s: \"%s\"\n", names(v), v), collapse="")))' \
-        > versions.yml
+    printf '"%s":\n    r: "%s"\n    bioconductor: "3.18"\n    tximport: "%s"\n    SummarizedExperiment: "%s"\n    readr: "%s"\n    data.table: "%s"\n' \
+        '${task.process}' "\$r_version" "\$tximport_version" "\$summarized_experiment_version" \
+        "\$readr_version" "\$data_table_version" > versions.yml
     printf '{"id":"%s","process":"%s","parameters":{"type":"salmon","countsFromAbundance":"no","ignoreTxVersion":true,"ignoreAfterBar":true},"cpus":%s,"memory_bytes":%s,"time":"%s","container":"%s","sources_sha256":"%s","tx2gene_sha256":"%s","started_epoch":%s,"ended_epoch":%s,"elapsed_seconds":%s}\n' \
         '${meta.id}' '${task.process}' '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         '${params.tximport_container}' "\$sources_sha" "\$tx2gene_sha" "\$start_epoch" "\$end_epoch" \

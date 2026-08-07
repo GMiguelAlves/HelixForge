@@ -36,10 +36,10 @@ process STAR_IMPORT {
     tuple val(meta), path('counts_matrix.tsv'), path('star_cpm_matrix.tsv'), path('quant_samples.tsv'), emit: artifacts
 
     script:
-    def sourceArgs = sources.collect { "'${it}'" }.join(' ')
+    def sourceArgs = sources.collect { source -> "'${source}'" }.join(' ')
     """
     start_epoch=\$(date +%s)
-    python '${moduleDir}/bin/star_import.py' \
+    import_star_counts.py \
         --sample-table '${sample_table}' \
         --count-column '${import_params.star_count_column}' \
         --counts-name counts_matrix.tsv \
@@ -53,7 +53,7 @@ process STAR_IMPORT {
     sources_sha=\$(find ${sourceArgs} -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print \$1}')
     sample_count=\$(awk 'END {print NR-1}' quant_samples.tsv)
     end_epoch=\$(date +%s)
-    python_version=\$(python --version 2>&1 | awk '{print \$2}')
+    python_version=\$(python3 --version 2>&1 | awk '{print \$2}')
 
     printf '"%s":\n    python: "%s"\n' '${task.process}' "\$python_version" > versions.yml
     printf '{"id":"%s","process":"%s","parameters":{"star_count_column":"%s"},"cpus":%s,"memory_bytes":%s,"time":"%s","container":"%s","sources_sha256":"%s","started_epoch":%s,"ended_epoch":%s,"elapsed_seconds":%s}\n' \

@@ -27,18 +27,18 @@ process IMPORT_SAMPLE_TABLE {
     tuple val(meta), path('import_sample_table.done'), emit: status
 
     script:
-    def sourceArgs = sources.collect { "'${it}'" }.join(' ')
+    def sourceArgs = sources.collect { source -> "'${source}'" }.join(' ')
     def projectArg = import_params.project ? "--project '${import_params.project}'" : ''
     def missingArg = import_params.allow_missing ? '--allow-missing' : ''
     """
-    python '${moduleDir}/bin/build_sample_table.py' \
+    import_build_sample_table.py \
         --metadata '${metadata}' \
         --provider '${meta.provider}' \
         --star-count-column '${import_params.star_count_column ?: 'unstranded'}' \
         ${projectArg} ${missingArg} \
         --output import_samples.tsv \
         ${sourceArgs} > sample_table_plan.json
-    printf '"%s":\n    python: "%s"\n' '${task.process}' "\$(python --version 2>&1 | awk '{print \$2}')" > versions.yml
+    printf '"%s":\n    python: "%s"\n' '${task.process}' "\$(python3 --version 2>&1 | awk '{print \$2}')" > versions.yml
     printf '{"id":"%s","process":"%s","status":"complete"}\n' \
         '${meta.id}' '${task.process}' > import_sample_table.done
     """
