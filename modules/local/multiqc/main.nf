@@ -62,6 +62,7 @@ process MULTIQC {
     """
 
     stub:
+    report_data_dir = meta.report_name.replaceFirst(/\.html$/, '') + '_data'
     """
     mkdir -p '${report_data_dir}'
     printf '<!doctype html><html><body>stub MultiQC %s</body></html>\n' \

@@ -1,6 +1,6 @@
 process TRIM_GALORE {
-    tag "${meta.dataset}:${meta.sample_id}:${meta.run_accession}"
-    label 'native_trim_galore'
+    tag "${meta.id}"
+    label 'native_module'
 
     cpus 8
     memory 24.GB
@@ -12,18 +12,18 @@ process TRIM_GALORE {
     container params.trim_galore_container
     conda "${moduleDir}/environment.yml"
 
-    publishDir "${params.outdir}/pipeline_info/native_trim_galore",
+    publishDir "${params.outdir}/pipeline_info/native_qc/trim_galore",
         mode: 'copy', overwrite: true,
-        pattern: '*.{done,log,yml}'
+        pattern: '*.{done,yml}'
 
     input:
     tuple val(meta), path(raw_r1), path(raw_r2)
 
     output:
-    tuple val(meta), path("${meta.trimmed_r1_name}"), path("${meta.trimmed_r2_name}"), emit: reads
-    tuple val(meta), path("${meta.run_accession}.trim_galore.done"), emit: status
-    path "${meta.run_accession}.trim_galore.log", emit: log
-    path "${meta.run_accession}.versions.yml", emit: versions
+    tuple val(meta), path("${meta.trimmed_r1_name}"), path("${meta.trimmed_r2_name}"), emit: artifacts
+    tuple val(meta), path("${meta.id}.trim_galore_reports"), emit: reports
+    tuple val(meta), path("${meta.id}.versions.yml"), emit: versions
+    tuple val(meta), path("${meta.id}.trim_galore.done"), emit: status
 
     script:
     def generated_r1 = raw_r1.name.replaceFirst(/\.fastq\.gz$/, '') + '_val_1.fq.gz'
@@ -31,11 +31,18 @@ process TRIM_GALORE {
     def report_r1 = raw_r1.name + '_trimming_report.txt'
     def report_r2 = raw_r2.name + '_trimming_report.txt'
     """
+    mkdir -p '${meta.id}.trim_galore_reports'
+
     if [[ -s '${meta.trimmed_r1}' && -s '${meta.trimmed_r2}' ]]; then
         echo '[SKIP] Trimmed run ja existe: ${meta.run_accession}' \
-            | tee '${meta.run_accession}.trim_galore.log'
+            | tee '${meta.id}.trim_galore.log'
         cp '${meta.trimmed_r1}' '${meta.trimmed_r1_name}'
         cp '${meta.trimmed_r2}' '${meta.trimmed_r2_name}'
+        for report in '${report_r1}' '${report_r2}'; do
+            if [[ -s '${meta.trimmed_dir}'/"\$report" ]]; then
+                cp '${meta.trimmed_dir}'/"\$report" "\$report"
+            fi
+        done
     else
         trim_galore --paired \
             --quality '${meta.trim_quality}' \
@@ -43,7 +50,7 @@ process TRIM_GALORE {
             --cores ${task.cpus} \
             --output_dir . \
             '${raw_r1}' '${raw_r2}' \
-            2>&1 | tee '${meta.run_accession}.trim_galore.log'
+            2>&1 | tee '${meta.id}.trim_galore.log'
 
         [[ -s '${generated_r1}' && -s '${generated_r2}' ]]
         mv '${generated_r1}' '${meta.trimmed_r1_name}'
@@ -64,27 +71,35 @@ process TRIM_GALORE {
         done
     fi
 
+    cp '${meta.id}.trim_galore.log' '${meta.id}.trim_galore_reports/'
+    for report in '${report_r1}' '${report_r2}'; do
+        if [[ -s "\$report" ]]; then
+            cp "\$report" '${meta.id}.trim_galore_reports/'
+        fi
+    done
+
     printf '"%s":\n    trim_galore: %s\n    cutadapt: %s\n' \
         '${task.process}' \
         "\$(trim_galore --version 2>&1 | awk 'NF { print \$NF; exit }')" \
         "\$(cutadapt --version 2>&1 | awk 'NF { print \$NF; exit }')" \
-        > '${meta.run_accession}.versions.yml'
+        > '${meta.id}.versions.yml'
 
-    printf '{"dataset":"%s","sample_id":"%s","run_accession":"%s","status":"complete"}\n' \
-        '${meta.dataset}' '${meta.sample_id}' '${meta.run_accession}' \
-        > '${meta.run_accession}.trim_galore.done'
+    printf '{"id":"%s","process":"%s","status":"complete"}\n' \
+        '${meta.id}' '${task.process}' > '${meta.id}.trim_galore.done'
     """
 
     stub:
     """
     printf '@stub/1\nACGT\n+\nIIII\n' | gzip -c > '${meta.trimmed_r1_name}'
     printf '@stub/2\nTGCA\n+\nIIII\n' | gzip -c > '${meta.trimmed_r2_name}'
+    mkdir -p '${meta.id}.trim_galore_reports'
     printf '[STUB] Trim Galore %s/%s\n' \
-        '${meta.dataset}' '${meta.run_accession}' > '${meta.run_accession}.trim_galore.log'
+        '${meta.dataset}' '${meta.run_accession}' > '${meta.id}.trim_galore_reports/${meta.id}.trim_galore.log'
+    printf '[STUB] trimming report R1\n' > '${meta.id}.trim_galore_reports/${raw_r1.name}_trimming_report.txt'
+    printf '[STUB] trimming report R2\n' > '${meta.id}.trim_galore_reports/${raw_r2.name}_trimming_report.txt'
     printf 'TRIM_GALORE:\n    trim_galore: stub\n    cutadapt: stub\n' \
-        > '${meta.run_accession}.versions.yml'
-    printf '{"dataset":"%s","sample_id":"%s","run_accession":"%s","status":"stub"}\n' \
-        '${meta.dataset}' '${meta.sample_id}' '${meta.run_accession}' \
-        > '${meta.run_accession}.trim_galore.done'
+        > '${meta.id}.versions.yml'
+    printf '{"id":"%s","process":"TRIM_GALORE","status":"stub"}\n' \
+        '${meta.id}' > '${meta.id}.trim_galore.done'
     """
 }

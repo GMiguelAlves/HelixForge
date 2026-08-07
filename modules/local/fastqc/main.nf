@@ -12,7 +12,7 @@ process FASTQC {
     container params.fastqc_container
     conda "${moduleDir}/environment.yml"
 
-    publishDir "${params.outdir}/pipeline_info/native_qc/fastqc/${meta.phase ?: 'generic'}",
+    publishDir "${params.outdir}/pipeline_info/native_qc/fastqc",
         mode: 'copy', overwrite: true,
         pattern: '*.{html,log,yml,done}'
 
@@ -62,6 +62,7 @@ process FASTQC {
     """
 
     stub:
+    prefix = input_artifact.name.replaceFirst(/\.(fastq|fq)(\.gz)?$/, '')
     """
     printf 'PK\003\004stub-fastqc\n' > '${prefix}_fastqc.zip'
     printf '<!doctype html><html><body>stub FastQC %s</body></html>\n' \
