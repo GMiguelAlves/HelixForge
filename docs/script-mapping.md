@@ -25,7 +25,7 @@ level orchestrator with one `--step` and forces local execution.
 | `RNASEQ_QUANTIFICATION_PLAN` | compatibility adapter | Sources the legacy config and invokes unchanged `generate_salmon_plan.py`; emits generic Quantification API inputs |
 | `TRANSCRIPTOME_INDEX` / `SALMON_INDEX` | native index API/provider | Replaces scientific execution in `salmon_index.sh` with the same transcriptome, k-mer, threads, resources, and filenames |
 | `QUANTIFICATION` / `SALMON_QUANT` | native quantification API/provider | Replaces `run_alignment_project.sh` / `salmon_quant_plan.sh` with one task per sample and preserves the complete Salmon directory |
-| `RNASEQ_ANALYSIS_FALLBACK_STEP` | `salmon` fallback | Used only when the provider selected by `QUANT_METHOD` has its native flag disabled in `config` mode |
+| Native provider guard | alignment/quantification boundary | The provider selected by `QUANT_METHOD` must emit a native manifest; legacy STAR/Salmon fallbacks are no longer scheduled in an Import API run |
 | `RNASEQ_IMPORT_CONTEXT` | compatibility adapter | Reads metadata, GTF, target directory, provider, and STAR count-column settings from the unchanged config; it performs no scientific import |
 | `IMPORT_SOURCE` | native manifest adapter | Validates provider, semantic role, sample identity, compatibility path, and SHA-256 before staging each upstream artifact |
 | `IMPORT_SAMPLE_TABLE` | native metadata adapter | Replaces the inline legacy sample-table assembly with deterministic, manifest-backed sample mapping |

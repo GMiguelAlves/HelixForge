@@ -1,4 +1,3 @@
-include { LEGACY_STEP as RNASEQ_ANALYSIS_FALLBACK_STEP } from '../../../modules/local/legacy_step/main'
 include { RNASEQ_ALIGNMENT_PLAN }                       from '../../../modules/local/rnaseq_alignment_plan/main'
 include { RNASEQ_QUANTIFICATION_PLAN }                  from '../../../modules/local/rnaseq_quantification_plan/main'
 include { RNASEQ_IMPORT_CONTEXT }                       from '../../../modules/local/rnaseq_import_context/main'
@@ -237,39 +236,11 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
         quantification_manifest = QUANTIFICATION.out.manifest
     }
 
-    fallback_status = channel.empty()
-    fallback_logs = channel.empty()
-    if (!native_alignment_enabled || !native_quantification_enabled) {
-        legacy_gate = channel.empty()
-        if (!native_alignment_enabled) {
-            legacy_gate = legacy_gate.mix(
-                alignment_settings_rows
-                    .filter { row -> row.enabled.toBoolean() }
-                    .map { row -> row.method }
-            )
-        }
-        if (!native_quantification_enabled) {
-            legacy_gate = legacy_gate.mix(
-                quantification_settings_rows
-                    .filter { row -> row.enabled.toBoolean() }
-                    .map { row -> row.method }
-            )
-        }
-
-        RNASEQ_ANALYSIS_FALLBACK_STEP(
-            'rnaseq', 'salmon', 'high_cpu', config_file, legacy_root,
-            reference_status, qc_status, legacy_gate
-        )
-        fallback_status = RNASEQ_ANALYSIS_FALLBACK_STEP.out.status
-        fallback_logs = RNASEQ_ANALYSIS_FALLBACK_STEP.out.log
-    }
-
     if (analysis_mode == 'alignment') {
         completion_status = provider_status
             .map { _provider, status -> status }
-            .mix(fallback_status)
             .collect()
-        completion_logs = provider_logs.mix(fallback_logs)
+        completion_logs = provider_logs
     } else {
         import_method = analysis_mode == 'quantification' \
             ? channel.value('salmon') \
@@ -363,7 +334,6 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
         IMPORT(selected_import_sources, salmon_context, star_context)
         completion_status = IMPORT.out.status.collect()
         completion_logs = provider_logs
-            .mix(fallback_logs)
             .mix(RNASEQ_IMPORT_CONTEXT.out.log)
             .mix(IMPORT.out.reports)
         imported_counts = IMPORT.out.counts
