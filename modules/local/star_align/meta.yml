@@ -1,0 +1,29 @@
+name: star_align
+description: Align reads with STAR and implement the OmicsFlow Alignment API.
+keywords: [alignment, bam, rna-seq, star]
+tools:
+  - star:
+      description: Spliced Transcripts Alignment to a Reference
+      homepage: https://github.com/alexdobin/STAR
+      doi: 10.1093/bioinformatics/bts635
+      licence: [GPL-3.0-or-later]
+  - samtools:
+      description: Utilities for SAM, BAM, and CRAM files
+      homepage: https://www.htslib.org
+      licence: [MIT]
+input:
+  - meta: {type: map, required: true}
+  - reads: {type: file, required: true}
+  - reference: {type: file, required: true}
+  - annotation: {type: file, required: true}
+  - alignment_index: {type: directory, required: true}
+  - alignment_params: {type: map, required: true}
+output:
+  - artifacts: {type: tuple, description: Coordinate-sorted BAM and BAI}
+  - reports: {type: tuple, description: STAR logs and mapping statistics}
+  - versions: {type: file, pattern: '*.versions.yml'}
+  - execution_metadata: {type: file, pattern: '*.execution.json'}
+  - manifest: {type: file, pattern: '*.manifest.json'}
+  - status: {type: file, pattern: '*.star_align.done'}
+authors:
+  - OmicsFlow contributors
