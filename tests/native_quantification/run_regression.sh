@@ -74,8 +74,12 @@ python3 "${project_root}/tests/native_quantification/compare_salmon_outputs.py" 
 
 legacy_ms=$(((end_legacy - start_legacy) / 1000000))
 native_ms=$(((end_native - start_native) / 1000000))
-printf 'implementation\telapsed_ms\nlegacy_command\t%s\nnextflow_native\t%s\n' \
-    "$legacy_ms" "$native_ms" > "${case_root}/benchmark.tsv"
+legacy_bytes=$(du -sb "${legacy_dir}/quant" | awk '{ print $1 }')
+native_bytes=$(du -sb "${native_dir}/quants/SYNTHETIC/synthetic_sample" | awk '{ print $1 }')
+printf 'implementation\telapsed_ms\toutput_bytes\ttest_threads\nlegacy_command\t%s\t%s\t1\nnextflow_native\t%s\t%s\t1\n' \
+    "$legacy_ms" "$legacy_bytes" "$native_ms" "$native_bytes" \
+    > "${case_root}/benchmark.tsv"
+cp "${nextflow_out}/execution_trace.tsv" "${case_root}/native_task_metrics.tsv"
 
 echo '[OK] Salmon legacy and native outputs are semantically equivalent.'
 echo "[OK] Comparison: ${case_root}/comparison.tsv"
