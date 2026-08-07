@@ -1,0 +1,3 @@
+sample_id	fastq_1	fastq_2	layout	assay	mark_or_factor	condition	replicate	batch	treatment	control_id	is_control	organism	genome_id
+input_rep1	input_rep1_R1.fastq	input_rep1_R2.fastq	paired	input	input	control	1	batch1	none		true	toy	toy_v1
+chip_rep1	chip_rep1_R1.fastq	chip_rep1_R2.fastq	paired	ChIP-seq	H3K27ac	treated	1	batch1	drug	input_rep1	false	toy	toy_v1

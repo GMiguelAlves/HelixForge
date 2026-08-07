@@ -1,0 +1,10 @@
+*.sh text eol=lf
+*.nf text eol=lf
+*.config text eol=lf
+*.py text eol=lf
+*.R text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.tsv text eol=lf
+tests/fixtures/trim_galore/bin/* text eol=lf
+tests/fixtures/native_qc/bin/* text eol=lf

@@ -1,0 +1,21 @@
+config/pipeline_config.local.sh
+*.pyc
+__pycache__/
+.DS_Store
+Thumbs.db
+
+# Generated pipeline outputs
+000-logs/*
+010-input-validation/*
+020-prepared-inputs/*
+030-id-harmonization/*
+040-peak-gene-mapping/*
+050-rnaseq-summary/*
+060-chipseq-summary/*
+070-integrated-tables/*
+080-candidate-scoring/*
+090-visualizations/*
+100-functional-analysis/*
+110-reports/*
+
+!.gitkeep

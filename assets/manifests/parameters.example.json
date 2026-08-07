@@ -1,0 +1,6 @@
+{
+  "workflow": "rnaseq",
+  "config": "config/pipeline_config.sh",
+  "rnaseq_native_trim_galore": true,
+  "trim_galore_container": "quay.io/biocontainers/trim-galore:0.6.10--hdfd78af_0"
+}

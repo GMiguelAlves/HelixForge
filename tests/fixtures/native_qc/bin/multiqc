@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if [[ "${1:-}" == "--version" ]]; then
+    echo "multiqc, version 1.17-test"
+    exit 0
+fi
+
+outdir=.
+report=multiqc_report.html
+inputs=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -o)
+            outdir=$2
+            shift 2
+            ;;
+        -n)
+            report=$2
+            shift 2
+            ;;
+        *)
+            inputs+=("$1")
+            shift
+            ;;
+    esac
+done
+
+data_dir="${report%.html}_data"
+mkdir -p "${outdir}/${data_dir}"
+printf '<html><body>mock MultiQC</body></html>\n' > "${outdir}/${report}"
+{
+    printf 'sample\n'
+    for input in "${inputs[@]}"; do
+        basename "$input"
+    done | sort
+} > "${outdir}/${data_dir}/multiqc_fastqc.txt"

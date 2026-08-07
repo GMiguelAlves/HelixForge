@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omicsflow.dev/schemas/nextflow-params.json",
+  "title": "OmicsFlow parameters",
+  "type": "object",
+  "properties": {
+    "workflow": {
+      "type": "string",
+      "enum": ["rnaseq", "chipseq", "integrative", "all"],
+      "default": "all"
+    },
+    "outdir": { "type": "string" },
+    "legacy_dry_run": { "type": "boolean", "default": false },
+    "rnaseq_native_qc": {
+      "type": "boolean",
+      "default": true,
+      "description": "Run the RNA-seq quality-control layer as native Nextflow processes."
+    },
+    "rnaseq_native_trim_galore": {
+      "type": "boolean",
+      "default": true,
+      "description": "Run RNA-seq run-level trimming as a native Nextflow process."
+    },
+    "trim_galore_container": {
+      "type": "string",
+      "default": "quay.io/biocontainers/trim-galore:0.6.10--hdfd78af_0"
+    },
+    "fastqc_container": {
+      "type": "string",
+      "default": "quay.io/biocontainers/fastqc:0.12.1--hdfd78af_0"
+    },
+    "merge_fastq_container": {
+      "type": "string",
+      "default": "debian:12.5-slim"
+    },
+    "multiqc_container": {
+      "type": "string",
+      "default": "quay.io/biocontainers/multiqc:1.17--pyhdfd78af_1"
+    },
+    "rnaseq_config": { "type": "string" },
+    "chipseq_config": { "type": "string" },
+    "integrative_config": { "type": "string" }
+  },
+  "required": ["workflow"]
+}

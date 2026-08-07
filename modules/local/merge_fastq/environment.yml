@@ -1,0 +1,6 @@
+name: omicsflow-merge-fastq
+channels:
+  - conda-forge
+dependencies:
+  - coreutils=9.5
+  - gzip=1.13
