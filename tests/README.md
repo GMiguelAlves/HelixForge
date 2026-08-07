@@ -37,3 +37,25 @@ It executes the legacy command sequence and the native Nextflow QC graph with
 the same deterministic mock tools. It compares byte-level merged FASTQs,
 FastQC reports, and the MultiQC data table, then writes `comparison.tsv` and
 `benchmark.tsv` under `results/test/native-qc-regression/`.
+
+## Native Alignment API / STAR
+
+Run the real legacy-versus-native regression with the same pinned container:
+
+```bash
+bash tests/native_alignment/run_regression.sh
+```
+
+It compares BAM records, BAI/idxstats, gene-count categories, flagstat, MAPQ,
+and normalized STAR logs, then writes `comparison.tsv` and `benchmark.tsv`
+under `results/test/native-alignment-regression/`.
+
+Validate cache reuse and parameter/read invalidation:
+
+```bash
+bash tests/native_alignment/run_cache_tests.sh
+```
+
+Set `NEXTFLOW_BIN` or `NEXTFLOW_JAR` when Nextflow is not on `PATH`. Cache
+validation is pinned to the tested official Nextflow 26.04.2 runtime; Docker
+must be available.

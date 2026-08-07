@@ -45,6 +45,10 @@ process RNASEQ_QC_PLAN {
             --plan "\${project}_qc_plan.csv" \
             --quality "\$TRIM_QUALITY" \
             --length "\$TRIM_LENGTH"
+        mkdir -p "\$QC_DIR/work"
+        cp "\${project}_qc_plan.csv" "\$QC_DIR/work/\${project}_qc_plan.csv.nextflow.tmp"
+        mv "\$QC_DIR/work/\${project}_qc_plan.csv.nextflow.tmp" \
+            "\$QC_DIR/work/\${project}_qc_plan.csv"
     done < <(pipeline_projects) 2>&1 | tee rnaseq.qc_plan.log
     """
 

@@ -193,6 +193,7 @@ workflow RNASEQ_QC {
         MULTIQC(multiqc_inputs)
 
         qc_status = MULTIQC.out.status
+        qc_plans = RNASEQ_QC_PLAN.out.plans
         qc_logs = RNASEQ_DOWNLOAD_STEP.out.log
             .mix(RNASEQ_METADATA_STEP.out.log)
             .mix(RNASEQ_QC_PLAN.out.log)
@@ -210,13 +211,24 @@ workflow RNASEQ_QC {
             no_dep
         )
 
+        RNASEQ_QC_PLAN(
+            config_file,
+            file("${projectDir}/bin/annotate_qc_plan.py", checkIfExists: true),
+            legacy_root,
+            RNASEQ_QC_STEP.out.status,
+            RNASEQ_METADATA_STEP.out.status
+        )
+
         qc_status = RNASEQ_QC_STEP.out.status
+        qc_plans = RNASEQ_QC_PLAN.out.plans
         qc_logs = RNASEQ_DOWNLOAD_STEP.out.log
             .mix(RNASEQ_METADATA_STEP.out.log)
             .mix(RNASEQ_QC_STEP.out.log)
+            .mix(RNASEQ_QC_PLAN.out.log)
     }
 
     emit:
     status = qc_status
     logs   = qc_logs
+    plans  = qc_plans
 }

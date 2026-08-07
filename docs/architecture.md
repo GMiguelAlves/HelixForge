@@ -12,6 +12,7 @@ flowchart TB
     INT --> ISW["Integration subworkflow"]
 
     RSW --> QC["Native RNA QC subworkflow"]
+    RSW --> RNAALIGN["Generic Alignment API"]
     RSW --> WRAP["LEGACY_STEP module"]
     CSW --> WRAP
     ISW --> WRAP
@@ -23,6 +24,13 @@ flowchart TB
     QC --> TRIM["Trim Galore"]
     QC --> MERGE["FASTQ merge"]
     QC --> MULTIQC["MultiQC"]
+    RNAALIGN --> REFINDEX["REFERENCE_INDEX"]
+    REFINDEX --> STARINDEX["STAR_INDEX"]
+    RNAALIGN --> ALIGN["ALIGNMENT"]
+    ALIGN --> STARALIGN["STAR_ALIGN"]
+    STARINDEX --> STARALIGN
+    STARALIGN --> STAROUT["Legacy-compatible BAM, counts, logs"]
+    STAROUT --> WRAP
     TRIM --> TRIMMED["Legacy-compatible run FASTQs"]
     MERGE --> MERGED["Legacy-compatible sample FASTQs"]
 ```
@@ -36,3 +44,8 @@ configuration, fans out one FastQC task per FASTQ and one Trim Galore task per
 technical run, groups trimmed runs by biological sample for byte-concatenation,
 and runs a reusable MultiQC process. The legacy QC coordinator is used only
 when native QC is explicitly disabled.
+
+For `QUANT_METHOD=star`, the alignment adapter converts the unchanged legacy
+plan into the formal Alignment API, builds one reference index per project,
+and joins each sample to its project index before per-sample alignment. Salmon
+and all downstream analytical stages remain compatibility wrappers.

@@ -1,0 +1,27 @@
+name: star_index
+description: Build a STAR genome index through the OmicsFlow Reference Index API.
+keywords:
+  - alignment
+  - reference
+  - index
+  - star
+tools:
+  - star:
+      description: Spliced Transcripts Alignment to a Reference
+      homepage: https://github.com/alexdobin/STAR
+      doi: 10.1093/bioinformatics/bts635
+      licence: [GPL-3.0-or-later]
+input:
+  - meta: {type: map, required: true}
+  - reference: {type: file, required: true}
+  - annotation: {type: file, required: true}
+  - index_params: {type: map, required: true}
+output:
+  - artifacts: {type: directory, pattern: star_index}
+  - reports: {type: directory, pattern: '*.star_index_reports'}
+  - versions: {type: file, pattern: '*.versions.yml'}
+  - execution_metadata: {type: file, pattern: '*.execution.json'}
+  - manifest: {type: file, pattern: '*.manifest.json'}
+  - status: {type: file, pattern: '*.star_index.done'}
+authors:
+  - OmicsFlow contributors

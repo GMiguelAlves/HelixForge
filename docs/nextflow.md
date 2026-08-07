@@ -32,10 +32,10 @@ nextflow run . --workflow rnaseq \
 - `local`: Nextflow local executor.
 - `slurm`: one Nextflow task per compatibility step; legacy scripts run locally
   inside the allocation and never submit child jobs.
-- `docker`: uses the pinned images declared by each native QC module.
-- `singularity`: uses the same OCI images for native QC.
-- `apptainer`: uses the same OCI images for native QC.
-- `conda`: creates pinned native QC environments; legacy scripts still
+- `docker`: uses the pinned images declared by each native QC/alignment module.
+- `singularity`: uses the same OCI images for native modules.
+- `apptainer`: uses pinned OCI/blob images for native modules.
+- `conda`: creates pinned native QC/alignment environments; legacy scripts still
   activate their existing named environments.
 - `test`: reduced local settings for stub tests.
 
@@ -77,3 +77,17 @@ names continue to come from the selected RNA-seq `pipeline_config.sh`.
 
 `--rnaseq_native_trim_galore false` remains a backward-compatible alias that
 also selects the legacy QC path. Partial native QC is intentionally unsupported.
+
+## Native RNA-seq alignment
+
+The generic Alignment API and STAR provider are enabled by default when the
+legacy configuration selects `QUANT_METHOD=star`. Select the legacy STAR path:
+
+```bash
+nextflow run . -profile local --workflow rnaseq \
+  --rnaseq_native_alignment false
+```
+
+Salmon is always wrapped in this stage. STAR index and alignment parameters,
+paths, and output names continue to come from `pipeline_config.sh`. See
+[native-rnaseq-alignment.md](native-rnaseq-alignment.md).

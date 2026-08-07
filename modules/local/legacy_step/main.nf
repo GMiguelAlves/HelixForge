@@ -38,6 +38,7 @@ process LEGACY_STEP {
     def done_name = "${pipeline}.${step}.done"
     def log_name  = "${pipeline}.${step}.log"
     """
+    export OMICSFLOW_NATIVE_STAR_ALIGNMENT='${params.rnaseq_native_alignment}'
     bash "${projectDir}/bin/run_legacy_step.sh" \
         "${pipeline}" \
         "${step}" \
