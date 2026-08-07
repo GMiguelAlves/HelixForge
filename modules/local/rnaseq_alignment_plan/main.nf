@@ -34,18 +34,26 @@ process RNASEQ_ALIGNMENT_PLAN {
     source "\$PIPELINE_CONFIG"
     activate_python_env
 
+    analysis_mode='${params.rnaseq_analysis_mode}'
+    case "\$analysis_mode" in
+        config) [[ "\$QUANT_METHOD" == 'star' ]] && enabled=true || enabled=false ;;
+        alignment|both) enabled=true ;;
+        quantification) enabled=false ;;
+        *) echo "[ERRO] rnaseq_analysis_mode invalido: \$analysis_mode"; exit 1 ;;
+    esac
+
     project=\$(python -c "import csv,sys; print(next(csv.DictReader(open(sys.argv[1], newline='')))['dataset'])" '${qc_plan}')
     settings="\${project}.alignment_settings.tsv"
-    printf 'method\tproject\treference\tannotation\tindex_dir\toutput_root\tread_files_command\textra_args\tgenome_sa_index_nbases\tlimit_genome_generate_ram\n' \
+    printf 'method\tenabled\tconfigured_method\tproject\treference\tannotation\tindex_dir\toutput_root\tread_files_command\textra_args\tgenome_sa_index_nbases\tlimit_genome_generate_ram\n' \
         > "\$settings"
-    printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
-        "\$QUANT_METHOD" "\$project" "\$REF_GENOME_FA" "\$REF_GTF" \
+    printf 'star\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+        "\$enabled" "\$QUANT_METHOD" "\$project" "\$REF_GENOME_FA" "\$REF_GTF" \
         "\$STAR_QUANT_INDEX_DIR" "\$STAR_QUANT_DIR" \
         "\$STAR_READ_FILES_COMMAND" "\$STAR_EXTRA_ARGS" \
         "\$STAR_GTF_GENOME_SA_INDEX_NBASES" "\$STAR_LIMIT_GENOME_GENERATE_RAM" \
         >> "\$settings"
 
-    if [[ "\$QUANT_METHOD" == 'star' ]]; then
+    if [[ "\$enabled" == true ]]; then
         [[ -s "\$REF_GENOME_FA" ]] || { echo "[ERRO] Reference genome ausente: \$REF_GENOME_FA"; exit 1; }
         [[ -s "\$REF_GTF" ]] || { echo "[ERRO] Annotation GTF ausente: \$REF_GTF"; exit 1; }
         python '${legacy_root}/scripts/040-alignment/generate_star_plan.py' \
@@ -60,9 +68,9 @@ process RNASEQ_ALIGNMENT_PLAN {
     """
     printf '>chrStub\nACGTACGTACGTACGT\n' > stub_reference.fa
     printf 'chrStub\tstub\tgene\t1\t16\t.\t+\t.\tgene_id "gene_stub";\n' > stub_annotation.gtf
-    printf 'method\tproject\treference\tannotation\tindex_dir\toutput_root\tread_files_command\textra_args\tgenome_sa_index_nbases\tlimit_genome_generate_ram\n' \
+    printf 'method\tenabled\tconfigured_method\tproject\treference\tannotation\tindex_dir\toutput_root\tread_files_command\textra_args\tgenome_sa_index_nbases\tlimit_genome_generate_ram\n' \
         > STUB.alignment_settings.tsv
-    printf 'star\tSTUB\t%s/stub_reference.fa\t%s/stub_annotation.gtf\t%s/stub/star_index_gtf\t%s/stub/star_quant\tcat\t\t2\t100000000\n' \
+    printf 'star\ttrue\tstar\tSTUB\t%s/stub_reference.fa\t%s/stub_annotation.gtf\t%s/stub/star_index_gtf\t%s/stub/star_quant\tcat\t\t2\t100000000\n' \
         "\$PWD" "\$PWD" '${params.outdir}' '${params.outdir}' \
         >> STUB.alignment_settings.tsv
     printf '%s\n%s\n' \
