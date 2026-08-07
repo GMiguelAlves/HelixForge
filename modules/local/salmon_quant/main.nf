@@ -19,14 +19,15 @@ process SALMON_QUANT {
         pattern: '*.{json,yml,done,quantification_logs,quantification_statistics}'
     publishDir { meta.target_dir ?: "${params.outdir}/quantification/${meta.id}" },
         mode: 'copy', overwrite: true,
-        pattern: 'salmon_quant/**',
-        saveAs: { filename -> filename.replaceFirst('^salmon_quant/', '') }
+        pattern: '{quant.sf,cmd_info.json,lib_format_counts.json,aux_info,logs}'
 
     input:
     tuple val(meta), path(reads), path(transcriptome), path(transcriptome_index), val(quantification_params)
 
     output:
     tuple val(meta), path('salmon_quant'), emit: artifacts
+    tuple val(meta), path('quant.sf'), path('cmd_info.json'),
+        path('lib_format_counts.json'), path('aux_info'), path('logs'), emit: compatibility_files
     tuple val(meta), path("${meta.id}.quantification_logs"), path("${meta.id}.quantification_statistics"), emit: reports
     tuple val(meta), path("${meta.id}.versions.yml"), emit: versions
     tuple val(meta), path("${meta.id}.execution.json"), emit: execution_metadata
@@ -73,6 +74,11 @@ process SALMON_QUANT {
     [[ -s salmon_quant/lib_format_counts.json ]]
     [[ -s salmon_quant/aux_info/meta_info.json ]]
     [[ -s salmon_quant/logs/salmon_quant.log ]]
+    ln -s salmon_quant/quant.sf quant.sf
+    ln -s salmon_quant/cmd_info.json cmd_info.json
+    ln -s salmon_quant/lib_format_counts.json lib_format_counts.json
+    ln -s salmon_quant/aux_info aux_info
+    ln -s salmon_quant/logs logs
     cp salmon_quant/logs/salmon_quant.log "\$logs_dir/"
 
     transcriptome_sha=\$(sha256sum '${transcriptome}' | awk '{ print \$1 }')
@@ -95,8 +101,8 @@ process SALMON_QUANT {
         END {
             print "metric", "value"
             print "transcripts", transcripts + 0
-            printf "sum_tpm\t%.6f\n", sum_tpm + 0
-            printf "sum_num_reads\t%.6f\n", sum_reads + 0
+            printf "sum_tpm\t%.6f\\n", sum_tpm + 0
+            printf "sum_num_reads\t%.6f\\n", sum_reads + 0
         }
     ' salmon_quant/quant.sf > "\$stats_dir/quantification.tsv"
 
@@ -146,6 +152,11 @@ process SALMON_QUANT {
     printf 'tx_stub\t1\t0\n' > salmon_quant/aux_info/ambig_info.tsv
     printf 'stub\n' > salmon_quant/aux_info/fld.gz
     printf '[STUB] Salmon quant %s\n' '${meta.id}' > salmon_quant/logs/salmon_quant.log
+    ln -s salmon_quant/quant.sf quant.sf
+    ln -s salmon_quant/cmd_info.json cmd_info.json
+    ln -s salmon_quant/lib_format_counts.json lib_format_counts.json
+    ln -s salmon_quant/aux_info aux_info
+    ln -s salmon_quant/logs logs
     printf 'salmon quant [stub]\n' > '${meta.id}.quantification_logs/command.txt'
     cp salmon_quant/logs/salmon_quant.log '${meta.id}.quantification_logs/'
     printf 'metric\tvalue\ntranscripts\t1\nsum_tpm\t1000000.000000\nsum_num_reads\t1.000000\nnum_processed\t1\nnum_mapped\t1\npercent_mapped\t100.0\n' \

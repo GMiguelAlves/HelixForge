@@ -19,14 +19,14 @@ process SALMON_INDEX {
         pattern: '*.{json,yml,done,salmon_index_reports}'
     publishDir { meta.target_dir ?: "${params.outdir}/quantification_index/${meta.id}" },
         mode: 'copy', overwrite: true,
-        pattern: 'salmon_index/*',
-        saveAs: { filename -> filename.replaceFirst('^salmon_index/', '') }
+        pattern: '{complete_ref_lens.bin,ctable.bin,ctg_offsets.bin,duplicate_clusters.tsv,info.json,mphf.bin,pos.bin,pre_indexing.log,rank.bin,refAccumLengths.bin,ref_indexing.log,reflengths.bin,refseq.bin,seq.bin,versionInfo.json}'
 
     input:
     tuple val(meta), path(transcriptome), val(index_params)
 
     output:
     tuple val(meta), path('salmon_index'), emit: artifacts
+    tuple val(meta), path('{complete_ref_lens.bin,ctable.bin,ctg_offsets.bin,duplicate_clusters.tsv,info.json,mphf.bin,pos.bin,pre_indexing.log,rank.bin,refAccumLengths.bin,ref_indexing.log,reflengths.bin,refseq.bin,seq.bin,versionInfo.json}'), emit: compatibility_files
     tuple val(meta), path("${meta.id}.salmon_index_reports"), emit: reports
     tuple val(meta), path("${meta.id}.versions.yml"), emit: versions
     tuple val(meta), path("${meta.id}.execution.json"), emit: execution_metadata
@@ -52,6 +52,9 @@ process SALMON_INDEX {
         2>&1 | tee "\$reports_dir/salmon_index.log"
 
     [[ -s salmon_index/versionInfo.json && -s salmon_index/info.json ]]
+    for index_file in salmon_index/*; do
+        ln -s "\$index_file" "\$(basename "\$index_file")"
+    done
 
     transcriptome_sha=\$(sha256sum '${transcriptome}' | awk '{ print \$1 }')
     index_sha=\$(find salmon_index -type f -print0 \
@@ -92,6 +95,9 @@ process SALMON_INDEX {
         info.json mphf.bin pos.bin pre_indexing.log rank.bin refAccumLengths.bin \
         ref_indexing.log reflengths.bin refseq.bin seq.bin versionInfo.json; do
         printf 'stub\n' > "salmon_index/\$artifact"
+    done
+    for index_file in salmon_index/*; do
+        ln -s "\$index_file" "\$(basename "\$index_file")"
     done
     printf 'salmon index [stub]\n' > '${meta.id}.salmon_index_reports/command.txt'
     printf '[STUB] Salmon index %s\n' '${meta.id}' > '${meta.id}.salmon_index_reports/salmon_index.log'
