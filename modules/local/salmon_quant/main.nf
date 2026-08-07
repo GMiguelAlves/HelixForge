@@ -44,6 +44,7 @@ process SALMON_QUANT {
     def validate_value = quantification_params.validate_mappings
     def validate_mappings = validate_value instanceof Boolean ? validate_value : validate_value.toString().toBoolean()
     def validate_arg = validate_mappings ? '--validateMappings' : ''
+    def target_dir = meta.target_dir ?: ''
     """
     start_epoch=\$(date +%s)
     logs_dir='${meta.id}.quantification_logs'
@@ -129,8 +130,8 @@ process SALMON_QUANT {
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" \
         > '${meta.id}.execution.json'
 
-    printf '{"schema_version":"1.0","type":"quantification","id":"%s","quantifier":"salmon","dataset":"%s","sample_id":"%s","artifacts":{"quantification":{"path":"quant.sf","sha256":"%s"},"command_info":{"path":"cmd_info.json","sha256":"%s"},"library_format":{"path":"lib_format_counts.json","sha256":"%s"},"auxiliary":{"path":"aux_info","sha256":"%s"}},"transcriptome_sha256":"%s","index_sha256":"%s"}\n' \
-        '${meta.id}' '${meta.dataset}' '${meta.sample_id}' "\$quant_sha" "\$cmd_sha" \
+    printf '{"schema_version":"1.0","type":"quantification","id":"%s","quantifier":"salmon","dataset":"%s","sample_id":"%s","artifacts":{"quantification":{"path":"quant.sf","compatibility_path":"%s/quant.sf","sha256":"%s"},"command_info":{"path":"cmd_info.json","sha256":"%s"},"library_format":{"path":"lib_format_counts.json","sha256":"%s"},"auxiliary":{"path":"aux_info","sha256":"%s"}},"transcriptome_sha256":"%s","index_sha256":"%s"}\n' \
+        '${meta.id}' '${meta.dataset}' '${meta.sample_id}' '${target_dir}' "\$quant_sha" "\$cmd_sha" \
         "\$library_sha" "\$auxiliary_sha" "\$transcriptome_sha" "\$index_sha" \
         > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' \

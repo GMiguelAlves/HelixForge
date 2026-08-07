@@ -1,0 +1,1 @@
+{"schema_version":"1.0","type":"alignment","id":"SYNTHETIC.sample_b.alignment","aligner":"star","dataset":"SYNTHETIC","sample_id":"sample_b","artifacts":{"gene_counts":{"path":"ReadsPerGene.out.tab","compatibility_path":"/legacy/star/SYNTHETIC/sample_b/ReadsPerGene.out.tab","sha256":"f6b862234c1061e339f4276cad489c55f6828880597d0e70d727b9b224221897"}}}

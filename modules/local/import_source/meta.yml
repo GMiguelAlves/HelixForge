@@ -1,0 +1,12 @@
+name: import_source
+description: Validate a provider manifest and bind one semantic artifact to an import source
+keywords: [manifest, checksum, adapter, import]
+input:
+  - provider_manifest: Quantification or Alignment API partial manifest
+  - provider_artifact: content-tracked semantic artifact
+  - role: expected semantic role
+output:
+  - artifacts: validated import-source directory
+  - reports: validation JSON
+  - versions: versions.yml
+  - status: completion JSON

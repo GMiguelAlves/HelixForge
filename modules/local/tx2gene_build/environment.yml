@@ -1,0 +1,8 @@
+name: omicsflow-tx2gene-build
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base=4.3.2
+  - bioconductor-rtracklayer=1.62.0
+  - bioconductor-biocversion=3.18.1

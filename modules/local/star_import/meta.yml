@@ -1,0 +1,16 @@
+name: star_import
+description: STAR GeneCounts implementation of the OmicsFlow Import API
+keywords: [star, gene-counts, cpm, import]
+input:
+  - sample_table: ordered manifest-backed sample table
+  - sources: validated ReadsPerGene.out.tab sources
+  - import_params: explicit count-column parameter
+output:
+  - counts: counts_matrix.tsv
+  - abundance: star_cpm_matrix.tsv
+  - metadata: quant_samples.tsv
+  - reports: log and statistics
+  - versions: versions.yml
+  - execution_metadata: execution.json
+  - manifest: import_manifest.json
+  - status: star_import.done

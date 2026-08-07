@@ -9,7 +9,8 @@ The RNA-seq QC layer is native: FastQC before trimming, Trim Galore, FastQC
 after trimming, per-sample FASTQ merge, merged-read FastQC, and MultiQC are
 separate DSL2 processes. Download and metadata preparation remain wrappers,
 STAR alignment is native behind a generic Alignment API, and Salmon implements
-an independent generic Quantification API. tximport, DESeq2, batch correction,
+an independent generic Quantification API. A native Import API converts Salmon
+or STAR artifacts into provider-neutral matrices. DESeq2, batch correction,
 and final reports remain unchanged behind compatibility wrappers. Existing
 filenames and result directories are preserved.
 
@@ -51,6 +52,8 @@ See [docs/nextflow.md](docs/nextflow.md),
 [docs/alignment_api.md](docs/alignment_api.md),
 [docs/native-rnaseq-quantification.md](docs/native-rnaseq-quantification.md),
 [docs/quantification_api.md](docs/quantification_api.md),
+[docs/import_api.md](docs/import_api.md),
+[docs/native-rnaseq-import.md](docs/native-rnaseq-import.md),
 [docs/module_contracts.md](docs/module_contracts.md),
 [docs/script-mapping.md](docs/script-mapping.md), and
 [docs/limitations.md](docs/limitations.md).

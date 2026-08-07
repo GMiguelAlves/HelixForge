@@ -3,8 +3,8 @@
 The RNA-seq STAR path now implements Alignment API 1.0. Workflows call the
 generic `REFERENCE_INDEX` and `ALIGNMENT` subworkflows; they do not call STAR
 modules directly. Salmon now implements the independent Quantification API;
-tximport, DESeq2, batch correction, and final reports remain compatibility
-steps.
+DESeq2, batch correction, and final reports remain compatibility steps. STAR
+gene counts feed the native Import API.
 
 ## Legacy audit
 
@@ -119,7 +119,7 @@ Existing ChIP filtering and peak-calling scripts need not change.
 
 ## Next migration
 
-The separate Quantification API and Salmon provider are now implemented. The
-next migration should split transcript-to-gene extraction from tximport,
-consume semantic quantification channels instead of directory discovery, and
-regress gene-level counts/TPM before removing the existing R wrapper.
+The separate Quantification and Import APIs are now implemented. Import splits
+transcript-to-gene extraction from matrix construction and regresses STAR
+counts/CPM plus Salmon counts/TPM. The next boundary is a provider-neutral
+Differential Expression API.

@@ -1,0 +1,5 @@
+name: omicsflow-star-import
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11.9

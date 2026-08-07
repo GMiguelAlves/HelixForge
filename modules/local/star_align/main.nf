@@ -118,6 +118,7 @@ process STAR_ALIGN {
     reads_sha=\$(sha256sum ${read_args} | awk '{ print \$1 }' | paste -sd, -)
     bam_sha=\$(sha256sum "\$bam" | awk '{ print \$1 }')
     bai_sha=\$(sha256sum "\$bai" | awk '{ print \$1 }')
+    gene_counts_sha=\$(sha256sum ReadsPerGene.out.tab | awk '{ print \$1 }')
     end_epoch=\$(date +%s)
     command_base64=\$(base64 -w0 "\$logs_dir/command.txt")
 
@@ -134,8 +135,8 @@ process STAR_ALIGN {
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" \
         > '${meta.id}.execution.json'
 
-    printf '{"schema_version":"1.0","type":"alignment","id":"%s","aligner":"star","dataset":"%s","sample_id":"%s","artifacts":{"bam":{"path":"Aligned.sortedByCoord.out.bam","sha256":"%s"},"bai":{"path":"Aligned.sortedByCoord.out.bam.bai","sha256":"%s"},"gene_counts":{"path":"ReadsPerGene.out.tab"}},"reference_sha256":"%s","index_sha256":"%s"}\n' \
-        '${meta.id}' '${meta.dataset}' '${meta.sample_id}' "\$bam_sha" "\$bai_sha" "\$reference_sha" "\$index_sha" \
+    printf '{"schema_version":"1.0","type":"alignment","id":"%s","aligner":"star","dataset":"%s","sample_id":"%s","artifacts":{"bam":{"path":"Aligned.sortedByCoord.out.bam","sha256":"%s"},"bai":{"path":"Aligned.sortedByCoord.out.bam.bai","sha256":"%s"},"gene_counts":{"path":"ReadsPerGene.out.tab","compatibility_path":"%s/ReadsPerGene.out.tab","sha256":"%s"}},"reference_sha256":"%s","index_sha256":"%s"}\n' \
+        '${meta.id}' '${meta.dataset}' '${meta.sample_id}' "\$bam_sha" "\$bai_sha" '${target_dir}' "\$gene_counts_sha" "\$reference_sha" "\$index_sha" \
         > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' \
         '${meta.id}' '${task.process}' > '${meta.id}.star_align.done'

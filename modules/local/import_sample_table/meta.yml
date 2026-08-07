@@ -1,0 +1,12 @@
+name: import_sample_table
+description: Join metadata to validated provider manifests without discovering physical paths
+keywords: [metadata, samplesheet, manifest, import]
+input:
+  - metadata: authoritative metadata CSV/TSV
+  - sources: validated import sources
+  - import_params: provider and compatibility parameters
+output:
+  - artifacts: ordered internal import sample table
+  - reports: sample-table plan JSON
+  - versions: versions.yml
+  - status: completion JSON

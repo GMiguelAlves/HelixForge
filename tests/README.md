@@ -86,3 +86,35 @@ stochastically even when the command and inputs are identical.
 Set `NEXTFLOW_BIN` or `NEXTFLOW_JAR` when Nextflow is not on `PATH`. Cache
 validation is pinned to the tested official Nextflow 26.04.2 runtime; Docker
 must be available.
+
+## Native Import API
+
+Compile both providers without scientific software:
+
+```bash
+bash tests/native_import/run_stub.sh
+```
+
+Compare STAR gene-count import against the unchanged legacy Python script:
+
+```bash
+bash tests/native_import/run_star_regression.sh
+```
+
+Compare Salmon import against the unchanged legacy R script, including
+tx2gene, counts, TPM, sample metadata, and semantic validation of the new
+length matrix and `SummarizedExperiment`:
+
+```bash
+bash tests/native_import/run_salmon_regression.sh
+```
+
+Validate full cache reuse plus provider-parameter, manifest, and GTF
+invalidation:
+
+```bash
+bash tests/native_import/run_cache_tests.sh
+```
+
+Both regressions write `comparison.tsv` and `benchmark.tsv` under their
+respective `results/test/native-import-*-regression/` directories.
