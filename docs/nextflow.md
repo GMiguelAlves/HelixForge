@@ -32,11 +32,12 @@ nextflow run . --workflow rnaseq \
 - `local`: Nextflow local executor.
 - `slurm`: one Nextflow task per compatibility step; legacy scripts run locally
   inside the allocation and never submit child jobs.
-- `docker`: uses the pinned images declared by each native QC/alignment module.
+- `docker`: uses the pinned images declared by each native QC, alignment, and
+  quantification module.
 - `singularity`: uses the same OCI images for native modules.
 - `apptainer`: uses pinned OCI/blob images for native modules.
-- `conda`: creates pinned native QC/alignment environments; legacy scripts still
-  activate their existing named environments.
+- `conda`: creates pinned native QC/alignment/quantification environments;
+  legacy scripts still activate their existing named environments.
 - `test`: reduced local settings for stub tests.
 
 ## Dry-run modes
@@ -88,6 +89,37 @@ nextflow run . -profile local --workflow rnaseq \
   --rnaseq_native_alignment false
 ```
 
-Salmon is always wrapped in this stage. STAR index and alignment parameters,
-paths, and output names continue to come from `pipeline_config.sh`. See
+STAR index and alignment parameters, paths, and output names continue to come
+from `pipeline_config.sh`. See
 [native-rnaseq-alignment.md](native-rnaseq-alignment.md).
+
+## Native RNA-seq quantification
+
+The Quantification API and Salmon provider are enabled by default. Select the
+legacy Salmon path only in the default `config` mode:
+
+```bash
+nextflow run . -profile local --workflow rnaseq \
+  --rnaseq_native_quantification false
+```
+
+Choose which independent analytical layers run after QC:
+
+```bash
+# Preserve QUANT_METHOD behavior (default)
+nextflow run . --workflow rnaseq --rnaseq_analysis_mode config
+
+# STAR only; tximport and differential analysis are not launched
+nextflow run . --workflow rnaseq --rnaseq_analysis_mode alignment
+
+# Salmon plus the unchanged Salmon tximport path
+nextflow run . --workflow rnaseq --rnaseq_analysis_mode quantification
+
+# STAR and Salmon in parallel; tximport uses QUANT_METHOD
+nextflow run . --workflow rnaseq --rnaseq_analysis_mode both
+```
+
+Forced modes require their native provider flags to remain enabled. Salmon
+version, index/quantification parameters, paths, and output names remain
+controlled by `pipeline_config.sh`. See
+[native-rnaseq-quantification.md](native-rnaseq-quantification.md).

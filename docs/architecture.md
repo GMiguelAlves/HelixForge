@@ -13,6 +13,7 @@ flowchart TB
 
     RSW --> QC["Native RNA QC subworkflow"]
     RSW --> RNAALIGN["Generic Alignment API"]
+    RSW --> RNAQUANT["Generic Quantification API"]
     RSW --> WRAP["LEGACY_STEP module"]
     CSW --> WRAP
     ISW --> WRAP
@@ -30,7 +31,14 @@ flowchart TB
     ALIGN --> STARALIGN["STAR_ALIGN"]
     STARINDEX --> STARALIGN
     STARALIGN --> STAROUT["Legacy-compatible BAM, counts, logs"]
+    RNAQUANT --> TRANSCRIPTINDEX["TRANSCRIPTOME_INDEX"]
+    TRANSCRIPTINDEX --> SALMONINDEX["SALMON_INDEX"]
+    RNAQUANT --> QUANTIFY["QUANTIFICATION"]
+    QUANTIFY --> SALMONQUANT["SALMON_QUANT"]
+    SALMONINDEX --> SALMONQUANT
+    SALMONQUANT --> SALMONOUT["Legacy-compatible quant.sf, JSON, aux_info, logs"]
     STAROUT --> WRAP
+    SALMONOUT --> WRAP
     TRIM --> TRIMMED["Legacy-compatible run FASTQs"]
     MERGE --> MERGED["Legacy-compatible sample FASTQs"]
 ```
@@ -45,7 +53,12 @@ technical run, groups trimmed runs by biological sample for byte-concatenation,
 and runs a reusable MultiQC process. The legacy QC coordinator is used only
 when native QC is explicitly disabled.
 
-For `QUANT_METHOD=star`, the alignment adapter converts the unchanged legacy
-plan into the formal Alignment API, builds one reference index per project,
-and joins each sample to its project index before per-sample alignment. Salmon
-and all downstream analytical stages remain compatibility wrappers.
+The alignment adapter converts the unchanged STAR plan into Alignment API
+tuples. The quantification adapter converts the unchanged Salmon plan into
+Quantification API tuples. Each API owns an independent content-tracked index
+and per-sample provider. `rnaseq_analysis_mode=both` fans merged FASTQs into
+both branches; no STAR output is an input to Salmon.
+
+The tximport/import wrapper consumes only the provider selected by the
+authoritative `QUANT_METHOD`. DESeq2, batch correction, and final reports remain
+compatibility wrappers.

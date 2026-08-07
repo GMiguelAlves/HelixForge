@@ -90,3 +90,8 @@ remain equivalent.
 `meta.aligner` selects the implementation. Unsupported values fail before a
 scientific command is launched. Version 1.0 implements `star`; future Bowtie2,
 HISAT2, and minimap2 providers must return the same semantic channels.
+
+Alignment is independent from transcript-abundance estimation. Salmon and
+future abundance providers implement the separate
+[Quantification API](quantification_api.md). `rnaseq_analysis_mode=both` fans
+FASTQs into both APIs without introducing a STAR-to-Salmon dependency.
