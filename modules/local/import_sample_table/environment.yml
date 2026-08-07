@@ -1,0 +1,5 @@
+name: omicsflow-import-sample-table
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11.9
