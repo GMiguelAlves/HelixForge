@@ -1,0 +1,18 @@
+name: peak_qc_aggregate
+description: Combine matched per-replicate FRiP and peak statistics without biological selection.
+keywords: [chipseq, peak-qc, aggregate, manifest]
+tools:
+  - python:
+      description: Python programming language
+      homepage: https://www.python.org/
+input:
+  - meta: Aggregate identity.
+  - frip_manifests: Complete per-replicate FRiP manifests.
+  - statistics_manifests: Complete per-replicate peak-statistics manifests.
+output:
+  - artifacts: Caller-neutral Peak QC JSON and TSV summaries.
+  - reports: Tabular summary.
+  - versions: Python version.
+  - execution_metadata: Runtime resources.
+  - manifest: Aggregate Peak QC manifest.
+  - status: Completion marker.
