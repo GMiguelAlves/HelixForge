@@ -1,0 +1,5 @@
+sample_id	run_accession	fastq_1	fastq_2	layout	assay	condition	biological_replicate	technical_replicate	antibody	target	control_id	is_control	batch	lane	dataset	organism	genome_id
+input_rep1	RUN_INPUT_1	input_rep1_R1.fastq.gz	input_rep1_R2.fastq.gz	paired	input	control	1	1		input		true	batch1	L001	study1	organism_name	genome_build
+chip_rep1	RUN_CHIP_1	chip_rep1_R1.fastq.gz	chip_rep1_R2.fastq.gz	paired	ChIP-seq	treated	1	1	antibody_name	H3K27ac	input_rep1	false	batch1	L001	study1	organism_name	genome_build
+chip_rep2	RUN_CHIP_2	chip_rep2_R1.fastq.gz	chip_rep2_R2.fastq.gz	paired	ChIP-seq	treated	2	1	antibody_name	H3K27ac	input_rep1	false	batch1	L001	study1	organism_name	genome_build
+

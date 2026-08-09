@@ -16,6 +16,12 @@ natively. Final reports remain compatibility wrappers; legacy batch correction
 is reachable only through the legacy DE fallback. Existing filenames and result
 directories are preserved.
 
+The ChIP-seq native foundation validates flexible metadata, controls and
+biological/technical replicate identity, reuses FastQC/MultiQC, and implements
+Bowtie2 indexing/alignment behind the same generic Alignment API used by STAR.
+This first increment supports native `qc` and `alignment` modes. BAM filtering,
+duplicate policy and peak analysis remain on the legacy fallback by design.
+
 Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy
 `assets/rnaseq_de_spec.example.json` and adapt it to the study metadata.
@@ -54,6 +60,17 @@ nextflow run . -profile local --workflow chipseq --legacy_dry_run true \
   --chipseq_config pipelines/chipseq/legacy/config/example_pipeline_config.sh
 ```
 
+Compile the native ChIP-seq foundation without scientific tools:
+
+```bash
+nextflow run . -profile test -stub-run --workflow chipseq \
+  --chipseq_run_mode alignment
+```
+
+For a real run, use `--chipseq_run_mode qc` or `alignment` and provide the
+existing project config through `--chipseq_config`. `peaks` and `full` retain
+the complete legacy fallback in this version.
+
 The default configs remain the versioned `config/pipeline_config.sh` files in
 each legacy pipeline. Create their existing untracked user configuration files
 before a real run.
@@ -70,6 +87,10 @@ See [docs/nextflow.md](docs/nextflow.md),
 [docs/differential_expression_api.md](docs/differential_expression_api.md),
 [docs/native-rnaseq-de.md](docs/native-rnaseq-de.md),
 [docs/rnaseq-scientific-review.md](docs/rnaseq-scientific-review.md),
+[docs/chipseq-legacy-analysis.md](docs/chipseq-legacy-analysis.md),
+[docs/chipseq-architecture.md](docs/chipseq-architecture.md),
+[docs/chipseq-scientific-review.md](docs/chipseq-scientific-review.md),
+[docs/chipseq-api.md](docs/chipseq-api.md),
 [docs/module_contracts.md](docs/module_contracts.md),
 [docs/script-mapping.md](docs/script-mapping.md), and
 [docs/limitations.md](docs/limitations.md).

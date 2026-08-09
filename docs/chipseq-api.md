@@ -24,6 +24,10 @@ as a legacy alias for `target`; `replicate` is accepted as a legacy alias for
 values. Multiple rows may share a sample only when they have distinct run/lane
 identity and compatible biological attributes.
 
+The normalized record shape is published as
+`schemas/chipseq-metadata-v0.1.schema.json`; a tabular example is available at
+`assets/chipseq_metadata.example.tsv`.
+
 Controls are referenced by `sample_id`, must exist and must be marked as a
 control. IP/control pairs must share dataset and genome build. The metadata
 validator does not infer controls by file name or row order.
@@ -115,4 +119,3 @@ possible future provider, not an implicit requirement.
 
 The fallback remains the complete legacy graph. Native and legacy outputs must
 not be mixed within one analysis without an explicit manifest boundary.
-

@@ -70,3 +70,20 @@ scientifically validated merely because its stub succeeds.
 - No FRiP, cross-correlation, library-complexity estimate, IDR or motif analysis
   is claimed.
 
+## Development validation
+
+- `nextflow lint .`: 67 files passed; one pre-existing warning remains in
+  `LEGACY_STEP` for direct `projectDir` use.
+- Native alignment stub: passed with one input control and two IP biological
+  replicates (six FastQC tasks, MultiQC, one Bowtie2 index and three aligns).
+- Resume probe: every native foundation task was reported as cached.
+- Legacy full fallback stub: passed through reference, QC, trim, alignment,
+  filtering, BAM QC, peaks, consensus, differential, annotation, tracks and
+  report wrappers.
+- Metadata unit tests: six passed, covering multiple samples, controls,
+  biological/technical replicates and representative invalid inputs.
+
+A real Bowtie2/Samtools run and scientific legacy comparison were not executed:
+the pinned combined runtime is not installed on this development host. Stub and
+unit success therefore validate contracts/orchestration only, not alignment
+equivalence or biological performance.
