@@ -281,6 +281,8 @@ def build_analyses(consensus, bams, plan, spec, output_root):
                 if record_id not in plan or record_id not in bams:
                     raise ValueError(f"analysis {analysis_id}: sample {record_id} has no matching plan/final BAM")
                 row, bam = plan[record_id], bams[record_id]
+                if bam["document"].get("sample_id") not in {None, "", row.get("sample_id")}:
+                    raise ValueError(f"analysis {analysis_id}: sample {record_id} final BAM sample_id mismatch")
                 for field, expected in (("sample_id", replicate.get("sample_id")), ("condition", replicate.get("condition")),
                                         ("biological_replicate", replicate.get("biological_replicate")),
                                         ("technical_replicate", replicate.get("technical_replicate"))):
@@ -344,8 +346,8 @@ def build_analyses(consensus, bams, plan, spec, output_root):
             "normalization": spec["normalization"], "parameters": spec["parameters"],
             "genome_id": genome_id, "peak_type": peak_type, "target": target,
         }
-        count_path = directories["count_specs"] / f"{analysis_id}.json"
-        model_path = directories["model_specs"] / f"{analysis_id}.json"
+        count_path = directories["count_specs"] / f"{analysis_id}.count.json"
+        model_path = directories["model_specs"] / f"{analysis_id}.model.json"
         count_path.write_text(json.dumps(count_spec, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         model_path.write_text(json.dumps(model_spec, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         contrast_files = []
