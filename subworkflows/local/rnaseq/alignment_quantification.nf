@@ -303,6 +303,12 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
         salmon_context = import_context
             .filter { row, _metadata, _annotation -> row.provider == 'salmon' }
             .map { row, metadata, annotation ->
+                if (!params.rnaseq_counts_from_abundance) {
+                    error 'Salmon import requires --rnaseq_counts_from_abundance (scaledTPM or lengthScaledTPM for the current matrix-based DE provider; no is import-only).'
+                }
+                if (!(params.rnaseq_library_protocol in ['full_length', 'three_prime'])) {
+                    error 'Salmon import requires --rnaseq_library_protocol full_length or three_prime.'
+                }
                 def meta = [
                     id        : 'rnaseq.import',
                     provider  : 'salmon',
@@ -312,9 +318,14 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
                     project          : '',
                     allow_missing    : false,
                     star_count_column: row.star_count_column,
-                    countsFromAbundance: 'no',
-                    ignoreTxVersion  : true,
-                    ignoreAfterBar   : true
+                    countsFromAbundance: params.rnaseq_counts_from_abundance,
+                    libraryProtocol    : params.rnaseq_library_protocol,
+                    ignoreTxVersion  : false,
+                    ignoreAfterBar   : false,
+                    stripGeneVersion : false,
+                    stripTranscriptPrefix: false,
+                    stripGenePrefix  : false,
+                    unmappedTranscripts: 'error'
                 ]
                 tuple(meta, metadata, annotation, import_params)
             }
@@ -329,7 +340,8 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
                 def import_params = [
                     project          : '',
                     allow_missing    : false,
-                    star_count_column: row.star_count_column
+                    star_count_column: row.star_count_column,
+                    gene_id_normalization: 'preserve'
                 ]
                 tuple(meta, metadata, import_params)
             }

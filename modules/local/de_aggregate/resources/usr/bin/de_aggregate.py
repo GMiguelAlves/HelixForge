@@ -131,8 +131,9 @@ def main() -> None:
 
     analysis_id = str(spec.get("analysis_id", "analysis"))
     genes_before = spec.get("genes_before_filter", "see model_statistics.json")
-    variables = ", ".join(str(value) for value in spec.get("test_variables", []))
-    covariates = ", ".join(str(value) for value in spec.get("design_covariates", []))
+    design = spec.get("design", {})
+    variables = str(design.get("variable", ""))
+    covariates = ", ".join(str(value) for value in design.get("covariates", []))
     with (output / "analysis_summary.txt").open("w", encoding="utf-8") as handle:
         handle.write(f"Analise DEG - {analysis_id}\n==============================\n\n")
         handle.write(f"Data: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
@@ -158,6 +159,8 @@ def main() -> None:
         "id": analysis_id,
         "provider": "deseq2",
         "test": "wald",
+        "design": design,
+        "filter": spec.get("filter", {}),
         "models": len(args.models),
         "contrasts": len(contrast_records),
         "artifacts": artifacts,

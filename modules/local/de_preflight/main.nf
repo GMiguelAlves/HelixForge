@@ -47,7 +47,7 @@ process DE_PREFLIGHT {
     mkdir -p model_specs contrast_specs
     cp '${counts}' validated_counts.tsv
     cp '${sample_metadata}' validated_samples.tsv
-    printf '%s\n' '{"schema_version":"1.0","model_id":"stub.condition","analysis_id":"stub","provider":"deseq2","test":"wald","variable":"condition","covariates":[],"formula":"~ condition","valid_levels":["control","treated"],"parameters":{"alpha":0.05,"lfc_threshold":1,"min_replicates":2,"min_total_count":10},"contrasts":[{"id":"condition__control_vs_treated","factor":"condition","numerator":"control","denominator":"treated","description":"control versus treated","direction":"control/treated","order":1}],"target_dir":"stub"}' > model_specs/stub.condition.json
+    printf '%s\n' '{"schema_version":"1.0","model_id":"stub.condition","analysis_id":"stub","provider":"deseq2","test":"wald","variable":"condition","covariates":[],"formula":"~ condition","valid_levels":["control","treated"],"filter":{"method":"none"},"parameters":{"alpha":0.05,"lfc_threshold":1,"min_replicates":2,"non_integer_counts":"error"},"target_dir":"stub"}' > model_specs/stub.condition.json
     printf '%s\n' '{"model_id":"stub.condition","id":"condition__control_vs_treated","factor":"condition","numerator":"control","denominator":"treated","description":"control versus treated","direction":"control/treated","order":1}' > contrast_specs/stub.condition--condition__control_vs_treated.json
     printf 'analysis_id\tvariable\tstatus\tn_samples\tn_genes\n' > skipped_models.tsv
     printf '%s\n' '{"status":"stub","models":1,"contrasts":1}' > preflight_report.json
