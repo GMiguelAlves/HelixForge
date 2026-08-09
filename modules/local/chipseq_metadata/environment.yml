@@ -1,0 +1,6 @@
+name: omicsflow-chipseq-metadata
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12.4
+
