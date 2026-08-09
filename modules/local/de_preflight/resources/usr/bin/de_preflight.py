@@ -295,13 +295,11 @@ def main() -> None:
                 "min_replicates": min_replicates,
                 "min_total_count": min_total_count,
             },
-            "contrasts": contrasts,
             "target_dir": target_dir,
             "input": {
                 "import_manifest_sha256": sha256(args.manifest),
                 "counts_sha256": sha256(args.counts),
                 "sample_metadata_sha256": sha256(args.samples),
-                "config_sha256": sha256(args.spec),
                 "import_provider": manifest.get("provider", ""),
             },
         }

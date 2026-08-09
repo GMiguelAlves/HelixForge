@@ -43,3 +43,6 @@ jobs:
           NEXTFLOW="$PWD/nextflow" \
           DESEQ2_TEST_IMAGE=ghcr.io/gmiguelalves/omicsflow-deseq2:1.0.0 \
           tests/native_de/run_regression.sh
+          NEXTFLOW="$PWD/nextflow" \
+          DESEQ2_TEST_IMAGE=ghcr.io/gmiguelalves/omicsflow-deseq2:1.0.0 \
+          tests/native_de/run_cache_tests.sh

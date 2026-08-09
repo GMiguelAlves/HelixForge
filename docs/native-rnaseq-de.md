@@ -51,6 +51,8 @@ The original scripts are unchanged and remain available with
 - Preflight cases for valid input, duplicate samples, unavailable contrast
   level, missing design field, and unsupported LRT: passed.
 - R parse validation for both provider scripts: passed.
+- Contrast-only cache regression: prepared in `run_cache_tests.sh`; not run
+  locally because it requires the same complete image as scientific regression.
 - Scientific legacy-versus-native regression: prepared in
   `tests/native_de/run_regression.sh`, but not executed locally. The exact
   DESeq2 1.42.0 BioContainer was verified; the derived image build failed while
