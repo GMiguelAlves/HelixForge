@@ -1,0 +1,5 @@
+name: helixforge-consensus-aggregate
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12.4
