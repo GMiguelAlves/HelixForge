@@ -133,3 +133,17 @@ sample metadata, and `tx2gene.tsv`. Salmon additionally emits effective length
 and a `SummarizedExperiment`. See
 [native-rnaseq-import.md](native-rnaseq-import.md) and
 [import_api.md](import_api.md).
+
+## RNA-seq stage modes
+
+`--rnaseq_run_mode` defines the last requested native layer and works with
+Nextflow `-resume`: `qc`, `alignment`, `quantification`, `import`, `de`, or
+`full`. The default is `full`. `--rnaseq_native_de false` explicitly restores
+the preserved DEG wrapper; it is never selected implicitly.
+
+```bash
+nextflow run . --workflow rnaseq --rnaseq_run_mode de -resume
+```
+
+DESeq2 model fitting and each Wald contrast are separate cache boundaries.
+Changing only a contrast does not refit the model.

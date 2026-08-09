@@ -1,0 +1,16 @@
+name: de_preflight
+description: Validate Import API artifacts, designs, factors, replicates, and explicit contrasts
+keywords: [differential-expression, validation, design, contrasts]
+input:
+  - meta: analysis metadata
+  - import_manifest: Import API manifest
+  - counts: gene count matrix
+  - sample_metadata: Import API sample metadata
+  - analysis_spec: versioned Differential Expression API request
+output:
+  - model_specs: validated model and contrast specifications
+  - validated_inputs: content-tracked counts and metadata
+  - skipped: legacy-compatible skipped-model records
+  - reports: validation report
+  - versions: versions.yml
+  - status: de_preflight.done

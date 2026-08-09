@@ -1,0 +1,18 @@
+name: deseq2_contrast
+description: Evaluate one explicit Wald contrast from a fitted DESeq2 model.
+keywords: [deseq2, wald, contrast, differential-expression]
+tools:
+  - deseq2: {description: Differential gene expression analysis}
+input:
+  - meta: {type: map}
+  - model: {type: directory}
+  - model_spec: {type: file}
+  - contrast_spec: {type: file}
+  - annotation: {type: file}
+output:
+  - results: {type: file, pattern: "DEG_*.tsv"}
+  - common_results: {type: file, pattern: "common_results.tsv"}
+  - reports: {type: file, pattern: "contrast_statistics.json"}
+  - versions: {type: file, pattern: "versions.yml"}
+  - manifest: {type: file, pattern: "contrast_manifest.json"}
+  - status: {type: file, pattern: "deseq2_contrast.done"}
