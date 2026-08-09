@@ -16,18 +16,17 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
     main:
     no_dep = channel.value('none')
 
-    // batch and report are skipped by the compatibility wrapper when their
-    // existing RUN_* flags are disabled in pipeline_config.sh.
-    RNASEQ_BATCH_STEP(
-        'rnaseq', 'batch', 'medium', config_file, legacy_root,
-        quantification_status, no_dep, no_dep
-    )
     native_de_enabled = params.rnaseq_native_de instanceof Boolean \
         ? params.rnaseq_native_de \
         : params.rnaseq_native_de.toString().toBoolean()
     native_logs = channel.empty()
+    batch_logs = channel.empty()
     if (native_de_enabled) {
-        RNASEQ_DE_CONTEXT(config_file, legacy_root)
+        if (!params.rnaseq_de_spec) {
+            error 'Native differential expression requires --rnaseq_de_spec with an explicit design and contrasts.'
+        }
+        de_spec_file = file(params.rnaseq_de_spec, checkIfExists: true)
+        RNASEQ_DE_CONTEXT(config_file, legacy_root, de_spec_file)
         counts_by_id = imported_counts.map { meta, counts -> tuple(meta.id, meta, counts) }
         manifests_by_id = import_manifest.map { meta, manifest -> tuple(meta.id, manifest) }
         metadata_by_id = imported_metadata.map { meta, metadata -> tuple(meta.id, metadata) }
@@ -52,12 +51,17 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
         deg_status = DIFFERENTIAL_EXPRESSION.out.status
         native_logs = RNASEQ_DE_CONTEXT.out.log.mix(DIFFERENTIAL_EXPRESSION.out.reports)
     } else {
+        RNASEQ_BATCH_STEP(
+            'rnaseq', 'batch', 'medium', config_file, legacy_root,
+            quantification_status, no_dep, no_dep
+        )
         RNASEQ_DEG_STEP(
             'rnaseq', 'deg', 'high_cpu', config_file, legacy_root,
             RNASEQ_BATCH_STEP.out.status, no_dep, no_dep
         )
         deg_status = RNASEQ_DEG_STEP.out.status
         native_logs = RNASEQ_DEG_STEP.out.log
+        batch_logs = RNASEQ_BATCH_STEP.out.log
     }
     RNASEQ_REPORT_STEP(
         'rnaseq', 'report', 'medium', config_file, legacy_root,
@@ -66,7 +70,6 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
 
     emit:
     status = RNASEQ_REPORT_STEP.out.status
-    logs   = RNASEQ_BATCH_STEP.out.log
-        .mix(native_logs)
+    logs   = batch_logs.mix(native_logs)
         .mix(RNASEQ_REPORT_STEP.out.log)
 }
