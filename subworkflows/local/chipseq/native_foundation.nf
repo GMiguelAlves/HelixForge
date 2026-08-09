@@ -5,6 +5,8 @@ include { MULTIQC }          from '../../../modules/local/multiqc/main'
 include { REFERENCE_INDEX }  from '../../local/alignment/reference_index'
 include { ALIGNMENT }        from '../../local/alignment/alignment'
 include { CHIPSEQ_BAM_PROCESSING } from './bam_processing'
+include { PEAK_CALLING_CONTEXT } from '../../../modules/local/peak_calling_context/main'
+include { PEAK_CALLING } from './peak_calling'
 
 workflow CHIPSEQ_NATIVE_FOUNDATION {
     take:
@@ -18,8 +20,30 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     CHIPSEQ_CONTEXT(config_file, legacy_root, context_meta)
     CHIPSEQ_METADATA(CHIPSEQ_CONTEXT.out.artifacts)
 
-    plan_rows = CHIPSEQ_METADATA.out.artifacts
-        .map { _meta, plan -> plan }
+    peak_context_artifacts_ch = channel.empty()
+    if (mode == 'peaks') {
+        def peak_spec = [
+            caller                : params.chipseq_peak_caller,
+            caller_version        : '3.0.4',
+            peak_type             : params.chipseq_peak_type,
+            effective_genome_size : params.chipseq_effective_genome_size,
+            q_value               : params.chipseq_peak_q_value,
+            p_value               : params.chipseq_peak_p_value,
+            format                : params.chipseq_peak_format,
+            duplicate_policy      : params.chipseq_peak_duplicate_policy,
+            additional_args       : params.chipseq_peak_additional_args,
+            output_dir            : params.chipseq_peak_output_dir,
+        ]
+        def peak_spec_base64 = groovy.json.JsonOutput.toJson(peak_spec).getBytes('UTF-8').encodeBase64().toString()
+        peak_context_inputs = CHIPSEQ_METADATA.out.artifacts.map { meta, plan -> tuple(meta, plan, peak_spec_base64) }
+        PEAK_CALLING_CONTEXT(peak_context_inputs)
+        peak_context_artifacts_ch = PEAK_CALLING_CONTEXT.out.artifacts
+        active_plan = PEAK_CALLING_CONTEXT.out.artifacts.map { _meta, validated_plan, _peak_plan -> validated_plan }
+    } else {
+        active_plan = CHIPSEQ_METADATA.out.artifacts.map { _meta, plan -> plan }
+    }
+
+    plan_rows = active_plan
         .splitCsv(header: true, sep: '\t')
 
     records = plan_rows.map { row ->
@@ -135,7 +159,11 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     bam_manifest_ch = channel.empty()
     bam_reports_ch = channel.empty()
     bam_artifacts_ch = channel.empty()
-    if (mode in ['alignment', 'post_alignment']) {
+    peak_status_ch = channel.empty()
+    peak_artifacts_ch = channel.empty()
+    peak_manifests_ch = channel.empty()
+    peak_reports_ch = channel.empty()
+    if (mode in ['alignment', 'post_alignment', 'peaks']) {
         reference_inputs = plan_rows
             .map { row ->
                 def prefix = file(row.index_prefix)
@@ -178,7 +206,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
         alignment_manifest_ch = ALIGNMENT.out.manifest
         alignment_reports_ch = ALIGNMENT.out.reports
 
-        if (mode == 'post_alignment') {
+        if (mode in ['post_alignment', 'peaks']) {
             if (!params.chipseq_native_bam_processing) {
                 error 'chipseq_run_mode=post_alignment requires chipseq_native_bam_processing=true'
             }
@@ -207,12 +235,27 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             bam_manifest_ch = CHIPSEQ_BAM_PROCESSING.out.final_manifest
             bam_reports_ch = CHIPSEQ_BAM_PROCESSING.out.reports
             bam_artifacts_ch = CHIPSEQ_BAM_PROCESSING.out.artifacts
+
+            if (mode == 'peaks') {
+                if (!params.chipseq_native_peak_calling.toString().toBoolean()) {
+                    error 'chipseq_run_mode=peaks requires chipseq_native_peak_calling=true in the native path'
+                }
+                PEAK_CALLING(
+                    CHIPSEQ_BAM_PROCESSING.out.artifacts,
+                    CHIPSEQ_BAM_PROCESSING.out.final_manifest,
+                    peak_context_artifacts_ch
+                )
+                peak_status_ch = PEAK_CALLING.out.status
+                peak_artifacts_ch = PEAK_CALLING.out.artifacts
+                peak_manifests_ch = PEAK_CALLING.out.manifests
+                peak_reports_ch = PEAK_CALLING.out.reports
+            }
         }
     }
 
     completed_ch = mode == 'qc' \
         ? MULTIQC.out.status \
-        : (mode == 'post_alignment' ? bam_status_ch : alignment_status_ch)
+        : (mode == 'peaks' ? peak_status_ch : (mode == 'post_alignment' ? bam_status_ch : alignment_status_ch))
 
     emit:
     completed           = completed_ch
@@ -223,6 +266,9 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     final_bams          = bam_artifacts_ch
     final_bam_manifests = bam_manifest_ch
     bam_reports         = bam_reports_ch
+    peaks               = peak_artifacts_ch
+    peak_manifests      = peak_manifests_ch
+    peak_reports        = peak_reports_ch
     logs                = CHIPSEQ_CONTEXT.out.reports
         .mix(CHIPSEQ_METADATA.out.reports.map { metadata_meta, _normalized, _controls, _report, log -> tuple(metadata_meta, log) })
         .mix(FASTQC.out.reports.map { fastqc_meta, _html, log -> tuple(fastqc_meta, log) })
