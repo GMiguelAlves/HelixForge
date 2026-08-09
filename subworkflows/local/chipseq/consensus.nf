@@ -15,7 +15,9 @@ workflow CONSENSUS_IDR {
     strategy_spec_base64
 
     main:
-    strategy = params.chipseq_consensus_strategy.toString().toLowerCase()
+    strategy = params.chipseq_run_mode.toString().toLowerCase() == 'idr' \
+        ? 'idr' \
+        : params.chipseq_consensus_method.toString().toLowerCase()
 
     peak_records = peak_artifacts
         .map { meta, result_dir -> tuple(meta.id, result_dir) }
@@ -54,7 +56,7 @@ workflow CONSENSUS_IDR {
                 error "Consensus grouping identity is incomplete for ${peak_id}"
             }
             def group_key = group_fields.join('\u001f')
-            def group_id = [row.dataset, row.condition, peak_document.target, row.genome_id, peak_document.peak_type]
+            def group_id = [row.dataset, peak_document.experiment_id, row.condition, peak_document.target, row.genome_id, peak_document.peak_type]
                 .collect { value -> value.toString().replaceAll(/[^A-Za-z0-9._-]+/, '_') }
                 .join('.')
             def record = [
