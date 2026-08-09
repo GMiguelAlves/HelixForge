@@ -1,0 +1,17 @@
+name: peak_calling_context
+description: Validate organism-independent peak-calling specifications and treatment/control relationships.
+keywords: [chipseq, peak-calling, validation, metadata]
+tools:
+  - python:
+      description: Python programming language
+      homepage: https://www.python.org/
+input:
+  - meta: Peak-calling context identifier.
+  - chipseq_plan: Validated ChIP-seq execution plan.
+  - spec_base64: Base64-encoded API overrides.
+output:
+  - validated_plan: Gated ChIP-seq plan.
+  - peak_plan: One validated request per treatment replicate.
+  - reports: Validation report and log.
+  - versions: Runtime versions.
+  - status: Completion marker.

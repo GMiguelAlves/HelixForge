@@ -50,8 +50,11 @@ process CHIPSEQ_METADATA {
         'chip_rep1	chip_rep1		STUB	treated	1	1	paired	false	false	input_rep1	H3K27ac		stub_v1	stub	'"\$PWD"'/${context_dir}/fastq/chip_rep1_R1.fastq	'"\$PWD"'/${context_dir}/fastq/chip_rep1_R2.fastq	'"\$PWD"'/${context_dir}/reference/genome.fa	'"\$PWD"'/${context_dir}/reference/annotation.gtf	'"\$PWD"'/${context_dir}/reference/blacklist.bed	${params.outdir}/stub/030-qc-fastq	${params.outdir}/stub/050-alignment	${params.outdir}/stub/060-filtering	${params.outdir}/stub/010-reference/bowtie2/genome		--very-sensitive	30	true	true	samtools' \
         'chip_rep2	chip_rep2		STUB	treated	2	1	paired	false	false	input_rep1	H3K27ac		stub_v1	stub	'"\$PWD"'/${context_dir}/fastq/chip_rep2_R1.fastq	'"\$PWD"'/${context_dir}/fastq/chip_rep2_R2.fastq	'"\$PWD"'/${context_dir}/reference/genome.fa	'"\$PWD"'/${context_dir}/reference/annotation.gtf	'"\$PWD"'/${context_dir}/reference/blacklist.bed	${params.outdir}/stub/030-qc-fastq	${params.outdir}/stub/050-alignment	${params.outdir}/stub/060-filtering	${params.outdir}/stub/010-reference/bowtie2/genome		--very-sensitive	30	true	true	samtools' \
         > chipseq_plan.tsv
+    awk 'BEGIN{OFS="\t"} NR==1 {print \$0,"peak_dir","peak_caller","peak_type","macs_qvalue","macs_pvalue","macs_genome_size","macs_extra_opts"; next} {print \$0,"${params.outdir}/stub/080-peak-calling","macs3","narrow","0.01","","16",""}' \
+        chipseq_plan.tsv > chipseq_plan.extended.tsv
+    mv chipseq_plan.extended.tsv chipseq_plan.tsv
     cp '${context_dir}/source_metadata.tsv' validated_metadata.tsv
-    printf 'record_id\tsample_id\tcontrol_id\nchip_rep1\tchip_rep1\tinput_rep1\nchip_rep2\tchip_rep2\tinput_rep1\n' > control_map.tsv
+    printf 'record_id\tsample_id\tcontrol_id\tcandidate_records\nchip_rep1\tchip_rep1\tinput_rep1\tinput_rep1\nchip_rep2\tchip_rep2\tinput_rep1\tinput_rep1\n' > control_map.tsv
     printf '{"status":"stub","records":3,"controls":1,"ip_records":2}\n' > metadata_validation.json
     printf '[STUB] ChIP-seq metadata\n' > chipseq.metadata.log
     printf '"CHIPSEQ_METADATA":\n    python: stub\n' > chipseq.metadata.versions.yml

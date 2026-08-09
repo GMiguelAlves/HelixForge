@@ -126,6 +126,7 @@ def load_rows(metadata, settings):
 
 def validate_relationships(rows, allow_missing_controls):
     by_sample = defaultdict(list)
+    by_record = {row["record_id"]: row for row in rows}
     for row in rows:
         by_sample[row["sample_id"]].append(row)
 
@@ -163,7 +164,8 @@ def validate_relationships(rows, allow_missing_controls):
             if allow_missing_controls:
                 continue
             raise ValueError(f"IP record {row['record_id']} has no control_id")
-        matches = by_sample.get(control_id, [])
+        exact = by_record.get(control_id)
+        matches = [exact] if exact and exact["is_control"] == "true" else by_sample.get(control_id, [])
         if not matches:
             raise ValueError(f"IP record {row['record_id']} references missing control {control_id}")
         if any(match["is_control"] != "true" for match in matches):
@@ -174,7 +176,12 @@ def validate_relationships(rows, allow_missing_controls):
                     raise ValueError(
                         f"IP record {row['record_id']} and control {control_id} disagree on {field}"
                     )
-        controls.append({"record_id": row["record_id"], "sample_id": row["sample_id"], "control_id": control_id})
+        controls.append({
+            "record_id": row["record_id"],
+            "sample_id": row["sample_id"],
+            "control_id": control_id,
+            "candidate_records": ",".join(match["record_id"] for match in matches),
+        })
     return controls
 
 
@@ -202,8 +209,8 @@ def main():
         controls = validate_relationships(rows, allow_missing)
 
         native_mode = clean(settings.get("NATIVE_RUN_MODE")).lower()
-        alignment_enabled = native_mode in {"alignment", "post_alignment"}
-        bam_processing_enabled = native_mode == "post_alignment"
+        alignment_enabled = native_mode in {"alignment", "post_alignment", "peaks"}
+        bam_processing_enabled = native_mode in {"post_alignment", "peaks"}
         reference = resolve_file(
             settings.get("GENOME_FASTA"), os.getcwd(), "GENOME_FASTA", "reference", alignment_enabled
         )
@@ -241,14 +248,23 @@ def main():
                 "remove_secondary_supplementary": clean(settings.get("REMOVE_SECONDARY_SUPPLEMENTARY")) or "true",
                 "remove_duplicates": clean(settings.get("REMOVE_DUPLICATES")) or "false",
                 "dedup_tool": clean(settings.get("DEDUP_TOOL")) or "samtools",
+                "peak_dir": clean(settings.get("PEAK_DIR")),
+                "peak_caller": clean(settings.get("PEAK_CALLER")) or "macs3",
+                "peak_type": clean(settings.get("PEAK_TYPE")),
+                "macs_qvalue": clean(settings.get("MACS_QVALUE")),
+                "macs_pvalue": clean(settings.get("MACS_PVALUE")),
+                "macs_genome_size": clean(settings.get("MACS_GENOME_SIZE")),
+                "macs_extra_opts": clean(settings.get("MACS_EXTRA_OPTS")),
             })
         plan_fields = normalized_fields + [
             "genome_fasta", "annotation_file", "blacklist_bed", "qc_dir", "align_dir", "filter_dir",
             "index_prefix", "bowtie2_build_opts", "bowtie2_opts", "min_mapq",
             "remove_secondary_supplementary", "remove_duplicates", "dedup_tool",
+            "peak_dir", "peak_caller", "peak_type", "macs_qvalue", "macs_pvalue",
+            "macs_genome_size", "macs_extra_opts",
         ]
         write_tsv(args.plan, plan_rows, plan_fields)
-        write_tsv(args.controls, controls, ["record_id", "sample_id", "control_id"])
+        write_tsv(args.controls, controls, ["record_id", "sample_id", "control_id", "candidate_records"])
 
         report = {
             "schema_version": "0.1",

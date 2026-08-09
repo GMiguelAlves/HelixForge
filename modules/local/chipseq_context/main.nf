@@ -44,6 +44,8 @@ process CHIPSEQ_CONTEXT {
         OUTPUT_DIR QC_DIR ALIGN_DIR FILTER_DIR REF_DIR ALIGNER BOWTIE2_INDEX_PREFIX \
         BOWTIE2_BUILD_OPTS BOWTIE2_OPTS READ_LAYOUT ALLOW_MISSING_CONTROLS \
         MIN_MAPQ REMOVE_SECONDARY_SUPPLEMENTARY REMOVE_DUPLICATES DEDUP_TOOL \
+        PEAK_DIR PEAK_CALLER PEAK_TYPE MACS_QVALUE MACS_PVALUE MACS_GENOME_SIZE \
+        MACS_EXTRA_OPTS \
         THREADS MEMORY SLURM_TIME; do
         printf '%s\t%s\n' "\$key" "\${!key:-}" >> chipseq_context/settings.tsv
     done
@@ -83,7 +85,7 @@ process CHIPSEQ_CONTEXT {
     printf 'QC_DIR\t%s/stub/030-qc-fastq\nALIGN_DIR\t%s/stub/050-alignment\nFILTER_DIR\t%s/stub/060-filtering\nREF_DIR\t%s/stub/010-reference\n' \
         '${params.outdir}' '${params.outdir}' '${params.outdir}' '${params.outdir}' >> chipseq_context/settings.tsv
     printf 'ALIGNER\tbowtie2\nBOWTIE2_INDEX_PREFIX\t%s/stub/010-reference/bowtie2/genome\n' '${params.outdir}' >> chipseq_context/settings.tsv
-    printf 'BOWTIE2_BUILD_OPTS\t\nBOWTIE2_OPTS\t--very-sensitive\nREAD_LAYOUT\tmetadata\nALLOW_MISSING_CONTROLS\tfalse\nMIN_MAPQ\t30\nREMOVE_SECONDARY_SUPPLEMENTARY\ttrue\nREMOVE_DUPLICATES\ttrue\nDEDUP_TOOL\tsamtools\nTHREADS\t1\nMEMORY\t1G\nSLURM_TIME\t00:05:00\n' \
+    printf 'BOWTIE2_BUILD_OPTS\t\nBOWTIE2_OPTS\t--very-sensitive\nREAD_LAYOUT\tmetadata\nALLOW_MISSING_CONTROLS\tfalse\nMIN_MAPQ\t30\nREMOVE_SECONDARY_SUPPLEMENTARY\ttrue\nREMOVE_DUPLICATES\ttrue\nDEDUP_TOOL\tsamtools\nPEAK_DIR\t${params.outdir}/stub/080-peak-calling\nPEAK_CALLER\tmacs3\nPEAK_TYPE\tnarrow\nMACS_QVALUE\t0.01\nMACS_PVALUE\t\nMACS_GENOME_SIZE\t16\nMACS_EXTRA_OPTS\t\nTHREADS\t1\nMEMORY\t1G\nSLURM_TIME\t00:05:00\n' \
         >> chipseq_context/settings.tsv
     printf '[STUB] ChIP-seq context\n' > chipseq.context.log
     printf '"CHIPSEQ_CONTEXT":\n    bash: stub\n' > chipseq.context.versions.yml
