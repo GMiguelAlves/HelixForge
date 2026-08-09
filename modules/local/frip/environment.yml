@@ -1,0 +1,8 @@
+name: helixforge-frip
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.12.4
+  - samtools=1.20
+  - bedtools=2.31.1

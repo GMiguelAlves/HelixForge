@@ -71,10 +71,12 @@ workflow PEAK_CALLING {
             def meta = treatment_meta + [
                 id                 : row.peak_id,
                 peak_id            : row.peak_id,
+                record_id          : row.record_id,
                 experiment_id      : "${row.dataset}.${row.target}",
                 caller             : row.caller,
                 caller_version     : row.caller_version,
                 peak_type          : row.peak_type,
+                control_id         : row.control_id ?: '',
                 control_record_id  : '',
                 peak_target_dir    : row.peak_target_dir,
             ]
@@ -92,10 +94,12 @@ workflow PEAK_CALLING {
             def meta = treatment_meta + [
                 id                 : row.peak_id,
                 peak_id            : row.peak_id,
+                record_id          : row.record_id,
                 experiment_id      : "${row.dataset}.${row.target}",
                 caller             : row.caller,
                 caller_version     : row.caller_version,
                 peak_type          : row.peak_type,
+                control_id         : row.control_id ?: '',
                 control_record_id  : control_meta.id,
                 peak_target_dir    : row.peak_target_dir,
             ]

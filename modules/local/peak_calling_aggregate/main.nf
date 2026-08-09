@@ -56,7 +56,10 @@ process PEAK_CALLING_AGGREGATE {
     printf 'metric\tvalue\ntotal_peaks\t1\n' > '${meta.peak_id}.peak_metrics.tsv'
     cp '${meta.peak_id}.peak_metrics.json' '${meta.peak_id}.peak_calling/peak_metrics.json'
     cp '${meta.peak_id}.peak_metrics.tsv' '${meta.peak_id}.peak_calling/peak_metrics.tsv'
-    printf '{"schema_version":"1.0","type":"peak_calling","id":"%s","status":"stub"}\n' '${meta.peak_id}' > '${meta.peak_id}.manifest.json'
+    printf '{"schema_version":"1.0","type":"peak_calling","id":"%s","record_id":"%s","sample_id":"%s","experiment_id":"%s","target":"%s","biological_replicate":"%s","technical_replicate":"%s","control_id":"%s","control_record_id":"%s","caller":"%s","caller_version":"%s","peak_type":"%s","status":"stub"}\n' \
+        '${meta.peak_id}' '${meta.record_id}' '${meta.sample_id}' '${meta.experiment_id}' '${meta.target}' \
+        '${meta.biological_replicate}' '${meta.technical_replicate}' '${meta.control_id}' '${meta.control_record_id}' \
+        '${meta.caller}' '${meta.caller_version}' '${meta.peak_type}' > '${meta.peak_id}.manifest.json'
     cp '${meta.peak_id}.manifest.json' '${meta.peak_id}.peak_calling/manifest.json'
     printf '{"schema_version":"1.0","id":"%s","process":"PEAK_CALLING_AGGREGATE","status":"stub"}\n' '${meta.peak_id}' > '${meta.peak_id}.aggregate.execution.json'
     printf '"PEAK_CALLING_AGGREGATE":\n    python: stub\n' > '${meta.peak_id}.aggregate.versions.yml'

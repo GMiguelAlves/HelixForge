@@ -4,7 +4,7 @@
   Salmon, and Import API outputs are content-tracked Nextflow artifacts and
   compatibility copies are published at the existing paths.
 - ChIP raw QC, Bowtie2 alignment, BAM selection, duplicate policy, blacklist
-  exclusion, final BAM QC and per-replicate MACS3 peak calling fan out natively.
+  exclusion, final BAM QC, per-replicate MACS3 peak calling and Peak QC fan out natively.
   Consensus, IDR, annotation, tracks and differential binding still use
   compatibility wrappers or remain future work.
 - The generic compatibility process uses resource classes rather than exact
@@ -46,7 +46,10 @@
   library-level merge policy is still required before biological consensus.
 - MACS3 3.0.4 was not installed locally and no working container runtime was
   available during foundation 0.3 validation. Functional and cache scripts are
-  present, but only unit/stub validation is claimed here. No native FRiP,
-  consensus or IDR result is claimed.
+  present, but only unit/stub validation is claimed here. Peak QC architecture,
+  pure functions, schema, DAG and cache were validated in stub mode; no real
+  SAMtools/BEDTools FRiP value, consensus or IDR result is claimed. The pinned
+  Conda environment is defined, while a joint OCI image remains unpublished and
+  therefore defaults to null rather than an unverified image reference.
 - Existing `.done` files remain active inside legacy pipelines. Nextflow status
   markers are an additional orchestration layer.
