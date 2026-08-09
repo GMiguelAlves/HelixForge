@@ -1,0 +1,20 @@
+name: BOWTIE2_ALIGN
+description: Align single- or paired-end reads and emit a sorted indexed BAM.
+keywords: [alignment, bowtie2, samtools, chipseq]
+tools:
+  - bowtie2: {description: Short-read aligner}
+  - samtools: {description: SAM/BAM processing toolkit}
+input:
+  - reads: One FASTQ or an ordered R1/R2 pair.
+  - reference: Reference FASTA tracked for provenance.
+  - annotation: Optional/empty generic Alignment API role.
+  - alignment_index: Bowtie2 index directory.
+  - alignment_params: Index basename and explicit Bowtie2 arguments.
+output:
+  - artifacts: Coordinate-sorted BAM and BAI.
+  - reports: Command, Bowtie2 log, samtools statistics and MAPQ distribution.
+  - versions: Tool versions YAML.
+  - execution_metadata: Resource, command and checksum JSON.
+  - manifest: Alignment manifest.
+  - status: Completion JSON.
+

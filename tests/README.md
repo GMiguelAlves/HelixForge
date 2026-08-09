@@ -118,3 +118,19 @@ bash tests/native_import/run_cache_tests.sh
 
 Both regressions write `comparison.tsv` and `benchmark.tsv` under their
 respective `results/test/native-import-*-regression/` directories.
+
+## Native ChIP-seq foundation
+
+Run metadata, input, control and replicate validation:
+
+```bash
+python -m unittest tests/native_chipseq/test_metadata.py
+```
+
+Compile the three-record raw-QC and Bowtie2 alignment graph without scientific
+software, then optionally verify `-resume` cache reuse:
+
+```bash
+bash tests/native_chipseq/run_stub.sh
+bash tests/native_chipseq/run_cache_tests.sh
+```

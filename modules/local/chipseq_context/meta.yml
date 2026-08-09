@@ -1,0 +1,15 @@
+name: CHIPSEQ_CONTEXT
+description: Snapshot the existing ChIP-seq shell configuration for native providers.
+keywords: [chipseq, metadata, compatibility]
+tools:
+  - bash:
+      description: GNU Bourne Again Shell
+input:
+  - config_file: Existing pipeline_config.sh or compatible project config.
+  - legacy_root: Root used to resolve legacy-compatible relative paths.
+output:
+  - artifacts: Context directory containing settings.tsv and source_metadata.tsv.
+  - reports: Context log.
+  - versions: Executable versions YAML.
+  - status: Completion JSON.
+

@@ -1,0 +1,14 @@
+name: CHIPSEQ_METADATA
+description: Validate flexible ChIP-seq records, controls, references and replicate identity.
+keywords: [chipseq, metadata, controls, replicates]
+tools:
+  - python:
+      description: Python standard library validator
+input:
+  - context: Tracked context directory from CHIPSEQ_CONTEXT.
+output:
+  - artifacts: Normalized execution plan.
+  - reports: Normalized metadata, control map, validation report and log.
+  - versions: Executable versions YAML.
+  - status: Completion JSON.
+
