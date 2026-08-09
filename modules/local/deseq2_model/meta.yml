@@ -1,0 +1,15 @@
+name: deseq2_model
+description: Fit one legacy-compatible DESeq2 Wald model for an explicit design
+keywords: [deseq2, wald, differential-expression, model]
+input:
+  - meta: model metadata
+  - counts: validated Import API count matrix
+  - sample_metadata: validated and ordered sample metadata
+  - model_spec: explicit design and contrast specification
+  - annotation: GFF/GTF forwarded to contrast tasks
+output:
+  - artifacts: fitted DDS, normalized counts, dispersions, coefficients, and plots
+  - versions: versions.yml
+  - execution_metadata: execution.json and sessionInfo.txt
+  - manifest: model_manifest.json
+  - status: deseq2_model.done

@@ -15,6 +15,7 @@ flowchart TB
     RSW --> RNAALIGN["Generic Alignment API"]
     RSW --> RNAQUANT["Generic Quantification API"]
     RSW --> RNAIMPORT["Generic Import API"]
+    RSW --> RNADE["Generic Differential Expression API"]
     RSW --> WRAP["LEGACY_STEP module"]
     CSW --> WRAP
     ISW --> WRAP
@@ -47,7 +48,12 @@ flowchart TB
     PROVIDER -->|STAR| STARIMPORT["STAR_IMPORT"]
     TXIMPORT --> COMMON["Counts + abundance + metadata + provenance"]
     STARIMPORT --> COMMON
-    COMMON --> WRAP
+    COMMON --> RNADE
+    RNADE --> PREFLIGHT["Design and contrast preflight"]
+    PREFLIGHT --> MODEL["DESEQ2_MODEL"]
+    MODEL --> CONTRAST["DESEQ2_CONTRAST per comparison"]
+    CONTRAST --> DEOUT["Common + legacy DEG outputs"]
+    DEOUT --> WRAP
     TRIM --> TRIMMED["Legacy-compatible run FASTQs"]
     MERGE --> MERGED["Legacy-compatible sample FASTQs"]
 ```
@@ -71,5 +77,6 @@ both branches; no STAR output is an input to Salmon.
 The Import API consumes only the provider selected by authoritative
 `QUANT_METHOD`. It validates upstream manifests, builds a sample table, then
 normalizes Salmon through `TX2GENE_BUILD` + `TXIMPORT` or STAR gene counts
-through `STAR_IMPORT`. DESeq2, batch correction, and final reports consume the
-common matrices and remain compatibility wrappers.
+through `STAR_IMPORT`. The Differential Expression API consumes only the
+common matrix, metadata, and manifest. Batch correction and final reports
+remain compatibility wrappers.

@@ -206,7 +206,8 @@ Modules may participate in a stricter domain API in addition to this common
 envelope. Domain APIs must define stable semantic roles independently from a
 specific tool. The Alignment API is defined in `docs/alignment_api.md`; the
 Quantification API is defined in `docs/quantification_api.md`; the Import API
-is defined in `docs/import_api.md`.
+is defined in `docs/import_api.md`; the Differential Expression API is defined
+in `docs/differential_expression_api.md`.
 
 Contract 1.1 adds `meta.yml`, module-local documentation, tests, and formal
 domain contracts. Existing QC modules remain valid under 1.0 and can adopt the
@@ -225,3 +226,10 @@ provider files by reconstructing pipeline-specific directory names. A semantic
 role unavailable from a provider is represented in its manifest as
 `available: false`; modules must not fabricate scientific values to satisfy an
 interface.
+
+Contract 1.4 adds statistical-provider modules. A statistical model and its
+contrasts must be separate cache boundaries. Designs and contrasts are explicit
+versioned values, while counts, metadata, and their Import manifest are tracked
+files. Providers emit common statistical field names without removing
+provider-native compatibility files. Unsupported statistical tests must fail
+explicitly and must never be approximated silently.

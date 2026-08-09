@@ -1,0 +1,15 @@
+name: de_aggregate
+description: Aggregate provider outputs into the Differential Expression API envelope and legacy layout.
+keywords: [differential-expression, aggregate, manifest, compatibility]
+input:
+  - meta: {type: map}
+  - skipped: {type: file}
+  - analysis_spec: {type: file}
+  - models: {type: directory, list: true}
+  - contrasts: {type: directory, list: true}
+output:
+  - results: {type: directory}
+  - common_results: {type: file}
+  - manifest: {type: file}
+  - versions: {type: file}
+  - status: {type: file}

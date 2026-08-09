@@ -10,8 +10,9 @@ after trimming, per-sample FASTQ merge, merged-read FastQC, and MultiQC are
 separate DSL2 processes. Download and metadata preparation remain wrappers,
 STAR alignment is native behind a generic Alignment API, and Salmon implements
 an independent generic Quantification API. A native Import API converts Salmon
-or STAR artifacts into provider-neutral matrices. DESeq2, batch correction,
-and final reports remain unchanged behind compatibility wrappers. Existing
+or STAR artifacts into provider-neutral matrices. A Differential Expression
+API validates explicit designs and runs DESeq2 Wald models and contrasts
+natively. Batch correction and final reports remain compatibility wrappers. Existing
 filenames and result directories are preserved.
 
 ## Workflows
@@ -54,6 +55,8 @@ See [docs/nextflow.md](docs/nextflow.md),
 [docs/quantification_api.md](docs/quantification_api.md),
 [docs/import_api.md](docs/import_api.md),
 [docs/native-rnaseq-import.md](docs/native-rnaseq-import.md),
+[docs/differential_expression_api.md](docs/differential_expression_api.md),
+[docs/native-rnaseq-de.md](docs/native-rnaseq-de.md),
 [docs/module_contracts.md](docs/module_contracts.md),
 [docs/script-mapping.md](docs/script-mapping.md), and
 [docs/limitations.md](docs/limitations.md).

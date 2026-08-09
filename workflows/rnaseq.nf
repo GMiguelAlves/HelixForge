@@ -10,34 +10,48 @@ workflow RNASEQ {
     main:
     config_file = file(params.rnaseq_config, checkIfExists: true)
     legacy_root = "${projectDir}/pipelines/rnaseq/legacy"
+    run_mode = params.rnaseq_run_mode.toString().toLowerCase()
+    if (!(run_mode in ['qc', 'alignment', 'quant', 'quantification', 'import', 'de', 'differential_expression', 'full'])) {
+        error "Invalid rnaseq_run_mode '${params.rnaseq_run_mode}'. Use qc, alignment, quantification, import, de, or full."
+    }
 
     RNASEQ_REFERENCE(config_file, legacy_root, seed)
     RNASEQ_QC(config_file, legacy_root, seed)
-    RNASEQ_ALIGNMENT_QUANTIFICATION(
-        config_file,
-        legacy_root,
-        RNASEQ_REFERENCE.out.status,
-        RNASEQ_QC.out.status,
-        RNASEQ_QC.out.plans
-    )
-    analysis_mode = params.rnaseq_analysis_mode.toString().toLowerCase()
-    if (analysis_mode == 'alignment') {
-        completed_status = RNASEQ_ALIGNMENT_QUANTIFICATION.out.status
+    if (run_mode == 'qc') {
+        completed_status = RNASEQ_QC.out.status
+        analysis_logs = channel.empty()
         downstream_logs = channel.empty()
     } else {
-        RNASEQ_DIFFERENTIAL_EXPRESSION(
+        RNASEQ_ALIGNMENT_QUANTIFICATION(
             config_file,
             legacy_root,
-            RNASEQ_ALIGNMENT_QUANTIFICATION.out.status
+            RNASEQ_REFERENCE.out.status,
+            RNASEQ_QC.out.status,
+            RNASEQ_QC.out.plans
         )
-        completed_status = RNASEQ_DIFFERENTIAL_EXPRESSION.out.status
-        downstream_logs = RNASEQ_DIFFERENTIAL_EXPRESSION.out.logs
+        analysis_logs = RNASEQ_ALIGNMENT_QUANTIFICATION.out.logs
+        analysis_mode = params.rnaseq_analysis_mode.toString().toLowerCase()
+        if (run_mode in ['alignment', 'quant', 'quantification', 'import'] || analysis_mode == 'alignment') {
+            completed_status = RNASEQ_ALIGNMENT_QUANTIFICATION.out.status
+            downstream_logs = channel.empty()
+        } else {
+            RNASEQ_DIFFERENTIAL_EXPRESSION(
+                config_file,
+                legacy_root,
+                RNASEQ_ALIGNMENT_QUANTIFICATION.out.status,
+                RNASEQ_ALIGNMENT_QUANTIFICATION.out.import_manifest,
+                RNASEQ_ALIGNMENT_QUANTIFICATION.out.imported_counts,
+                RNASEQ_ALIGNMENT_QUANTIFICATION.out.imported_metadata
+            )
+            completed_status = RNASEQ_DIFFERENTIAL_EXPRESSION.out.status
+            downstream_logs = RNASEQ_DIFFERENTIAL_EXPRESSION.out.logs
+        }
     }
 
     emit:
     completed = completed_status
     logs      = RNASEQ_REFERENCE.out.logs
         .mix(RNASEQ_QC.out.logs)
-        .mix(RNASEQ_ALIGNMENT_QUANTIFICATION.out.logs)
+        .mix(analysis_logs)
         .mix(downstream_logs)
 }

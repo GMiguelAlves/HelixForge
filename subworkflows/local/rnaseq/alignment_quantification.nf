@@ -16,7 +16,9 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
     qc_plans
 
     main:
-    analysis_mode = params.rnaseq_analysis_mode.toString().toLowerCase()
+    run_mode = params.rnaseq_run_mode.toString().toLowerCase()
+    configured_analysis_mode = params.rnaseq_analysis_mode.toString().toLowerCase()
+    analysis_mode = run_mode == 'alignment' ? 'alignment' : run_mode in ['quant', 'quantification'] ? 'quantification' : configured_analysis_mode
     if (!(analysis_mode in ['config', 'alignment', 'quantification', 'both'])) {
         error "Invalid rnaseq_analysis_mode '${params.rnaseq_analysis_mode}'. Use config, alignment, quantification, or both."
     }
@@ -72,6 +74,7 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
     imported_counts = channel.empty()
     imported_abundance = channel.empty()
     import_manifest = channel.empty()
+    imported_metadata = channel.empty()
 
     if (native_alignment_enabled) {
         star_settings = alignment_settings_rows
@@ -236,7 +239,7 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
         quantification_manifest = QUANTIFICATION.out.manifest
     }
 
-    if (analysis_mode == 'alignment') {
+    if (analysis_mode == 'alignment' || run_mode in ['quant', 'quantification']) {
         completion_status = provider_status
             .map { _provider, status -> status }
             .collect()
@@ -339,6 +342,7 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
         imported_counts = IMPORT.out.counts
         imported_abundance = IMPORT.out.abundance
         import_manifest = IMPORT.out.manifest
+        imported_metadata = IMPORT.out.metadata
     }
 
     emit:
@@ -350,4 +354,5 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
     imported_counts         = imported_counts
     imported_abundance      = imported_abundance
     import_manifest         = import_manifest
+    imported_metadata       = imported_metadata
 }

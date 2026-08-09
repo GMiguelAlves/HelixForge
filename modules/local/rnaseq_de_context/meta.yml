@@ -1,0 +1,10 @@
+name: rnaseq_de_context
+description: Adapt the preserved RNA-seq shell configuration to a versioned Differential Expression API request.
+keywords: [rnaseq, differential-expression, adapter, compatibility]
+input:
+  - config_file: {type: file}
+  - legacy_root: {type: string}
+output:
+  - analysis_spec: {type: file, pattern: analysis_spec.json}
+  - annotation: {type: file, pattern: annotation_input.gff}
+  - log: {type: file, pattern: rnaseq.de_context.log}
