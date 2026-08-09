@@ -23,6 +23,9 @@ nextflow run . -profile slurm --workflow chipseq --chipseq_run_mode post_alignme
 nextflow run . -profile slurm --workflow chipseq --chipseq_run_mode peaks \
   --chipseq_peak_type narrow --chipseq_effective_genome_size 2.7e9 \
   -c conf/my_cluster.config
+nextflow run . -profile slurm --workflow chipseq --chipseq_run_mode differential_binding \
+  --chipseq_consensus_method union --chipseq_db_spec chipseq_db_spec.json \
+  -c conf/my_cluster.config
 ```
 
 `qc` performs metadata validation, raw FastQC and MultiQC. `alignment` adds
@@ -31,6 +34,9 @@ duplicate, blacklist, integrity and final-QC providers. `peaks` adds validated
 per-replicate MACS3 3.0.4 calling and requires explicit peak type and numerical
 effective genome size. `full` remains the complete legacy fallback. Use
 `--chipseq_native_peak_calling false` to run only the legacy peaks step.
+`differential_binding` advances through Peak QC and Consensus into explicit
+featureCounts/DESeq2 providers and requires a versioned DB specification. Use
+`--chipseq_native_differential_binding false` for the legacy differential step.
 
 The existing configuration remains authoritative:
 
