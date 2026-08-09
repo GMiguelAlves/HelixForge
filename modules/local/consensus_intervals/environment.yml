@@ -1,0 +1,7 @@
+name: helixforge-consensus-intervals
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.12.4
+  - bedtools=2.31.1

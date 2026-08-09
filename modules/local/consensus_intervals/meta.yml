@@ -1,0 +1,22 @@
+name: consensus_intervals
+description: Implement union, intersection, and replicate-support providers over exact support segments.
+keywords: [chipseq, consensus, union, intersection, replicate-support, bedtools]
+tools:
+  - bedtools:
+      description: Genome arithmetic tools.
+      homepage: https://bedtools.readthedocs.io/
+  - python:
+      description: Python programming language.
+      homepage: https://www.python.org/
+input:
+  - meta: Validated experiment-group identity.
+  - peak_dirs: Semantic per-replicate Peak Calling directories.
+  - request: Validated Consensus request.
+  - strategy: Explicit union, intersection, or replicate_support provider identity.
+output:
+  - artifacts: Semantic consolidated result directory.
+  - reports: Commands, atomic multi-intersection, and replicate evidence.
+  - versions: BEDTools and Python versions.
+  - execution_metadata: Commands, Nextflow version, resources, and environment.
+  - manifest: Consolidated experiment manifest.
+  - status: Completion marker.

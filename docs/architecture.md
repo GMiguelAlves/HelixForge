@@ -100,10 +100,13 @@ matrix correction before DESeq2. The legacy batch wrapper remains available
 only with the legacy DE fallback; final reporting remains a compatibility
 wrapper.
 
-For ChIP-seq, `qc`, `alignment`, `post_alignment`, and `peaks` use the native foundation. The workflow
+For ChIP-seq, `qc`, `alignment`, `post_alignment`, `peaks`, `peak_qc`,
+`consensus`, and `idr` use the native foundation. The workflow
 reuses generic FastQC/MultiQC and the generic Alignment API with Bowtie2.
 MAPQ/flag selection, duplicate handling, optional blacklist exclusion and final
-BAM integrity/QC and per-replicate peak calling are native independent
-boundaries. Consensus, differential binding, annotation, tracks and reporting
-remain legacy fallback until their scientific contracts are implemented.
+BAM integrity/QC, per-replicate peak calling, Peak QC and interval consensus
+are native independent boundaries. IDR currently validates a provider request
+without producing statistical peaks. Differential binding, annotation, tracks
+and reporting remain legacy fallback until their scientific contracts are
+implemented.
 See `docs/chipseq-architecture.md` for the staged graph.

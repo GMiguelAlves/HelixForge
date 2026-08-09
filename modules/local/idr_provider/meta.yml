@@ -1,0 +1,18 @@
+name: idr_provider
+description: Validate and materialize an explicit pending IDR provider request without fabricating results.
+keywords: [chipseq, idr, reproducibility, provider]
+tools:
+  - python:
+      description: Python programming language.
+      homepage: https://www.python.org/
+input:
+  - meta: Validated experiment-group identity.
+  - peak_dirs: Two premerged biological-replicate Peak Calling directories.
+  - request: Validated IDR request with explicit threshold and rank metric.
+output:
+  - artifacts: Pending provider request directory; no consolidated peaks.
+  - reports: Explicit not-implemented provider log.
+  - versions: Provider-runtime and Python status.
+  - execution_metadata: Structured pending execution record.
+  - manifest: IDR manifest with consolidated_peaks.available=false.
+  - status: Explicit not_implemented marker.

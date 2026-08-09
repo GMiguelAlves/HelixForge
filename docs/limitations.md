@@ -4,9 +4,10 @@
   Salmon, and Import API outputs are content-tracked Nextflow artifacts and
   compatibility copies are published at the existing paths.
 - ChIP raw QC, Bowtie2 alignment, BAM selection, duplicate policy, blacklist
-  exclusion, final BAM QC, per-replicate MACS3 peak calling and Peak QC fan out natively.
-  Consensus, IDR, annotation, tracks and differential binding still use
-  compatibility wrappers or remain future work.
+  exclusion, final BAM QC, per-replicate MACS3 peak calling, Peak QC and
+  interval consensus fan out natively. IDR has a validated provider boundary
+  only; annotation, tracks and differential binding still use compatibility
+  wrappers or remain future work.
 - The generic compatibility process uses resource classes rather than exact
   per-tool requirements.
 - Container and native Conda profiles remain placeholders for legacy tools.
@@ -46,10 +47,15 @@
   library-level merge policy is still required before biological consensus.
 - MACS3 3.0.4 was not installed locally and no working container runtime was
   available during foundation 0.3 validation. Functional and cache scripts are
-  present, but only unit/stub validation is claimed here. Peak QC architecture,
-  pure functions, schema, DAG and cache were validated in stub mode; no real
-  SAMtools/BEDTools FRiP value, consensus or IDR result is claimed. The pinned
+  present, but only unit/stub validation is claimed here. Peak QC and Consensus
+  architecture, pure functions, schema and DAG were validated in stub mode; no
+  real SAMtools/BEDTools FRiP or consensus value and no IDR result is claimed. The pinned
   Conda environment is defined, while a joint OCI image remains unpublished and
   therefore defaults to null rather than an unverified image reference.
+- Native consensus uses a pinned Conda BEDTools version, but no verified joint
+  OCI/Apptainer image is published yet. Its provider was not benchmarked or
+  compared with the legacy union in this local stage. IDR is intentionally
+  `not_implemented`: the manifest records unavailable peaks and no placeholder
+  interval file is emitted.
 - Existing `.done` files remain active inside legacy pipelines. Nextflow status
   markers are an additional orchestration layer.
