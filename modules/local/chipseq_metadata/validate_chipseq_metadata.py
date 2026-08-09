@@ -201,16 +201,25 @@ def main():
         allow_missing = clean(settings.get("ALLOW_MISSING_CONTROLS")).lower() in TRUE_VALUES
         controls = validate_relationships(rows, allow_missing)
 
-        alignment_enabled = clean(settings.get("NATIVE_RUN_MODE")).lower() == "alignment"
+        native_mode = clean(settings.get("NATIVE_RUN_MODE")).lower()
+        alignment_enabled = native_mode in {"alignment", "post_alignment"}
+        bam_processing_enabled = native_mode == "post_alignment"
         reference = resolve_file(
             settings.get("GENOME_FASTA"), os.getcwd(), "GENOME_FASTA", "reference", alignment_enabled
         )
         annotation = resolve_file(
             settings.get("ANNOTATION_FILE"), os.getcwd(), "ANNOTATION_FILE", "reference", False
         )
+        blacklist = (
+            resolve_file(settings.get("BLACKLIST_BED"), os.getcwd(), "BLACKLIST_BED", "reference", False)
+            if bam_processing_enabled
+            else clean(settings.get("BLACKLIST_BED"))
+        )
         index_prefix = clean(settings.get("BOWTIE2_INDEX_PREFIX"))
         if alignment_enabled and not index_prefix:
             raise ValueError("BOWTIE2_INDEX_PREFIX is required for the Bowtie2 provider")
+        if bam_processing_enabled and not clean(settings.get("FILTER_DIR")):
+            raise ValueError("FILTER_DIR is required for native post-alignment processing")
 
         normalized_fields = list(rows[0].keys())
         write_tsv(args.normalized, rows, normalized_fields)
@@ -221,15 +230,22 @@ def main():
                 **row,
                 "genome_fasta": reference,
                 "annotation_file": annotation,
+                "blacklist_bed": blacklist,
                 "qc_dir": clean(settings.get("QC_DIR")),
                 "align_dir": clean(settings.get("ALIGN_DIR")),
+                "filter_dir": clean(settings.get("FILTER_DIR")),
                 "index_prefix": index_prefix,
                 "bowtie2_build_opts": clean(settings.get("BOWTIE2_BUILD_OPTS")),
                 "bowtie2_opts": clean(settings.get("BOWTIE2_OPTS")),
+                "min_mapq": clean(settings.get("MIN_MAPQ")) or "30",
+                "remove_secondary_supplementary": clean(settings.get("REMOVE_SECONDARY_SUPPLEMENTARY")) or "true",
+                "remove_duplicates": clean(settings.get("REMOVE_DUPLICATES")) or "false",
+                "dedup_tool": clean(settings.get("DEDUP_TOOL")) or "samtools",
             })
         plan_fields = normalized_fields + [
-            "genome_fasta", "annotation_file", "qc_dir", "align_dir",
-            "index_prefix", "bowtie2_build_opts", "bowtie2_opts",
+            "genome_fasta", "annotation_file", "blacklist_bed", "qc_dir", "align_dir", "filter_dir",
+            "index_prefix", "bowtie2_build_opts", "bowtie2_opts", "min_mapq",
+            "remove_secondary_supplementary", "remove_duplicates", "dedup_tool",
         ]
         write_tsv(args.plan, plan_rows, plan_fields)
         write_tsv(args.controls, controls, ["record_id", "sample_id", "control_id"])

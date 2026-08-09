@@ -2,6 +2,7 @@ include { CHIPSEQ_REFERENCE }    from '../subworkflows/local/chipseq/reference'
 include { CHIPSEQ_QC_ALIGNMENT } from '../subworkflows/local/chipseq/qc_alignment'
 include { CHIPSEQ_PEAK_ANALYSIS } from '../subworkflows/local/chipseq/peak_analysis'
 include { CHIPSEQ_NATIVE_FOUNDATION } from '../subworkflows/local/chipseq/native_foundation'
+include { LEGACY_STEP as CHIPSEQ_LEGACY_PEAKS } from '../modules/local/legacy_step/main'
 
 workflow CHIPSEQ {
     take:
@@ -11,14 +12,24 @@ workflow CHIPSEQ {
     config_file = file(params.chipseq_config, checkIfExists: true)
     legacy_root = "${projectDir}/pipelines/chipseq/legacy"
     run_mode = params.chipseq_run_mode.toString().toLowerCase()
-    if (!(run_mode in ['qc', 'alignment', 'peaks', 'full'])) {
-        error "Unknown chipseq_run_mode '${params.chipseq_run_mode}'. Use qc, alignment, peaks, or full."
+    if (!(run_mode in ['qc', 'alignment', 'post_alignment', 'peaks', 'full'])) {
+        error "Unknown chipseq_run_mode '${params.chipseq_run_mode}'. Use qc, alignment, post_alignment, peaks, or full."
     }
 
-    if (params.chipseq_native_foundation && run_mode in ['qc', 'alignment']) {
+    if (params.chipseq_native_foundation && run_mode in ['qc', 'alignment', 'post_alignment']) {
         CHIPSEQ_NATIVE_FOUNDATION(config_file, legacy_root, seed)
-        completed_ch = CHIPSEQ_NATIVE_FOUNDATION.out.completed
-        logs_ch = CHIPSEQ_NATIVE_FOUNDATION.out.logs
+        if (run_mode == 'post_alignment' && params.chipseq_continue_legacy_peaks) {
+            no_dep = channel.value('none')
+            CHIPSEQ_LEGACY_PEAKS(
+                'chipseq', 'peaks', 'high_cpu', config_file, legacy_root,
+                CHIPSEQ_NATIVE_FOUNDATION.out.completed.collect(), no_dep, no_dep
+            )
+            completed_ch = CHIPSEQ_LEGACY_PEAKS.out.status
+            logs_ch = CHIPSEQ_NATIVE_FOUNDATION.out.logs.mix(CHIPSEQ_LEGACY_PEAKS.out.log)
+        } else {
+            completed_ch = CHIPSEQ_NATIVE_FOUNDATION.out.completed
+            logs_ch = CHIPSEQ_NATIVE_FOUNDATION.out.logs
+        }
     } else {
         CHIPSEQ_REFERENCE(config_file, legacy_root, seed)
         CHIPSEQ_QC_ALIGNMENT(config_file, legacy_root, CHIPSEQ_REFERENCE.out.status, seed)

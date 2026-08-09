@@ -41,8 +41,9 @@ process CHIPSEQ_CONTEXT {
     printf 'NATIVE_RUN_MODE\t%s\n' '${params.chipseq_run_mode}' >> chipseq_context/settings.tsv
     for key in \
         FASTQ_DIR GENOME_FASTA ANNOTATION_FILE BLACKLIST_BED ORGANISM_NAME \
-        OUTPUT_DIR QC_DIR ALIGN_DIR REF_DIR ALIGNER BOWTIE2_INDEX_PREFIX \
+        OUTPUT_DIR QC_DIR ALIGN_DIR FILTER_DIR REF_DIR ALIGNER BOWTIE2_INDEX_PREFIX \
         BOWTIE2_BUILD_OPTS BOWTIE2_OPTS READ_LAYOUT ALLOW_MISSING_CONTROLS \
+        MIN_MAPQ REMOVE_SECONDARY_SUPPLEMENTARY REMOVE_DUPLICATES DEDUP_TOOL \
         THREADS MEMORY SLURM_TIME; do
         printf '%s\t%s\n' "\$key" "\${!key:-}" >> chipseq_context/settings.tsv
     done
@@ -67,6 +68,7 @@ process CHIPSEQ_CONTEXT {
     printf '>chrStub\nACGTACGTACGTACGT\n' > chipseq_context/reference/genome.fa
     printf 'chrStub\tstub\tgene\t1\t16\t.\t+\t.\tgene_id "stub";\n' \
         > chipseq_context/reference/annotation.gtf
+    printf 'chrStub\t4\t8\n' > chipseq_context/reference/blacklist.bed
     printf '%s\n' \
         'sample_id	fastq_1	fastq_2	layout	assay	mark_or_factor	condition	replicate	biological_replicate	technical_replicate	batch	control_id	is_control	organism	genome_id	dataset' \
         'input_rep1	input_rep1_R1.fastq	input_rep1_R2.fastq	paired	input	input	control	1	1	1	batch1		true	stub	stub_v1	STUB' \
@@ -77,11 +79,11 @@ process CHIPSEQ_CONTEXT {
     printf 'FASTQ_DIR\t%s/chipseq_context/fastq\n' "\$PWD" >> chipseq_context/settings.tsv
     printf 'GENOME_FASTA\t%s/chipseq_context/reference/genome.fa\n' "\$PWD" >> chipseq_context/settings.tsv
     printf 'ANNOTATION_FILE\t%s/chipseq_context/reference/annotation.gtf\n' "\$PWD" >> chipseq_context/settings.tsv
-    printf 'BLACKLIST_BED\t\nORGANISM_NAME\tstub\nOUTPUT_DIR\t%s\n' '${params.outdir}' >> chipseq_context/settings.tsv
-    printf 'QC_DIR\t%s/stub/030-qc-fastq\nALIGN_DIR\t%s/stub/050-alignment\nREF_DIR\t%s/stub/010-reference\n' \
-        '${params.outdir}' '${params.outdir}' '${params.outdir}' >> chipseq_context/settings.tsv
+    printf 'BLACKLIST_BED\t%s/chipseq_context/reference/blacklist.bed\nORGANISM_NAME\tstub\nOUTPUT_DIR\t%s\n' "\$PWD" '${params.outdir}' >> chipseq_context/settings.tsv
+    printf 'QC_DIR\t%s/stub/030-qc-fastq\nALIGN_DIR\t%s/stub/050-alignment\nFILTER_DIR\t%s/stub/060-filtering\nREF_DIR\t%s/stub/010-reference\n' \
+        '${params.outdir}' '${params.outdir}' '${params.outdir}' '${params.outdir}' >> chipseq_context/settings.tsv
     printf 'ALIGNER\tbowtie2\nBOWTIE2_INDEX_PREFIX\t%s/stub/010-reference/bowtie2/genome\n' '${params.outdir}' >> chipseq_context/settings.tsv
-    printf 'BOWTIE2_BUILD_OPTS\t\nBOWTIE2_OPTS\t--very-sensitive\nREAD_LAYOUT\tmetadata\nALLOW_MISSING_CONTROLS\tfalse\nTHREADS\t1\nMEMORY\t1G\nSLURM_TIME\t00:05:00\n' \
+    printf 'BOWTIE2_BUILD_OPTS\t\nBOWTIE2_OPTS\t--very-sensitive\nREAD_LAYOUT\tmetadata\nALLOW_MISSING_CONTROLS\tfalse\nMIN_MAPQ\t30\nREMOVE_SECONDARY_SUPPLEMENTARY\ttrue\nREMOVE_DUPLICATES\ttrue\nDEDUP_TOOL\tsamtools\nTHREADS\t1\nMEMORY\t1G\nSLURM_TIME\t00:05:00\n' \
         >> chipseq_context/settings.tsv
     printf '[STUB] ChIP-seq context\n' > chipseq.context.log
     printf '"CHIPSEQ_CONTEXT":\n    bash: stub\n' > chipseq.context.versions.yml
