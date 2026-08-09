@@ -4,6 +4,7 @@ include { CHIPSEQ_PEAK_ANALYSIS } from '../subworkflows/local/chipseq/peak_analy
 include { CHIPSEQ_NATIVE_FOUNDATION } from '../subworkflows/local/chipseq/native_foundation'
 include { LEGACY_STEP as CHIPSEQ_LEGACY_PEAKS } from '../modules/local/legacy_step/main'
 include { LEGACY_STEP as CHIPSEQ_LEGACY_CONSENSUS } from '../modules/local/legacy_step/main'
+include { LEGACY_STEP as CHIPSEQ_LEGACY_DIFFERENTIAL } from '../modules/local/legacy_step/main'
 
 workflow CHIPSEQ {
     take:
@@ -16,14 +17,16 @@ workflow CHIPSEQ {
     native_peak_calling = params.chipseq_native_peak_calling.toString().toBoolean()
     native_peak_qc = params.chipseq_native_peak_qc.toString().toBoolean()
     native_consensus = params.chipseq_native_consensus.toString().toBoolean()
-    if (!(run_mode in ['qc', 'alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'full'])) {
-        error "Unknown chipseq_run_mode '${params.chipseq_run_mode}'. Use qc, alignment, post_alignment, peaks, peak_qc, consensus, idr, or full."
+    native_differential = params.chipseq_native_differential_binding.toString().toBoolean()
+    if (!(run_mode in ['qc', 'alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'full'])) {
+        error "Unknown chipseq_run_mode '${params.chipseq_run_mode}'. Use qc, alignment, post_alignment, peaks, peak_qc, consensus, idr, differential_binding, or full."
     }
 
     native_mode = params.chipseq_native_foundation && (
         run_mode in ['qc', 'alignment', 'post_alignment'] ||
         (run_mode in ['peaks', 'peak_qc'] && native_peak_calling) ||
-        (run_mode in ['consensus', 'idr'] && native_peak_calling && native_peak_qc && native_consensus)
+        (run_mode in ['consensus', 'idr'] && native_peak_calling && native_peak_qc && native_consensus) ||
+        (run_mode == 'differential_binding' && native_peak_calling && native_peak_qc && native_consensus && native_differential)
     )
 
     if (native_mode) {
@@ -50,6 +53,14 @@ workflow CHIPSEQ {
         logs_ch = CHIPSEQ_LEGACY_CONSENSUS.out.log
     } else if (run_mode == 'idr') {
         error 'No scientifically equivalent legacy IDR provider exists; enable the native foundation, peak calling, Peak QC, and Consensus/IDR context'
+    } else if (run_mode == 'differential_binding') {
+        no_dep = channel.value('none')
+        CHIPSEQ_LEGACY_DIFFERENTIAL(
+            'chipseq', 'differential', 'high_memory', config_file, legacy_root,
+            seed, no_dep, no_dep
+        )
+        completed_ch = CHIPSEQ_LEGACY_DIFFERENTIAL.out.status
+        logs_ch = CHIPSEQ_LEGACY_DIFFERENTIAL.out.log
     } else if (run_mode in ['peaks', 'peak_qc'] && !native_peak_calling) {
         no_dep = channel.value('none')
         CHIPSEQ_LEGACY_PEAKS(

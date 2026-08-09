@@ -9,6 +9,7 @@ include { PEAK_CALLING_CONTEXT } from '../../../modules/local/peak_calling_conte
 include { PEAK_CALLING } from './peak_calling'
 include { PEAK_QC } from './peak_qc'
 include { CONSENSUS_IDR } from './consensus'
+include { DIFFERENTIAL_BINDING } from './differential_binding'
 
 workflow CHIPSEQ_NATIVE_FOUNDATION {
     take:
@@ -23,7 +24,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     CHIPSEQ_METADATA(CHIPSEQ_CONTEXT.out.artifacts)
 
     peak_context_artifacts_ch = channel.empty()
-    if (mode in ['peaks', 'peak_qc', 'consensus', 'idr']) {
+    if (mode in ['peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding']) {
         def peak_spec = [
             caller                : params.chipseq_peak_caller,
             caller_version        : '3.0.4',
@@ -181,7 +182,11 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     consolidation_artifacts_ch = channel.empty()
     consolidation_manifest_ch = channel.empty()
     consolidation_reports_ch = channel.empty()
-    if (mode in ['alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr']) {
+    differential_binding_status_ch = channel.empty()
+    differential_binding_artifacts_ch = channel.empty()
+    differential_binding_manifest_ch = channel.empty()
+    differential_binding_reports_ch = channel.empty()
+    if (mode in ['alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding']) {
         reference_inputs = plan_rows
             .map { row ->
                 def prefix = file(row.index_prefix)
@@ -224,7 +229,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
         alignment_manifest_ch = ALIGNMENT.out.manifest
         alignment_reports_ch = ALIGNMENT.out.reports
 
-        if (mode in ['post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr']) {
+        if (mode in ['post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding']) {
             if (!params.chipseq_native_bam_processing) {
                 error 'chipseq_run_mode=post_alignment requires chipseq_native_bam_processing=true'
             }
@@ -254,7 +259,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             bam_reports_ch = CHIPSEQ_BAM_PROCESSING.out.reports
             bam_artifacts_ch = CHIPSEQ_BAM_PROCESSING.out.artifacts
 
-            if (mode in ['peaks', 'peak_qc', 'consensus', 'idr']) {
+            if (mode in ['peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding']) {
                 if (!params.chipseq_native_peak_calling.toString().toBoolean()) {
                     error "chipseq_run_mode=${mode} requires chipseq_native_peak_calling=true in the native path"
                 }
@@ -268,7 +273,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                 peak_manifests_ch = PEAK_CALLING.out.manifests
                 peak_reports_ch = PEAK_CALLING.out.reports
 
-                if (mode in ['peak_qc', 'consensus', 'idr'] && params.chipseq_native_peak_qc.toString().toBoolean()) {
+                if (mode in ['peak_qc', 'consensus', 'idr', 'differential_binding'] && params.chipseq_native_peak_qc.toString().toBoolean()) {
                     def peak_qc_spec = [
                         unit                     : params.chipseq_frip_unit,
                         min_mapq                 : params.chipseq_frip_min_mapq,
@@ -298,7 +303,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                     peak_qc_replicate_manifests_ch = PEAK_QC.out.replicate_manifests
                     peak_qc_reports_ch = PEAK_QC.out.reports
 
-                    if (mode in ['consensus', 'idr']) {
+                    if (mode in ['consensus', 'idr', 'differential_binding']) {
                         if (!params.chipseq_native_consensus.toString().toBoolean()) {
                             error "chipseq_run_mode=${mode} requires chipseq_native_consensus=true in the native path"
                         }
@@ -329,6 +334,25 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                         consolidation_artifacts_ch = CONSENSUS_IDR.out.summary
                         consolidation_manifest_ch = CONSENSUS_IDR.out.manifest
                         consolidation_reports_ch = CONSENSUS_IDR.out.reports
+
+                        if (mode == 'differential_binding') {
+                            if (!params.chipseq_native_differential_binding.toString().toBoolean()) {
+                                error 'chipseq_run_mode=differential_binding requires chipseq_native_differential_binding=true in the native path'
+                            }
+                            def db_spec_file = file(params.chipseq_db_spec, checkIfExists: true)
+                            DIFFERENTIAL_BINDING(
+                                CONSENSUS_IDR.out.artifacts,
+                                CONSENSUS_IDR.out.provider_manifests,
+                                CHIPSEQ_BAM_PROCESSING.out.artifacts,
+                                CHIPSEQ_BAM_PROCESSING.out.final_manifest,
+                                peak_context_artifacts_ch,
+                                channel.value(db_spec_file)
+                            )
+                            differential_binding_status_ch = DIFFERENTIAL_BINDING.out.status
+                            differential_binding_artifacts_ch = DIFFERENTIAL_BINDING.out.artifacts
+                            differential_binding_manifest_ch = DIFFERENTIAL_BINDING.out.manifest
+                            differential_binding_reports_ch = DIFFERENTIAL_BINDING.out.reports
+                        }
                     }
                 }
             }
@@ -337,11 +361,13 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
 
     completed_ch = mode == 'qc' \
         ? MULTIQC.out.status \
-        : (mode in ['consensus', 'idr'] \
+        : (mode == 'differential_binding' \
+            ? differential_binding_status_ch \
+            : (mode in ['consensus', 'idr'] \
             ? consolidation_status_ch \
             : (mode == 'peak_qc' \
             ? (params.chipseq_native_peak_qc.toString().toBoolean() ? peak_qc_status_ch : peak_status_ch) \
-            : (mode == 'peaks' ? peak_status_ch : (mode == 'post_alignment' ? bam_status_ch : alignment_status_ch))))
+            : (mode == 'peaks' ? peak_status_ch : (mode == 'post_alignment' ? bam_status_ch : alignment_status_ch)))))
 
     emit:
     completed           = completed_ch
@@ -362,6 +388,9 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     consolidated_peaks  = consolidation_artifacts_ch
     consolidation_manifest = consolidation_manifest_ch
     consolidation_reports = consolidation_reports_ch
+    differential_binding = differential_binding_artifacts_ch
+    differential_binding_manifest = differential_binding_manifest_ch
+    differential_binding_reports = differential_binding_reports_ch
     logs                = CHIPSEQ_CONTEXT.out.reports
         .mix(CHIPSEQ_METADATA.out.reports.map { metadata_meta, _normalized, _controls, _report, log -> tuple(metadata_meta, log) })
         .mix(FASTQC.out.reports.map { fastqc_meta, _html, log -> tuple(fastqc_meta, log) })
