@@ -47,12 +47,42 @@ def main() -> None:
         source_by_key[key] = source
 
     selected: list[dict[str, str]] = []
-    seen: set[tuple[str, str]] = set()
-    for row in metadata:
-        key = (row.get("dataset", ""), row.get("sample_id", ""))
-        if not key[1] or key in seen or (args.project and key[0] != args.project):
+    seen: dict[tuple[str, str], dict[str, str]] = {}
+    seen_runs: set[str] = set()
+    for line_number, row in enumerate(metadata, start=2):
+        key = ((row.get("dataset") or "").strip(), (row.get("sample_id") or "").strip())
+        if not key[0] or not key[1]:
+            raise ValueError(
+                f"metadata row {line_number} has an empty dataset or sample_id"
+            )
+        if key in seen:
+            run = (row.get("run_accession") or "").strip()
+            if "run_accession" not in fields or not run:
+                raise ValueError(f"duplicated metadata sample at row {line_number}: {key[0]}/{key[1]}")
+            if run in seen_runs:
+                raise ValueError(f"duplicated run_accession at row {line_number}: {run}")
+            run_specific = {"run_accession", "lane"}
+            conflicts = [
+                field for field in fields
+                if field not in run_specific
+                and not field.startswith(("fastq_", "raw_", "trimmed_", "quant_", "__"))
+                and (seen[key].get(field) or "").strip() != (row.get(field) or "").strip()
+            ]
+            if conflicts:
+                raise ValueError(
+                    f"inconsistent metadata across technical runs for {key[0]}/{key[1]}: "
+                    + ", ".join(conflicts)
+                )
+            seen_runs.add(run)
             continue
-        seen.add(key)
+        if args.project and key[0] != args.project:
+            continue
+        seen[key] = row
+        run = (row.get("run_accession") or "").strip()
+        if run:
+            if run in seen_runs:
+                raise ValueError(f"duplicated run_accession at row {line_number}: {run}")
+            seen_runs.add(run)
         source = source_by_key.get(key)
         if source is None:
             if args.allow_missing:
@@ -60,6 +90,8 @@ def main() -> None:
             raise ValueError(f"provider artifact missing for {key[0]}/{key[1]}")
         import_id = key[1] if args.project else f"{key[0]}__{key[1]}"
         out = dict(row)
+        out["dataset"] = key[0]
+        out["sample_id"] = key[1]
         out["import_id"] = import_id
         out["quant_file"] = str(source.get("compatibility_path", ""))
         out["quant_exists"] = "TRUE" if args.provider == "salmon" else "True"

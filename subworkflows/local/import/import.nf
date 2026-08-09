@@ -32,11 +32,13 @@ workflow IMPORT {
     SALMON_SAMPLE_TABLE(salmon_sample_context, salmon_sources)
     STAR_SAMPLE_TABLE(star_sample_context, star_sources)
 
-    tx2gene_inputs = salmon_context.map { meta, _metadata, annotation, _import_params ->
+    tx2gene_inputs = salmon_context.map { meta, _metadata, annotation, import_params ->
         def tx_meta = meta + [id: "${meta.id}.tx2gene"]
         tuple(tx_meta, annotation, [
-            strip_transcript_version: true,
-            strip_gene_version      : true
+            strip_transcript_version: import_params.ignoreTxVersion,
+            strip_gene_version      : import_params.stripGeneVersion,
+            strip_transcript_prefix : import_params.stripTranscriptPrefix,
+            strip_gene_prefix       : import_params.stripGenePrefix
         ])
     }
     TX2GENE_BUILD(tx2gene_inputs)

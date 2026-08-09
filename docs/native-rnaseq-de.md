@@ -16,10 +16,11 @@ flowchart LR
 ```
 
 `DE_PREFLIGHT` checks Import manifest checksums, sample identity, design
-fields, replicate counts, contrast levels, uniqueness, and matrix rank. Only
-the legacy Wald test is accepted. `DESEQ2_MODEL` preserves integer rounding,
-negative-value truncation, strict `rowSums > 10`, formula ordering, default
-`DESeq()` fitting, normalized counts, DDS, PCA, and heatmap behavior.
+fields, missing values, replicate counts, contrast levels, uniqueness, count
+validity, filtering policy and matrix rank. Only the Wald test is accepted.
+`DESEQ2_MODEL` applies the explicit fractional-count and filter policies,
+preserves formula ordering, and runs default `DESeq()` fitting, normalized
+counts, DDS, PCA, and heatmap behavior.
 `DESEQ2_CONTRAST` preserves `results(..., alpha=0.05)`, contrast direction,
 annotation, table layout, volcano plot, and significance thresholds.
 
@@ -34,7 +35,7 @@ while compatibility tables retain DESeq2's `stat`.
 
 | Legacy responsibility | Native implementation |
 |---|---|
-| `generate_deg_plan.py` validation and plan | `RNASEQ_DE_CONTEXT` + `DE_PREFLIGHT` |
+| user DE JSON + validation | `RNASEQ_DE_CONTEXT` + `DE_PREFLIGHT` |
 | DESeq2 fit inside `deseq2_analysis.R` | `DESEQ2_MODEL` |
 | pairwise `results()` loop | one `DESEQ2_CONTRAST` per comparison |
 | concatenation and summary writes | `DE_AGGREGATE` |
@@ -49,7 +50,8 @@ The original scripts are unchanged and remain available with
 - Full hybrid RNA-seq `stub-run`: passed through the report wrapper.
 - Isolated native DE `stub-run`: passed.
 - Preflight cases for valid input, duplicate samples, unavailable contrast
-  level, missing design field, and unsupported LRT: passed.
+  level, missing design/contrast values, negative counts, and unsupported LRT:
+  passed.
 - R parse validation for both provider scripts: passed.
 - Contrast-only cache regression: prepared in `run_cache_tests.sh`; not run
   locally because it requires the same complete image as scientific regression.
@@ -60,13 +62,13 @@ The original scripts are unchanged and remain available with
   was corrected, but its second build was intentionally stopped to avoid more
   compute and credit use.
 
-No scientific-equivalence claim is made until `run_regression.sh` passes.
-No real benchmark is reported for the same reason; stub timing is not
-scientifically useful.
+No scientific-equivalence claim is made until `run_regression.sh` passes. No
+real benchmark is reported; stub timing is not scientifically useful.
 
 ## Next step
 
-Let CI build `ghcr.io/gmiguelalves/omicsflow-deseq2:1.0.0`, then run the golden
-regression and cache test on a Docker runner. After equivalence is confirmed,
-batch correction is the next migration target. Final reporting should remain
-downstream of the stable Differential Expression manifest.
+Run the golden regression and cache test on a runner that already has the
+pinned image. Batch should be represented as a design covariate; matrix
+correction must remain a separate exploratory output and must not be inserted
+automatically before inference. Final reporting should remain downstream of
+the stable Differential Expression manifest.

@@ -78,5 +78,8 @@ The Import API consumes only the provider selected by authoritative
 `QUANT_METHOD`. It validates upstream manifests, builds a sample table, then
 normalizes Salmon through `TX2GENE_BUILD` + `TXIMPORT` or STAR gene counts
 through `STAR_IMPORT`. The Differential Expression API consumes only the
-common matrix, metadata, and manifest. Batch correction and final reports
-remain compatibility wrappers.
+common matrix, metadata, manifest, and a user-supplied DE specification. The
+native path models batch only as an explicit design covariate and does not run
+matrix correction before DESeq2. The legacy batch wrapper remains available
+only with the legacy DE fallback; final reporting remains a compatibility
+wrapper.

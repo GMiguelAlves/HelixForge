@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "analysis_id": "primary",
+  "scope": "all_projects",
+  "correction": "raw",
+  "provider": "deseq2",
+  "test": "wald",
+  "target_dir": "results/rnaseq/differential_expression/primary",
+  "design": {
+    "variable": "condition",
+    "covariates": ["batch"],
+    "formula": "~ batch + condition"
+  },
+  "contrasts": [
+    {
+      "id": "condition__treated_vs_control",
+      "factor": "condition",
+      "numerator": "treated",
+      "denominator": "control",
+      "description": "treated versus control",
+      "direction": "treated/control"
+    }
+  ],
+  "filter": {
+    "method": "none"
+  },
+  "parameters": {
+    "alpha": 0.05,
+    "lfc_threshold": 1.0,
+    "min_replicates": 2,
+    "non_integer_counts": "round"
+  }
+}

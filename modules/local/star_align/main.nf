@@ -45,6 +45,11 @@ process STAR_ALIGN {
     stats_dir='${meta.id}.alignment_statistics'
     mkdir -p "\$logs_dir" "\$stats_dir"
 
+    if [[ '${extra_args}' =~ --(genomeDir|readFilesIn|runThreadN|outFileNamePrefix|outSAMtype|quantMode)([[:space:]]|$) ]]; then
+        echo '[ERRO] STAR_EXTRA_ARGS tenta substituir um argumento controlado pela Alignment API.' >&2
+        exit 2
+    fi
+
     CMD=(
         STAR
         --genomeDir '${alignment_index}'

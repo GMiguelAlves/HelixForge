@@ -4,7 +4,7 @@ This document defines the interface required for every new native Nextflow DSL2
 module in OmicsFlow. The contract standardizes orchestration and provenance; it
 does not force unrelated scientific tools to produce the same file types.
 
-Contract version: `1.3`
+Contract version: `1.5`
 
 This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
 later native module.
@@ -67,6 +67,12 @@ tuple val(meta), path(read_r1), path(read_r2)
 Additional parameters must be explicit `val` or `path` inputs. Scientific
 parameters must come from the authoritative pipeline configuration or the
 calling workflow; modules must not introduce hidden scientific defaults.
+
+Biological identifiers and categorical metadata values must be preserved.
+Normalization of versions, prefixes, case, punctuation, or missing values is a
+scientific input parameter, never an implicit convenience. A requested
+normalization must detect collisions and record the policy in execution
+metadata. Invalid numeric values must fail; they must not be replaced with zero.
 
 ## Outputs
 
@@ -233,3 +239,11 @@ versioned values, while counts, metadata, and their Import manifest are tracked
 files. Providers emit common statistical field names without removing
 provider-native compatibility files. Unsupported statistical tests must fail
 explicitly and must never be approximated silently.
+
+Contract 1.5 adds scientific input integrity. Metadata keys must be non-empty
+and unique at their declared granularity. Design, contrasts, expression filter,
+fractional-count handling, gene/transcript ID normalization, and stranded count
+selection are explicit versioned values. Modules fail on collisions, unmapped
+required identifiers, negative counts, and missing design values.
+Library protocol and transcript-length correction strategy are also explicit
+when transcript abundance estimates feed gene-level inference.

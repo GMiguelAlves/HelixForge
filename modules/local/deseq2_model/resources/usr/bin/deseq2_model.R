@@ -27,7 +27,7 @@ if (!identical(spec$test, "wald")) stop("only the legacy Wald test is supported"
 test_var <- spec$variable
 covariates <- unlist(spec$covariates, use.names = FALSE)
 valid_levels <- unlist(spec$valid_levels, use.names = FALSE)
-min_total_count <- as.numeric(spec$parameters$min_total_count)
+non_integer_counts <- spec$parameters$non_integer_counts
 
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(file.path(out_dir, "plots"), recursive = TRUE, showWarnings = FALSE)
@@ -39,9 +39,15 @@ counts <- counts[, -1, drop = FALSE]
 rownames(counts) <- gene_ids
 counts[] <- lapply(counts, function(x) as.numeric(as.character(x)))
 if (anyNA(counts)) stop("count matrix contains non-numeric values")
-counts <- round(as.matrix(counts))
+counts <- as.matrix(counts)
+if (any(counts < 0)) stop("count matrix contains negative values")
+if (any(counts != round(counts))) {
+  if (!identical(non_integer_counts, "round")) {
+    stop("fractional counts require parameters.non_integer_counts=round")
+  }
+  counts <- round(counts)
+}
 storage.mode(counts) <- "integer"
-counts[counts < 0] <- 0L
 
 samples <- read.delim(samples_file, header = TRUE, sep = "\t", check.names = FALSE, stringsAsFactors = FALSE)
 if (!"__rowname" %in% colnames(samples)) stop("validated sample metadata lacks __rowname")
@@ -49,9 +55,18 @@ rownames(samples) <- samples$`__rowname`
 samples$`__rowname` <- NULL
 samples <- samples[colnames(counts), , drop = FALSE]
 
-keep_genes <- rowSums(counts) > min_total_count
+filter_method <- spec$filter$method
+if (identical(filter_method, "none")) {
+  keep_genes <- rep(TRUE, nrow(counts))
+} else if (identical(filter_method, "total_count")) {
+  threshold <- as.numeric(spec$filter$threshold)
+  totals <- rowSums(counts)
+  keep_genes <- if (identical(spec$filter$operator, ">")) totals > threshold else totals >= threshold
+} else {
+  stop("unsupported gene filter method")
+}
 counts_filt <- counts[keep_genes, , drop = FALSE]
-if (nrow(counts_filt) == 0) stop("no genes passed the legacy total-count filter")
+if (nrow(counts_filt) == 0) stop("no genes passed the configured expression filter")
 
 use_samples <- samples[[test_var]] %in% valid_levels
 coldata <- samples[use_samples, , drop = FALSE]
@@ -132,6 +147,8 @@ statistics <- list(
   samples = nrow(coldata),
   genes_before_filter = nrow(counts),
   genes_after_filter = nrow(counts_filt),
+  filter = spec$filter,
+  non_integer_counts = non_integer_counts,
   size_factors = as.list(setNames(as.numeric(sizeFactors(dds)), colnames(dds)))
 )
 jsonlite::write_json(statistics, file.path(out_dir, "model_statistics.json"), auto_unbox = TRUE, pretty = FALSE)
