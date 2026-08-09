@@ -1,11 +1,11 @@
 # ChIP-seq APIs
 
-ChIP-seq API version: `0.2`
+ChIP-seq API version: `0.3`
 
 These contracts define semantic roles independently from organism, aligner,
 peak caller and legacy directory names. Version 0.1 implemented metadata, raw
 QC and Bowtie2 alignment. Version 0.2 implements the independent BAM processing
-roles while peak APIs remain contracts only.
+roles. Version 0.3 implements Peak Calling API v1 with MACS3 3.0.4.
 
 ## Common experiment metadata
 
@@ -28,9 +28,10 @@ The normalized record shape is published as
 `schemas/chipseq-metadata-v0.1.schema.json`; a tabular example is available at
 `assets/chipseq_metadata.example.tsv`.
 
-Controls are referenced by `sample_id`, must exist and must be marked as a
-control. IP/control pairs must share dataset and genome build. The metadata
-validator does not infer controls by file name or row order.
+Controls may be referenced by an exact `record_id` or by a unique `sample_id`,
+must exist and must be marked as a control. IP/control pairs must share dataset,
+genome build, organism and layout. The validator does not infer controls by
+file name or row order and rejects ambiguous sample-level associations.
 
 ## Reference API
 
@@ -87,7 +88,7 @@ final index/QC. Each emits reports, versions, execution metadata, manifest and
 status. Policies are explicit cache inputs; a module may not silently adopt the
 legacy defaults. Full details are in `docs/native-chipseq-bam-processing.md`.
 
-## Peak Calling API (contract only)
+## Peak Calling API v1
 
 ```text
 Inputs:  IP meta + treatment BAM/BAI + optional matched control BAM/BAI
@@ -96,10 +97,11 @@ Outputs: semantic peaks + caller-native artifacts + statistics + logs
          versions + execution metadata + manifest + status
 ```
 
-`PEAK_CALLER` will dispatch providers such as MACS3 without exposing
-caller-specific filenames downstream. `peak_type` must be `narrow` or `broad`;
-the native API will not infer it from an antibody/target string. Missing
-controls and effective genome-size policy must be explicit, versioned choices.
+`PEAK_CALLING_CONTEXT` validates and gates the graph, `PEAK_CALLING` dispatches
+providers, MACS3 3.0.4 is the first implementation, and
+`PEAK_CALLING_AGGREGATE` validates/normalizes semantic artifacts. `peak_type`
+must be `narrow` or `broad`; no antibody/target inference is permitted. See
+`docs/peak_calling_api.md` for the complete contract.
 
 ## Replicate and consensus API (contract only)
 
@@ -111,12 +113,12 @@ possible future provider, not an implicit requirement.
 
 ## Modes and implementation state
 
-| Mode | Native state in 0.2 |
+| Mode | Native state in 0.3 |
 |---|---|
 | `qc` | metadata validation + raw FastQC + MultiQC |
 | `alignment` | native QC + Bowtie2 index/alignment |
 | `post_alignment` | native QC + alignment + final BAM processing |
-| `peaks` | legacy fallback |
+| `peaks` | native QC + alignment + BAM processing + per-replicate MACS3 |
 | `full` | legacy fallback |
 
 The fallback remains the complete legacy graph. Native and legacy outputs must

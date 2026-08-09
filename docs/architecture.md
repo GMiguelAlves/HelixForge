@@ -68,6 +68,10 @@ flowchart TB
     BAMSELECT --> BAMDUP["BAM_DUPLICATES"]
     BAMDUP --> BAMBLACK["BAM_BLACKLIST"]
     BAMBLACK --> BAMFINAL["BAM_INDEX_QC + final BAM"]
+    CHIPMETA --> PEAKCTX["PEAK_CALLING_CONTEXT"]
+    BAMFINAL --> MACS3["PEAK_CALLING / MACS3 3.0.4"]
+    PEAKCTX --> MACS3
+    MACS3 --> PEAKOUT["Semantic peaks + metrics + manifest"]
 ```
 
 Native modules emit primary artifacts, reports, versions, and status tuples.
@@ -96,10 +100,10 @@ matrix correction before DESeq2. The legacy batch wrapper remains available
 only with the legacy DE fallback; final reporting remains a compatibility
 wrapper.
 
-For ChIP-seq, `qc`, `alignment`, and `post_alignment` use the native foundation. The workflow
+For ChIP-seq, `qc`, `alignment`, `post_alignment`, and `peaks` use the native foundation. The workflow
 reuses generic FastQC/MultiQC and the generic Alignment API with Bowtie2.
 MAPQ/flag selection, duplicate handling, optional blacklist exclusion and final
-BAM integrity/QC are native independent boundaries. Peak calling, consensus,
-differential binding, annotation, tracks and reporting remain legacy fallback
-until their independent scientific contracts are implemented.
+BAM integrity/QC and per-replicate peak calling are native independent
+boundaries. Consensus, differential binding, annotation, tracks and reporting
+remain legacy fallback until their scientific contracts are implemented.
 See `docs/chipseq-architecture.md` for the staged graph.

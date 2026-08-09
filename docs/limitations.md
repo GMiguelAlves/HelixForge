@@ -4,8 +4,9 @@
   Salmon, and Import API outputs are content-tracked Nextflow artifacts and
   compatibility copies are published at the existing paths.
 - ChIP raw QC, Bowtie2 alignment, BAM selection, duplicate policy, blacklist
-  exclusion and final BAM QC fan out natively through `post_alignment` mode.
-  Peak-analysis stages still use compatibility wrappers.
+  exclusion, final BAM QC and per-replicate MACS3 peak calling fan out natively.
+  Consensus, IDR, annotation, tracks and differential binding still use
+  compatibility wrappers or remain future work.
 - The generic compatibility process uses resource classes rather than exact
   per-tool requirements.
 - Container and native Conda profiles remain placeholders for legacy tools.
@@ -38,9 +39,14 @@
   IntegrateSeq config must point to the actual RNA/ChIP result directories.
 - The minimal output manifest and Reference Bundle are specified but not yet
   generated automatically.
-- Native ChIP-seq foundation 0.2 aligns technical sequencing records
+- Native ChIP-seq foundation 0.3 aligns technical sequencing records
   independently. It validates their identity but does not yet merge them into
-  biological-library BAMs. MAPQ, duplicate and blacklist policies are native;
-  no native FRiP, peak, consensus or IDR result is claimed.
+  biological-library BAMs. MAPQ, duplicate and blacklist policies are native.
+  Peak Calling API v1 preserves each execution record independently; a future
+  library-level merge policy is still required before biological consensus.
+- MACS3 3.0.4 was not installed locally and no working container runtime was
+  available during foundation 0.3 validation. Functional and cache scripts are
+  present, but only unit/stub validation is claimed here. No native FRiP,
+  consensus or IDR result is claimed.
 - Existing `.done` files remain active inside legacy pipelines. Nextflow status
   markers are an additional orchestration layer.

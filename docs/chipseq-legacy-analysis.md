@@ -134,6 +134,18 @@ flagstat/idxstats/stats and optionally runs paired fragment-size, fingerprint
 and MultiQC reports. Every filtering and BAM-QC task inherits the broad legacy
 8 CPU, 32 GB, 12 h defaults.
 
+### Exact peak-calling command audit
+
+`080-peak-calling/call_peaks.sh` skips controls and runs one task per IP sample.
+It obtains treatment/control BAMs from the filtering directory, selects
+`BAMPE` for paired metadata and `BAM` otherwise, then invokes
+`PEAK_CALLER callpeak -t ... [-c ...] -f FORMAT -g GENOME_SIZE -n SAMPLE
+--outdir ... -q MACS_QVALUE [--broad] MACS_EXTRA_OPTS`. Genome-size `auto`
+sums `chrom.sizes`; peak-type `auto` applies `BROAD_MARK_REGEX` to the target.
+The environment lists unpinned `macs3`, so its exact version cannot be
+reconstructed from the legacy YAML. MACS duplicate behavior and signal-track
+generation are not explicit in the command.
+
 ## Result directories
 
 The stable legacy layout is numbered from `010-reference` through

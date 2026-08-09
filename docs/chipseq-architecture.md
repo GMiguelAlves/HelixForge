@@ -1,8 +1,8 @@
 # Native ChIP-seq architecture
 
 The native foundation is deliberately smaller than the legacy workflow. It
-implements explicit filtering contracts and establishes stable final-BAM
-semantics before native peak-calling policies are introduced.
+implements explicit filtering contracts, stable final-BAM semantics and a
+provider-neutral Peak Calling API.
 
 ```mermaid
 flowchart TD
@@ -21,10 +21,13 @@ flowchart TD
     SEL --> DUP["BAM_DUPLICATES"]
     DUP --> BL["BAM_BLACKLIST"]
     BL --> FINAL["BAM_INDEX_QC + FINAL_BAM"]
-    BL -. future .-> PC["PEAK_CALLER"]
-    PC -. future .-> CONS["Replicate/consensus provider"]
+    PLAN --> PCTX["PEAK_CALLING_CONTEXT"]
+    FINAL --> PC["PEAK_CALLING / MACS3"]
+    PCTX --> PC
+    PC --> PAGG["PEAK_CALLING_AGGREGATE"]
+    PAGG -. future .-> CONS["Replicate/consensus provider"]
 
-    LEG["Legacy fallback"] --> FULL["peaks/full until native policies are validated"]
+    LEG["Legacy fallback"] --> FULL["full or native peak calling disabled"]
 ```
 
 ## Boundaries
@@ -39,6 +42,8 @@ flowchart TD
 - `CHIPSEQ_BAM_PROCESSING` owns independent selection, duplicate, blacklist and
   final integrity/index boundaries. Policies are values/files, never aligner
   side effects.
+- `PEAK_CALLING_CONTEXT` resolves one treatment/control request per replicate;
+  `PEAK_CALLING` dispatches MACS3 and aggregation publishes caller-neutral roles.
 - Large data remain Nextflow outputs. Lightweight reports and provenance are
   published under `pipeline_info` and optional legacy-compatible target paths.
 
@@ -50,7 +55,7 @@ Docker, Conda, Singularity or Apptainer execution.
 
 1. metadata + raw QC + Bowtie2 alignment (foundation 0.1);
 2. BAM selection, duplicate policy, blacklist and final QC (foundation 0.2);
-3. explicit MACS3 provider and peak QC/FRiP;
-4. reproducibility/consensus provider;
+3. explicit MACS3 provider and generic peak QC (foundation 0.3);
+4. FRiP specification and reproducibility/consensus provider;
 5. annotation, tracks and reporting;
 6. differential binding only after a separate statistical design review.

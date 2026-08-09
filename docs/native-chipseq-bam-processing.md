@@ -102,7 +102,8 @@ The compatibility artifact remains
 nextflow run . --workflow chipseq --chipseq_run_mode post_alignment
 ```
 
-Available native modes are `qc`, `alignment`, and `post_alignment`. The full
+This BAM-layer release introduced native `qc`, `alignment`, and
+`post_alignment`; foundation 0.3 additionally provides native `peaks`. The full
 legacy fallback remains available with `full` or
 `--chipseq_native_foundation false`.
 
@@ -145,4 +146,3 @@ runs rejected a reference length mismatch and a `1` versus `chr1` blacklist.
   merging remains a future explicit stage.
 - Peak calling, replicate concordance, consensus and differential binding are
   outside this API.
-

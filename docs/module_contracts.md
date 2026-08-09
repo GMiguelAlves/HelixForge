@@ -266,3 +266,12 @@ Every policy is an explicit value or tracked file; disabled optional stages
 still emit a manifest describing the no-op. BAM/reference and blacklist/BAM
 contig mismatches fail without automatic renaming. Final BAM providers must
 emit integrity evidence, compact read metrics, checksums and a matching index.
+
+Contract 1.8 adds peak-calling providers. One request represents one treatment
+replicate and carries explicit control identity, genome/reference identity,
+effective genome size, peak type, significance cutoff, input format and
+duplicate policy. Context validation, provider execution and caller-neutral
+aggregation are separate cache boundaries. Providers emit semantic peaks,
+caller-native artifacts, logs, versions, execution metadata, provenance,
+manifest and status. Optional outputs use `available: false`; consensus and
+FRiP are not implicit parts of this contract.

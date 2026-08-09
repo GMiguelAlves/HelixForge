@@ -59,10 +59,10 @@ Differences must be classified as technical (format/order), expected (declared
 policy), methodological (changed scientific decision) or defect. No stage is
 scientifically validated merely because its stub succeeds.
 
-## Known limitations of foundation 0.2
+## Known limitations after foundation 0.3
 
-- Native ChIP-seq trimming and peak calling are not implemented. BAM processing
-  is native through the final indexed BAM.
+- Native ChIP-seq trimming remains unimplemented. BAM processing and
+  per-record MACS3 peak calling are native; consensus remains future work.
 - Technical replicate merging is not implemented; records align independently.
 - The first provider is Bowtie2 only. The legacy BWA option remains fallback.
 - Container parity and a real reduced Bowtie2 regression depend on availability
