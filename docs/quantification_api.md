@@ -23,6 +23,8 @@ Required `meta` fields:
 
 `index_params` contains only provider parameters that affect index content.
 For Salmon 1.10.3 this is `kmer_size`, sourced from `SALMON_KMER_SIZE`.
+The adapter validates an odd value between 1 and 31 and the provider rejects
+duplicate or empty transcript FASTA identifiers before indexing.
 
 Outputs:
 
@@ -55,6 +57,16 @@ Paired reads are an ordered two-element list. Required `meta` fields are `id`,
 Required parameters are explicit. Salmon 1.10.3 receives `lib_type` and
 `validate_mappings`; no scientific default may be introduced inside the
 provider.
+
+The RNA-seq adapter initially exposes `salmon_lib_type=A` and
+`salmon_validate_mappings=true`. Both are configurable and recorded. `A` asks
+Salmon to infer library orientation; inference must be checked in
+`lib_format_counts.json`, especially for stranded protocols.
+
+The current index is transcriptome-only. Decoys/gentrome and selective
+alignment are not enabled silently. A future index contract may add a reference
+mode and tracked decoy file without changing `QUANTIFICATION`; that change
+requires a controlled scientific comparison.
 
 Every provider exposes these semantic outputs:
 

@@ -33,6 +33,11 @@ process RNASEQ_QUANTIFICATION_PLAN {
     source "\$PIPELINE_CONFIG"
     activate_python_env
 
+    [[ "\$SALMON_KMER_SIZE" =~ ^[0-9]+$ ]] || { echo '[ERRO] SALMON_KMER_SIZE deve ser inteiro.'; exit 1; }
+    (( SALMON_KMER_SIZE >= 1 && SALMON_KMER_SIZE <= 31 && SALMON_KMER_SIZE % 2 == 1 )) || \
+        { echo '[ERRO] SALMON_KMER_SIZE deve ser impar entre 1 e 31.'; exit 1; }
+    [[ '${params.salmon_lib_type}' =~ ^[A-Za-z]+$ ]] || { echo '[ERRO] salmon_lib_type invalido.'; exit 1; }
+
     analysis_mode='${params.rnaseq_analysis_mode}'
     case "\$analysis_mode" in
         config) [[ "\$QUANT_METHOD" == 'salmon' ]] && enabled=true || enabled=false ;;
@@ -45,9 +50,10 @@ process RNASEQ_QUANTIFICATION_PLAN {
     settings="\${project}.quantification_settings.tsv"
     printf 'method\tenabled\tconfigured_method\tproject\ttranscriptome\tindex_dir\toutput_root\tkmer_size\tlib_type\tvalidate_mappings\n' \
         > "\$settings"
-    printf 'salmon\t%s\t%s\t%s\t%s\t%s\t%s\t%s\tA\ttrue\n' \
+    printf 'salmon\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
         "\$enabled" "\$QUANT_METHOD" "\$project" "\$REF_TRANSCRIPTS_FA" \
         "\$SALMON_INDEX_DIR" "\$QUANT_DIR" "\$SALMON_KMER_SIZE" \
+        '${params.salmon_lib_type}' '${params.salmon_validate_mappings}' \
         >> "\$settings"
 
     if [[ "\$enabled" == true ]]; then

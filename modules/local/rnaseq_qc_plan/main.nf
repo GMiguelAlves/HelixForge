@@ -22,6 +22,7 @@ process RNASEQ_QC_PLAN {
     output:
     path '*_qc_plan.csv', emit: plans
     path 'rnaseq.qc_plan.log', emit: log
+    path 'metadata_validation.json', emit: metadata_validation
     path 'stub_input_*.fastq', optional: true, emit: stub_reads
 
     script:
@@ -34,6 +35,7 @@ process RNASEQ_QC_PLAN {
     metadata=\$(metadata_default)
     python_bin=\${PYTHON_BIN:-python3}
     command -v "\$python_bin" >/dev/null 2>&1
+    validate_metadata.py --metadata "\$metadata" --output metadata_validation.json
 
     while IFS= read -r project; do
         "\$python_bin" '${legacy_root}/scripts/030-qc-fastq/generate_qc_plan.py' \
@@ -61,5 +63,6 @@ process RNASEQ_QC_PLAN {
         'STUB,stub_sample,stub_sample,stub_run,'"\$PWD"'/stub_input_R1.fastq,'"\$PWD"'/stub_input_R2.fastq,${params.outdir}/stub/trimmed_runs/stub_sample_stub_run_R1_trimmed.fastq.gz,${params.outdir}/stub/trimmed_runs/stub_sample_stub_run_R2_trimmed.fastq.gz,${params.outdir}/stub/trimmed_merged/stub_sample_R1_trimmed.fastq.gz,${params.outdir}/stub/trimmed_merged/stub_sample_R2_trimmed.fastq.gz,20,20' \
         > stub_qc_plan.csv
     printf '[STUB] RNA-seq QC plan\n' > rnaseq.qc_plan.log
+    printf '{"schema_version":"1.0","status":"stub","rows":1,"biological_samples":1}\n' > metadata_validation.json
     """
 }

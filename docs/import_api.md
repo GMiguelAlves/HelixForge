@@ -35,15 +35,10 @@ columns written to `quant_samples.tsv` retain the legacy order and values.
 tuple val(meta), path(annotation), val(tx2gene_params)
 ```
 
-Version 1.0 accepts GTF/GFF through `rtracklayer`. Its transformation is the
-legacy transformation, in this order:
-
-1. retain `type == "transcript"`;
-2. select `transcript_id, gene_id`;
-3. remove `transcript:` and transcript version suffixes;
-4. normalize an erroneous `transcript:` gene prefix to `gene:`;
-5. remove `gene:` and gene version suffixes;
-6. retain first-occurrence order while removing duplicate or empty pairs.
+Version 1.0 accepts GTF/GFF through `rtracklayer`, uses `transcript` or `mRNA`
+records, and recognizes GTF `transcript_id`/`gene_id` or GFF `ID`/`Parent`.
+IDs are preserved by default. Version/prefix removal is explicit; collisions,
+missing mappings, and transcripts mapping to multiple genes fail.
 
 The output is `tx2gene.tsv`. Its content is cached independently from imports.
 
@@ -52,28 +47,39 @@ The output is `tx2gene.tsv`. Its content is cached independently from imports.
 ### Salmon
 
 `SALMON_IMPORT` is implemented by `TXIMPORT`. It receives one validated
-`quant.sf` per sample and calls tximport with the exact legacy arguments:
+`quant.sf` per sample. These parameters are explicit API values:
 
 ```r
 tximport(
   files,
   type = "salmon",
   tx2gene = tx2gene,
-  countsFromAbundance = "no",
-  ignoreTxVersion = TRUE,
-  ignoreAfterBar = TRUE
+  countsFromAbundance = configured_value,
+  ignoreTxVersion = configured_boolean,
+  ignoreAfterBar = configured_boolean
 )
 ```
 
-It emits counts, abundance (TPM), effective length, and a
+`libraryProtocol` is also required (`full_length` or `three_prime`). For the
+current matrix-based DE provider, full-length libraries use `scaledTPM` or
+`lengthScaledTPM`; 3′ tagged libraries use original counts (`no`). Import may
+materialize other combinations, but DE preflight rejects combinations that
+would omit a required length offset or introduce inappropriate length
+correction. See the
+[tximport DGE guidance](https://bioconductor.org/packages/release/bioc/vignettes/tximport/inst/doc/tximport.html#downstream-dge-in-bioconductor).
+
+Before import it checks transcript-ID collisions and coverage against
+`tx2gene`; unmapped transcripts fail by default. It emits counts, abundance
+(TPM), effective length, and a
 `SummarizedExperiment` containing those three assays.
 
 ### STAR gene counts
 
 `STAR_IMPORT` receives the validated `gene_counts` role from the Alignment API.
-It preserves the legacy STAR import behavior: column 2/3/4 selection,
-`N_*` removal, gene-prefix/version normalization, outer sample join, integer
-counts, and CPM calculation. STAR GeneCounts has no transcript effective-length
+It supports explicit column 2/3/4 selection, removes STAR `N_*` summary rows,
+preserves gene IDs by default, validates non-negative integers, detects
+normalization collisions, performs the outer sample join, and calculates CPM.
+STAR GeneCounts has no transcript effective-length
 estimate; the length role is marked `available: false` and no values are
 invented. A `SummarizedExperiment` is not emitted by this provider in v1.0.
 
