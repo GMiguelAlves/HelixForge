@@ -20,10 +20,10 @@ legacy downstream policy scientifically optimal.
 | Topic | Legacy behaviour | Native decision |
 |---|---|---|
 | Trimming | always scheduled; raw fallback | optional, deferred; raw input is explicit in foundation 0.1 |
-| MAPQ | 30 | future `BAM_SELECT` input |
-| Secondary/supplementary | removed | future explicit SAM-flag policy |
-| Duplicates | removed by default | future `keep/mark/remove` policy; collect metrics first |
-| Blacklist | optional | future independent tracked transformation |
+| MAPQ | 30 | explicit `BAM_SELECT` input; config-compatible default, overrideable |
+| Secondary/supplementary | removed | explicit exclude mask 2308; never hidden in aligner |
+| Duplicates | removed by default | native default `none`; explicit `mark/remove/legacy`, always measure before removal |
+| Blacklist | optional alignment-level exclusion | optional tracked BED; fragment default preserves paired templates, alignment mode is compatibility policy |
 | Mitochondrial/alternative contigs | not filtered | unsupported until an organism-independent policy exists |
 | Peak type | inferred by target regex | must be explicit narrow/broad |
 | Genome size | sum of contig lengths | require an explicit declared policy/value |
@@ -59,10 +59,10 @@ Differences must be classified as technical (format/order), expected (declared
 policy), methodological (changed scientific decision) or defect. No stage is
 scientifically validated merely because its stub succeeds.
 
-## Known limitations of foundation 0.1
+## Known limitations after foundation 0.3
 
-- Native ChIP-seq trimming, BAM filtering, duplicate handling and peak calling
-  are not implemented.
+- Native ChIP-seq trimming remains unimplemented. BAM processing and
+  per-record MACS3 peak calling are native; consensus remains future work.
 - Technical replicate merging is not implemented; records align independently.
 - The first provider is Bowtie2 only. The legacy BWA option remains fallback.
 - Container parity and a real reduced Bowtie2 regression depend on availability
@@ -72,7 +72,7 @@ scientifically validated merely because its stub succeeds.
 
 ## Development validation
 
-- `nextflow lint .`: 67 files passed; one pre-existing warning remains in
+- `nextflow lint .`: 72 files passed; one pre-existing warning remains in
   `LEGACY_STEP` for direct `projectDir` use.
 - Native alignment stub: passed with one input control and two IP biological
   replicates (six FastQC tasks, MultiQC, one Bowtie2 index and three aligns).
@@ -82,8 +82,13 @@ scientifically validated merely because its stub succeeds.
   report wrappers.
 - Metadata unit tests: six passed, covering multiple samples, controls,
   biological/technical replicates and representative invalid inputs.
+- Real SAMtools BAM processing: passed with paired MAPQ/flag selection,
+  duplicate detection/removal, fragment blacklist, disabled blacklist, final
+  indexes, two records and full cache reuse.
+- Expected failures: reference-length and blacklist-contig incompatibilities
+  were both rejected before final BAM publication.
 
-A real Bowtie2/Samtools run and scientific legacy comparison were not executed:
-the pinned combined runtime is not installed on this development host. Stub and
-unit success therefore validate contracts/orchestration only, not alignment
-equivalence or biological performance.
+A real Bowtie2 alignment and scientific legacy comparison were not executed:
+the pinned combined Bowtie2 runtime is not installed on this development host.
+The BAM layer was executed with host SAMtools 1.20, but this does not establish
+alignment equivalence or biological peak performance.

@@ -19,8 +19,10 @@ directories are preserved.
 The ChIP-seq native foundation validates flexible metadata, controls and
 biological/technical replicate identity, reuses FastQC/MultiQC, and implements
 Bowtie2 indexing/alignment behind the same generic Alignment API used by STAR.
-This first increment supports native `qc` and `alignment` modes. BAM filtering,
-duplicate policy and peak analysis remain on the legacy fallback by design.
+Native modes include `qc`, `alignment`, `post_alignment`, and `peaks`. The BAM mode adds
+explicit MAPQ/flag selection, duplicate policy, optional blacklist and final
+BAM integrity/QC. Peak Calling API v1 validates explicit treatment/control
+relationships and runs a pinned MACS3 provider independently for each replicate.
 
 Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy
@@ -64,12 +66,14 @@ Compile the native ChIP-seq foundation without scientific tools:
 
 ```bash
 nextflow run . -profile test -stub-run --workflow chipseq \
-  --chipseq_run_mode alignment
+  --chipseq_run_mode post_alignment
 ```
 
-For a real run, use `--chipseq_run_mode qc` or `alignment` and provide the
-existing project config through `--chipseq_config`. `peaks` and `full` retain
-the complete legacy fallback in this version.
+For a real run, use `--chipseq_run_mode qc`, `alignment`, `post_alignment`, or
+`peaks` and provide the existing project config through `--chipseq_config`.
+Native peaks require explicit `--chipseq_peak_type narrow|broad` and a numerical
+`--chipseq_effective_genome_size`. `full` retains the complete legacy fallback;
+`--chipseq_native_peak_calling false` selects only the legacy peak step.
 
 The default configs remain the versioned `config/pipeline_config.sh` files in
 each legacy pipeline. Create their existing untracked user configuration files
@@ -91,6 +95,9 @@ See [docs/nextflow.md](docs/nextflow.md),
 [docs/chipseq-architecture.md](docs/chipseq-architecture.md),
 [docs/chipseq-scientific-review.md](docs/chipseq-scientific-review.md),
 [docs/chipseq-api.md](docs/chipseq-api.md),
+[docs/native-chipseq-bam-processing.md](docs/native-chipseq-bam-processing.md),
+[docs/peak_calling_api.md](docs/peak_calling_api.md),
+[docs/native-chipseq-peak-calling.md](docs/native-chipseq-peak-calling.md),
 [docs/module_contracts.md](docs/module_contracts.md),
 [docs/script-mapping.md](docs/script-mapping.md), and
 [docs/limitations.md](docs/limitations.md).

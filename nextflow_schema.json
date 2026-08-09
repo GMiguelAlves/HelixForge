@@ -73,6 +73,27 @@
     },
     "salmon_index_queue": { "type": ["string", "null"], "default": null },
     "salmon_quant_queue": { "type": ["string", "null"], "default": null },
+    "chipseq_run_mode": {
+      "type": "string",
+      "enum": ["qc", "alignment", "post_alignment", "peaks", "full"],
+      "default": "full"
+    },
+    "chipseq_native_peak_calling": { "type": "boolean", "default": true },
+    "chipseq_peak_caller": { "type": ["string", "null"], "enum": ["macs3", null], "default": null },
+    "chipseq_peak_type": { "type": ["string", "null"], "enum": ["narrow", "broad", null], "default": null },
+    "chipseq_effective_genome_size": { "type": ["number", "integer", "null"], "exclusiveMinimum": 0, "default": null },
+    "chipseq_peak_q_value": { "type": ["number", "null"], "exclusiveMinimum": 0, "maximum": 1, "default": null },
+    "chipseq_peak_p_value": { "type": ["number", "null"], "exclusiveMinimum": 0, "maximum": 1, "default": null },
+    "chipseq_peak_format": { "type": ["string", "null"], "enum": ["BAM", "BAMPE", null], "default": null },
+    "chipseq_peak_duplicate_policy": {
+      "oneOf": [
+        { "type": "string", "pattern": "^(all|auto|[1-9][0-9]*)$" },
+        { "type": "integer", "minimum": 1 }
+      ],
+      "default": "all"
+    },
+    "chipseq_peak_additional_args": { "type": ["string", "null"], "default": null },
+    "chipseq_peak_output_dir": { "type": ["string", "null"], "default": null },
     "rnaseq_config": { "type": "string" },
     "chipseq_config": { "type": "string" },
     "integrative_config": { "type": "string" }

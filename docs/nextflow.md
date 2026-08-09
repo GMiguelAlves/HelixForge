@@ -18,12 +18,19 @@ Native ChIP-seq foundation modes are selected independently:
 nextflow run . -profile local --workflow chipseq --chipseq_run_mode qc
 nextflow run . -profile slurm --workflow chipseq --chipseq_run_mode alignment \
   -c conf/my_cluster.config
+nextflow run . -profile slurm --workflow chipseq --chipseq_run_mode post_alignment \
+  -c conf/my_cluster.config
+nextflow run . -profile slurm --workflow chipseq --chipseq_run_mode peaks \
+  --chipseq_peak_type narrow --chipseq_effective_genome_size 2.7e9 \
+  -c conf/my_cluster.config
 ```
 
 `qc` performs metadata validation, raw FastQC and MultiQC. `alignment` adds
-Bowtie2 indexing and per-record alignment. `peaks` and `full` use the complete
-legacy fallback in foundation 0.1; use `--chipseq_native_foundation false` to
-force that fallback explicitly.
+Bowtie2 indexing and per-record alignment. `post_alignment` adds selection,
+duplicate, blacklist, integrity and final-QC providers. `peaks` adds validated
+per-replicate MACS3 3.0.4 calling and requires explicit peak type and numerical
+effective genome size. `full` remains the complete legacy fallback. Use
+`--chipseq_native_peak_calling false` to run only the legacy peaks step.
 
 The existing configuration remains authoritative:
 

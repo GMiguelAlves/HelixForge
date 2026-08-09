@@ -1,0 +1,5 @@
+name: omicsflow-peak-aggregate
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12

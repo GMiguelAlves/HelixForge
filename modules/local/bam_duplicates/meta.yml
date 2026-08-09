@@ -1,0 +1,16 @@
+name: BAM_DUPLICATES
+description: Apply an explicit none, mark, or remove duplicate policy.
+keywords: [bam, samtools, duplicates, chipseq]
+tools:
+  - samtools: {description: SAM/BAM processing toolkit}
+input:
+  - bam: Coordinate-sorted selected BAM.
+  - duplicate_params: Explicit mode none, mark, or remove.
+output:
+  - artifacts: Coordinate-sorted BAM after the selected policy.
+  - reports: Duplicate/read metrics, flagstat, command and log.
+  - versions: Tool versions YAML.
+  - execution_metadata: Command, resources and checksums.
+  - manifest: Partial BAM-processing manifest.
+  - status: Completion JSON.
+

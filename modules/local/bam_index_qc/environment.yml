@@ -1,0 +1,5 @@
+name: omicsflow-bam-index-qc
+channels: [bioconda, conda-forge]
+dependencies:
+  - samtools=1.20
+
