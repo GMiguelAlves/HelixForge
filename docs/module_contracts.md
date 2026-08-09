@@ -4,7 +4,7 @@ This document defines the interface required for every new native Nextflow DSL2
 module in OmicsFlow. The contract standardizes orchestration and provenance; it
 does not force unrelated scientific tools to produce the same file types.
 
-Contract version: `1.6`
+Contract version: `1.7`
 
 This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
 later native module.
@@ -259,3 +259,19 @@ when those roles do not apply, but they must still emit sorted BAM, index,
 logs, statistics, versions, execution metadata, manifest and status. ChIP-seq
 modules must not hide MAPQ, duplicate, blacklist or peak-type policy inside an
 aligner process.
+
+Contract 1.7 adds BAM transformation providers. Selection, duplicate policy,
+blacklist exclusion and final index/QC are separate deep-cache boundaries.
+Every policy is an explicit value or tracked file; disabled optional stages
+still emit a manifest describing the no-op. BAM/reference and blacklist/BAM
+contig mismatches fail without automatic renaming. Final BAM providers must
+emit integrity evidence, compact read metrics, checksums and a matching index.
+
+Contract 1.8 adds peak-calling providers. One request represents one treatment
+replicate and carries explicit control identity, genome/reference identity,
+effective genome size, peak type, significance cutoff, input format and
+duplicate policy. Context validation, provider execution and caller-neutral
+aggregation are separate cache boundaries. Providers emit semantic peaks,
+caller-native artifacts, logs, versions, execution metadata, provenance,
+manifest and status. Optional outputs use `available: false`; consensus and
+FRiP are not implicit parts of this contract.

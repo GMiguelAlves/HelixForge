@@ -1,0 +1,5 @@
+name: omicsflow-bam-select
+channels: [bioconda, conda-forge]
+dependencies:
+  - samtools=1.20
+

@@ -1,0 +1,20 @@
+name: peak_calling_aggregate
+description: Validate provider peak formats and normalize outputs to Peak Calling API v1.
+keywords: [chipseq, peaks, qc, manifest]
+tools:
+  - python:
+      description: Python programming language
+      homepage: https://www.python.org/
+input:
+  - meta: Treatment and replicate identity.
+  - provider_peaks: Provider peak file.
+  - provider_dir: Raw provider outputs.
+  - provider_manifest: Provider provenance manifest.
+  - request_base64: Validated API request.
+output:
+  - artifacts: Semantic peak-calling result directory.
+  - reports: Generic peak metrics.
+  - versions: Runtime versions.
+  - execution_metadata: Aggregation execution metadata.
+  - manifest: Common Peak Calling API manifest.
+  - status: Completion marker.

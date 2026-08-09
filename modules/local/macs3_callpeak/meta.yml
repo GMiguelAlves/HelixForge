@@ -1,0 +1,22 @@
+name: macs3_callpeak
+description: MACS3 provider for the OmicsFlow Peak Calling API.
+keywords: [chipseq, peak-calling, macs3]
+tools:
+  - macs3:
+      description: Model-based Analysis of ChIP-Seq
+      homepage: https://macs3-project.github.io/MACS/
+      documentation: https://macs3-project.github.io/MACS/docs/callpeak.html
+input:
+  - meta: Treatment, replicate and output identity.
+  - treatment_bam: Final treatment BAM.
+  - treatment_bai: Matching treatment index.
+  - control_bam: Optional matched control BAM.
+  - control_bai: Optional matched control index.
+  - request_base64: Validated provider request.
+output:
+  - artifacts: Provider peak file and raw caller outputs.
+  - reports: Command and MACS3 logs.
+  - versions: MACS3 version.
+  - execution_metadata: Reproducible command, inputs and runtime.
+  - manifest: Provider-level manifest.
+  - status: Completion marker.

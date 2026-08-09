@@ -122,10 +122,33 @@ genome build.
 - Result group names concatenate unescaped metadata values with `__`, allowing
   ambiguous names and collisions.
 
+### Exact post-alignment command audit
+
+`filter.sh` performs `samtools view -q MIN_MAPQ -F FLAG_FILTER` first. The mask
+is `4` (unmapped) or `2308` (`4 + 256 + 2048`) when secondary/supplementary
+removal is enabled. Paired duplicate removal uses name sort, `fixmate -m`,
+coordinate sort and `markdup -r`; single-end uses `markdup -s -r`. Optional
+blacklist filtering then uses alignment-level `bedtools intersect -v -abam`.
+Only the resulting BAM is indexed and quickchecked. `bam_qc.sh` repeats
+flagstat/idxstats/stats and optionally runs paired fragment-size, fingerprint
+and MultiQC reports. Every filtering and BAM-QC task inherits the broad legacy
+8 CPU, 32 GB, 12 h defaults.
+
+### Exact peak-calling command audit
+
+`080-peak-calling/call_peaks.sh` skips controls and runs one task per IP sample.
+It obtains treatment/control BAMs from the filtering directory, selects
+`BAMPE` for paired metadata and `BAM` otherwise, then invokes
+`PEAK_CALLER callpeak -t ... [-c ...] -f FORMAT -g GENOME_SIZE -n SAMPLE
+--outdir ... -q MACS_QVALUE [--broad] MACS_EXTRA_OPTS`. Genome-size `auto`
+sums `chrom.sizes`; peak-type `auto` applies `BROAD_MARK_REGEX` to the target.
+The environment lists unpinned `macs3`, so its exact version cannot be
+reconstructed from the legacy YAML. MACS duplicate behavior and signal-track
+generation are not explicit in the command.
+
 ## Result directories
 
 The stable legacy layout is numbered from `010-reference` through
 `130-reports`, with logs in `000-logs` and metadata in `020-metadata`. Native
 providers may materialize compatibility outputs there, but semantic channels
 and manifests—not directory discovery—must connect native stages.
-

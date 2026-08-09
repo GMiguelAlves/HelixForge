@@ -134,3 +134,28 @@ software, then optionally verify `-resume` cache reuse:
 bash tests/native_chipseq/run_stub.sh
 bash tests/native_chipseq/run_cache_tests.sh
 ```
+
+Run the real reduced SAMtools BAM-processing fixture and expected compatibility
+failures without downloading software:
+
+```bash
+bash tests/native_chipseq_bam/run_functional.sh
+bash tests/native_chipseq_bam/run_invalid_inputs.sh
+```
+
+Validate Peak Calling API context, formats and error paths, then compile the
+two-replicate treatment/control graph:
+
+```bash
+python -m unittest tests/native_chipseq_peaks/test_peak_api.py
+bash tests/native_chipseq_peaks/run_stub.sh
+```
+
+When MACS3 3.0.4 is already available, run the deterministic functional and
+cache-invalidation suites. They exit 77 rather than downloading software when
+the caller is absent:
+
+```bash
+bash tests/native_chipseq_peaks/run_functional.sh
+bash tests/native_chipseq_peaks/run_cache_tests.sh
+```

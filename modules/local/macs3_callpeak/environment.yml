@@ -1,0 +1,7 @@
+name: omicsflow-macs3-callpeak
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.12
+  - macs3=3.0.4
