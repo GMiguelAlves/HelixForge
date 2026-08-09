@@ -48,11 +48,14 @@ The versioned JSON specification contains:
       "direction": "treated/control"
     }
   ],
+  "filter": {
+    "method": "none"
+  },
   "parameters": {
     "alpha": 0.05,
     "lfc_threshold": 1,
     "min_replicates": 2,
-    "min_total_count": 10
+    "non_integer_counts": "round"
   }
 }
 ```
@@ -60,10 +63,10 @@ The versioned JSON specification contains:
 The formula is explicit and ordered. Every contrast declares its factor,
 numerator, denominator, description, and direction. Contrast IDs must be
 unique and filename-safe.
-
-Compatibility mode derives one specification per available legacy test
-variable. It generates all pairwise level combinations in the same order as
-the legacy R script and retains the legacy direction `level_a vs level_b`.
+At least one contrast is required. The pipeline never invents pairwise
+comparisons. Filtering must select `none` or `total_count`; the latter requires
+an explicit non-negative threshold and `>` or `>=`. Fractional counts require
+an explicit `round` policy or the analysis fails.
 
 ## Preflight validation
 
@@ -71,7 +74,7 @@ Validation occurs before DESeq2 and fails when:
 
 - count sample IDs or metadata `import_id` values are missing or duplicated;
 - count and metadata sample sets differ;
-- count values are non-numeric;
+- count values are non-numeric, non-finite, or negative;
 - a design field is absent or empty;
 - a contrast factor differs from the design variable;
 - numerator or denominator levels do not exist;
@@ -79,10 +82,16 @@ Validation occurs before DESeq2 and fails when:
 - a selected level has fewer than `min_replicates` samples;
 - the model matrix is rank deficient.
 
-In compatibility mode, variables with fewer than two sufficiently replicated
-levels and rank-deficient designs retain the legacy behavior: they are emitted
-as skipped analyses in the summary rather than treated as fatal global input
-errors.
+Metadata values are preserved exactly. Empty design/covariate values, inadequate
+replication for a requested contrast, and rank-deficient designs are fatal
+input errors with an explanatory message.
+
+For Salmon imports, preflight also validates the tximport strategy. Full-length
+libraries require `scaledTPM` or `lengthScaledTPM` for this matrix-based
+provider; 3′ tagged libraries require `countsFromAbundance=no`. Original
+full-length counts without the tximport length offset are rejected. A future
+provider will accept the complete tximport object and use
+`DESeqDataSetFromTximport`.
 
 ## Provider contract
 
@@ -123,22 +132,13 @@ Every successful contrast exposes:
 DESeq2-specific artifacts remain additive and must not be required by generic
 downstream consumers.
 
-## Legacy compatibility
+## Legacy fallback
 
-The DESeq2 provider preserves:
-
-- integer rounding and negative-count truncation;
-- strict `rowSums(counts) > 10` filtering;
-- per-variable models;
-- minimum two replicates per retained level;
-- covariate pruning and formula ordering;
-- default `DESeq()` Wald fitting;
-- `results(..., alpha=0.05)` behavior;
-- `padj < 0.05 && abs(log2FoldChange) >= 1` significance;
-- annotation normalization, plots, filenames, and aggregate table layout.
-
-Compatibility outputs remain under `<DEG_DIR>/<scope>/<correction>/`. The
-legacy scripts remain executable through `rnaseq_native_de=false`.
+The native provider retains default `DESeq()` Wald fitting and the established
+result/plot layout, but it no longer copies unsafe implicit behavior. Legacy
+scripts remain executable through `rnaseq_native_de=false`. That fallback may
+still derive pairwise comparisons, filter at `rowSums > 10`, and run its batch
+step; those behaviors are historical baseline, not native API defaults.
 
 ## Cache boundary
 

@@ -131,9 +131,10 @@ tximport is now a separate import/aggregation layer, not part of Salmon:
 1. split transcript-to-gene extraction from matrix import;
 2. consume Quantification API manifests/channels instead of searching result
    directories;
-3. preserve the current transcript/gene ID normalization exactly;
-4. keep `countsFromAbundance="no"`, `ignoreTxVersion=TRUE`, and
-   `ignoreAfterBar=TRUE` unchanged;
+3. preserve transcript/gene IDs unless an explicit normalization policy is
+   requested and collision-checked;
+4. expose `countsFromAbundance`, `ignoreTxVersion`, and `ignoreAfterBar` as
+   recorded Import API parameters;
 5. regress counts, TPM, sample table, and `tx2gene.tsv` before selecting the
    native provider.
 

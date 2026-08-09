@@ -51,6 +51,12 @@ tuple val(meta), path(reads), path(reference), path(annotation),
 Paired reads are represented as a two-element ordered list. Required `meta`
 fields are `id`, `aligner`, `dataset`, `sample_id`, and `single_end`.
 
+STAR owns `genomeDir`, reads, threads, output prefix/type, and `GeneCounts`.
+`STAR_EXTRA_ARGS` cannot override those arguments. Multimapping, MAPQ and other
+STAR defaults remain unchanged until a dataset-backed comparison justifies a
+new policy. Downstream STAR import must explicitly choose unstranded, forward,
+or reverse GeneCounts according to the library protocol.
+
 Every provider exposes these semantic outputs:
 
 ```nextflow

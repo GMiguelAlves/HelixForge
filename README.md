@@ -12,8 +12,17 @@ STAR alignment is native behind a generic Alignment API, and Salmon implements
 an independent generic Quantification API. A native Import API converts Salmon
 or STAR artifacts into provider-neutral matrices. A Differential Expression
 API validates explicit designs and runs DESeq2 Wald models and contrasts
-natively. Batch correction and final reports remain compatibility wrappers. Existing
-filenames and result directories are preserved.
+natively. Final reports remain compatibility wrappers; legacy batch correction
+is reachable only through the legacy DE fallback. Existing filenames and result
+directories are preserved.
+
+Native differential expression requires a versioned JSON specification with an
+explicit design, contrasts, filter, and count-handling policy. Copy
+`assets/rnaseq_de_spec.example.json` and adapt it to the study metadata.
+Salmon users must declare `--rnaseq_library_protocol full_length` with
+`scaledTPM`/`lengthScaledTPM`, or `three_prime` with
+`--rnaseq_counts_from_abundance no`. Original full-length counts are rejected
+by the current matrix-based provider until offset-aware tximport input exists.
 
 ## Workflows
 
@@ -26,7 +35,10 @@ filenames and result directories are preserved.
 
 ```bash
 nextflow run . -profile local --workflow rnaseq \
-  --rnaseq_config /path/to/rnaseq/pipeline_config.sh
+  --rnaseq_config /path/to/rnaseq/pipeline_config.sh \
+  --rnaseq_library_protocol full_length \
+  --rnaseq_counts_from_abundance lengthScaledTPM \
+  --rnaseq_de_spec /path/to/rnaseq_de_spec.json
 ```
 
 Inspect the complete graph without running scientific tools:
@@ -57,6 +69,7 @@ See [docs/nextflow.md](docs/nextflow.md),
 [docs/native-rnaseq-import.md](docs/native-rnaseq-import.md),
 [docs/differential_expression_api.md](docs/differential_expression_api.md),
 [docs/native-rnaseq-de.md](docs/native-rnaseq-de.md),
+[docs/rnaseq-scientific-review.md](docs/rnaseq-scientific-review.md),
 [docs/module_contracts.md](docs/module_contracts.md),
 [docs/script-mapping.md](docs/script-mapping.md), and
 [docs/limitations.md](docs/limitations.md).
