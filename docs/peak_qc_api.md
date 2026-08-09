@@ -47,6 +47,10 @@ Context validation rejects identity mismatches, invalid narrowPeak/broadPeak
 columns, negative or reversed coordinates, unknown contigs, and coordinates
 beyond reference sequence bounds before overlap jobs start.
 
+An existing empty peak file is a valid complete-empty result: peak count and
+numerator are zero and FRiP is zero when the eligible-unit denominator is
+positive. A missing file or a zero denominator remains an explicit error.
+
 ## Output contract
 
 Per replicate, the API emits FRiP, numerator, denominator, peak statistics,
