@@ -52,10 +52,14 @@ Native foundation (`chipseq_run_mode=qc|alignment`):
 | reused `MULTIQC` | Replaces raw aggregation in `fastq_qc.sh` with the same `raw_fastq_multiqc.html` name |
 | `REFERENCE_INDEX` / `BOWTIE2_INDEX` | Separates Bowtie2 indexing from monolithic `prepare_reference.sh` |
 | `ALIGNMENT` / `BOWTIE2_ALIGN` | Replaces Bowtie2 + samtools sort/index/statistics in `align.sh`; raw reads are selected explicitly |
+| `BAM_SELECT` | Decomposes MAPQ and explicit `-f`/`-F` selection from `filter.sh` |
+| `BAM_DUPLICATES` | Decomposes `none|mark|remove`; measures duplicates before optional removal |
+| `BAM_BLACKLIST` | Replaces optional alignment-level Bedtools filtering with explicit alignment/fragment SAMtools policies |
+| `BAM_INDEX_QC` | Replaces final index, quickcheck, flagstat, idxstats and stats with reference validation and final manifest |
 
-The native Alignment provider stops before MAPQ/flag selection, deduplication
-and blacklist filtering. Those policies remain legacy-only until their own
-contracts are validated.
+The native Alignment provider stops before MAPQ/flag selection. The
+`post_alignment` mode applies those later policies through independent native
+contracts.
 
 Legacy fallback (`chipseq_run_mode=peaks|full`, or
 `chipseq_native_foundation=false`):

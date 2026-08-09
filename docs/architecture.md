@@ -64,6 +64,10 @@ flowchart TB
     CHIPMETA --> FASTQC
     CHIPMETA --> BOWTIEALIGN
     BOWTIEALIGN --> CHIPBAM["Sorted BAM + BAI + statistics"]
+    CHIPBAM --> BAMSELECT["BAM_SELECT"]
+    BAMSELECT --> BAMDUP["BAM_DUPLICATES"]
+    BAMDUP --> BAMBLACK["BAM_BLACKLIST"]
+    BAMBLACK --> BAMFINAL["BAM_INDEX_QC + final BAM"]
 ```
 
 Native modules emit primary artifacts, reports, versions, and status tuples.
@@ -92,9 +96,10 @@ matrix correction before DESeq2. The legacy batch wrapper remains available
 only with the legacy DE fallback; final reporting remains a compatibility
 wrapper.
 
-For ChIP-seq, `qc` and `alignment` use the native foundation. The workflow
+For ChIP-seq, `qc`, `alignment`, and `post_alignment` use the native foundation. The workflow
 reuses generic FastQC/MultiQC and the generic Alignment API with Bowtie2.
-Filtering, duplicate handling, blacklist exclusion, peak calling, consensus,
-differential binding, annotation, tracks and reporting remain the complete
-legacy fallback until their independent scientific contracts are implemented.
+MAPQ/flag selection, duplicate handling, optional blacklist exclusion and final
+BAM integrity/QC are native independent boundaries. Peak calling, consensus,
+differential binding, annotation, tracks and reporting remain legacy fallback
+until their independent scientific contracts are implemented.
 See `docs/chipseq-architecture.md` for the staged graph.

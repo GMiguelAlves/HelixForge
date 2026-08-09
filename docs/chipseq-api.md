@@ -1,11 +1,11 @@
 # ChIP-seq APIs
 
-ChIP-seq API version: `0.1`
+ChIP-seq API version: `0.2`
 
 These contracts define semantic roles independently from organism, aligner,
-peak caller and legacy directory names. Version 0.1 implements metadata, raw QC
-and Bowtie2 alignment. Later APIs are defined now to prevent monolithic BAM and
-peak processes, but are not yet native providers.
+peak caller and legacy directory names. Version 0.1 implemented metadata, raw
+QC and Bowtie2 alignment. Version 0.2 implements the independent BAM processing
+roles while peak APIs remain contracts only.
 
 ## Common experiment metadata
 
@@ -72,19 +72,20 @@ idxstats, samtools stats, MAPQ distribution, versions, execution metadata,
 manifest and status. It supports single- and paired-end reads. Alignment does
 not apply MAPQ, duplicate, blacklist, mitochondrial or fragment filters.
 
-## BAM processing APIs (contract only)
+## BAM processing APIs
 
-Post-alignment stages will be independent cache boundaries:
+Post-alignment stages are independent cache boundaries:
 
 1. `BAM_SELECT`: explicit MAPQ and SAM-flag policy;
-2. `BAM_DUPLICATES`: `keep`, `mark`, or `remove`, with tool and metrics;
+2. `BAM_DUPLICATES`: `none`, `mark`, or `remove`, with tool and metrics;
 3. `BAM_BLACKLIST`: optional interval exclusion against a tracked BED;
 4. `BAM_INDEX_QC`: index, quickcheck, flagstat, idxstats and stats;
 5. optional future contig/fragment filters, only after a scientific decision.
 
-Each consumes and emits `tuple(meta, BAM, BAI)` plus reports, versions,
-execution metadata, manifest and status. Policies must be explicit inputs; a
-module may not silently adopt the legacy defaults.
+The implemented graph is selection → duplicate policy → optional blacklist →
+final index/QC. Each emits reports, versions, execution metadata, manifest and
+status. Policies are explicit cache inputs; a module may not silently adopt the
+legacy defaults. Full details are in `docs/native-chipseq-bam-processing.md`.
 
 ## Peak Calling API (contract only)
 
@@ -110,10 +111,11 @@ possible future provider, not an implicit requirement.
 
 ## Modes and implementation state
 
-| Mode | Native state in 0.1 |
+| Mode | Native state in 0.2 |
 |---|---|
 | `qc` | metadata validation + raw FastQC + MultiQC |
 | `alignment` | native QC + Bowtie2 index/alignment |
+| `post_alignment` | native QC + alignment + final BAM processing |
 | `peaks` | legacy fallback |
 | `full` | legacy fallback |
 

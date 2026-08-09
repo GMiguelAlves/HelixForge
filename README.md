@@ -19,8 +19,9 @@ directories are preserved.
 The ChIP-seq native foundation validates flexible metadata, controls and
 biological/technical replicate identity, reuses FastQC/MultiQC, and implements
 Bowtie2 indexing/alignment behind the same generic Alignment API used by STAR.
-This first increment supports native `qc` and `alignment` modes. BAM filtering,
-duplicate policy and peak analysis remain on the legacy fallback by design.
+Native modes include `qc`, `alignment`, and `post_alignment`. The last adds
+explicit MAPQ/flag selection, duplicate policy, optional blacklist and final
+BAM integrity/QC. Peak analysis remains on the legacy fallback by design.
 
 Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy
@@ -64,10 +65,10 @@ Compile the native ChIP-seq foundation without scientific tools:
 
 ```bash
 nextflow run . -profile test -stub-run --workflow chipseq \
-  --chipseq_run_mode alignment
+  --chipseq_run_mode post_alignment
 ```
 
-For a real run, use `--chipseq_run_mode qc` or `alignment` and provide the
+For a real run, use `--chipseq_run_mode qc`, `alignment`, or `post_alignment` and provide the
 existing project config through `--chipseq_config`. `peaks` and `full` retain
 the complete legacy fallback in this version.
 
@@ -91,6 +92,7 @@ See [docs/nextflow.md](docs/nextflow.md),
 [docs/chipseq-architecture.md](docs/chipseq-architecture.md),
 [docs/chipseq-scientific-review.md](docs/chipseq-scientific-review.md),
 [docs/chipseq-api.md](docs/chipseq-api.md),
+[docs/native-chipseq-bam-processing.md](docs/native-chipseq-bam-processing.md),
 [docs/module_contracts.md](docs/module_contracts.md),
 [docs/script-mapping.md](docs/script-mapping.md), and
 [docs/limitations.md](docs/limitations.md).
