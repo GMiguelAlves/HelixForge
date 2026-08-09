@@ -63,13 +63,18 @@ Native foundation (`chipseq_run_mode=qc|alignment`):
 | `FRIP` | New native implementation using SAMtools/BEDTools; no legacy FRiP command is treated as authoritative |
 | `PEAK_STATISTICS` | Extends caller-neutral peak metrics with complete width distribution and chromosome counts |
 | `PEAK_QC_AGGREGATE` | Produces one QC row per replicate without pooling, ranking, consensus or IDR |
+| `CONSENSUS_CONTEXT` | Replaces metadata/glob grouping with manifest-ID joins and explicit replicate policy |
+| `CONSENSUS_UNION` / `CONSENSUS_INTERSECTION` / `CONSENSUS_SUPPORT` | Decompose `consensus_peaks.sh` into explicit atomic-segment strategies; no count matrix is implied |
+| `IDR_PROVIDER` | New honest provider boundary; validates a request but emits no IDR peaks until a runtime is validated |
+| `CONSENSUS_AGGREGATE` | Publishes provider-neutral group summaries and availability state |
 
 The native Alignment provider stops before MAPQ/flag selection. The
 `post_alignment` mode applies those later policies through independent native
 contracts.
 
 Legacy fallback (`chipseq_run_mode=full`, `chipseq_native_foundation=false`, or
-`chipseq_native_peak_calling=false` for the `peaks`/`peak_qc` peak step):
+`chipseq_native_peak_calling=false` for the `peaks`/`peak_qc` peak step, or
+native consensus disabled for `consensus`):
 
 | Nextflow alias | Legacy step | Direct legacy script |
 |---|---|---|

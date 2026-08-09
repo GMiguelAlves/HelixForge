@@ -4,7 +4,7 @@ This document defines the interface required for every new native Nextflow DSL2
 module in OmicsFlow. The contract standardizes orchestration and provenance; it
 does not force unrelated scientific tools to produce the same file types.
 
-Contract version: `1.9`
+Contract version: `2.0`
 
 This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
 later native module.
@@ -282,3 +282,11 @@ Read/fragment unit, denominator, MAPQ/SAM filters, duplicate handling, overlap
 semantics and blacklist policy are explicit versioned inputs. FRiP and peak
 statistics are independent cache boundaries. Aggregation preserves one row per
 replicate and must not pool, rank, remove outliers, call consensus, or run IDR.
+
+Contract 2.0 adds Consensus/IDR providers. Peak Calling and Peak QC artifacts
+must be joined by stable manifest identifiers and a complete scientific group
+key; file order and globs are forbidden associations. Replicate mode and policy
+are explicit cache inputs. Consensus providers preserve atomic interval support
+and source evidence without synthesizing caller metrics. IDR providers use a
+distinct type and may emit `available: false`; a provider without a validated
+statistical runtime must never create a peak-shaped placeholder.

@@ -1,12 +1,13 @@
 # ChIP-seq APIs
 
-ChIP-seq API version: `0.4`
+ChIP-seq API version: `0.5`
 
 These contracts define semantic roles independently from organism, aligner,
 peak caller and legacy directory names. Version 0.1 implemented metadata, raw
 QC and Bowtie2 alignment. Version 0.2 implements the independent BAM processing
 roles. Version 0.3 implements Peak Calling API v1 with MACS3 3.0.4. Version 0.4
-implements per-replicate Peak QC API v1.
+implements per-replicate Peak QC API v1. Version 0.5 implements Consensus API
+v1 and the validation/provenance boundary for a future IDR provider.
 
 ## Common experiment metadata
 
@@ -116,23 +117,33 @@ blacklist policy are explicit and recorded. The API does not calculate a pooled
 FRiP, consensus, IDR, replicate rank, or differential binding. See
 `docs/peak_qc_api.md` for the formal definition.
 
-## Replicate and consensus API (contract only)
+## Consensus / IDR API v1
 
-Technical records and biological replicates remain distinct. Peak calling is
-defined per biological replicate. A future consensus provider must declare its
-support rule, minimum biological replicates, overlap semantics and sample order
-in a manifest. The legacy union is available only through fallback. IDR is a
-possible future provider, not an implicit requirement.
+Technical records and biological replicates remain distinct. The native API
+groups only records with matching dataset, experiment, condition, target,
+genome, peak type and compatible caller. It never associates artifacts by file
+order or glob. Biological mode requires technical records to have been merged
+upstream; technical mode explicitly preserves them.
+
+`union`, `intersection`, and `replicate_support` use BEDTools `multiinter`
+atomic segments and retain the supporting replicate IDs. Scores, summits and
+significance values are preserved as evidence rather than fabricated for the
+consolidated intervals. IDR is a separate provider contract: current mode
+validates exactly two premerged biological narrowPeak replicates, an explicit
+threshold and rank metric, then returns `not_implemented` without a peak set.
+See `docs/consensus_idr_api.md`.
 
 ## Modes and implementation state
 
-| Mode | Native state in 0.4 |
+| Mode | Native state in 0.5 |
 |---|---|
 | `qc` | metadata validation + raw FastQC + MultiQC |
 | `alignment` | native QC + Bowtie2 index/alignment |
 | `post_alignment` | native QC + alignment + final BAM processing |
 | `peaks` | native QC + alignment + BAM processing + per-replicate MACS3 |
 | `peak_qc` | native peaks + per-replicate FRiP/peak statistics + QC aggregation |
+| `consensus` | native Peak QC + explicit union/intersection/replicate-support provider |
+| `idr` | native input validation and provenance only; statistical runtime not implemented |
 | `full` | legacy fallback |
 
 The fallback remains the complete legacy graph. Native and legacy outputs must

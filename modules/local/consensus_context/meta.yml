@@ -1,0 +1,19 @@
+name: consensus_context
+description: Validate experiment grouping, replicate semantics, peak inputs, and Consensus/IDR strategy.
+keywords: [chipseq, consensus, idr, replicates, validation]
+tools:
+  - python:
+      description: Python programming language
+      homepage: https://www.python.org/
+input:
+  - meta: Experiment-group identity.
+  - peak_dirs: Semantic Peak Calling result directories.
+  - peak_manifests: Matched Peak Calling manifests.
+  - qc_manifests: Matched per-replicate Peak QC manifests.
+  - records_base64: Explicit metadata/replicate records.
+  - spec_base64: Explicit strategy specification.
+output:
+  - artifacts: Validated Consensus/IDR request.
+  - reports: Validation report and log.
+  - versions: Python version.
+  - status: Completion marker.

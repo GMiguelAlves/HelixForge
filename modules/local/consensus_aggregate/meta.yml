@@ -1,0 +1,17 @@
+name: consensus_aggregate
+description: Aggregate independent Consensus/IDR provider manifests without recomputing peaks.
+keywords: [chipseq, consensus, idr, aggregate, manifest]
+tools:
+  - python:
+      description: Python programming language.
+      homepage: https://www.python.org/
+input:
+  - meta: Global consolidation identity and strategy.
+  - provider_manifests: One complete manifest per experiment group.
+output:
+  - artifacts: Global JSON and TSV summaries.
+  - reports: Tabular summary.
+  - versions: Python version.
+  - execution_metadata: Runtime resources and Nextflow version.
+  - manifest: Aggregate manifest retaining per-group provenance.
+  - status: Completion marker.
