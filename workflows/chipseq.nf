@@ -13,13 +13,13 @@ workflow CHIPSEQ {
     legacy_root = "${projectDir}/pipelines/chipseq/legacy"
     run_mode = params.chipseq_run_mode.toString().toLowerCase()
     native_peak_calling = params.chipseq_native_peak_calling.toString().toBoolean()
-    if (!(run_mode in ['qc', 'alignment', 'post_alignment', 'peaks', 'full'])) {
-        error "Unknown chipseq_run_mode '${params.chipseq_run_mode}'. Use qc, alignment, post_alignment, peaks, or full."
+    if (!(run_mode in ['qc', 'alignment', 'post_alignment', 'peaks', 'peak_qc', 'full'])) {
+        error "Unknown chipseq_run_mode '${params.chipseq_run_mode}'. Use qc, alignment, post_alignment, peaks, peak_qc, or full."
     }
 
     native_mode = params.chipseq_native_foundation && (
         run_mode in ['qc', 'alignment', 'post_alignment'] ||
-        (run_mode == 'peaks' && native_peak_calling)
+        (run_mode in ['peaks', 'peak_qc'] && native_peak_calling)
     )
 
     if (native_mode) {
@@ -36,7 +36,7 @@ workflow CHIPSEQ {
             completed_ch = CHIPSEQ_NATIVE_FOUNDATION.out.completed
             logs_ch = CHIPSEQ_NATIVE_FOUNDATION.out.logs
         }
-    } else if (run_mode == 'peaks' && !native_peak_calling) {
+    } else if (run_mode in ['peaks', 'peak_qc'] && !native_peak_calling) {
         no_dep = channel.value('none')
         CHIPSEQ_LEGACY_PEAKS(
             'chipseq', 'peaks', 'high_cpu', config_file, legacy_root,

@@ -75,10 +75,15 @@
     "salmon_quant_queue": { "type": ["string", "null"], "default": null },
     "chipseq_run_mode": {
       "type": "string",
-      "enum": ["qc", "alignment", "post_alignment", "peaks", "full"],
+      "enum": ["qc", "alignment", "post_alignment", "peaks", "peak_qc", "full"],
       "default": "full"
     },
     "chipseq_native_peak_calling": { "type": "boolean", "default": true },
+    "chipseq_native_peak_qc": {
+      "type": "boolean",
+      "default": true,
+      "description": "Run the native Peak QC API after native Peak Calling in peak_qc mode. When false, stop after Peak Calling."
+    },
     "chipseq_peak_caller": { "type": ["string", "null"], "enum": ["macs3", null], "default": null },
     "chipseq_peak_type": { "type": ["string", "null"], "enum": ["narrow", "broad", null], "default": null },
     "chipseq_effective_genome_size": { "type": ["number", "integer", "null"], "exclusiveMinimum": 0, "default": null },
@@ -94,6 +99,37 @@
     },
     "chipseq_peak_additional_args": { "type": ["string", "null"], "default": null },
     "chipseq_peak_output_dir": { "type": ["string", "null"], "default": null },
+    "chipseq_frip_unit": {
+      "type": "string",
+      "enum": ["layout", "reads", "fragments"],
+      "default": "layout"
+    },
+    "chipseq_frip_min_mapq": { "type": "integer", "minimum": 0, "maximum": 255, "default": 0 },
+    "chipseq_frip_include_flags": { "type": "integer", "minimum": 0, "default": 0 },
+    "chipseq_frip_additional_exclude_flags": { "type": "integer", "minimum": 0, "default": 0 },
+    "chipseq_frip_exclude_unmapped": { "type": "boolean", "default": true },
+    "chipseq_frip_exclude_secondary": { "type": "boolean", "default": true },
+    "chipseq_frip_exclude_supplementary": { "type": "boolean", "default": true },
+    "chipseq_frip_exclude_qc_fail": { "type": "boolean", "default": true },
+    "chipseq_frip_duplicate_handling": {
+      "type": "string",
+      "enum": ["include", "exclude_flagged"],
+      "default": "include"
+    },
+    "chipseq_frip_require_proper_pair": { "type": "boolean", "default": true },
+    "chipseq_frip_overlap_strategy": {
+      "type": "string",
+      "enum": ["any_base"],
+      "default": "any_base"
+    },
+    "chipseq_frip_blacklist_policy": {
+      "type": "string",
+      "enum": ["bam_preprocessed", "none"],
+      "default": "bam_preprocessed"
+    },
+    "peak_qc_container": { "type": ["string", "null"], "default": null },
+    "peak_qc_apptainer_container": { "type": ["string", "null"], "default": null },
+    "peak_qc_queue": { "type": ["string", "null"], "default": null },
     "rnaseq_config": { "type": "string" },
     "chipseq_config": { "type": "string" },
     "integrative_config": { "type": "string" }

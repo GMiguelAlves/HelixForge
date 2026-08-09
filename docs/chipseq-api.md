@@ -1,11 +1,12 @@
 # ChIP-seq APIs
 
-ChIP-seq API version: `0.3`
+ChIP-seq API version: `0.4`
 
 These contracts define semantic roles independently from organism, aligner,
 peak caller and legacy directory names. Version 0.1 implemented metadata, raw
 QC and Bowtie2 alignment. Version 0.2 implements the independent BAM processing
-roles. Version 0.3 implements Peak Calling API v1 with MACS3 3.0.4.
+roles. Version 0.3 implements Peak Calling API v1 with MACS3 3.0.4. Version 0.4
+implements per-replicate Peak QC API v1.
 
 ## Common experiment metadata
 
@@ -103,6 +104,18 @@ providers, MACS3 3.0.4 is the first implementation, and
 must be `narrow` or `broad`; no antibody/target inference is permitted. See
 `docs/peak_calling_api.md` for the complete contract.
 
+## Peak QC API v1
+
+`PEAK_QC_CONTEXT` safely associates one final treatment BAM with its semantic
+peak set and explicit scientific specification. `FRIP` counts eligible reads or
+fragments overlapping the temporary peak union; `PEAK_STATISTICS` reports
+caller-neutral distributions; `PEAK_QC_AGGREGATE` emits one row per replicate.
+
+The denominator, MAPQ/SAM flags, duplicate handling, overlap semantics and
+blacklist policy are explicit and recorded. The API does not calculate a pooled
+FRiP, consensus, IDR, replicate rank, or differential binding. See
+`docs/peak_qc_api.md` for the formal definition.
+
 ## Replicate and consensus API (contract only)
 
 Technical records and biological replicates remain distinct. Peak calling is
@@ -113,12 +126,13 @@ possible future provider, not an implicit requirement.
 
 ## Modes and implementation state
 
-| Mode | Native state in 0.3 |
+| Mode | Native state in 0.4 |
 |---|---|
 | `qc` | metadata validation + raw FastQC + MultiQC |
 | `alignment` | native QC + Bowtie2 index/alignment |
 | `post_alignment` | native QC + alignment + final BAM processing |
 | `peaks` | native QC + alignment + BAM processing + per-replicate MACS3 |
+| `peak_qc` | native peaks + per-replicate FRiP/peak statistics + QC aggregation |
 | `full` | legacy fallback |
 
 The fallback remains the complete legacy graph. Native and legacy outputs must

@@ -25,7 +25,13 @@ flowchart TD
     FINAL --> PC["PEAK_CALLING / MACS3"]
     PCTX --> PC
     PC --> PAGG["PEAK_CALLING_AGGREGATE"]
-    PAGG -. future .-> CONS["Replicate/consensus provider"]
+    PAGG --> PQC["PEAK_QC_CONTEXT"]
+    FINAL --> PQC
+    PQC --> FRIP["FRIP"]
+    PQC --> PSTAT["PEAK_STATISTICS"]
+    FRIP --> QAGG["PEAK_QC_AGGREGATE"]
+    PSTAT --> QAGG
+    QAGG -. future .-> CONS["Replicate/consensus provider"]
 
     LEG["Legacy fallback"] --> FULL["full or native peak calling disabled"]
 ```
@@ -44,6 +50,9 @@ flowchart TD
   side effects.
 - `PEAK_CALLING_CONTEXT` resolves one treatment/control request per replicate;
   `PEAK_CALLING` dispatches MACS3 and aggregation publishes caller-neutral roles.
+- `PEAK_QC_CONTEXT` safely joins final BAM and peaks by stable identity. `FRIP`
+  and `PEAK_STATISTICS` remain independent cache boundaries and the final
+  aggregator preserves one row per replicate.
 - Large data remain Nextflow outputs. Lightweight reports and provenance are
   published under `pipeline_info` and optional legacy-compatible target paths.
 
@@ -55,7 +64,8 @@ Docker, Conda, Singularity or Apptainer execution.
 
 1. metadata + raw QC + Bowtie2 alignment (foundation 0.1);
 2. BAM selection, duplicate policy, blacklist and final QC (foundation 0.2);
-3. explicit MACS3 provider and generic peak QC (foundation 0.3);
-4. FRiP specification and reproducibility/consensus provider;
-5. annotation, tracks and reporting;
-6. differential binding only after a separate statistical design review.
+3. explicit MACS3 provider and caller-neutral peak outputs (foundation 0.3);
+4. explicit FRiP/Peak QC API and per-replicate aggregation (foundation 0.4);
+5. reproducibility/consensus provider;
+6. annotation, tracks and reporting;
+7. differential binding only after a separate statistical design review.

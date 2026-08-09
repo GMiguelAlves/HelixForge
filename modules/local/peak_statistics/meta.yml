@@ -1,0 +1,18 @@
+name: peak_statistics
+description: Produce caller-neutral narrowPeak and broadPeak statistics per replicate.
+keywords: [chipseq, peaks, statistics, peak-qc]
+tools:
+  - python:
+      description: Python programming language
+      homepage: https://www.python.org/
+input:
+  - meta: Validated replicate identity.
+  - peaks: Validated narrowPeak or broadPeak file.
+  - request: Validated Peak QC request.
+output:
+  - artifacts: Peak statistics JSON.
+  - reports: Summary, complete width distribution, and chromosome counts.
+  - versions: Python version.
+  - execution_metadata: Command and resources.
+  - manifest: Per-replicate statistics manifest.
+  - status: Completion marker.

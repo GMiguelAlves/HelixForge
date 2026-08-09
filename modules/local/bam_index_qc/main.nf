@@ -104,8 +104,9 @@ process BAM_INDEX_QC {
         '${meta.id}' '${task.process}' "\$command_base64" "\$sorted_by_module" "\$input_sha" "\$reference_sha" "\$output_sha" "\$bai_sha" \
         "\$total" "\$mapped" "\$proper" "\$duplicates" '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" > '${meta.id}.execution.json'
-    printf '{"schema_version":"0.1","type":"bam_final","id":"%s","dataset":"%s","sample_id":"%s","artifact":"%s","sha256":"%s","index":"%s","index_sha256":"%s","reference_sha256":"%s","metrics":{"total_reads":%s,"mapped_reads":%s,"properly_paired":%s,"duplicates":%s}}\n' \
+    printf '{"schema_version":"0.1","type":"bam_final","id":"%s","dataset":"%s","sample_id":"%s","artifact":"%s","sha256":"%s","index":"%s","index_sha256":"%s","reference_sha256":"%s","duplicate_policy":"%s","selection":{"min_mapq":%s,"include_flags":%s,"exclude_flags":%s},"blacklist_policy":"%s","metrics":{"total_reads":%s,"mapped_reads":%s,"properly_paired":%s,"duplicates":%s}}\n' \
         '${meta.id}' '${meta.dataset}' '${meta.sample_id}' "\$output" "\$output_sha" "\$bai" "\$bai_sha" "\$reference_sha" \
+        '${meta.bam_duplicate_policy ?: 'unknown'}' '${meta.bam_min_mapq ?: 0}' '${meta.bam_include_flags ?: 0}' '${meta.bam_exclude_flags ?: 0}' '${meta.bam_blacklist_policy ?: 'unknown'}' \
         "\$total" "\$mapped" "\$proper" "\$duplicates" > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' '${meta.id}' '${task.process}' > '${meta.id}.bam_index_qc.done'
     """
@@ -128,8 +129,8 @@ process BAM_INDEX_QC {
     printf 'mapq\talignments\n42\t1\n' > '${meta.id}.bam_index_qc_reports/mapq_distribution.tsv'
     printf '"BAM_INDEX_QC":\n    samtools: stub\n' > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"BAM_INDEX_QC","status":"stub"}\n' '${meta.id}' > '${meta.id}.execution.json'
-    printf '{"schema_version":"0.1","type":"bam_final","id":"%s"}\n' '${meta.id}' > '${meta.id}.manifest.json'
+    printf '{"schema_version":"0.1","type":"bam_final","id":"%s","duplicate_policy":"%s","selection":{"min_mapq":%s,"include_flags":%s,"exclude_flags":%s},"blacklist_policy":"%s"}\n' \
+        '${meta.id}' '${meta.bam_duplicate_policy ?: 'unknown'}' '${meta.bam_min_mapq ?: 0}' '${meta.bam_include_flags ?: 0}' '${meta.bam_exclude_flags ?: 0}' '${meta.bam_blacklist_policy ?: 'unknown'}' > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"BAM_INDEX_QC","status":"stub"}\n' '${meta.id}' > '${meta.id}.bam_index_qc.done'
     """
 }
-

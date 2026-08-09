@@ -1,0 +1,23 @@
+name: frip
+description: Calculate explicitly defined reads/fragments in peaks using SAMtools and BEDTools.
+keywords: [chipseq, frip, peak-qc, samtools, bedtools]
+tools:
+  - samtools:
+      description: Tools for manipulating high-throughput sequencing data.
+      homepage: https://www.htslib.org/
+  - bedtools:
+      description: Genome arithmetic tools.
+      homepage: https://bedtools.readthedocs.io/
+input:
+  - meta: Validated replicate identity.
+  - bam: Final treatment BAM.
+  - bai: Matching BAM index.
+  - peaks: Validated semantic peaks.
+  - request: Validated Peak QC request.
+output:
+  - artifacts: FRiP JSON and TSV.
+  - reports: Filter, overlap, command, and temporary interval evidence.
+  - versions: SAMtools, BEDTools, and Python versions.
+  - execution_metadata: Commands and runtime resources.
+  - manifest: Per-replicate FRiP manifest.
+  - status: Completion marker.

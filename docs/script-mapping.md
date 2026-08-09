@@ -59,13 +59,17 @@ Native foundation (`chipseq_run_mode=qc|alignment`):
 | `PEAK_CALLING_CONTEXT` | Replaces target-name inference and implicit control lookup with an explicit validated per-replicate request |
 | `PEAK_CALLING` / `MACS3_CALLPEAK` | Replaces `call_peaks.sh` execution with pinned MACS3 3.0.4 and semantic provider inputs |
 | `PEAK_CALLING_AGGREGATE` | Validates narrowPeak/broadPeak and normalizes peaks, signals, metrics and manifests |
+| `PEAK_QC_CONTEXT` | New native contract; safely joins final BAM/BAI, peaks, manifests, reference, blacklist provenance and explicit QC policy |
+| `FRIP` | New native implementation using SAMtools/BEDTools; no legacy FRiP command is treated as authoritative |
+| `PEAK_STATISTICS` | Extends caller-neutral peak metrics with complete width distribution and chromosome counts |
+| `PEAK_QC_AGGREGATE` | Produces one QC row per replicate without pooling, ranking, consensus or IDR |
 
 The native Alignment provider stops before MAPQ/flag selection. The
 `post_alignment` mode applies those later policies through independent native
 contracts.
 
 Legacy fallback (`chipseq_run_mode=full`, `chipseq_native_foundation=false`, or
-`chipseq_native_peak_calling=false` for the `peaks` step):
+`chipseq_native_peak_calling=false` for the `peaks`/`peak_qc` peak step):
 
 | Nextflow alias | Legacy step | Direct legacy script |
 |---|---|---|

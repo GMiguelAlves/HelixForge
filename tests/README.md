@@ -159,3 +159,15 @@ the caller is absent:
 bash tests/native_chipseq_peaks/run_functional.sh
 bash tests/native_chipseq_peaks/run_cache_tests.sh
 ```
+
+Validate Peak QC identity, explicit filters, fragment conversion, peak
+statistics and manifest aggregation, then compile the two-replicate Peak QC
+graph and its deep-cache boundaries without scientific tools:
+
+```bash
+python -m unittest tests/native_chipseq_peak_qc/test_peak_qc.py
+bash tests/native_chipseq_peak_qc/run_stub.sh
+```
+
+Real SAMtools/BEDTools FRiP validation is deferred to the final ChIP-seq
+functional validation stage.
