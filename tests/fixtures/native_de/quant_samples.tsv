@@ -1,0 +1,10 @@
+import_id	condition	batch	dataset	sample_id
+control_1	control	B1	STUDY	control_1
+control_2	control	B2	STUDY	control_2
+control_3	control	B1	STUDY	control_3
+treated_1	treated	B1	STUDY	treated_1
+treated_2	treated	B2	STUDY	treated_2
+treated_3	treated	B1	STUDY	treated_3
+recovery_1	recovery	B1	STUDY	recovery_1
+recovery_2	recovery	B2	STUDY	recovery_2
+recovery_3	recovery	B1	STUDY	recovery_3

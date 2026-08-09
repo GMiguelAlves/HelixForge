@@ -14,9 +14,9 @@ process DE_AGGREGATE {
     conda "${moduleDir}/environment.yml"
 
     publishDir { meta.target_dir }, mode: 'copy', overwrite: true,
-        pattern: 'de_results/**', saveAs: { value -> value.tokenize('/').drop(1).join('/') }
+        pattern: '{DEGs_*.tsv,differential_expression_results.tsv,deg_summary.tsv,analysis_summary.txt,versions.yml,execution.json,de_manifest.json,differential_expression.done,contrasts,plots,dds_*.rds,normalized_counts_*.tsv,dispersions_*.tsv,coefficients_*.tsv}'
     publishDir "${params.outdir}/pipeline_info/native_de/aggregate",
-        mode: 'copy', overwrite: true, pattern: 'de_results/*.{json,yml,txt,log,tsv,done}'
+        mode: 'copy', overwrite: true, pattern: '*.{json,yml,txt,log,tsv,done}'
 
     input:
     tuple val(meta), path(skipped), path(analysis_spec)
@@ -24,18 +24,23 @@ process DE_AGGREGATE {
     path contrasts
 
     output:
-    tuple val(meta), path('de_results'), emit: artifacts
-    tuple val(meta), path('de_results/DEGs_all_results.tsv'), emit: results
-    tuple val(meta), path('de_results/DEGs_significant.tsv'), emit: significant
-    tuple val(meta), path('de_results/differential_expression_results.tsv'), emit: common_results
-    tuple val(meta), path('de_results/deg_summary.tsv'), path('de_results/analysis_summary.txt'), emit: reports
-    tuple val(meta), path('de_results/versions.yml'), emit: versions
-    tuple val(meta), path('de_results/execution.json'), emit: execution_metadata
-    tuple val(meta), path('de_results/de_manifest.json'), emit: manifest
-    tuple val(meta), path('de_results/differential_expression.done'), emit: status
+    tuple val(meta), path('DEGs_all_results.tsv'), path('DEGs_significant.tsv'),
+        path('differential_expression_results.tsv'), path('deg_summary.tsv'),
+        path('analysis_summary.txt'), path('contrasts'), path('plots'), emit: artifacts
+    tuple val(meta), path('DEGs_all_results.tsv'), emit: results
+    tuple val(meta), path('DEGs_significant.tsv'), emit: significant
+    tuple val(meta), path('differential_expression_results.tsv'), emit: common_results
+    tuple val(meta), path('deg_summary.tsv'), path('analysis_summary.txt'), emit: reports
+    tuple val(meta), path('dds_*.rds'), emit: models, optional: true
+    tuple val(meta), path('normalized_counts_*.tsv'), emit: normalized_counts, optional: true
+    tuple val(meta), path('dispersions_*.tsv'), path('coefficients_*.tsv'), emit: model_statistics, optional: true
+    tuple val(meta), path('versions.yml'), emit: versions
+    tuple val(meta), path('execution.json'), emit: execution_metadata
+    tuple val(meta), path('de_manifest.json'), emit: manifest
+    tuple val(meta), path('differential_expression.done'), emit: status
 
     script:
-    def outputDir = 'de_results'
+    def outputDir = '.'
     def modelArgs = models.collect { model -> "'${model}'" }.join(' ')
     def contrastArgs = contrasts.collect { contrast -> "'${contrast}'" }.join(' ')
     def gitCommit = workflow.commitId ?: 'unknown'
@@ -52,21 +57,20 @@ process DE_AGGREGATE {
     printf '{"id":"%s","process":"%s","cpus":%s,"memory_bytes":%s,"time":"%s","container":"%s","git_commit":"%s","profile":"%s","started_epoch":%s,"ended_epoch":%s,"elapsed_seconds":%s}\n' \
         '${meta.id}' '${task.process}' '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         '${params.de_adapter_container}' '${gitCommit}' '${profile}' "\$start_epoch" "\$end_epoch" \
-        "\$((end_epoch-start_epoch))" > '${outputDir}/execution.json'
+        "\$((end_epoch-start_epoch))" > execution.json
     """
 
     stub:
-    def outputDir = 'de_results'
     """
-    mkdir -p '${outputDir}/contrasts' '${outputDir}/plots'
-    printf 'analysis_id\tvariable\tcontrast\tlevel_a\tlevel_b\tgene_id\tbaseMean\tlog2FoldChange\tlfcSE\tstat\tpvalue\tpadj\tgene_name\tbiotype\nstub\tcondition\tcondition__control_vs_treated\tcontrol\ttreated\tgene_stub\t1\t0\t1\t0\t1\t1\tgene_stub\tUnknown\n' > '${outputDir}/DEGs_all_results.tsv'
-    cp '${outputDir}/DEGs_all_results.tsv' '${outputDir}/DEGs_significant.tsv'
-    printf 'gene_id\tbaseMean\tlog2FoldChange\tlfcSE\tstatistic\tpvalue\tpadj\tcontrast\tdesign\ngene_stub\t1\t0\t1\t0\t1\t1\tcondition__control_vs_treated\t~ condition\n' > '${outputDir}/differential_expression_results.tsv'
-    printf 'analysis_id\tvariable\tcontrast\tstatus\tn_samples\tn_genes\tn_significant\nstub\tcondition\tcondition__control_vs_treated\tok\t2\t1\t0\n' > '${outputDir}/deg_summary.tsv'
-    printf 'Analise DEG - stub\n' > '${outputDir}/analysis_summary.txt'
-    printf '"DE_AGGREGATE":\n    python: "stub"\n' > '${outputDir}/versions.yml'
-    printf '{"id":"%s","process":"DE_AGGREGATE","status":"stub"}\n' '${meta.id}' > '${outputDir}/execution.json'
-    printf '{"schema_version":"1.0","type":"differential_expression","id":"%s","provider":"deseq2","test":"wald"}\n' '${meta.id}' > '${outputDir}/de_manifest.json'
-    printf '{"id":"%s","process":"DE_AGGREGATE","status":"stub"}\n' '${meta.id}' > '${outputDir}/differential_expression.done'
+    mkdir -p contrasts plots
+    printf 'analysis_id\tvariable\tcontrast\tlevel_a\tlevel_b\tgene_id\tbaseMean\tlog2FoldChange\tlfcSE\tstat\tpvalue\tpadj\tgene_name\tbiotype\nstub\tcondition\tcondition__control_vs_treated\tcontrol\ttreated\tgene_stub\t1\t0\t1\t0\t1\t1\tgene_stub\tUnknown\n' > DEGs_all_results.tsv
+    cp DEGs_all_results.tsv DEGs_significant.tsv
+    printf 'gene_id\tbaseMean\tlog2FoldChange\tlfcSE\tstatistic\tpvalue\tpadj\tcontrast\tdesign\ngene_stub\t1\t0\t1\t0\t1\t1\tcondition__control_vs_treated\t~ condition\n' > differential_expression_results.tsv
+    printf 'analysis_id\tvariable\tcontrast\tstatus\tn_samples\tn_genes\tn_significant\nstub\tcondition\tcondition__control_vs_treated\tok\t2\t1\t0\n' > deg_summary.tsv
+    printf 'Analise DEG - stub\n' > analysis_summary.txt
+    printf '"DE_AGGREGATE":\n    python: "stub"\n' > versions.yml
+    printf '{"id":"%s","process":"DE_AGGREGATE","status":"stub"}\n' '${meta.id}' > execution.json
+    printf '{"schema_version":"1.0","type":"differential_expression","id":"%s","provider":"deseq2","test":"wald"}\n' '${meta.id}' > de_manifest.json
+    printf '{"id":"%s","process":"DE_AGGREGATE","status":"stub"}\n' '${meta.id}' > differential_expression.done
     """
 }

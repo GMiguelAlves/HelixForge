@@ -1,0 +1,1 @@
+{"schema_version":"1.0","type":"import","id":"golden.import","provider":"salmon","sample_count":9,"artifacts":{"counts":{"path":"counts_matrix.tsv","sha256":"8433c0be104988da3eb07ed1c6d81ab7e888fb272e50d50d41fc761764de2f96","available":true},"metadata":{"path":"quant_samples.tsv","sha256":"ff459718c1b916e94c9a93bb41140c99d8deac13c195ffaccbe8b0713870104e","available":true}}}

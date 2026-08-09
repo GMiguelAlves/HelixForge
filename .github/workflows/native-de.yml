@@ -1,0 +1,26 @@
+name: Native differential expression
+
+on:
+  pull_request:
+  push:
+    branches: [master, contrib/native-de-api]
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install Nextflow
+        run: curl -fsSL https://get.nextflow.io | bash
+      - name: Validate contracts
+        run: |
+          tests/native_de/run_invalid_inputs.sh
+          ./nextflow lint main.nf
+          NEXTFLOW="$PWD/nextflow" tests/native_de/run_stub.sh
