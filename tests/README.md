@@ -134,3 +134,11 @@ software, then optionally verify `-resume` cache reuse:
 bash tests/native_chipseq/run_stub.sh
 bash tests/native_chipseq/run_cache_tests.sh
 ```
+
+Run the real reduced SAMtools BAM-processing fixture and expected compatibility
+failures without downloading software:
+
+```bash
+bash tests/native_chipseq_bam/run_functional.sh
+bash tests/native_chipseq_bam/run_invalid_inputs.sh
+```
