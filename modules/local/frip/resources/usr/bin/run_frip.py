@@ -18,8 +18,8 @@ def sha256(path):
     return digest.hexdigest()
 
 
-def require_file(path, label):
-    if not os.path.isfile(path) or os.path.getsize(path) == 0:
+def require_file(path, label, allow_empty=False):
+    if not os.path.isfile(path) or (not allow_empty and os.path.getsize(path) == 0):
         raise ValueError(f"{label} is missing or empty: {path}")
 
 
@@ -122,8 +122,9 @@ def main():
     args = parser.parse_args()
     started = int(time.time())
     try:
-        for path, label in ((args.request, "Peak QC request"), (args.bam, "BAM"), (args.bai, "BAI"), (args.peaks, "peaks")):
+        for path, label in ((args.request, "Peak QC request"), (args.bam, "BAM"), (args.bai, "BAI")):
             require_file(path, label)
+        require_file(args.peaks, "peaks", allow_empty=True)
         with open(args.request, encoding="utf-8") as handle:
             request = json.load(handle)
         if request.get("status") != "valid":

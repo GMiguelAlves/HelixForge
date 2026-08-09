@@ -32,7 +32,7 @@ workflow PEAK_QC {
         .splitCsv(header: true, sep: '\t')
         .map { row -> tuple(row.record_id, row) }
 
-    context_inputs = peak_records
+    context_inputs_base = peak_records
         .join(bam_records)
         .join(plan_by_record)
         .map { record_id, _peak_meta, peaks, peak_manifest, peak_document,
@@ -61,8 +61,13 @@ workflow PEAK_QC {
                 ? file(row.blacklist_bed, checkIfExists: true) : []
             tuple(
                 context_meta, bam, bai, bam_manifest, peaks, peak_manifest,
-                file(row.genome_fasta, checkIfExists: true), selected_blacklist, qc_spec_base64
+                file(row.genome_fasta, checkIfExists: true), selected_blacklist
             )
+        }
+    context_inputs = context_inputs_base
+        .combine(qc_spec_base64)
+        .map { meta, bam, bai, bam_manifest, peaks, peak_manifest, reference, blacklist, spec ->
+            tuple(meta, bam, bai, bam_manifest, peaks, peak_manifest, reference, blacklist, spec)
         }
 
     PEAK_QC_CONTEXT(context_inputs)

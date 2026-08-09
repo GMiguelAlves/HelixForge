@@ -11,7 +11,7 @@ process FRIP {
     errorStrategy { task.exitStatus in 130..145 ? 'retry' : 'terminate' }
     maxRetries 2
 
-    container "${workflow.containerEngine in ['singularity', 'apptainer'] ? params.peak_qc_apptainer_container : params.peak_qc_container}"
+    container { workflow.containerEngine in ['singularity', 'apptainer'] ? params.peak_qc_apptainer_container : params.peak_qc_container }
     conda "${moduleDir}/environment.yml"
 
     publishDir "${params.outdir}/pipeline_info/native_chipseq/peak_qc/frip",

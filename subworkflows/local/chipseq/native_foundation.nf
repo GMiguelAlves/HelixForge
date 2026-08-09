@@ -7,6 +7,7 @@ include { ALIGNMENT }        from '../../local/alignment/alignment'
 include { CHIPSEQ_BAM_PROCESSING } from './bam_processing'
 include { PEAK_CALLING_CONTEXT } from '../../../modules/local/peak_calling_context/main'
 include { PEAK_CALLING } from './peak_calling'
+include { PEAK_QC } from './peak_qc'
 
 workflow CHIPSEQ_NATIVE_FOUNDATION {
     take:
@@ -21,7 +22,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     CHIPSEQ_METADATA(CHIPSEQ_CONTEXT.out.artifacts)
 
     peak_context_artifacts_ch = channel.empty()
-    if (mode == 'peaks') {
+    if (mode in ['peaks', 'peak_qc']) {
         def peak_spec = [
             caller                : params.chipseq_peak_caller,
             caller_version        : '3.0.4',
@@ -88,6 +89,13 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             }
             duplicate_mode = row.remove_duplicates.toBoolean() ? 'remove' : 'none'
         }
+        record_meta = record_meta + [
+            bam_duplicate_policy: duplicate_mode,
+            bam_min_mapq         : params.chipseq_min_mapq != null ? params.chipseq_min_mapq as Integer : row.min_mapq as Integer,
+            bam_include_flags    : params.chipseq_include_flags as Integer,
+            bam_exclude_flags    : params.chipseq_exclude_flags != null ? params.chipseq_exclude_flags as Integer : configured_exclude_flags,
+            bam_blacklist_policy : params.chipseq_blacklist_overlap_mode.toString().toLowerCase(),
+        ]
         tuple(
             record_meta,
             reads,
@@ -163,7 +171,11 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     peak_artifacts_ch = channel.empty()
     peak_manifests_ch = channel.empty()
     peak_reports_ch = channel.empty()
-    if (mode in ['alignment', 'post_alignment', 'peaks']) {
+    peak_qc_status_ch = channel.empty()
+    peak_qc_artifacts_ch = channel.empty()
+    peak_qc_manifest_ch = channel.empty()
+    peak_qc_reports_ch = channel.empty()
+    if (mode in ['alignment', 'post_alignment', 'peaks', 'peak_qc']) {
         reference_inputs = plan_rows
             .map { row ->
                 def prefix = file(row.index_prefix)
@@ -206,7 +218,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
         alignment_manifest_ch = ALIGNMENT.out.manifest
         alignment_reports_ch = ALIGNMENT.out.reports
 
-        if (mode in ['post_alignment', 'peaks']) {
+        if (mode in ['post_alignment', 'peaks', 'peak_qc']) {
             if (!params.chipseq_native_bam_processing) {
                 error 'chipseq_run_mode=post_alignment requires chipseq_native_bam_processing=true'
             }
@@ -236,7 +248,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             bam_reports_ch = CHIPSEQ_BAM_PROCESSING.out.reports
             bam_artifacts_ch = CHIPSEQ_BAM_PROCESSING.out.artifacts
 
-            if (mode == 'peaks') {
+            if (mode in ['peaks', 'peak_qc']) {
                 if (!params.chipseq_native_peak_calling.toString().toBoolean()) {
                     error 'chipseq_run_mode=peaks requires chipseq_native_peak_calling=true in the native path'
                 }
@@ -249,13 +261,45 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                 peak_artifacts_ch = PEAK_CALLING.out.artifacts
                 peak_manifests_ch = PEAK_CALLING.out.manifests
                 peak_reports_ch = PEAK_CALLING.out.reports
+
+                if (mode == 'peak_qc' && params.chipseq_native_peak_qc.toString().toBoolean()) {
+                    def peak_qc_spec = [
+                        unit                     : params.chipseq_frip_unit,
+                        min_mapq                 : params.chipseq_frip_min_mapq,
+                        include_flags            : params.chipseq_frip_include_flags,
+                        additional_exclude_flags : params.chipseq_frip_additional_exclude_flags,
+                        exclude_unmapped         : params.chipseq_frip_exclude_unmapped,
+                        exclude_secondary        : params.chipseq_frip_exclude_secondary,
+                        exclude_supplementary    : params.chipseq_frip_exclude_supplementary,
+                        exclude_qc_fail          : params.chipseq_frip_exclude_qc_fail,
+                        duplicate_handling       : params.chipseq_frip_duplicate_handling,
+                        require_proper_pair      : params.chipseq_frip_require_proper_pair,
+                        overlap_strategy         : params.chipseq_frip_overlap_strategy,
+                        blacklist_policy         : params.chipseq_frip_blacklist_policy,
+                    ]
+                    def peak_qc_spec_base64 = groovy.json.JsonOutput.toJson(peak_qc_spec).getBytes('UTF-8').encodeBase64().toString()
+                    PEAK_QC(
+                        CHIPSEQ_BAM_PROCESSING.out.artifacts,
+                        CHIPSEQ_BAM_PROCESSING.out.final_manifest,
+                        PEAK_CALLING.out.artifacts,
+                        PEAK_CALLING.out.manifests,
+                        peak_context_artifacts_ch,
+                        channel.value(peak_qc_spec_base64)
+                    )
+                    peak_qc_status_ch = PEAK_QC.out.status
+                    peak_qc_artifacts_ch = PEAK_QC.out.summary
+                    peak_qc_manifest_ch = PEAK_QC.out.manifest
+                    peak_qc_reports_ch = PEAK_QC.out.reports
+                }
             }
         }
     }
 
     completed_ch = mode == 'qc' \
         ? MULTIQC.out.status \
-        : (mode == 'peaks' ? peak_status_ch : (mode == 'post_alignment' ? bam_status_ch : alignment_status_ch))
+        : (mode == 'peak_qc' \
+            ? (params.chipseq_native_peak_qc.toString().toBoolean() ? peak_qc_status_ch : peak_status_ch) \
+            : (mode == 'peaks' ? peak_status_ch : (mode == 'post_alignment' ? bam_status_ch : alignment_status_ch)))
 
     emit:
     completed           = completed_ch
@@ -269,6 +313,9 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     peaks               = peak_artifacts_ch
     peak_manifests      = peak_manifests_ch
     peak_reports        = peak_reports_ch
+    peak_qc             = peak_qc_artifacts_ch
+    peak_qc_manifest    = peak_qc_manifest_ch
+    peak_qc_reports     = peak_qc_reports_ch
     logs                = CHIPSEQ_CONTEXT.out.reports
         .mix(CHIPSEQ_METADATA.out.reports.map { metadata_meta, _normalized, _controls, _report, log -> tuple(metadata_meta, log) })
         .mix(FASTQC.out.reports.map { fastqc_meta, _html, log -> tuple(fastqc_meta, log) })

@@ -97,8 +97,8 @@ def main():
     try:
         if not os.path.isfile(args.request) or os.path.getsize(args.request) == 0:
             raise ValueError("Peak QC request is missing or empty")
-        if not os.path.isfile(args.peaks) or os.path.getsize(args.peaks) == 0:
-            raise ValueError("peak file is missing or empty")
+        if not os.path.isfile(args.peaks):
+            raise ValueError("peak file is missing")
         with open(args.request, encoding="utf-8") as handle:
             request = json.load(handle)
         peak_type = request.get("peak_type")

@@ -25,8 +25,8 @@ def sha256(path):
     return digest.hexdigest()
 
 
-def require_file(path, label):
-    if not path or not os.path.isfile(path) or os.path.getsize(path) == 0:
+def require_file(path, label, allow_empty=False):
+    if not path or not os.path.isfile(path) or (not allow_empty and os.path.getsize(path) == 0):
         raise ValueError(f"{label} is missing or empty: {path}")
 
 
@@ -179,6 +179,9 @@ def build_request(meta, bam, bai, bam_manifest_path, peaks, peak_manifest_path, 
     require_proper_pair = as_bool(spec.get("require_proper_pair", True), "require_proper_pair")
     if unit == "fragments" and require_proper_pair:
         include_flags |= 2
+    conflicting_flags = include_flags & exclude_flags
+    if conflicting_flags:
+        raise ValueError(f"SAM flags cannot be both required and excluded: {conflicting_flags}")
 
     bam_duplicate_policy = str(meta.get("bam_duplicate_policy") or bam_manifest.get("duplicate_policy") or "unknown")
     request = {
@@ -245,8 +248,9 @@ def main():
     parser.add_argument("--report", required=True)
     args = parser.parse_args()
     try:
-        for path, label in ((args.bam, "BAM"), (args.bai, "BAI"), (args.peaks, "peak file"), (args.reference, "reference")):
+        for path, label in ((args.bam, "BAM"), (args.bai, "BAI"), (args.reference, "reference")):
             require_file(path, label)
+        require_file(args.peaks, "peak file", allow_empty=True)
         if args.blacklist:
             require_file(args.blacklist, "blacklist")
         meta = json.loads(base64.b64decode(args.meta_base64).decode("utf-8"))
