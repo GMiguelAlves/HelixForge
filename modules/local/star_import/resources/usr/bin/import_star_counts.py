@@ -29,18 +29,35 @@ def read_table(path: Path) -> tuple[list[str], list[dict[str, str]]]:
         return list(reader.fieldnames), [dict(row) for row in reader]
 
 
-def read_counts(path: Path, column: int) -> OrderedDict[str, int]:
+def normalize_gene_id(gene_id: str, policy: str) -> str:
+    if policy in ("strip_gene_prefix", "legacy"):
+        gene_id = re.sub(r"^gene:", "", gene_id)
+    if policy in ("strip_version", "legacy"):
+        gene_id = re.sub(r"\.[0-9]+$", "", gene_id)
+    return gene_id
+
+
+def read_counts(path: Path, column: int, normalization: str) -> OrderedDict[str, int]:
     values: OrderedDict[str, int] = OrderedDict()
     with path.open(newline="", encoding="utf-8") as handle:
-        for fields in csv.reader(handle, delimiter="\t"):
+        for line_number, fields in enumerate(csv.reader(handle, delimiter="\t"), start=1):
             if len(fields) < 4 or fields[0].startswith("N_"):
                 continue
-            gene_id = re.sub(r"^gene:", "", fields[0])
-            gene_id = re.sub(r"\.[0-9]+$", "", gene_id)
+            original_id = fields[0]
+            gene_id = normalize_gene_id(original_id, normalization)
+            if not gene_id:
+                raise ValueError(f"empty gene ID after normalization at {path}:{line_number}")
             try:
-                value = int(float(fields[column]))
-            except (TypeError, ValueError):
-                value = 0
+                numeric = float(fields[column])
+            except (TypeError, ValueError) as error:
+                raise ValueError(f"invalid STAR count at {path}:{line_number}") from error
+            if not numeric.is_integer() or numeric < 0:
+                raise ValueError(f"STAR count must be a non-negative integer at {path}:{line_number}")
+            value = int(numeric)
+            if gene_id in values:
+                raise ValueError(
+                    f"gene ID collision after normalization in {path}: {original_id!r} -> {gene_id!r}"
+                )
             values[gene_id] = value
     return values
 
@@ -57,6 +74,11 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--sample-table", required=True, type=Path)
     parser.add_argument("--count-column", default="unstranded")
+    parser.add_argument(
+        "--gene-id-normalization",
+        default="preserve",
+        choices=("preserve", "strip_gene_prefix", "strip_version", "legacy"),
+    )
     parser.add_argument("--counts-name", default="counts_matrix.tsv", type=Path)
     parser.add_argument("--abundance-name", default="star_cpm_matrix.tsv", type=Path)
     parser.add_argument("--metadata-name", default="quant_samples.tsv", type=Path)
@@ -75,9 +97,13 @@ def main() -> None:
     counts_by_sample: dict[str, dict[str, int]] = {}
     sample_ids: list[str] = []
     for row in rows:
-        sample_id = row["import_id"]
+        sample_id = row.get("import_id", "")
+        if not sample_id:
+            raise ValueError("sample table contains an empty import_id")
+        if sample_id in counts_by_sample:
+            raise ValueError(f"sample table contains duplicated import_id: {sample_id}")
         source = Path(row["__source_name"]) / "artifact"
-        counts = read_counts(source, column)
+        counts = read_counts(source, column, args.gene_id_normalization)
         counts_by_sample[sample_id] = counts
         sample_ids.append(sample_id)
         for gene in counts:
@@ -113,6 +139,7 @@ def main() -> None:
         "samples": len(sample_ids),
         "genes": len(genes),
         "count_column": normalized_column,
+        "gene_id_normalization": args.gene_id_normalization,
         "library_sizes": libraries,
     }
     Path("import_statistics.json").write_text(

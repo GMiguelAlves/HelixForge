@@ -42,6 +42,7 @@ process STAR_IMPORT {
     import_star_counts.py \
         --sample-table '${sample_table}' \
         --count-column '${import_params.star_count_column}' \
+        --gene-id-normalization '${import_params.gene_id_normalization}' \
         --counts-name counts_matrix.tsv \
         --abundance-name star_cpm_matrix.tsv \
         --metadata-name quant_samples.tsv \
@@ -56,12 +57,12 @@ process STAR_IMPORT {
     python_version=\$(python3 --version 2>&1 | awk '{print \$2}')
 
     printf '"%s":\n    python: "%s"\n' '${task.process}' "\$python_version" > versions.yml
-    printf '{"id":"%s","process":"%s","parameters":{"star_count_column":"%s"},"cpus":%s,"memory_bytes":%s,"time":"%s","container":"%s","sources_sha256":"%s","started_epoch":%s,"ended_epoch":%s,"elapsed_seconds":%s}\n' \
-        '${meta.id}' '${task.process}' '${import_params.star_count_column}' '${task.cpus}' \
+    printf '{"id":"%s","process":"%s","parameters":{"star_count_column":"%s","gene_id_normalization":"%s"},"cpus":%s,"memory_bytes":%s,"time":"%s","container":"%s","sources_sha256":"%s","started_epoch":%s,"ended_epoch":%s,"elapsed_seconds":%s}\n' \
+        '${meta.id}' '${task.process}' '${import_params.star_count_column}' '${import_params.gene_id_normalization}' '${task.cpus}' \
         '${task.memory.toBytes()}' '${task.time}' '${params.star_import_container}' "\$sources_sha" \
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" > execution.json
-    printf '{"schema_version":"1.0","type":"import","id":"%s","provider":"star","sample_count":%s,"parameters":{"star_count_column":"%s"},"artifacts":{"counts":{"path":"counts_matrix.tsv","sha256":"%s","available":true},"abundance":{"path":"star_cpm_matrix.tsv","sha256":"%s","available":true},"lengths":{"available":false,"reason":"STAR GeneCounts does not estimate transcript effective lengths"},"experiment":{"available":false,"reason":"not emitted by STAR provider in Import API v1.0"},"metadata":{"path":"quant_samples.tsv","sha256":"%s","available":true}}}\n' \
-        '${meta.id}' "\$sample_count" '${import_params.star_count_column}' "\$counts_sha" \
+    printf '{"schema_version":"1.0","type":"import","id":"%s","provider":"star","sample_count":%s,"parameters":{"star_count_column":"%s","gene_id_normalization":"%s"},"artifacts":{"counts":{"path":"counts_matrix.tsv","sha256":"%s","available":true},"abundance":{"path":"star_cpm_matrix.tsv","sha256":"%s","available":true},"lengths":{"available":false,"reason":"STAR GeneCounts does not estimate transcript effective lengths"},"experiment":{"available":false,"reason":"not emitted by STAR provider in Import API v1.0"},"metadata":{"path":"quant_samples.tsv","sha256":"%s","available":true}}}\n' \
+        '${meta.id}' "\$sample_count" '${import_params.star_count_column}' '${import_params.gene_id_normalization}' "\$counts_sha" \
         "\$abundance_sha" "\$metadata_sha" > import_manifest.json
     printf '{"id":"%s","process":"%s","status":"complete"}\n' \
         '${meta.id}' '${task.process}' > star_import.done

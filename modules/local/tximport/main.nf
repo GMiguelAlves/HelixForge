@@ -46,6 +46,10 @@ process TXIMPORT {
     tximport_quant.R \
         --sample-table '${sample_table}' \
         --tx2gene '${tx2gene}' \
+        --counts-from-abundance '${import_params.countsFromAbundance}' \
+        --ignore-tx-version '${import_params.ignoreTxVersion}' \
+        --ignore-after-bar '${import_params.ignoreAfterBar}' \
+        --unmapped-transcripts '${import_params.unmappedTranscripts}' \
         --counts-name counts_matrix.tsv \
         --abundance-name tpm_matrix.tsv \
         --length-name length_matrix.tsv \
@@ -72,12 +76,12 @@ process TXIMPORT {
     printf '"%s":\n    r: "%s"\n    bioconductor: "3.18"\n    tximport: "%s"\n    SummarizedExperiment: "%s"\n    readr: "%s"\n    data.table: "%s"\n' \
         '${task.process}' "\$r_version" "\$tximport_version" "\$summarized_experiment_version" \
         "\$readr_version" "\$data_table_version" > versions.yml
-    printf '{"id":"%s","process":"%s","parameters":{"type":"salmon","countsFromAbundance":"no","ignoreTxVersion":true,"ignoreAfterBar":true},"cpus":%s,"memory_bytes":%s,"time":"%s","container":"%s","sources_sha256":"%s","tx2gene_sha256":"%s","started_epoch":%s,"ended_epoch":%s,"elapsed_seconds":%s}\n' \
-        '${meta.id}' '${task.process}' '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
+    printf '{"id":"%s","process":"%s","parameters":{"type":"salmon","countsFromAbundance":"%s","libraryProtocol":"%s","ignoreTxVersion":%s,"ignoreAfterBar":%s,"unmappedTranscripts":"%s"},"cpus":%s,"memory_bytes":%s,"time":"%s","container":"%s","sources_sha256":"%s","tx2gene_sha256":"%s","started_epoch":%s,"ended_epoch":%s,"elapsed_seconds":%s}\n' \
+        '${meta.id}' '${task.process}' '${import_params.countsFromAbundance}' '${import_params.libraryProtocol}' '${import_params.ignoreTxVersion}' '${import_params.ignoreAfterBar}' '${import_params.unmappedTranscripts}' '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         '${params.tximport_container}' "\$sources_sha" "\$tx2gene_sha" "\$start_epoch" "\$end_epoch" \
         "\$((end_epoch-start_epoch))" > execution.json
-    printf '{"schema_version":"1.0","type":"import","id":"%s","provider":"salmon","sample_count":%s,"parameters":{"countsFromAbundance":"no","ignoreTxVersion":true,"ignoreAfterBar":true},"artifacts":{"counts":{"path":"counts_matrix.tsv","sha256":"%s","available":true},"abundance":{"path":"tpm_matrix.tsv","sha256":"%s","available":true},"lengths":{"path":"length_matrix.tsv","sha256":"%s","available":true},"experiment":{"path":"summarized_experiment.rds","sha256":"%s","available":true},"metadata":{"path":"quant_samples.tsv","sha256":"%s","available":true}},"tx2gene_sha256":"%s"}\n' \
-        '${meta.id}' "\$sample_count" "\$counts_sha" "\$abundance_sha" "\$length_sha" \
+    printf '{"schema_version":"1.0","type":"import","id":"%s","provider":"salmon","sample_count":%s,"parameters":{"countsFromAbundance":"%s","libraryProtocol":"%s","ignoreTxVersion":%s,"ignoreAfterBar":%s,"unmappedTranscripts":"%s"},"artifacts":{"counts":{"path":"counts_matrix.tsv","sha256":"%s","available":true},"abundance":{"path":"tpm_matrix.tsv","sha256":"%s","available":true},"lengths":{"path":"length_matrix.tsv","sha256":"%s","available":true},"experiment":{"path":"summarized_experiment.rds","sha256":"%s","available":true},"metadata":{"path":"quant_samples.tsv","sha256":"%s","available":true}},"tx2gene_sha256":"%s"}\n' \
+        '${meta.id}' "\$sample_count" '${import_params.countsFromAbundance}' '${import_params.libraryProtocol}' '${import_params.ignoreTxVersion}' '${import_params.ignoreAfterBar}' '${import_params.unmappedTranscripts}' "\$counts_sha" "\$abundance_sha" "\$length_sha" \
         "\$experiment_sha" "\$metadata_sha" "\$tx2gene_sha" > import_manifest.json
     printf '{"id":"%s","process":"%s","status":"complete"}\n' \
         '${meta.id}' '${task.process}' > tximport.done
