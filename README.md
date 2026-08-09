@@ -19,13 +19,18 @@ directories are preserved.
 The ChIP-seq native foundation validates flexible metadata, controls and
 biological/technical replicate identity, reuses FastQC/MultiQC, and implements
 Bowtie2 indexing/alignment behind the same generic Alignment API used by STAR.
-Native modes include `qc`, `alignment`, `post_alignment`, `peaks`, and
-`peak_qc`. The BAM mode adds
+Native modes include `qc`, `alignment`, `post_alignment`, `peaks`, `peak_qc`,
+`consensus`, and `idr`. The BAM mode adds
 explicit MAPQ/flag selection, duplicate policy, optional blacklist and final
 BAM integrity/QC. Peak Calling API v1 validates explicit treatment/control
 relationships and runs a pinned MACS3 provider independently for each replicate.
 Peak QC API v1 then calculates explicitly defined per-replicate FRiP and generic
 peak statistics and publishes a caller-neutral QC manifest.
+Consensus API v1 safely joins those manifests by identity and implements
+explicit `union`, `intersection`, and minimum-replicate-support strategies over
+atomic intervals. The separate IDR mode validates and records an IDR request,
+but deliberately produces no peak set until a pinned statistical runtime has
+been scientifically validated.
 
 Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy
@@ -73,11 +78,15 @@ nextflow run . -profile test -stub-run --workflow chipseq \
 ```
 
 For a real run, use `--chipseq_run_mode qc`, `alignment`, `post_alignment`,
-`peaks`, or `peak_qc` and provide the existing project config through `--chipseq_config`.
+`peaks`, `peak_qc`, or `consensus` and provide the existing project config through `--chipseq_config`.
 Native peaks require explicit `--chipseq_peak_type narrow|broad` and a numerical
 `--chipseq_effective_genome_size`. `full` retains the complete legacy fallback;
 `--chipseq_native_peak_calling false` selects only the legacy peak step.
 `--chipseq_native_peak_qc false` stops `peak_qc` mode after native Peak Calling.
+Native consensus additionally requires `--chipseq_consensus_method
+union|intersection|replicate_support`; the latter also requires
+`--chipseq_min_replicates`. `idr` is currently a validated, provenance-bearing
+provider request only and is not a scientific IDR result.
 
 The default configs remain the versioned `config/pipeline_config.sh` files in
 each legacy pipeline. Create their existing untracked user configuration files
@@ -104,6 +113,8 @@ See [docs/nextflow.md](docs/nextflow.md),
 [docs/native-chipseq-peak-calling.md](docs/native-chipseq-peak-calling.md),
 [docs/peak_qc_api.md](docs/peak_qc_api.md),
 [docs/native-chipseq-peak-qc.md](docs/native-chipseq-peak-qc.md),
+[docs/consensus_idr_api.md](docs/consensus_idr_api.md),
+[docs/native-chipseq-consensus-idr.md](docs/native-chipseq-consensus-idr.md),
 [docs/module_contracts.md](docs/module_contracts.md),
 [docs/script-mapping.md](docs/script-mapping.md), and
 [docs/limitations.md](docs/limitations.md).
