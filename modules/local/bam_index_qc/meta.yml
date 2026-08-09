@@ -1,0 +1,17 @@
+name: BAM_INDEX_QC
+description: Validate, optionally sort, index, and summarize the final BAM.
+keywords: [bam, samtools, index, qc, chipseq]
+tools:
+  - samtools: {description: SAM/BAM processing toolkit}
+input:
+  - bam: Post-selection, duplicate-policy, blacklist-policy BAM.
+  - reference: Reference FASTA used by alignment.
+  - qc_params: Explicit sort-if-needed policy.
+output:
+  - artifacts: Final coordinate-sorted BAM and matching BAI.
+  - reports: Header, contigs, integrity checks, flagstat, idxstats, stats and metrics.
+  - versions: Tool versions YAML.
+  - execution_metadata: Command, resources and checksums.
+  - manifest: Final BAM manifest.
+  - status: Completion JSON.
+

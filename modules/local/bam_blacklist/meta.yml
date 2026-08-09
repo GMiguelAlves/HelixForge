@@ -1,0 +1,18 @@
+name: BAM_BLACKLIST
+description: Optionally exclude alignments or complete templates overlapping an explicit BED.
+keywords: [bam, samtools, blacklist, chipseq]
+tools:
+  - samtools: {description: SAM/BAM processing toolkit}
+input:
+  - bam: Coordinate-sorted duplicate-policy BAM.
+  - bam_contigs: Validated BAM/reference contig table.
+  - blacklist: Optional BED; an empty path list disables filtering.
+  - blacklist_params: Explicit alignment or fragment overlap policy.
+output:
+  - artifacts: Coordinate-sorted BAM after optional exclusion.
+  - reports: BED/contig validation, removal metrics, command and log.
+  - versions: Tool versions YAML.
+  - execution_metadata: Command, resources and checksums.
+  - manifest: Partial BAM-processing manifest.
+  - status: Completion JSON.
+
