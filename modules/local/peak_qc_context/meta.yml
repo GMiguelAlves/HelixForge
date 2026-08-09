@@ -1,0 +1,22 @@
+name: peak_qc_context
+description: Validate Peak QC identity, inputs, reference bounds, and explicit scientific policy.
+keywords: [chipseq, peak-qc, frip, validation]
+tools:
+  - python:
+      description: Python programming language
+      homepage: https://www.python.org/
+input:
+  - meta: Treatment and replicate identity from Peak Calling.
+  - bam: Final treatment BAM.
+  - bai: Matching BAM index.
+  - bam_manifest: Final BAM manifest.
+  - peaks: Semantic narrowPeak or broadPeak artifact.
+  - peak_manifest: Peak Calling API manifest.
+  - reference: Reference FASTA used by BAM Processing.
+  - blacklist: Optional tracked blacklist used upstream.
+  - spec_base64: Explicit Peak QC policy.
+output:
+  - artifacts: Validated Peak QC request.
+  - reports: Validation report and log.
+  - versions: Runtime versions.
+  - status: Completion marker.
