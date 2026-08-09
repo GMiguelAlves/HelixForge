@@ -12,6 +12,19 @@ nextflow run . -profile local --workflow integrative
 nextflow run . -profile slurm --workflow all -c conf/my_cluster.config
 ```
 
+Native ChIP-seq foundation modes are selected independently:
+
+```bash
+nextflow run . -profile local --workflow chipseq --chipseq_run_mode qc
+nextflow run . -profile slurm --workflow chipseq --chipseq_run_mode alignment \
+  -c conf/my_cluster.config
+```
+
+`qc` performs metadata validation, raw FastQC and MultiQC. `alignment` adds
+Bowtie2 indexing and per-record alignment. `peaks` and `full` use the complete
+legacy fallback in foundation 0.1; use `--chipseq_native_foundation false` to
+force that fallback explicitly.
+
 The existing configuration remains authoritative:
 
 ```text

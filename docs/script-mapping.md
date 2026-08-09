@@ -42,6 +42,24 @@ the current top-level workflow does not invoke them in its standard graph.
 
 ## ChIP-seq
 
+Native foundation (`chipseq_run_mode=qc|alignment`):
+
+| Nextflow process/API | Legacy evidence replaced or decomposed |
+|---|---|
+| `CHIPSEQ_CONTEXT` | Sources the unchanged config once and snapshots paths/parameters; no scheduler calls |
+| `CHIPSEQ_METADATA` | Replaces rigid validation for the native path and adds dataset/reference/control/replicate consistency |
+| reused `FASTQC` | Replaces raw per-FASTQ calls in `fastq_qc.sh` |
+| reused `MULTIQC` | Replaces raw aggregation in `fastq_qc.sh` with the same `raw_fastq_multiqc.html` name |
+| `REFERENCE_INDEX` / `BOWTIE2_INDEX` | Separates Bowtie2 indexing from monolithic `prepare_reference.sh` |
+| `ALIGNMENT` / `BOWTIE2_ALIGN` | Replaces Bowtie2 + samtools sort/index/statistics in `align.sh`; raw reads are selected explicitly |
+
+The native Alignment provider stops before MAPQ/flag selection, deduplication
+and blacklist filtering. Those policies remain legacy-only until their own
+contracts are validated.
+
+Legacy fallback (`chipseq_run_mode=peaks|full`, or
+`chipseq_native_foundation=false`):
+
 | Nextflow alias | Legacy step | Direct legacy script |
 |---|---|---|
 | `CHIPSEQ_REFERENCE_STEP` | `reference` | `prepare_reference.sh`, which calls `create_annotation_beds.py` |

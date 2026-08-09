@@ -1,0 +1,7 @@
+name: omicsflow-chipseq-context
+channels:
+  - conda-forge
+dependencies:
+  - bash=5.2.21
+  - coreutils=9.5
+

@@ -1,6 +1,6 @@
 # Alignment API
 
-Alignment API version: `1.0`
+Alignment API version: `1.1`
 
 This contract separates workflow semantics from the selected aligner. RNA-seq
 and future ChIP-seq workflows call `REFERENCE_INDEX` and `ALIGNMENT`; they do
@@ -21,7 +21,7 @@ when it is scientifically required.
 Required `meta` fields:
 
 - `id`: stable reference identifier;
-- `aligner`: provider name, initially `star`;
+- `aligner`: provider name, currently `star` or `bowtie2`;
 - `target_dir`: optional legacy-compatible index directory.
 
 Outputs:
@@ -91,11 +91,17 @@ Regression tests normalize only paths, timestamps, host information, and speed;
 mapping counts, percentages, MAPQ, flags, assignments, and BAM records must
 remain equivalent.
 
+Bowtie2 owns index prefix, reads, threads and SAM output. Its provider pipes the
+unaltered alignments through samtools view and coordinate sort, then creates an
+index and descriptive statistics. MAPQ/flag filtering, duplicate policy and
+blacklist exclusion are deliberately outside the Alignment API.
+
 ## Provider selection
 
 `meta.aligner` selects the implementation. Unsupported values fail before a
-scientific command is launched. Version 1.0 implements `star`; future Bowtie2,
-HISAT2, and minimap2 providers must return the same semantic channels.
+scientific command is launched. Version 1.0 implemented STAR; version 1.1 adds
+Bowtie2 for ChIP-seq. Future HISAT2 and minimap2 providers must return the same
+semantic channels.
 
 Alignment is independent from transcript-abundance estimation. Salmon and
 future abundance providers implement the separate

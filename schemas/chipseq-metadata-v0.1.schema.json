@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://omicsflow.dev/schemas/chipseq-metadata-v0.1.schema.json",
+  "title": "OmicsFlow normalized ChIP-seq record",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "record_id",
+    "sample_id",
+    "dataset",
+    "condition",
+    "biological_replicate",
+    "technical_replicate",
+    "layout",
+    "is_control",
+    "genome_id",
+    "fastq_1"
+  ],
+  "properties": {
+    "record_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "sample_id": {"type": "string", "minLength": 1},
+    "run_accession": {"type": "string"},
+    "lane": {"type": "string"},
+    "dataset": {"type": "string", "minLength": 1},
+    "condition": {"type": "string", "minLength": 1},
+    "biological_replicate": {"type": "string", "minLength": 1},
+    "technical_replicate": {"type": "string", "minLength": 1},
+    "layout": {"enum": ["single", "paired"]},
+    "is_control": {"type": "boolean"},
+    "control_id": {"type": "string"},
+    "antibody": {"type": "string"},
+    "target": {"type": "string"},
+    "genome_id": {"type": "string", "minLength": 1},
+    "organism": {"type": "string"},
+    "fastq_1": {"type": "string", "minLength": 1},
+    "fastq_2": {"type": "string"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"layout": {"const": "paired"}}},
+      "then": {"required": ["fastq_2"], "properties": {"fastq_2": {"minLength": 1}}}
+    },
+    {
+      "if": {"properties": {"is_control": {"const": false}}},
+      "then": {"required": ["target"]}
+    }
+  ]
+}
+

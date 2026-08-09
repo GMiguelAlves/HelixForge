@@ -3,14 +3,17 @@
 - Legacy-wrapper outputs remain external side effects. Native QC, STAR,
   Salmon, and Import API outputs are content-tracked Nextflow artifacts and
   compatibility copies are published at the existing paths.
-- ChIP sample fan-out and RNA differential-analysis fan-out still occur inside
-  existing local-mode coordinator scripts. RNA QC, STAR, Salmon, tx2gene, and
-  quantification import fan out natively.
+- ChIP raw QC and Bowtie2 alignment fan out natively in `qc`/`alignment` mode.
+  ChIP filtering, duplicate handling and all peak-analysis stages still occur
+  inside existing local-mode coordinator scripts when the legacy fallback is
+  selected.
 - The generic compatibility process uses resource classes rather than exact
   per-tool requirements.
 - Container and native Conda profiles remain placeholders for legacy tools.
-  Native RNA QC, STAR, Salmon, and Import modules have pinned Conda
-  environments and containers.
+  Native RNA QC, STAR, Salmon, Import, ChIP metadata and Bowtie2 modules have
+  pinned Conda environments. The combined Bowtie2/Samtools OCI execution path
+  still requires a real container validation; stub validation does not prove
+  that runtime composition.
 - Docker runs must bind the configured external `SCRATCH_ROOT` at the same path
   inside the container because compatibility outputs retain their absolute
   legacy paths. Shared HPC filesystems are normally visible to Apptainer.
@@ -36,5 +39,9 @@
   IntegrateSeq config must point to the actual RNA/ChIP result directories.
 - The minimal output manifest and Reference Bundle are specified but not yet
   generated automatically.
+- Native ChIP-seq foundation 0.1 aligns technical sequencing records
+  independently. It validates their identity but does not yet merge them into
+  biological-library BAMs. No native MAPQ, duplicate, blacklist, FRiP, peak,
+  consensus or IDR result is claimed.
 - Existing `.done` files remain active inside legacy pipelines. Nextflow status
   markers are an additional orchestration layer.

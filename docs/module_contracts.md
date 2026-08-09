@@ -4,7 +4,7 @@ This document defines the interface required for every new native Nextflow DSL2
 module in OmicsFlow. The contract standardizes orchestration and provenance; it
 does not force unrelated scientific tools to produce the same file types.
 
-Contract version: `1.5`
+Contract version: `1.6`
 
 This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
 later native module.
@@ -215,6 +215,11 @@ Quantification API is defined in `docs/quantification_api.md`; the Import API
 is defined in `docs/import_api.md`; the Differential Expression API is defined
 in `docs/differential_expression_api.md`.
 
+The ChIP-seq domain contracts are defined in `docs/chipseq-api.md`. They add
+explicit control relationships, biological/technical replicate identity and
+separate post-alignment policies for selection, duplicates and blacklist
+exclusion.
+
 Contract 1.1 adds `meta.yml`, module-local documentation, tests, and formal
 domain contracts. Existing QC modules remain valid under 1.0 and can adopt the
 additional layout incrementally; all modules created after 1.1 must use it.
@@ -247,3 +252,10 @@ selection are explicit versioned values. Modules fail on collisions, unmapped
 required identifiers, negative counts, and missing design values.
 Library protocol and transcript-length correction strategy are also explicit
 when transcript abundance estimates feed gene-level inference.
+
+Contract 1.6 adds multi-assay alignment providers and ChIP-seq experiment
+identity. Generic Alignment API providers may omit annotation and gene counts
+when those roles do not apply, but they must still emit sorted BAM, index,
+logs, statistics, versions, execution metadata, manifest and status. ChIP-seq
+modules must not hide MAPQ, duplicate, blacklist or peak-type policy inside an
+aligner process.

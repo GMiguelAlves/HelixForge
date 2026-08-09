@@ -18,6 +18,7 @@ flowchart TB
     RSW --> RNADE["Generic Differential Expression API"]
     RSW --> WRAP["LEGACY_STEP module"]
     CSW --> WRAP
+    CSW --> CHIPNATIVE["Native ChIP foundation"]
     ISW --> WRAP
 
     WRAP --> RB["rnaseq_pipeline.sh --local"]
@@ -29,9 +30,12 @@ flowchart TB
     QC --> MULTIQC["MultiQC"]
     RNAALIGN --> REFINDEX["REFERENCE_INDEX"]
     REFINDEX --> STARINDEX["STAR_INDEX"]
+    REFINDEX --> BOWTIEINDEX["BOWTIE2_INDEX"]
     RNAALIGN --> ALIGN["ALIGNMENT"]
     ALIGN --> STARALIGN["STAR_ALIGN"]
+    ALIGN --> BOWTIEALIGN["BOWTIE2_ALIGN"]
     STARINDEX --> STARALIGN
+    BOWTIEINDEX --> BOWTIEALIGN
     STARALIGN --> STAROUT["Legacy-compatible BAM, counts, logs"]
     RNAQUANT --> TRANSCRIPTINDEX["TRANSCRIPTOME_INDEX"]
     TRANSCRIPTINDEX --> SALMONINDEX["SALMON_INDEX"]
@@ -56,6 +60,10 @@ flowchart TB
     DEOUT --> WRAP
     TRIM --> TRIMMED["Legacy-compatible run FASTQs"]
     MERGE --> MERGED["Legacy-compatible sample FASTQs"]
+    CHIPNATIVE --> CHIPMETA["ChIP metadata/control validation"]
+    CHIPMETA --> FASTQC
+    CHIPMETA --> BOWTIEALIGN
+    BOWTIEALIGN --> CHIPBAM["Sorted BAM + BAI + statistics"]
 ```
 
 Native modules emit primary artifacts, reports, versions, and status tuples.
@@ -83,3 +91,10 @@ native path models batch only as an explicit design covariate and does not run
 matrix correction before DESeq2. The legacy batch wrapper remains available
 only with the legacy DE fallback; final reporting remains a compatibility
 wrapper.
+
+For ChIP-seq, `qc` and `alignment` use the native foundation. The workflow
+reuses generic FastQC/MultiQC and the generic Alignment API with Bowtie2.
+Filtering, duplicate handling, blacklist exclusion, peak calling, consensus,
+differential binding, annotation, tracks and reporting remain the complete
+legacy fallback until their independent scientific contracts are implemented.
+See `docs/chipseq-architecture.md` for the staged graph.

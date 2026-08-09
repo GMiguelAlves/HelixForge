@@ -1,0 +1,17 @@
+name: BOWTIE2_INDEX
+description: Build a content-tracked Bowtie2 reference index.
+keywords: [alignment, bowtie2, index, chipseq]
+tools:
+  - bowtie2: {description: Short-read aligner}
+input:
+  - reference: Reference FASTA.
+  - annotation: Empty for Bowtie2; retained by the generic reference envelope.
+  - index_params: Index basename and explicit extra arguments.
+output:
+  - artifacts: Bowtie2 index directory.
+  - reports: Command, log and checksums.
+  - versions: Tool versions YAML.
+  - execution_metadata: Resource and checksum JSON.
+  - manifest: Alignment-index manifest.
+  - status: Completion JSON.
+
