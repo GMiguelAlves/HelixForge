@@ -1,0 +1,14 @@
+name: omicsflow-deseq2
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base=4.3.2
+  - bioconductor-biocversion=3.18.1
+  - bioconductor-deseq2=1.42.0
+  - bioconductor-rtracklayer=1.62.0
+  - r-ggplot2=3.4.4
+  - r-ggrepel=0.9.5
+  - r-pheatmap=1.0.12
+  - r-matrixstats=1.2.0
+  - r-jsonlite=1.8.8
