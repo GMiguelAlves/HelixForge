@@ -16,7 +16,7 @@ process CONSENSUS_INTERVALS {
 
     publishDir "${params.outdir}/pipeline_info/native_chipseq/consensus/providers",
         mode: 'copy', overwrite: true, pattern: '*.{json,yml,done,consensus_reports}'
-    publishDir "${params.outdir}/chipseq/consensus/${meta.id}",
+    publishDir { "${params.outdir}/chipseq/consensus/${meta.id}" },
         mode: 'copy', overwrite: true, pattern: '*.consensus_result'
 
     input:

@@ -113,7 +113,7 @@ def validate_group(records, spec):
             raise ValueError(f"record {record.get('record_id')}: technical_replicate is missing")
         biological_counts[biological] = biological_counts.get(biological, 0) + 1
         key = biological if replicate_mode == "biological" else f"{biological}.{technical}"
-        if key in keys:
+        if key in keys and replicate_mode == "technical":
             raise ValueError(f"duplicate {replicate_mode} replicate key: {key}")
         keys.add(key)
         record["evidence_replicate_id"] = key

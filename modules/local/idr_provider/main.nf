@@ -15,7 +15,7 @@ process IDR_PROVIDER {
 
     publishDir "${params.outdir}/pipeline_info/native_chipseq/consensus/idr",
         mode: 'copy', overwrite: true, pattern: '*.{json,yml,done,idr_reports}'
-    publishDir "${params.outdir}/chipseq/consensus/${meta.id}",
+    publishDir { "${params.outdir}/chipseq/consensus/${meta.id}" },
         mode: 'copy', overwrite: true, pattern: '*.idr_result'
 
     input:
