@@ -3,7 +3,7 @@ name: Native differential expression
 on:
   pull_request:
   push:
-    branches: [master, contrib/native-de-api]
+    branches: [master]
 
 permissions:
   contents: read

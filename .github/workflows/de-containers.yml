@@ -2,7 +2,7 @@ name: Differential expression containers
 
 on:
   push:
-    branches: [master, contrib/native-de-api]
+    branches: [master]
     paths:
       - 'containers/deseq2/**'
       - 'modules/local/deseq2_model/environment.yml'
