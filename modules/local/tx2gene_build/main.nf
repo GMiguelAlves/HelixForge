@@ -33,7 +33,13 @@ process TX2GENE_BUILD {
     script:
     """
     start_epoch=\$(date +%s)
-    tx2gene_build.R '${annotation}' tx2gene.tsv \
+    tx2gene_build.R \
+        --annotation '${annotation}' \
+        --output tx2gene.tsv \
+        --strip-transcript-version '${tx2gene_params.strip_transcript_version}' \
+        --strip-gene-version '${tx2gene_params.strip_gene_version}' \
+        --strip-transcript-prefix '${tx2gene_params.strip_transcript_prefix}' \
+        --strip-gene-prefix '${tx2gene_params.strip_gene_prefix}' \
         > tx2gene_build.log 2>&1
     Rscript -e 'sessionInfo()' > sessionInfo.txt
 
@@ -45,8 +51,8 @@ process TX2GENE_BUILD {
 
     printf '"%s":\n    r: "%s"\n    bioconductor: "3.18"\n    rtracklayer: "%s"\n' \
         '${task.process}' "\$r_version" "\$rtracklayer_version" > versions.yml
-    printf '{"id":"%s","process":"%s","parameters":{"strip_transcript_version":true,"strip_gene_version":true},"cpus":%s,"memory_bytes":%s,"time":"%s","container":"%s","annotation_sha256":"%s","started_epoch":%s,"ended_epoch":%s,"elapsed_seconds":%s}\n' \
-        '${meta.id}' '${task.process}' '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
+    printf '{"id":"%s","process":"%s","parameters":{"strip_transcript_version":%s,"strip_gene_version":%s,"strip_transcript_prefix":%s,"strip_gene_prefix":%s},"cpus":%s,"memory_bytes":%s,"time":"%s","container":"%s","annotation_sha256":"%s","started_epoch":%s,"ended_epoch":%s,"elapsed_seconds":%s}\n' \
+        '${meta.id}' '${task.process}' '${tx2gene_params.strip_transcript_version}' '${tx2gene_params.strip_gene_version}' '${tx2gene_params.strip_transcript_prefix}' '${tx2gene_params.strip_gene_prefix}' '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         '${params.tx2gene_container}' "\$annotation_sha" "\$start_epoch" "\$end_epoch" \
         "\$((end_epoch-start_epoch))" > execution.json
     printf '{"schema_version":"1.0","type":"tx2gene","id":"%s","annotation_sha256":"%s","artifacts":{"tx2gene":{"path":"tx2gene.tsv","sha256":"%s","available":true}}}\n' \

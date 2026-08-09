@@ -40,6 +40,9 @@ process SALMON_INDEX {
     reports_dir='${meta.id}.salmon_index_reports'
     mkdir -p "\$reports_dir"
 
+    awk '/^>/ { id=substr(\$0,2); sub(/[[:space:]].*\$/, "", id); if (!length(id)) { print "empty transcript ID" > "/dev/stderr"; exit 2 } if (seen[id]++) { print "duplicated transcript ID: " id > "/dev/stderr"; exit 2 } count++ } END { if (!count) { print "transcriptome has no FASTA records" > "/dev/stderr"; exit 2 } print count }' \
+        '${transcriptome}' > "\$reports_dir/transcript_count.txt"
+
     printf '%s\n' \
         "salmon index -t ${transcriptome} -i salmon_index -p ${task.cpus} -k ${kmer_size}" \
         > "\$reports_dir/command.txt"
