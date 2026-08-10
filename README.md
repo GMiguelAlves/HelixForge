@@ -1,6 +1,6 @@
 # HelixForge
 
-Start with the [HelixForge Wiki](wiki/Home.md) for a Portuguese, navigable
+Start with the [HelixForge Wiki](https://github.com/GMiguelAlves/HelixForge/wiki) for a Portuguese, navigable
 overview of the current architecture, workflows, execution, and development.
 
 HelixForge is a compatibility-first Nextflow DSL2 implementation for the existing
