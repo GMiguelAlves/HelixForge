@@ -41,6 +41,9 @@ def load_json(path, label):
 
 
 def validate_spec(raw):
+    unknown = set(raw or {}) - set(DEFAULTS)
+    if unknown:
+        raise ValueError("unsupported track parameter(s): " + ",".join(sorted(unknown)))
     spec = dict(DEFAULTS); spec.update(raw or {})
     if spec["provider"] != "deeptools_bamcoverage_v1":
         raise ValueError(f"unsupported track provider {spec['provider']!r}")
@@ -164,6 +167,8 @@ def main():
         if set(documents) != set(record_ids):
             raise ValueError("metadata record_ids and final BAM manifests disagree")
         ref_doc = load_json(args.reference_manifest, "reference manifest")
+        if ref_doc.get("type") not in {"reference_bundle", "reference", "alignment_reference"}:
+            raise ValueError(f"unsupported reference manifest type {ref_doc.get('type')!r}")
         genome_id = safe_id(meta.get("genome_id"), "genome_id")
         build = safe_id(meta.get("build"), "build")
         ref_genome = safe_id(ref_doc.get("genome_id") or ref_doc.get("build"), "reference genome_id")
@@ -176,9 +181,12 @@ def main():
         if ref_artifact and ref_artifact.get("sha256") and ref_artifact["sha256"] != reference_sha:
             raise ValueError("reference checksum does not match reference manifest")
         expected_contigs = reference_contigs(args.reference)
+        expected_samples = dict(zip(record_ids, sample_ids))
         sources = []
         for identifier in sorted(documents):
             document, manifest_path = documents[identifier]
+            if document.get("sample_id") != expected_samples[identifier]:
+                raise ValueError(f"{identifier}: metadata and final BAM manifest disagree on sample_id")
             bam = find_artifact(bam_index, document.get("artifact"), "BAM")
             bai = find_artifact(bai_index, document.get("index"), "BAI")
             if document.get("sha256") and sha256(bam) != document["sha256"]:
@@ -193,7 +201,7 @@ def main():
             if bam_contigs(bam) != expected_contigs:
                 raise ValueError(f"{identifier}: BAM and reference contigs/lengths are incompatible")
             sources.append({
-                "record_id": identifier, "sample_id": document.get("sample_id"),
+                "record_id": identifier, "sample_id": expected_samples[identifier],
                 "bam": os.path.basename(bam), "bai": os.path.basename(bai),
                 "bam_sha256": sha256(bam), "bai_sha256": sha256(bai),
                 "manifest": os.path.basename(manifest_path), "manifest_sha256": sha256(manifest_path),
