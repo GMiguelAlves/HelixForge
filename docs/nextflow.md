@@ -32,6 +32,9 @@ nextflow run . -profile local --workflow chipseq --chipseq_run_mode annotation \
   --chipseq_annotation_reference genome.fa \
   --chipseq_annotation_reference_manifest reference_manifest.json \
   --chipseq_annotation_gtf annotation.gtf
+nextflow run . -profile local --workflow chipseq --chipseq_run_mode tracks \
+  --chipseq_native_tracks true \
+  --chipseq_tracks_input_manifest tracks_input.json
 ```
 
 `qc` performs metadata validation, raw FastQC and MultiQC. `alignment` adds
@@ -46,6 +49,9 @@ featureCounts/DESeq2 providers and requires a versioned DB specification. Use
 `annotation` consumes an already produced Peak Calling or Consensus manifest
 and never reruns upstream analysis. Set `--chipseq_native_peak_annotation false`
 for the unchanged legacy annotation step.
+`tracks` consumes an external final-BAM/reference inventory, creates individual
+and optional non-control aggregate BigWigs, and never reruns upstream stages.
+Set `--chipseq_native_tracks false` for the unchanged legacy tracks step.
 
 The existing configuration remains authoritative:
 

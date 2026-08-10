@@ -1,6 +1,6 @@
 # ChIP-seq APIs
 
-ChIP-seq API version: `0.6`
+ChIP-seq API version: `0.8`
 
 These contracts define semantic roles independently from organism, aligner,
 peak caller and legacy directory names. Version 0.1 implemented metadata, raw
@@ -10,6 +10,8 @@ implements per-replicate Peak QC API v1. Version 0.5 implements Consensus API
 v1 and the validation/provenance boundary for a future IDR provider.
 Version 0.6 adds separate differential-binding preflight, peak counting,
 statistical model, contrast and aggregation boundaries.
+Version 0.7 adds manifest-driven Peak Annotation API v1. Version 0.8 adds
+manifest-driven Track Generation API v1.
 
 ## Common experiment metadata
 
@@ -137,7 +139,7 @@ See `docs/consensus_idr_api.md`.
 
 ## Modes and implementation state
 
-| Mode | Native state in 0.6 |
+| Mode | Native state in 0.8 |
 |---|---|
 | `qc` | metadata validation + raw FastQC + MultiQC |
 | `alignment` | native QC + Bowtie2 index/alignment |
@@ -148,6 +150,7 @@ See `docs/consensus_idr_api.md`.
 | `idr` | native input validation and provenance only; statistical runtime not implemented |
 | `differential_binding` | native Consensus + featureCounts provider + explicit DESeq2 model/contrasts |
 | `annotation` | external Peak/Consensus manifest + native annotation provider/statistics/aggregate; no upstream rerun |
+| `tracks` | external FINAL_BAM inventory + native deepTools provider/statistics/aggregate; no upstream rerun |
 | `full` | legacy fallback |
 
 The fallback remains the complete legacy graph. Native and legacy outputs must
@@ -171,3 +174,13 @@ gene assignment, strand handling, intergenic policy, genome/build, and provider
 are versioned values. The initial `python_interval_v1` provider emits annotated
 peaks and peak-to-gene associations; metrics and aggregation are separate cache
 boundaries. See `docs/peak_annotation_api.md`.
+
+## Track Generation API v1
+
+An explicit inventory joins `FINAL_BAM`/BAI manifests with reference identity
+and a small, versioned coverage specification. `TRACK_CONTEXT` rejects hidden
+or unsupported behavior, `TRACK_PROVIDER` dispatches deepTools bamCoverage,
+`TRACK_STATISTICS` derives generic metrics, and `TRACK_AGGREGATE` publishes a
+provider-neutral inventory. All records receive individual tracks; aggregates
+contain explicitly grouped non-controls and perform no treatment/control
+subtraction. See `docs/track_generation_api.md`.
