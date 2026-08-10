@@ -1,0 +1,16 @@
+name: peak_annotation_context
+description: Validate Peak Annotation API identity, artifacts, reference, annotation, coordinates, seqnames, and parameters.
+keywords: [chipseq, peak-annotation, validation]
+input:
+  - meta: Stable annotation and source identity.
+  - peaks: BED, narrowPeak, or broadPeak semantic artifact.
+  - peak_manifest: Peak Calling or Consensus manifest.
+  - reference: Reference FASTA.
+  - reference_manifest: Reference identity and checksum manifest.
+  - annotation: GTF or GFF annotation.
+  - spec_base64: Versioned annotation parameters.
+output:
+  - artifacts: Validated provider request.
+  - reports: Validation report and log.
+  - versions: Python version.
+  - status: Explicit completion record.

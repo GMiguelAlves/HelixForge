@@ -1,0 +1,14 @@
+name: peak_annotation_statistics
+description: Derive provider-independent peak annotation metrics from semantic output tables.
+keywords: [chipseq, peak-annotation, statistics]
+input:
+  - meta: Stable annotation identity.
+  - annotation_dir: PEAK_ANNOTATOR semantic artifacts.
+  - annotation_manifest: Provider manifest.
+output:
+  - artifacts: Statistics JSON and TSV.
+  - reports: Category, chromosome, record, and TSS-distance tables.
+  - versions: Python version.
+  - execution_metadata: Resource and runtime record.
+  - manifest: Statistics manifest.
+  - status: Explicit completion record.

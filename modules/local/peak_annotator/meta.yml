@@ -1,0 +1,15 @@
+name: peak_annotator
+description: Provider-neutral peak annotation implementation using explicit genomic interval rules.
+keywords: [chipseq, peaks, annotation, gtf, gff]
+input:
+  - meta: Stable annotation identity.
+  - peaks: Validated peak artifact.
+  - annotation: Validated GTF/GFF.
+  - request: PEAK_ANNOTATION_CONTEXT request.
+output:
+  - artifacts: Annotated peaks and peak-gene associations.
+  - reports: Provider auxiliary reports.
+  - versions: Python and provider versions.
+  - execution_metadata: Command, resources, runtime, and Nextflow version.
+  - manifest: Partial Peak Annotation manifest.
+  - status: Explicit completion record.

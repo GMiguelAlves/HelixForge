@@ -20,7 +20,7 @@ The ChIP-seq native foundation validates flexible metadata, controls and
 biological/technical replicate identity, reuses FastQC/MultiQC, and implements
 Bowtie2 indexing/alignment behind the same generic Alignment API used by STAR.
 Native modes include `qc`, `alignment`, `post_alignment`, `peaks`, `peak_qc`,
-`consensus`, and `idr`. The BAM mode adds
+`consensus`, `idr`, `differential_binding`, and `annotation`. The BAM mode adds
 explicit MAPQ/flag selection, duplicate policy, optional blacklist and final
 BAM integrity/QC. Peak Calling API v1 validates explicit treatment/control
 relationships and runs a pinned MACS3 provider independently for each replicate.
@@ -35,6 +35,10 @@ Differential Binding API v1 adds the explicit `differential_binding` mode:
 semantic Consensus peak sets become a comparison universe, featureCounts
 produces an ID-mapped raw peak matrix, and DESeq2 fits one reusable model with
 independently cached contrasts. A versioned specification is mandatory.
+Peak Annotation API v1 consumes an existing Peak Calling or Consensus manifest
+without rerunning upstream stages, validates the reference/GTF/build contract,
+and emits provider-neutral annotated peaks, associations, statistics, and
+provenance.
 
 Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy
@@ -99,6 +103,12 @@ Native differential binding additionally requires
 `--chipseq_native_differential_binding false` to retain the unchanged legacy
 `differential` step.
 
+Native peak annotation uses `--chipseq_run_mode annotation` with explicit
+`--chipseq_annotation_peaks`, `--chipseq_annotation_peak_manifest`,
+`--chipseq_annotation_reference`, `--chipseq_annotation_reference_manifest`,
+and `--chipseq_annotation_gtf`. Set `--chipseq_native_peak_annotation false`
+for the unchanged legacy annotation fallback.
+
 The default configs remain the versioned `config/pipeline_config.sh` files in
 each legacy pipeline. Create their existing untracked user configuration files
 before a real run.
@@ -128,6 +138,8 @@ See [docs/nextflow.md](docs/nextflow.md),
 [docs/native-chipseq-consensus-idr.md](docs/native-chipseq-consensus-idr.md),
 [docs/differential_binding_api.md](docs/differential_binding_api.md),
 [docs/native-chipseq-differential-binding.md](docs/native-chipseq-differential-binding.md),
+[docs/peak_annotation_api.md](docs/peak_annotation_api.md),
+[docs/native-chipseq-peak-annotation.md](docs/native-chipseq-peak-annotation.md),
 [docs/chipseq-differential-binding-review.md](docs/chipseq-differential-binding-review.md),
 [docs/module_contracts.md](docs/module_contracts.md),
 [docs/script-mapping.md](docs/script-mapping.md), and
