@@ -1,6 +1,6 @@
 # ChIP-seq APIs
 
-ChIP-seq API version: `0.5`
+ChIP-seq API version: `0.6`
 
 These contracts define semantic roles independently from organism, aligner,
 peak caller and legacy directory names. Version 0.1 implemented metadata, raw
@@ -8,6 +8,8 @@ QC and Bowtie2 alignment. Version 0.2 implements the independent BAM processing
 roles. Version 0.3 implements Peak Calling API v1 with MACS3 3.0.4. Version 0.4
 implements per-replicate Peak QC API v1. Version 0.5 implements Consensus API
 v1 and the validation/provenance boundary for a future IDR provider.
+Version 0.6 adds separate differential-binding preflight, peak counting,
+statistical model, contrast and aggregation boundaries.
 
 ## Common experiment metadata
 
@@ -135,7 +137,7 @@ See `docs/consensus_idr_api.md`.
 
 ## Modes and implementation state
 
-| Mode | Native state in 0.5 |
+| Mode | Native state in 0.6 |
 |---|---|
 | `qc` | metadata validation + raw FastQC + MultiQC |
 | `alignment` | native QC + Bowtie2 index/alignment |
@@ -144,7 +146,18 @@ See `docs/consensus_idr_api.md`.
 | `peak_qc` | native peaks + per-replicate FRiP/peak statistics + QC aggregation |
 | `consensus` | native Peak QC + explicit union/intersection/replicate-support provider |
 | `idr` | native input validation and provenance only; statistical runtime not implemented |
+| `differential_binding` | native Consensus + featureCounts provider + explicit DESeq2 model/contrasts |
 | `full` | legacy fallback |
 
 The fallback remains the complete legacy graph. Native and legacy outputs must
 not be mixed within one analysis without an explicit manifest boundary.
+
+## Differential Binding API v1
+
+`DB_PREFLIGHT` groups compatible semantic Consensus sets across conditions,
+validates one premerged biological sample per model column, builds the explicit
+comparison universe and emits separate count/model/contrast specs.
+`PEAK_COUNTING_PROVIDER` dispatches featureCounts, `DESEQ2_DB_MODEL` fits one
+raw-count Wald model, `DESEQ2_DB_CONTRAST` fans out named directions and
+`DB_AGGREGATE` produces the downstream manifest. See
+`docs/differential_binding_api.md`. No biological validation is claimed.

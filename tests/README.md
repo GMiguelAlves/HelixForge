@@ -3,6 +3,10 @@
 `run_stub_tests.sh` compiles and executes the four workflow graphs with process
 stub blocks. It does not run scientific tools.
 
+`native_chipseq_differential_binding/` adds pure contract tests and isolated/
+top-level stubs. It does not run featureCounts, DESeq2, containers, Slurm,
+biological regression or benchmarks.
+
 The `validation/` datasets will hold golden scientific outputs. They are kept
 separate from syntax/stub tests because byte-for-byte comparison is not valid
 for every bioinformatics format.

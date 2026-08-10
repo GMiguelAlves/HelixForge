@@ -75,7 +75,7 @@
     "salmon_quant_queue": { "type": ["string", "null"], "default": null },
     "chipseq_run_mode": {
       "type": "string",
-      "enum": ["qc", "alignment", "post_alignment", "peaks", "peak_qc", "consensus", "idr", "full"],
+      "enum": ["qc", "alignment", "post_alignment", "peaks", "peak_qc", "consensus", "idr", "differential_binding", "full"],
       "default": "full"
     },
     "chipseq_native_peak_calling": { "type": "boolean", "default": true },
@@ -88,6 +88,11 @@
       "type": "boolean",
       "default": true,
       "description": "Use the native Consensus/IDR API after Peak QC. Consensus falls back to legacy when false; no legacy IDR equivalent exists."
+    },
+    "chipseq_native_differential_binding": {
+      "type": "boolean",
+      "default": true,
+      "description": "Use the native Differential Binding API in differential_binding mode; false selects the unchanged legacy differential step."
     },
     "chipseq_peak_caller": { "type": ["string", "null"], "enum": ["macs3", null], "default": null },
     "chipseq_peak_type": { "type": ["string", "null"], "enum": ["narrow", "broad", null], "default": null },
@@ -174,6 +179,19 @@
     "consensus_container": { "type": ["string", "null"], "default": null },
     "consensus_apptainer_container": { "type": ["string", "null"], "default": null },
     "consensus_queue": { "type": ["string", "null"], "default": null },
+    "chipseq_db_spec": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "Required versioned Differential Binding JSON specification for native differential_binding mode."
+    },
+    "chipseq_db_count_provider": { "type": "string", "enum": ["featurecounts"], "default": "featurecounts" },
+    "chipseq_db_target_dir": { "type": ["string", "null"], "default": null },
+    "featurecounts_container": { "type": ["string", "null"], "default": null },
+    "featurecounts_apptainer_container": { "type": ["string", "null"], "default": null },
+    "db_adapter_container": { "type": "string", "default": "ghcr.io/gmiguelalves/omicsflow-import-python:1.0.0" },
+    "db_count_queue": { "type": ["string", "null"], "default": null },
+    "db_model_queue": { "type": ["string", "null"], "default": null },
+    "db_contrast_queue": { "type": ["string", "null"], "default": null },
     "rnaseq_config": { "type": "string" },
     "chipseq_config": { "type": "string" },
     "integrative_config": { "type": "string" }

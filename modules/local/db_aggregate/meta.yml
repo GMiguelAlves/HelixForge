@@ -1,0 +1,19 @@
+name: db_aggregate
+description: Assemble count, model and contrast artifacts into a semantic Differential Binding result.
+keywords: [chipseq, differential-binding, aggregate, manifest]
+tools:
+  - python: {description: Deterministic aggregation and manifest generation}
+input:
+  - meta: Suite-level Differential Binding identity.
+  - counts: Raw count provider directories.
+  - models: Statistical model directories.
+  - contrasts: Independent contrast result directories.
+  - db_spec: Authoritative analysis specification.
+output:
+  - artifacts: Complete semantic Differential Binding result directory.
+  - results: Combined result table.
+  - reports: Per-contrast summary.
+  - versions: Aggregator version.
+  - execution_metadata: Runtime resources.
+  - manifest: Downstream-ready semantic manifest.
+  - status: Completion marker.

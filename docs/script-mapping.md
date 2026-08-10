@@ -67,6 +67,11 @@ Native foundation (`chipseq_run_mode=qc|alignment`):
 | `CONSENSUS_UNION` / `CONSENSUS_INTERSECTION` / `CONSENSUS_SUPPORT` | Decompose `consensus_peaks.sh` into explicit atomic-segment strategies; no count matrix is implied |
 | `IDR_PROVIDER` | New honest provider boundary; validates a request but emits no IDR peaks until a runtime is validated |
 | `CONSENSUS_AGGREGATE` | Publishes provider-neutral group summaries and availability state |
+| `DB_PREFLIGHT` | Replaces filename/order inference with manifest joins, an explicit comparison universe, design and contrasts |
+| `PEAK_COUNTING_PROVIDER` / `FEATURECOUNTS_PEAK` | Replaces headerless `bedtools multicov` matrices with explicit sample columns and a raw-count manifest |
+| `DESEQ2_DB_MODEL` | Replaces the monolithic model with one cached `~ condition` or `~ batch + condition` fit |
+| `DESEQ2_DB_CONTRAST` | Replaces inferred/in-loop pairs with one task per named numerator/denominator contrast |
+| `DB_AGGREGATE` | Replaces path-only tables with a semantic manifest for downstream APIs |
 
 The native Alignment provider stops before MAPQ/flag selection. The
 `post_alignment` mode applies those later policies through independent native

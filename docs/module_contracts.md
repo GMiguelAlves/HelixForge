@@ -4,7 +4,7 @@ This document defines the interface required for every new native Nextflow DSL2
 module in OmicsFlow. The contract standardizes orchestration and provenance; it
 does not force unrelated scientific tools to produce the same file types.
 
-Contract version: `2.0`
+Contract version: `2.1`
 
 This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
 later native module.
@@ -290,3 +290,10 @@ are explicit cache inputs. Consensus providers preserve atomic interval support
 and source evidence without synthesizing caller metrics. IDR providers use a
 distinct type and may emit `available: false`; a provider without a validated
 statistical runtime must never create a peak-shaped placeholder.
+
+Contract 2.1 adds Differential Binding providers. Raw peak counting is separate
+from filtering, normalization and inference. One model column maps through
+manifests to one premerged biological replicate; technical records are never
+silently promoted. Design and contrast specifications are distinct cache inputs.
+Changing one contrast must not invalidate counting or a reusable model. Model
+providers consume raw counts and expose normalized counts only as outputs.

@@ -40,6 +40,11 @@ flowchart TD
     INTER --> CAGG
     SUPPORT --> CAGG
     IDR --> CAGG
+    CAGG --> DBP["DB_PREFLIGHT"]
+    DBP --> COUNT["PEAK_COUNTING_PROVIDER / featureCounts"]
+    COUNT --> DBM["DESEQ2_DB_MODEL"]
+    DBM --> DBC["DESEQ2_DB_CONTRAST x N"]
+    DBC --> DBA["DB_AGGREGATE"]
 
     LEG["Legacy fallback"] --> FULL["full or native peak calling disabled"]
 ```
@@ -65,6 +70,9 @@ flowchart TD
   complete grouping identity and makes biological/technical replicate policy
   explicit. Consensus providers operate on atomic segments; IDR remains a
   separate non-result provider request until its runtime is validated.
+- `DB_PREFLIGHT` creates a recorded cross-condition peak universe and validates
+  statistical units, design, covariates, filters and contrasts. featureCounts,
+  model fitting, each contrast and aggregation are independent cache boundaries.
 - Large data remain Nextflow outputs. Lightweight reports and provenance are
   published under `pipeline_info` and optional legacy-compatible target paths.
 
@@ -79,5 +87,5 @@ Docker, Conda, Singularity or Apptainer execution.
 3. explicit MACS3 provider and caller-neutral peak outputs (foundation 0.3);
 4. explicit FRiP/Peak QC API and per-replicate aggregation (foundation 0.4);
 5. Consensus API and IDR provider boundary (foundation 0.5);
-6. annotation, tracks and reporting;
-7. differential binding only after a separate statistical design review.
+6. Differential Binding API with explicit design/contrasts (foundation 0.6);
+7. annotation, tracks and reporting.

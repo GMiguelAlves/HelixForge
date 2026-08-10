@@ -209,8 +209,8 @@ def main():
         controls = validate_relationships(rows, allow_missing)
 
         native_mode = clean(settings.get("NATIVE_RUN_MODE")).lower()
-        alignment_enabled = native_mode in {"alignment", "post_alignment", "peaks", "peak_qc", "consensus", "idr"}
-        bam_processing_enabled = native_mode in {"post_alignment", "peaks", "peak_qc", "consensus", "idr"}
+        alignment_enabled = native_mode in {"alignment", "post_alignment", "peaks", "peak_qc", "consensus", "idr", "differential_binding"}
+        bam_processing_enabled = native_mode in {"post_alignment", "peaks", "peak_qc", "consensus", "idr", "differential_binding"}
         reference = resolve_file(
             settings.get("GENOME_FASTA"), os.getcwd(), "GENOME_FASTA", "reference", alignment_enabled
         )

@@ -1,0 +1,19 @@
+name: db_preflight
+description: Validate Differential Binding identities, peak universes, statistical units, designs and contrasts.
+keywords: [chipseq, differential-binding, validation, design]
+tools:
+  - python: {description: Scientific-contract validation and deterministic planning}
+input:
+  - meta: Differential-binding suite identity.
+  - consensus_dirs: Semantic Consensus provider outputs.
+  - consensus_manifests: Matching Consensus manifests.
+  - final_bams: Final treatment BAM artifacts.
+  - final_bais: Matching BAM indexes.
+  - bam_manifests: Final-BAM manifests.
+  - peak_plan: Validated ChIP-seq metadata/peak plan.
+  - db_spec: Versioned design, contrast, count and filter specification.
+output:
+  - artifacts: Analysis requests, peak universes, sample tables and granular provider specifications.
+  - reports: Structured validation report and analysis summary.
+  - versions: Python version.
+  - status: Completion marker.

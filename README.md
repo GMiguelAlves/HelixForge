@@ -31,6 +31,10 @@ explicit `union`, `intersection`, and minimum-replicate-support strategies over
 atomic intervals. The separate IDR mode validates and records an IDR request,
 but deliberately produces no peak set until a pinned statistical runtime has
 been scientifically validated.
+Differential Binding API v1 adds the explicit `differential_binding` mode:
+semantic Consensus peak sets become a comparison universe, featureCounts
+produces an ID-mapped raw peak matrix, and DESeq2 fits one reusable model with
+independently cached contrasts. A versioned specification is mandatory.
 
 Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy
@@ -88,6 +92,13 @@ union|intersection|replicate_support`; the latter also requires
 `--chipseq_min_replicates`. `idr` is currently a validated, provenance-bearing
 provider request only and is not a scientific IDR result.
 
+Native differential binding additionally requires
+`--chipseq_run_mode differential_binding`, an explicit consensus method, and
+`--chipseq_db_spec /path/to/chipseq_db_spec.json`. Copy
+`assets/chipseq_db_spec.example.json` as a starting point. Set
+`--chipseq_native_differential_binding false` to retain the unchanged legacy
+`differential` step.
+
 The default configs remain the versioned `config/pipeline_config.sh` files in
 each legacy pipeline. Create their existing untracked user configuration files
 before a real run.
@@ -115,6 +126,9 @@ See [docs/nextflow.md](docs/nextflow.md),
 [docs/native-chipseq-peak-qc.md](docs/native-chipseq-peak-qc.md),
 [docs/consensus_idr_api.md](docs/consensus_idr_api.md),
 [docs/native-chipseq-consensus-idr.md](docs/native-chipseq-consensus-idr.md),
+[docs/differential_binding_api.md](docs/differential_binding_api.md),
+[docs/native-chipseq-differential-binding.md](docs/native-chipseq-differential-binding.md),
+[docs/chipseq-differential-binding-review.md](docs/chipseq-differential-binding-review.md),
 [docs/module_contracts.md](docs/module_contracts.md),
 [docs/script-mapping.md](docs/script-mapping.md), and
 [docs/limitations.md](docs/limitations.md).
