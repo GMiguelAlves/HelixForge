@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "type": "track_generation_input",
+  "reference": {
+    "fasta": "reference/genome.fa",
+    "manifest": "reference/manifest.json",
+    "genome_id": "GRCh38",
+    "build": "GRCh38"
+  },
+  "records": [
+    {
+      "record_id": "chip_rep1",
+      "sample_id": "chip_rep1",
+      "dataset": "study",
+      "condition": "treated",
+      "target": "H3K27ac",
+      "biological_replicate": "1",
+      "technical_replicate": "1",
+      "is_control": false,
+      "bam": "bam/chip_rep1.filtered.bam",
+      "bai": "bam/chip_rep1.filtered.bam.bai",
+      "bam_manifest": "bam/chip_rep1.manifest.json"
+    }
+  ]
+}
