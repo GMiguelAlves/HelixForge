@@ -305,3 +305,10 @@ strand handling, intergenic policy, and TSS-distance policy are explicit cache
 inputs. Context validation, provider execution, statistics, and provider-neutral
 aggregation are separate boundaries. Providers must not repair contigs, builds,
 coordinates, IDs, or annotation versions silently.
+
+Contract 2.3 adds Track Generation providers. Final BAMs, indexes, reference
+identity, and metadata are associated only through stable IDs and manifests.
+Track format, binning, normalization, scale, unit, extension, strand, effective
+genome size, aggregate scope, and provider version are explicit cache inputs.
+Providers must not repeat final-BAM filters. Context, provider execution, track
+statistics, and provider-neutral aggregation are independent boundaries.
