@@ -76,6 +76,10 @@ Native foundation (`chipseq_run_mode=qc|alignment`):
 | `PEAK_ANNOTATOR` | Replaces `annotate_peaks.R` with an explicit provider implementing the same conceptual priority and compatibility defaults |
 | `PEAK_ANNOTATION_STATISTICS` | Separates metrics from provider execution and derives them only from semantic tables |
 | `PEAK_ANNOTATION_AGGREGATE` | Publishes provider-neutral annotated peaks, peak-to-gene associations, statistics and provenance |
+| `TRACK_CONTEXT` | Replaces BAM glob/path association and implicit grouping with final-BAM/reference manifests, stable identity, checksum/build validation, and explicit coverage policy |
+| `TRACK_PROVIDER` / `DEEPTOOLS_BAMCOVERAGE` | Replaces native execution in `tracks.sh`; creates one BigWig per record and explicitly declared non-control aggregate groups without adding filters |
+| `TRACK_STATISTICS` | Derives provider-neutral BigWig/source metrics as a separate cache boundary |
+| `TRACK_AGGREGATE` | Joins provider and statistics artifacts by stable track ID and publishes `tracks.tsv` plus the Track Generation manifest |
 
 The native Alignment provider stops before MAPQ/flag selection. The
 `post_alignment` mode applies those later policies through independent native
@@ -87,6 +91,9 @@ native consensus disabled for `consensus`):
 
 Dedicated `annotation` mode uses this fallback when
 `chipseq_native_peak_annotation=false`; `full` remains unchanged.
+Dedicated `tracks` mode uses this fallback when `chipseq_native_tracks=false`;
+native tracks consume an external final-BAM inventory and do not rerun upstream
+stages.
 
 | Nextflow alias | Legacy step | Direct legacy script |
 |---|---|---|

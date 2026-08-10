@@ -1,0 +1,16 @@
+name: track_context
+description: Validate manifest-linked final BAMs, reference identity, contigs, track metadata, and parameters.
+keywords: [chipseq, tracks, bigwig, validation]
+input:
+  - meta: Stable individual or aggregate track identity.
+  - bams: One or more FINAL_BAM artifacts.
+  - bais: Matching indexes.
+  - bam_manifests: Matching native final-BAM manifests.
+  - reference: Reference FASTA.
+  - reference_manifest: Reference/build identity.
+  - spec_base64: Versioned track parameters.
+output:
+  - artifacts: Validated track request.
+  - reports: Context report and log.
+  - versions: Python and samtools versions.
+  - status: Explicit completion record.

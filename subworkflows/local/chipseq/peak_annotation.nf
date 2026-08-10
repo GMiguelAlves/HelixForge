@@ -34,14 +34,20 @@ workflow PEAK_ANNOTATION {
         .map { _id, meta, directory, manifest -> tuple(meta, directory, manifest) }
     PEAK_ANNOTATION_STATISTICS(provider_by_id)
 
-    aggregate_inputs = PEAK_ANNOTATOR.out.artifacts
-        .map { _meta, directory -> directory }
-        .collect()
-        .combine(PEAK_ANNOTATOR.out.manifest.map { _meta, manifest -> manifest }.collect())
-        .combine(PEAK_ANNOTATION_STATISTICS.out.artifacts.map { _meta, statistics_json, _statistics_tsv -> statistics_json }.collect())
-        .combine(PEAK_ANNOTATION_STATISTICS.out.manifest.map { _meta, manifest -> manifest }.collect())
-        .map { directories, manifests, statistics, statistics_manifests ->
-            tuple([id: 'chipseq.peak_annotation.aggregate'], directories, manifests, statistics, statistics_manifests)
+    aggregate_records = PEAK_ANNOTATOR.out.artifacts
+        .map { meta, directory -> tuple(meta.id, directory) }
+        .join(PEAK_ANNOTATOR.out.manifest.map { meta, manifest -> tuple(meta.id, manifest) })
+        .join(PEAK_ANNOTATION_STATISTICS.out.artifacts.map { meta, statistics_json, _statistics_tsv -> tuple(meta.id, statistics_json) })
+        .join(PEAK_ANNOTATION_STATISTICS.out.manifest.map { meta, manifest -> tuple(meta.id, manifest) })
+    aggregate_inputs = aggregate_records.toList()
+        .map { records ->
+            tuple(
+                [id: 'chipseq.peak_annotation.aggregate'],
+                records.collect { record -> record[1] },
+                records.collect { record -> record[2] },
+                records.collect { record -> record[3] },
+                records.collect { record -> record[4] }
+            )
         }
     PEAK_ANNOTATION_AGGREGATE(aggregate_inputs)
 

@@ -1,0 +1,16 @@
+name: track_aggregate
+description: Publish provider-neutral BigWig tracks and statistics joined by manifest ID.
+keywords: [chipseq, tracks, aggregate]
+input:
+  - meta: Global track aggregate identity.
+  - track_dirs: Provider result directories.
+  - track_manifests: Provider manifests.
+  - statistics_json: Per-track statistics.
+  - statistics_manifests: Statistics manifests.
+output:
+  - artifacts: Tracks, summary table, and aggregate manifest.
+  - reports: Track summary table.
+  - versions: Python version.
+  - execution_metadata: Resource and runtime record.
+  - manifest: Aggregate manifest.
+  - status: Explicit completion record.

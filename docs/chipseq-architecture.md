@@ -53,6 +53,13 @@ flowchart TD
     ANNO --> ASTAT["PEAK_ANNOTATION_STATISTICS"]
     ASTAT --> AAGG["PEAK_ANNOTATION_AGGREGATE"]
 
+    FINAL --> TCTX["TRACK_CONTEXT: identity and coverage policy"]
+    REF --> TCTX
+    TCTX --> TPROV["TRACK_PROVIDER / deepTools bamCoverage"]
+    TPROV --> TSTAT["TRACK_STATISTICS"]
+    TPROV --> TAGG["TRACK_AGGREGATE"]
+    TSTAT --> TAGG
+
     LEG["Legacy fallback"] --> FULL["full or native peak calling disabled"]
 ```
 
@@ -84,6 +91,11 @@ flowchart TD
   manifest plus reference/annotation identity. Provider execution, annotation
   statistics, and provider-neutral aggregation are separate boundaries and
   never trigger peak calling or differential binding.
+- `TRACK_CONTEXT` consumes only an external final-BAM inventory and reference
+  manifest. It validates identity and explicit coverage semantics before a
+  provider creates individual and optional non-control aggregate BigWigs.
+  Statistics and aggregation are independent cache boundaries; tracks mode
+  never triggers alignment or BAM processing.
 - Large data remain Nextflow outputs. Lightweight reports and provenance are
   published under `pipeline_info` and optional legacy-compatible target paths.
 
@@ -100,4 +112,5 @@ Docker, Conda, Singularity or Apptainer execution.
 5. Consensus API and IDR provider boundary (foundation 0.5);
 6. Differential Binding API with explicit design/contrasts (foundation 0.6);
 7. manifest-driven Peak Annotation API (foundation 0.7);
-8. tracks and reporting.
+8. manifest-driven Track Generation API (foundation 0.8);
+9. reporting.

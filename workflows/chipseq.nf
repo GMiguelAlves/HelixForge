@@ -3,10 +3,18 @@ include { CHIPSEQ_QC_ALIGNMENT } from '../subworkflows/local/chipseq/qc_alignmen
 include { CHIPSEQ_PEAK_ANALYSIS } from '../subworkflows/local/chipseq/peak_analysis'
 include { CHIPSEQ_NATIVE_FOUNDATION } from '../subworkflows/local/chipseq/native_foundation'
 include { PEAK_ANNOTATION } from '../subworkflows/local/chipseq/peak_annotation'
+include { TRACK_GENERATION } from '../subworkflows/local/chipseq/tracks'
 include { LEGACY_STEP as CHIPSEQ_LEGACY_PEAKS } from '../modules/local/legacy_step/main'
 include { LEGACY_STEP as CHIPSEQ_LEGACY_CONSENSUS } from '../modules/local/legacy_step/main'
 include { LEGACY_STEP as CHIPSEQ_LEGACY_DIFFERENTIAL } from '../modules/local/legacy_step/main'
 include { LEGACY_STEP as CHIPSEQ_LEGACY_ANNOTATION } from '../modules/local/legacy_step/main'
+include { LEGACY_STEP as CHIPSEQ_LEGACY_TRACKS } from '../modules/local/legacy_step/main'
+
+
+def resolve_track_inventory_location(inventory_file, value) {
+    def candidate = java.nio.file.Paths.get(value.toString())
+    candidate.isAbsolute() ? value.toString() : "${inventory_file.parent}/${value}"
+}
 
 workflow CHIPSEQ {
     take:
@@ -21,8 +29,9 @@ workflow CHIPSEQ {
     native_consensus = params.chipseq_native_consensus.toString().toBoolean()
     native_differential = params.chipseq_native_differential_binding.toString().toBoolean()
     native_annotation = params.chipseq_native_peak_annotation.toString().toBoolean()
-    if (!(run_mode in ['qc', 'alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'annotation', 'full'])) {
-        error "Unknown chipseq_run_mode '${params.chipseq_run_mode}'. Use qc, alignment, post_alignment, peaks, peak_qc, consensus, idr, differential_binding, annotation, or full."
+    native_tracks = params.chipseq_native_tracks.toString().toBoolean()
+    if (!(run_mode in ['qc', 'alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'annotation', 'tracks', 'full'])) {
+        error "Unknown chipseq_run_mode '${params.chipseq_run_mode}'. Use qc, alignment, post_alignment, peaks, peak_qc, consensus, idr, differential_binding, annotation, tracks, or full."
     }
 
     native_mode = params.chipseq_native_foundation && (
@@ -32,7 +41,104 @@ workflow CHIPSEQ {
         (run_mode == 'differential_binding' && native_peak_calling && native_peak_qc && native_consensus && native_differential)
     )
 
-    if (run_mode == 'annotation' && native_annotation) {
+    if (run_mode == 'tracks' && native_tracks) {
+        if (params.chipseq_tracks_input_manifest == null || params.chipseq_tracks_input_manifest.toString().trim() == '') {
+            error 'Native tracks mode requires --chipseq_tracks_input_manifest'
+        }
+        tracks_inventory_file = file(params.chipseq_tracks_input_manifest, checkIfExists: true)
+        tracks_inventory = new groovy.json.JsonSlurper().parse(tracks_inventory_file.toFile())
+        if (tracks_inventory.schema_version != '1.0' || tracks_inventory.type != 'track_generation_input') {
+            error 'Track inventory must declare schema_version=1.0 and type=track_generation_input'
+        }
+        if (!(tracks_inventory.records instanceof List) || tracks_inventory.records.isEmpty()) {
+            error 'Track inventory must contain at least one record'
+        }
+        reference_doc = tracks_inventory.reference
+        if (!(reference_doc instanceof Map) || !reference_doc.fasta || !reference_doc.manifest || !reference_doc.genome_id || !reference_doc.build) {
+            error 'Track inventory reference requires fasta, manifest, genome_id, and build'
+        }
+        track_reference = file(resolve_track_inventory_location(tracks_inventory_file, reference_doc.fasta), checkIfExists: true)
+        track_reference_manifest = file(resolve_track_inventory_location(tracks_inventory_file, reference_doc.manifest), checkIfExists: true)
+        track_spec = [
+            provider             : params.chipseq_track_provider,
+            track_format         : params.chipseq_track_format,
+            bin_size             : params.chipseq_track_bin_size as Integer,
+            normalization        : params.chipseq_track_normalization,
+            effective_genome_size: params.chipseq_track_effective_genome_size != null ? params.chipseq_track_effective_genome_size as Integer : null,
+            scale_factor         : params.chipseq_track_scale_factor as Double,
+            extend_reads         : params.chipseq_track_extend_reads.toString().toBoolean(),
+            fragment_mode        : params.chipseq_track_fragment_mode,
+            strand               : params.chipseq_track_strand,
+            additional_filters   : params.chipseq_track_additional_filters,
+        ]
+        track_spec_base64 = groovy.json.JsonOutput.toJson(track_spec).getBytes('UTF-8').encodeBase64().toString()
+        track_rows = tracks_inventory.records.collect { row ->
+            def required = ['record_id', 'sample_id', 'dataset', 'condition', 'target', 'biological_replicate', 'technical_replicate', 'is_control', 'bam', 'bai', 'bam_manifest']
+            def missing = required.findAll { field -> row[field] == null || row[field].toString().trim() == '' }
+            if (missing) {
+                error "Track inventory record is missing: ${missing.join(', ')}"
+            }
+            [
+                record_id            : row.record_id.toString(), sample_id: row.sample_id.toString(),
+                dataset              : row.dataset.toString(), condition: row.condition.toString(), target: row.target.toString(),
+                biological_replicate : row.biological_replicate.toString(), technical_replicate: row.technical_replicate.toString(),
+                is_control           : row.is_control.toString().toBoolean(),
+                bam                  : file(resolve_track_inventory_location(tracks_inventory_file, row.bam), checkIfExists: true),
+                bai                  : file(resolve_track_inventory_location(tracks_inventory_file, row.bai), checkIfExists: true),
+                bam_manifest         : file(resolve_track_inventory_location(tracks_inventory_file, row.bam_manifest), checkIfExists: true),
+            ]
+        }
+        record_ids = track_rows.collect { row -> row.record_id }
+        if (record_ids.size() != record_ids.unique().size()) {
+            error 'Track inventory record_id values must be unique'
+        }
+        track_tuples = track_rows.collect { row ->
+            def meta = [
+                id                    : "${row.record_id}.bigwig".replaceAll(/[^A-Za-z0-9._-]+/, '_'),
+                track_role            : 'individual', record_id: row.record_id,
+                record_ids            : [row.record_id], sample_ids: [row.sample_id],
+                dataset               : row.dataset, condition: row.condition, target: row.target,
+                is_control            : row.is_control,
+                biological_replicates : [row.biological_replicate], technical_replicates: [row.technical_replicate],
+                genome_id             : reference_doc.genome_id.toString(), build: reference_doc.build.toString(),
+            ]
+            tuple(meta, [row.bam], [row.bai], [row.bam_manifest], track_reference, track_reference_manifest, track_spec_base64)
+        }
+        if (params.chipseq_track_aggregate.toString().toBoolean()) {
+            if (params.chipseq_track_aggregate_scope != 'condition_target') {
+                error 'Native Track Generation v1 supports only chipseq_track_aggregate_scope=condition_target'
+            }
+            grouped_tracks = track_rows
+                .findAll { row -> !row.is_control }
+                .groupBy { row -> [row.dataset, row.condition, row.target] }
+            grouped_tracks.each { group_key, rows ->
+                rows = rows.sort { left, right -> left.record_id <=> right.record_id }
+                def group_id = (["aggregate"] + group_key + [reference_doc.genome_id, reference_doc.build, 'bigwig'])
+                    .collect { value -> value.toString().replaceAll(/[^A-Za-z0-9._-]+/, '_') }.join('.')
+                def meta = [
+                    id                    : group_id, track_role: 'aggregate', record_id: null,
+                    record_ids            : rows.collect { row -> row.record_id },
+                    sample_ids            : rows.collect { row -> row.sample_id },
+                    dataset               : group_key[0], condition: group_key[1], target: group_key[2], is_control: false,
+                    biological_replicates : rows.collect { row -> row.biological_replicate },
+                    technical_replicates  : rows.collect { row -> row.technical_replicate },
+                    genome_id             : reference_doc.genome_id.toString(), build: reference_doc.build.toString(),
+                ]
+                track_tuples << tuple(meta, rows.collect { row -> row.bam }, rows.collect { row -> row.bai }, rows.collect { row -> row.bam_manifest }, track_reference, track_reference_manifest, track_spec_base64)
+            }
+        }
+        TRACK_GENERATION(channel.fromList(track_tuples))
+        completed_ch = TRACK_GENERATION.out.status
+        logs_ch = TRACK_GENERATION.out.reports
+    } else if (run_mode == 'tracks') {
+        no_dep = channel.value('none')
+        CHIPSEQ_LEGACY_TRACKS(
+            'chipseq', 'tracks', 'high_cpu', config_file, legacy_root,
+            seed, no_dep, no_dep
+        )
+        completed_ch = CHIPSEQ_LEGACY_TRACKS.out.status
+        logs_ch = CHIPSEQ_LEGACY_TRACKS.out.log
+    } else if (run_mode == 'annotation' && native_annotation) {
         required_annotation_params = [
             chipseq_annotation_peaks            : params.chipseq_annotation_peaks,
             chipseq_annotation_peak_manifest    : params.chipseq_annotation_peak_manifest,

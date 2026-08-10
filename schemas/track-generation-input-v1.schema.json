@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/GMiguelAlves/HelixForge/schemas/track-generation-input-v1.schema.json",
+  "title": "HelixForge Track Generation input inventory v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "type", "reference", "records"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "type": {"const": "track_generation_input"},
+    "reference": {
+      "type": "object", "additionalProperties": false,
+      "required": ["fasta", "manifest", "genome_id", "build"],
+      "properties": {
+        "fasta": {"type": "string", "minLength": 1},
+        "manifest": {"type": "string", "minLength": 1},
+        "genome_id": {"type": "string", "minLength": 1},
+        "build": {"type": "string", "minLength": 1}
+      }
+    },
+    "records": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["record_id", "sample_id", "dataset", "condition", "target", "biological_replicate", "technical_replicate", "is_control", "bam", "bai", "bam_manifest"],
+        "properties": {
+          "record_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+          "sample_id": {"type": "string", "minLength": 1},
+          "dataset": {"type": "string", "minLength": 1},
+          "condition": {"type": "string", "minLength": 1},
+          "target": {"type": "string", "minLength": 1},
+          "biological_replicate": {"type": ["string", "integer"]},
+          "technical_replicate": {"type": ["string", "integer"]},
+          "is_control": {"type": "boolean"},
+          "bam": {"type": "string", "minLength": 1},
+          "bai": {"type": "string", "minLength": 1},
+          "bam_manifest": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}
