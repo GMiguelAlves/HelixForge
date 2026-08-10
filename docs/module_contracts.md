@@ -297,3 +297,11 @@ manifests to one premerged biological replicate; technical records are never
 silently promoted. Design and contrast specifications are distinct cache inputs.
 Changing one contrast must not invalidate counting or a reusable model. Model
 providers consume raw counts and expose normalized counts only as outputs.
+
+Contract 2.2 adds Peak Annotation providers. Peak sets, references, and genomic
+annotations are associated only through manifests and stable IDs. Annotation
+mode, overlap semantics, promoter windows, feature priority, gene assignment,
+strand handling, intergenic policy, and TSS-distance policy are explicit cache
+inputs. Context validation, provider execution, statistics, and provider-neutral
+aggregation are separate boundaries. Providers must not repair contigs, builds,
+coordinates, IDs, or annotation versions silently.
