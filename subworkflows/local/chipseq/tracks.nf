@@ -34,14 +34,20 @@ workflow TRACK_GENERATION {
         .map { _id, meta, directory, manifest -> tuple(meta, directory, manifest) }
     TRACK_STATISTICS(statistics_inputs)
 
-    aggregate_inputs = TRACK_PROVIDER.out.artifacts
-        .map { _meta, directory -> directory }
-        .collect()
-        .combine(TRACK_PROVIDER.out.manifest.map { _meta, manifest -> manifest }.collect())
-        .combine(TRACK_STATISTICS.out.artifacts.map { _meta, statistics_json, _statistics_tsv -> statistics_json }.collect())
-        .combine(TRACK_STATISTICS.out.manifest.map { _meta, manifest -> manifest }.collect())
-        .map { directories, manifests, statistics, statistics_manifests ->
-            tuple([id: 'chipseq.tracks.aggregate'], directories, manifests, statistics, statistics_manifests)
+    aggregate_records = TRACK_PROVIDER.out.artifacts
+        .map { meta, directory -> tuple(meta.id, directory) }
+        .join(TRACK_PROVIDER.out.manifest.map { meta, manifest -> tuple(meta.id, manifest) })
+        .join(TRACK_STATISTICS.out.artifacts.map { meta, statistics_json, _statistics_tsv -> tuple(meta.id, statistics_json) })
+        .join(TRACK_STATISTICS.out.manifest.map { meta, manifest -> tuple(meta.id, manifest) })
+    aggregate_inputs = aggregate_records.toList()
+        .map { records ->
+            tuple(
+                [id: 'chipseq.tracks.aggregate'],
+                records.collect { record -> record[1] },
+                records.collect { record -> record[2] },
+                records.collect { record -> record[3] },
+                records.collect { record -> record[4] }
+            )
         }
     TRACK_AGGREGATE(aggregate_inputs)
 
