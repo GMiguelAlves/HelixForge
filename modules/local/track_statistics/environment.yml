@@ -1,0 +1,5 @@
+name: helixforge-track-statistics
+channels: [bioconda, conda-forge]
+dependencies:
+  - python=3.11.9
+  - pybigwig=0.3.23

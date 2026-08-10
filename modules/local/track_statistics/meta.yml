@@ -1,0 +1,14 @@
+name: track_statistics
+description: Derive provider-neutral BigWig statistics from the track and documented provider metrics.
+keywords: [chipseq, bigwig, tracks, statistics]
+input:
+  - meta: Stable track identity.
+  - track_dir: Provider semantic artifacts.
+  - track_manifest: Provider manifest.
+output:
+  - artifacts: Statistics JSON and TSV.
+  - reports: Per-contig statistics.
+  - versions: Python and pyBigWig versions.
+  - execution_metadata: Resource and runtime record.
+  - manifest: Track-statistics manifest.
+  - status: Explicit completion record.
