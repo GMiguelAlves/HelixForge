@@ -147,6 +147,7 @@ See `docs/consensus_idr_api.md`.
 | `consensus` | native Peak QC + explicit union/intersection/replicate-support provider |
 | `idr` | native input validation and provenance only; statistical runtime not implemented |
 | `differential_binding` | native Consensus + featureCounts provider + explicit DESeq2 model/contrasts |
+| `annotation` | external Peak/Consensus manifest + native annotation provider/statistics/aggregate; no upstream rerun |
 | `full` | legacy fallback |
 
 The fallback remains the complete legacy graph. Native and legacy outputs must
@@ -161,3 +162,12 @@ comparison universe and emits separate count/model/contrast specs.
 raw-count Wald model, `DESEQ2_DB_CONTRAST` fans out named directions and
 `DB_AGGREGATE` produces the downstream manifest. See
 `docs/differential_binding_api.md`. No biological validation is claimed.
+
+## Peak Annotation API v1
+
+An explicit Peak Calling or Consensus manifest is joined with a reference
+manifest, FASTA, and GTF/GFF. Mode, overlap, promoter windows, feature priority,
+gene assignment, strand handling, intergenic policy, genome/build, and provider
+are versioned values. The initial `python_interval_v1` provider emits annotated
+peaks and peak-to-gene associations; metrics and aggregation are separate cache
+boundaries. See `docs/peak_annotation_api.md`.
