@@ -1,5 +1,8 @@
 # HelixForge
 
+Start with the [HelixForge Wiki](wiki/Home.md) for a Portuguese, navigable
+overview of the current architecture, workflows, execution, and development.
+
 HelixForge is a compatibility-first Nextflow DSL2 implementation for the existing
 RNA-seq, ChIP-seq, and IntegrateSeq pipelines. The scientific Bash, Python, and
 R implementations are preserved under `pipelines/*/legacy` and remain directly
