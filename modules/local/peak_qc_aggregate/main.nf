@@ -51,7 +51,7 @@ process PEAK_QC_AGGREGATE {
     """
     printf 'sample_id\ttarget\tbiological_replicate\ttechnical_replicate\tpeak_type\tcaller\tcaller_version\tunit\tpeak_count\tfrip\ttotal_units\tunits_in_peaks\nchip_rep1\tH3K27ac\t1\t1\tnarrow\tmacs3\t3.0.4\tfragments\t1\t1.0\t1\t1\nchip_rep2\tH3K27ac\t2\t1\tnarrow\tmacs3\t3.0.4\tfragments\t1\t1.0\t1\t1\n' > peak_qc_summary.tsv
     printf '{"schema_version":"1.0","type":"peak_qc_summary","records":2,"status":"stub"}\n' > peak_qc_summary.json
-    printf '{"schema_version":"1.0","type":"peak_qc","records":2,"status":"stub"}\n' > peak_qc_manifest.json
+    printf '{"schema_version":"1.0","type":"peak_qc","id":"chipseq.peak_qc.aggregate","records":2,"status":"stub"}\n' > peak_qc_manifest.json
     printf '{"schema_version":"1.0","id":"chipseq.peak_qc.aggregate","process":"PEAK_QC_AGGREGATE","status":"stub"}\n' > peak_qc_aggregate.execution.json
     printf '"PEAK_QC_AGGREGATE":\n    python: stub\n' > peak_qc_aggregate.versions.yml
     printf '{"id":"chipseq.peak_qc.aggregate","process":"PEAK_QC_AGGREGATE","status":"stub"}\n' > peak_qc_aggregate.done

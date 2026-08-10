@@ -1,19 +1,22 @@
 {
-  "manifest_version": "1",
-  "pipeline": "omicsflow-rnaseq",
-  "pipeline_version": "0.1.0-dev",
-  "reference_id": "example-reference",
-  "artifacts": [
-    {
-      "type": "gene_counts",
+  "schema_version": "1.0",
+  "type": "import",
+  "id": "helixforge.rnaseq.example.import",
+  "status": "complete",
+  "dataset": "example",
+  "reference_sha256": "example-reference-sha256",
+  "artifacts": {
+    "counts": {
       "path": "tables/counts_matrix.tsv",
-      "format": "tsv"
+      "format": "tsv",
+      "sha256": "example-counts-sha256",
+      "available": true
     },
-    {
-      "type": "normalized_expression",
+    "abundance": {
       "path": "tables/tpm_matrix.tsv",
-      "format": "tsv"
+      "format": "tsv",
+      "sha256": "example-abundance-sha256",
+      "available": true
     }
-  ]
+  }
 }
-

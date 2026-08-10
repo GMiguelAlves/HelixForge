@@ -55,7 +55,7 @@ process TRACK_AGGREGATE {
     mkdir -p track_aggregate/tracks
     : > track_aggregate/tracks/stub.track.bw
     printf 'track_id\ttrack_role\trecord_id\trecord_ids\tsample_ids\tdataset\tcondition\ttarget\tgenome_id\tbuild\tnormalization\tbin_size\ttrack\ttrack_sha256\tsource_reads\tmapped_reads\tbases_covered\tnumber_of_bins\tstatus\nstub.track\tindividual\tstub_record\tstub_record\tstub_sample\tstub\ttreated\tH3K27ac\tstub_v1\tstub_v1\tCPM\t10\ttracks/stub.track.bw\t\t1\t1\t10\t1\tstub\n' > track_aggregate/tracks.tsv
-    printf '{"schema_version":"1.0","type":"track_aggregate","tracks":1,"status":"stub"}\n' > track_aggregate/manifest.json
+    printf '{"schema_version":"1.0","type":"track_aggregate","id":"chipseq.tracks.aggregate","tracks":1,"status":"stub"}\n' > track_aggregate/manifest.json
     cp track_aggregate/manifest.json track_aggregate.manifest.json
     printf '{"schema_version":"1.0","id":"chipseq.tracks.aggregate","process":"TRACK_AGGREGATE","status":"stub"}\n' > track_aggregate.execution.json
     printf '"TRACK_AGGREGATE":\n    python: stub\n' > track_aggregate.versions.yml

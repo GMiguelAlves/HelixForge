@@ -83,7 +83,7 @@ process STAR_INDEX {
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" \
         > '${meta.id}.execution.json'
 
-    printf '{"schema_version":"1.0","type":"alignment_index","id":"%s","aligner":"star","artifact":"star_index","sha256":"%s","reference_sha256":"%s","annotation_sha256":"%s"}\n' \
+    printf '{"schema_version":"1.0","type":"alignment_index","id":"%s","status":"complete","aligner":"star","artifact":"star_index","sha256":"%s","reference_sha256":"%s","annotation_sha256":"%s"}\n' \
         '${meta.id}' "\$index_sha" "\$reference_sha" "\$annotation_sha" \
         > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' \
@@ -101,7 +101,7 @@ process STAR_INDEX {
     printf 'reference\tsha256\nindex\tstub\n' > '${meta.id}.star_index_reports/checksums.tsv'
     printf '"STAR_INDEX":\n    star: stub\n    samtools: stub\n    htslib: stub\n' > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"STAR_INDEX","status":"stub"}\n' '${meta.id}' > '${meta.id}.execution.json'
-    printf '{"schema_version":"1.0","type":"alignment_index","id":"%s","aligner":"star","sha256":"stub"}\n' '${meta.id}' > '${meta.id}.manifest.json'
+    printf '{"schema_version":"1.0","type":"alignment_index","id":"%s","status":"stub","aligner":"star","sha256":"stub"}\n' '${meta.id}' > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"STAR_INDEX","status":"stub"}\n' '${meta.id}' > '${meta.id}.star_index.done'
     """
 }

@@ -1,28 +1,43 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://omicsflow.dev/schemas/manifest-v1.json",
-  "title": "OmicsFlow output manifest v1",
+  "$id": "https://helixforge.dev/schemas/manifest-v1.json",
+  "title": "HelixForge native manifest envelope v1",
+  "description": "Common envelope shared by native API manifests. Domain-specific fields remain extensible in v1.",
   "type": "object",
-  "additionalProperties": false,
-  "required": ["manifest_version", "pipeline", "pipeline_version", "reference_id", "artifacts"],
+  "additionalProperties": true,
+  "required": ["schema_version", "type", "id", "status"],
   "properties": {
-    "manifest_version": { "const": "1" },
-    "pipeline": { "type": "string", "minLength": 1 },
-    "pipeline_version": { "type": "string", "minLength": 1 },
-    "reference_id": { "type": "string", "minLength": 1 },
-    "artifacts": {
+    "schema_version": { "type": "string", "pattern": "^1(\\.[0-9]+)?$" },
+    "type": { "type": "string", "minLength": 1 },
+    "id": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["complete", "complete_empty", "incomplete", "not_implemented", "stub", "failed"]
+    },
+    "record_id": { "type": ["string", "null"] },
+    "sample_id": { "type": ["string", "null"] },
+    "dataset": { "type": ["string", "null"] },
+    "condition": { "type": ["string", "null"] },
+    "target": { "type": ["string", "null"] },
+    "genome_id": { "type": ["string", "null"] },
+    "build": { "type": ["string", "null"] },
+    "reference_sha256": { "type": ["string", "null"] },
+    "parameters": { "type": "object" },
+    "artifacts": { "type": ["object", "array"] },
+    "execution": { "type": "object" },
+    "versions": { "type": ["object", "array"] },
+    "upstream_manifests": {
       "type": "array",
       "items": {
         "type": "object",
-        "additionalProperties": false,
-        "required": ["type", "path", "format"],
+        "required": ["sha256"],
         "properties": {
-          "type": { "type": "string", "minLength": 1 },
-          "path": { "type": "string", "minLength": 1 },
-          "format": { "type": "string", "minLength": 1 }
-        }
+          "id": { "type": ["string", "null"] },
+          "type": { "type": ["string", "null"] },
+          "sha256": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": true
       }
     }
   }
 }
-

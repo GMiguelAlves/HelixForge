@@ -60,7 +60,7 @@ process MACS3_CALLPEAK {
     printf '[]\n' > '${meta.peak_id}.macs3_reports/command.json'
     printf 'macs3 callpeak [stub]\n' > '${meta.peak_id}.macs3_reports/command.txt'
     printf '{"schema_version":"1.0","id":"%s","process":"MACS3_CALLPEAK","status":"stub"}\n' '${meta.peak_id}' > '${meta.peak_id}.execution.json'
-    printf '{"schema_version":"1.0","type":"peak_calling_provider","id":"%s","caller":"macs3","caller_version":"3.0.4"}\n' '${meta.peak_id}' > '${meta.peak_id}.provider.manifest.json'
+    printf '{"schema_version":"1.0","type":"peak_calling_provider","id":"%s","status":"stub","caller":"macs3","caller_version":"3.0.4"}\n' '${meta.peak_id}' > '${meta.peak_id}.provider.manifest.json'
     printf '"MACS3_CALLPEAK":\n    macs3: stub\n' > '${meta.peak_id}.versions.yml'
     printf '{"id":"%s","process":"MACS3_CALLPEAK","status":"stub"}\n' '${meta.peak_id}' > '${meta.peak_id}.macs3.done'
     """
