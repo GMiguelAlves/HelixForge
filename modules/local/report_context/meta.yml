@@ -1,0 +1,12 @@
+name: report_context
+description: Validate manifest-only ChIP-seq report inputs, identities, compatibility, and component status.
+keywords: [chipseq, report, manifest, validation]
+input:
+  - meta: Stable project report identity.
+  - inventory: Versioned report inventory.
+  - manifests: Explicit upstream semantic manifests.
+output:
+  - artifacts: Immutable normalized report context.
+  - reports: Validation log.
+  - versions: Python version.
+  - status: Explicit completion record.
