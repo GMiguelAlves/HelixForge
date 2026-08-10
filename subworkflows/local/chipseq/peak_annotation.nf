@@ -9,9 +9,17 @@ workflow PEAK_ANNOTATION {
     annotation_inputs
 
     main:
-    PEAK_ANNOTATION_CONTEXT(annotation_inputs)
+    annotation_records = annotation_inputs.toList().flatMap { records ->
+        def ids = records.collect { record -> record[0].id }
+        def collisions = ids.countBy { value -> value }.findAll { _id, count -> count > 1 }.keySet()
+        if (collisions) {
+            error "Peak annotation output-ID collision: ${collisions.sort().join(', ')}"
+        }
+        records
+    }
+    PEAK_ANNOTATION_CONTEXT(annotation_records)
 
-    sources = annotation_inputs.map { meta, peaks, _peak_manifest, _reference, _reference_manifest, annotation, _spec ->
+    sources = annotation_records.map { meta, peaks, _peak_manifest, _reference, _reference_manifest, annotation, _spec ->
         tuple(meta.id, meta, peaks, annotation)
     }
     provider_inputs = PEAK_ANNOTATION_CONTEXT.out.artifacts
