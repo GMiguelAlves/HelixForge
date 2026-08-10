@@ -140,7 +140,7 @@ process STAR_ALIGN {
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" \
         > '${meta.id}.execution.json'
 
-    printf '{"schema_version":"1.0","type":"alignment","id":"%s","aligner":"star","dataset":"%s","sample_id":"%s","artifacts":{"bam":{"path":"Aligned.sortedByCoord.out.bam","sha256":"%s"},"bai":{"path":"Aligned.sortedByCoord.out.bam.bai","sha256":"%s"},"gene_counts":{"path":"ReadsPerGene.out.tab","compatibility_path":"%s/ReadsPerGene.out.tab","sha256":"%s"}},"reference_sha256":"%s","index_sha256":"%s"}\n' \
+    printf '{"schema_version":"1.0","type":"alignment","id":"%s","status":"complete","aligner":"star","dataset":"%s","sample_id":"%s","artifacts":{"bam":{"path":"Aligned.sortedByCoord.out.bam","sha256":"%s"},"bai":{"path":"Aligned.sortedByCoord.out.bam.bai","sha256":"%s"},"gene_counts":{"path":"ReadsPerGene.out.tab","compatibility_path":"%s/ReadsPerGene.out.tab","sha256":"%s"}},"reference_sha256":"%s","index_sha256":"%s"}\n' \
         '${meta.id}' '${meta.dataset}' '${meta.sample_id}' "\$bam_sha" "\$bai_sha" '${target_dir}' "\$gene_counts_sha" "\$reference_sha" "\$index_sha" \
         > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' \
@@ -160,7 +160,7 @@ process STAR_ALIGN {
     cp ReadsPerGene.out.tab '${meta.id}.alignment_statistics/'
     printf '"STAR_ALIGN":\n    star: stub\n    samtools: stub\n    htslib: stub\n' > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"STAR_ALIGN","status":"stub"}\n' '${meta.id}' > '${meta.id}.execution.json'
-    printf '{"schema_version":"1.0","type":"alignment","id":"%s","aligner":"star"}\n' '${meta.id}' > '${meta.id}.manifest.json'
+    printf '{"schema_version":"1.0","type":"alignment","id":"%s","status":"stub","aligner":"star"}\n' '${meta.id}' > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"STAR_ALIGN","status":"stub"}\n' '${meta.id}' > '${meta.id}.star_align.done'
     """
 }

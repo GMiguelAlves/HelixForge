@@ -58,6 +58,8 @@ def main() -> None:
     source = {
         "schema_version": "1.0",
         "type": "import_source",
+        "id": args.source_name,
+        "status": "complete",
         "source_name": args.source_name,
         "provider": args.provider,
         "role": args.role,

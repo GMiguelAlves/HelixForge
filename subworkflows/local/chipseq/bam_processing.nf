@@ -9,20 +9,21 @@ workflow CHIPSEQ_BAM_PROCESSING {
 
     main:
     select_inputs = processing_inputs.map {
-        meta, bam, bai, reference, _blacklist, select_params, _duplicate_params, _blacklist_params, _qc_params ->
-        tuple(meta, bam, bai, reference, select_params)
+        meta, bam, bai, reference, _blacklist, select_params, _duplicate_params, _blacklist_params, _qc_params, upstream_manifest ->
+        tuple(meta, bam, bai, reference, select_params, upstream_manifest)
     }
     BAM_SELECT(select_inputs)
 
     duplicate_context = processing_inputs.map {
-        meta, _bam, _bai, reference, blacklist, _select_params, duplicate_params, blacklist_params, qc_params ->
+        meta, _bam, _bai, reference, blacklist, _select_params, duplicate_params, blacklist_params, qc_params, _upstream_manifest ->
         tuple(meta.id, reference, blacklist, duplicate_params, blacklist_params, qc_params)
     }
     duplicate_inputs = BAM_SELECT.out.artifacts
         .map { meta, selected_bam -> tuple(meta.id, meta, selected_bam) }
+        .join(BAM_SELECT.out.manifest.map { meta, manifest -> tuple(meta.id, manifest) })
         .join(duplicate_context)
-        .map { _id, meta, selected_bam, _reference, _blacklist, duplicate_params, _blacklist_params, _qc_params ->
-            tuple(meta, selected_bam, duplicate_params)
+        .map { _id, meta, selected_bam, upstream_manifest, _reference, _blacklist, duplicate_params, _blacklist_params, _qc_params ->
+            tuple(meta, selected_bam, duplicate_params, upstream_manifest)
         }
     BAM_DUPLICATES(duplicate_inputs)
 
@@ -30,27 +31,29 @@ workflow CHIPSEQ_BAM_PROCESSING {
         tuple(meta.id, reports.resolve('bam_contigs.tsv'))
     }
     blacklist_context = processing_inputs.map {
-        meta, _bam, _bai, _reference, blacklist, _select_params, _duplicate_params, blacklist_params, _qc_params ->
+        meta, _bam, _bai, _reference, blacklist, _select_params, _duplicate_params, blacklist_params, _qc_params, _upstream_manifest ->
         tuple(meta.id, blacklist, blacklist_params)
     }
     blacklist_inputs = BAM_DUPLICATES.out.artifacts
         .map { meta, duplicate_bam -> tuple(meta.id, meta, duplicate_bam) }
+        .join(BAM_DUPLICATES.out.manifest.map { meta, manifest -> tuple(meta.id, manifest) })
         .join(select_contigs)
         .join(blacklist_context)
-        .map { _id, meta, duplicate_bam, bam_contigs, blacklist, blacklist_params ->
-            tuple(meta, duplicate_bam, bam_contigs, blacklist, blacklist_params)
+        .map { _id, meta, duplicate_bam, upstream_manifest, bam_contigs, blacklist, blacklist_params ->
+            tuple(meta, duplicate_bam, bam_contigs, blacklist, blacklist_params, upstream_manifest)
         }
     BAM_BLACKLIST(blacklist_inputs)
 
     final_context = processing_inputs.map {
-        meta, _bam, _bai, reference, _blacklist, _select_params, _duplicate_params, _blacklist_params, qc_params ->
+        meta, _bam, _bai, reference, _blacklist, _select_params, _duplicate_params, _blacklist_params, qc_params, _upstream_manifest ->
         tuple(meta.id, reference, qc_params)
     }
     final_inputs = BAM_BLACKLIST.out.artifacts
         .map { meta, blacklist_bam -> tuple(meta.id, meta, blacklist_bam) }
+        .join(BAM_BLACKLIST.out.manifest.map { meta, manifest -> tuple(meta.id, manifest) })
         .join(final_context)
-        .map { _id, meta, blacklist_bam, reference, qc_params ->
-            tuple(meta, blacklist_bam, reference, qc_params)
+        .map { _id, meta, blacklist_bam, upstream_manifest, reference, qc_params ->
+            tuple(meta, blacklist_bam, reference, qc_params, upstream_manifest)
         }
     BAM_INDEX_QC(final_inputs)
 
@@ -75,4 +78,3 @@ workflow CHIPSEQ_BAM_PROCESSING {
     final_manifest     = BAM_INDEX_QC.out.manifest
     status             = BAM_INDEX_QC.out.status
 }
-

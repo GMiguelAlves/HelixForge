@@ -1,4 +1,4 @@
-name: omicsflow-tx2gene-build
+name: helixforge-tx2gene-build
 channels:
   - conda-forge
   - bioconda

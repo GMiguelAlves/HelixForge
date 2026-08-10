@@ -130,7 +130,7 @@ process SALMON_QUANT {
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" \
         > '${meta.id}.execution.json'
 
-    printf '{"schema_version":"1.0","type":"quantification","id":"%s","quantifier":"salmon","dataset":"%s","sample_id":"%s","artifacts":{"quantification":{"path":"quant.sf","compatibility_path":"%s/quant.sf","sha256":"%s"},"command_info":{"path":"cmd_info.json","sha256":"%s"},"library_format":{"path":"lib_format_counts.json","sha256":"%s"},"auxiliary":{"path":"aux_info","sha256":"%s"}},"transcriptome_sha256":"%s","index_sha256":"%s"}\n' \
+    printf '{"schema_version":"1.0","type":"quantification","id":"%s","status":"complete","quantifier":"salmon","dataset":"%s","sample_id":"%s","artifacts":{"quantification":{"path":"quant.sf","compatibility_path":"%s/quant.sf","sha256":"%s"},"command_info":{"path":"cmd_info.json","sha256":"%s"},"library_format":{"path":"lib_format_counts.json","sha256":"%s"},"auxiliary":{"path":"aux_info","sha256":"%s"}},"transcriptome_sha256":"%s","index_sha256":"%s"}\n' \
         '${meta.id}' '${meta.dataset}' '${meta.sample_id}' '${target_dir}' "\$quant_sha" "\$cmd_sha" \
         "\$library_sha" "\$auxiliary_sha" "\$transcriptome_sha" "\$index_sha" \
         > '${meta.id}.manifest.json'
@@ -166,7 +166,7 @@ process SALMON_QUANT {
         '${meta.id}.quantification_statistics/'
     printf '"SALMON_QUANT":\n    salmon: "stub"\n' > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"SALMON_QUANT","status":"stub"}\n' '${meta.id}' > '${meta.id}.execution.json'
-    printf '{"schema_version":"1.0","type":"quantification","id":"%s","quantifier":"salmon"}\n' '${meta.id}' > '${meta.id}.manifest.json'
+    printf '{"schema_version":"1.0","type":"quantification","id":"%s","status":"stub","quantifier":"salmon"}\n' '${meta.id}' > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"SALMON_QUANT","status":"stub"}\n' '${meta.id}' > '${meta.id}.salmon_quant.done'
     """
 }

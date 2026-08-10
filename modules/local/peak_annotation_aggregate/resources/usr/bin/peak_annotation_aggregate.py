@@ -112,6 +112,7 @@ def main():
         with open(args.versions, "w", encoding="utf-8") as handle:
             handle.write(f'"PEAK_ANNOTATION_AGGREGATE":\n    python: "{sys.version.split()[0]}"\n')
         manifest = {"schema_version": "1.0", "type": "peak_annotation_aggregate", "records": len(summary_rows), "annotation_manifests": [{"id": identifier, "sha256": sha256(path), "status": doc["status"]} for identifier, (doc, path) in sorted(docs.items())], "artifacts": {"annotated_peaks": {"path": "annotated_peaks.tsv", "sha256": sha256(output / "annotated_peaks.tsv")}, "peak_gene_associations": {"path": "peak_gene_associations.tsv", "sha256": sha256(output / "peak_gene_associations.tsv")}, "statistics": {"path": "statistics.tsv", "sha256": sha256(output / "statistics.tsv")}}, "execution": execution, "status": "complete" if summary_rows else "complete_empty"}
+        manifest["id"] = "chipseq.peak_annotation.aggregate"
         with open(args.manifest, "w", encoding="utf-8") as handle:
             json.dump(manifest, handle, indent=2, sort_keys=True); handle.write("\n")
         with open(output / "manifest.json", "w", encoding="utf-8") as handle:

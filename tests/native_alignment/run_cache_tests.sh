@@ -8,11 +8,11 @@ nextflow_jar=${NEXTFLOW_JAR:-}
 case_root="${project_root}/results/test/native-alignment-cache-v6"
 fixture_root="${project_root}/tests/fixtures/native_alignment"
 input_dir="${case_root}/input"
-launch_root=$(mktemp -d /tmp/omicsflow-native-alignment-cache.XXXXXX)
+launch_root=$(mktemp -d /tmp/helixforge-native-alignment-cache.XXXXXX)
 
 cleanup() {
     case "$launch_root" in
-        /tmp/omicsflow-native-alignment-cache.*) rm -rf "$launch_root" ;;
+        /tmp/helixforge-native-alignment-cache.*) rm -rf "$launch_root" ;;
         *) echo "Refusing to remove unsafe launch path: $launch_root" >&2 ;;
     esac
 }
@@ -59,9 +59,9 @@ run_case() {
     cp "${case_root}/current_trace.tsv" "${case_root}/${label}/execution_trace.tsv"
 }
 
-run_case baseline '--outTmpDir /tmp/omicsflow_star_tmp' false
-run_case resumed '--outTmpDir /tmp/omicsflow_star_tmp' true
-run_case changed_params '--outTmpDir /tmp/omicsflow_star_tmp --outFilterMismatchNmax 3' true
+run_case baseline '--outTmpDir /tmp/helixforge_star_tmp' false
+run_case resumed '--outTmpDir /tmp/helixforge_star_tmp' true
+run_case changed_params '--outTmpDir /tmp/helixforge_star_tmp --outFilterMismatchNmax 3' true
 
 baseline_trace="${case_root}/baseline/execution_trace.tsv"
 resumed_trace="${case_root}/resumed/execution_trace.tsv"
@@ -75,7 +75,7 @@ printf '@changed/1\nACGTACGTACGTACGTACGT\n+\nIIIIIIIIIIIIIIIIIIII\n' | gzip -n -
     >> "${input_dir}/reads_R1.fastq.gz"
 printf '@changed/2\nACGTACGTACGTACGTACGT\n+\nIIIIIIIIIIIIIIIIIIII\n' | gzip -n -c \
     >> "${input_dir}/reads_R2.fastq.gz"
-run_case changed_reads '--outTmpDir /tmp/omicsflow_star_tmp --outFilterMismatchNmax 3' true
+run_case changed_reads '--outTmpDir /tmp/helixforge_star_tmp --outFilterMismatchNmax 3' true
 changed_reads_trace="${case_root}/changed_reads/execution_trace.tsv"
 grep -q $'STAR_INDEX.*CACHED' "$changed_reads_trace"
 grep -q $'STAR_ALIGN.*COMPLETED' "$changed_reads_trace"

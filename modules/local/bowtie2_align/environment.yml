@@ -1,4 +1,4 @@
-name: omicsflow-bowtie2-align
+name: helixforge-bowtie2-align
 channels:
   - bioconda
   - conda-forge

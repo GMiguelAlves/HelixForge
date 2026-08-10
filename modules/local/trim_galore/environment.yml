@@ -1,4 +1,4 @@
-name: omicsflow-trim-galore
+name: helixforge-trim-galore
 channels:
   - conda-forge
   - bioconda

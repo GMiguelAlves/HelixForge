@@ -89,7 +89,7 @@ process BOWTIE2_ALIGN {
         '${meta.id}' '${task.process}' "\$command_base64" '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         "\$reference_sha" "\$index_sha" "\$reads_sha" "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" \
         > '${meta.id}.execution.json'
-    printf '{"schema_version":"1.1","type":"alignment","id":"%s","aligner":"bowtie2","dataset":"%s","sample_id":"%s","record_id":"%s","artifacts":{"bam":{"path":"%s","sha256":"%s"},"bai":{"path":"%s","sha256":"%s"}},"reference_sha256":"%s","index_sha256":"%s"}\n' \
+    printf '{"schema_version":"1.1","type":"alignment","id":"%s","status":"complete","aligner":"bowtie2","dataset":"%s","sample_id":"%s","record_id":"%s","artifacts":{"bam":{"path":"%s","sha256":"%s"},"bai":{"path":"%s","sha256":"%s"}},"reference_sha256":"%s","index_sha256":"%s"}\n' \
         '${meta.id}' '${meta.dataset}' '${meta.sample_id}' '${meta.id}' "\$bam" "\$bam_sha" "\$bai" "\$bai_sha" "\$reference_sha" "\$index_sha" \
         > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' '${meta.id}' '${task.process}' \
@@ -108,7 +108,7 @@ process BOWTIE2_ALIGN {
     printf 'mapq\talignments\n42\t1\n' > '${meta.id}.alignment_statistics/mapq_distribution.tsv'
     printf '"BOWTIE2_ALIGN":\n    bowtie2: stub\n    samtools: stub\n' > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"BOWTIE2_ALIGN","status":"stub"}\n' '${meta.id}' > '${meta.id}.execution.json'
-    printf '{"schema_version":"1.1","type":"alignment","id":"%s","aligner":"bowtie2"}\n' '${meta.id}' > '${meta.id}.manifest.json'
+    printf '{"schema_version":"1.1","type":"alignment","id":"%s","status":"stub","aligner":"bowtie2"}\n' '${meta.id}' > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"BOWTIE2_ALIGN","status":"stub"}\n' '${meta.id}' > '${meta.id}.bowtie2_align.done'
     """
 }

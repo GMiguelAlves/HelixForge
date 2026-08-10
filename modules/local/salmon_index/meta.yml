@@ -1,5 +1,5 @@
 name: salmon_index
-description: Build a Salmon transcriptome index through the OmicsFlow Quantification API.
+description: Build a Salmon transcriptome index through the HelixForge Quantification API.
 keywords: [index, quantification, rna-seq, salmon, transcriptome]
 tools:
   - salmon:
@@ -19,4 +19,4 @@ output:
   - manifest: {type: file, pattern: '*.manifest.json'}
   - status: {type: file, pattern: '*.salmon_index.done'}
 authors:
-  - OmicsFlow contributors
+  - HelixForge contributors

@@ -55,7 +55,7 @@ process TX2GENE_BUILD {
         '${meta.id}' '${task.process}' '${tx2gene_params.strip_transcript_version}' '${tx2gene_params.strip_gene_version}' '${tx2gene_params.strip_transcript_prefix}' '${tx2gene_params.strip_gene_prefix}' '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         '${params.tx2gene_container}' "\$annotation_sha" "\$start_epoch" "\$end_epoch" \
         "\$((end_epoch-start_epoch))" > execution.json
-    printf '{"schema_version":"1.0","type":"tx2gene","id":"%s","annotation_sha256":"%s","artifacts":{"tx2gene":{"path":"tx2gene.tsv","sha256":"%s","available":true}}}\n' \
+    printf '{"schema_version":"1.0","type":"tx2gene","id":"%s","status":"complete","annotation_sha256":"%s","artifacts":{"tx2gene":{"path":"tx2gene.tsv","sha256":"%s","available":true}}}\n' \
         '${meta.id}' "\$annotation_sha" "\$tx2gene_sha" > tx2gene_manifest.json
     printf '{"id":"%s","process":"%s","status":"complete"}\n' \
         '${meta.id}' '${task.process}' > tx2gene_build.done
@@ -70,7 +70,7 @@ process TX2GENE_BUILD {
     printf 'stub\n' > sessionInfo.txt
     printf '"TX2GENE_BUILD":\n    r: "stub"\n    bioconductor: "stub"\n    rtracklayer: "stub"\n' > versions.yml
     printf '{"id":"%s","process":"TX2GENE_BUILD","status":"stub"}\n' '${meta.id}' > execution.json
-    printf '{"schema_version":"1.0","type":"tx2gene","id":"%s"}\n' '${meta.id}' > tx2gene_manifest.json
+    printf '{"schema_version":"1.0","type":"tx2gene","id":"%s","status":"stub"}\n' '${meta.id}' > tx2gene_manifest.json
     printf '{"id":"%s","process":"TX2GENE_BUILD","status":"stub"}\n' '${meta.id}' > tx2gene_build.done
     """
 }

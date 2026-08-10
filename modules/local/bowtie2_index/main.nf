@@ -71,7 +71,7 @@ process BOWTIE2_INDEX {
         '${meta.id}' '${task.process}' '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         "\$reference_sha" "\$index_sha" "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" \
         > '${meta.id}.execution.json'
-    printf '{"schema_version":"1.1","type":"alignment_index","id":"%s","aligner":"bowtie2","basename":"%s","artifact":"bowtie2_index","sha256":"%s","reference_sha256":"%s"}\n' \
+    printf '{"schema_version":"1.1","type":"alignment_index","id":"%s","status":"complete","aligner":"bowtie2","basename":"%s","artifact":"bowtie2_index","sha256":"%s","reference_sha256":"%s"}\n' \
         '${meta.id}' '${basename}' "\$index_sha" "\$reference_sha" > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' '${meta.id}' '${task.process}' \
         > '${meta.id}.bowtie2_index.done'
@@ -88,8 +88,7 @@ process BOWTIE2_INDEX {
     printf 'reference\tsha256\nindex\tstub\n' > '${meta.id}.bowtie2_index_reports/checksums.tsv'
     printf '"BOWTIE2_INDEX":\n    bowtie2: stub\n' > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"BOWTIE2_INDEX","status":"stub"}\n' '${meta.id}' > '${meta.id}.execution.json'
-    printf '{"schema_version":"1.1","type":"alignment_index","id":"%s","aligner":"bowtie2","basename":"%s","sha256":"stub"}\n' '${meta.id}' '${basename}' > '${meta.id}.manifest.json'
+    printf '{"schema_version":"1.1","type":"alignment_index","id":"%s","status":"stub","aligner":"bowtie2","basename":"%s","sha256":"stub"}\n' '${meta.id}' '${basename}' > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"BOWTIE2_INDEX","status":"stub"}\n' '${meta.id}' > '${meta.id}.bowtie2_index.done'
     """
 }
-

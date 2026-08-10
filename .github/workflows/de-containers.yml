@@ -29,7 +29,7 @@ jobs:
           context: .
           file: containers/deseq2/Dockerfile
           push: true
-          tags: ghcr.io/gmiguelalves/omicsflow-deseq2:1.0.0
+          tags: ghcr.io/gmiguelalves/helixforge-deseq2:1.0.0
           provenance: true
           sbom: true
       - uses: actions/setup-java@v4
@@ -39,10 +39,10 @@ jobs:
       - name: Scientific regression
         run: |
           curl -fsSL https://get.nextflow.io | bash
-          docker pull ghcr.io/gmiguelalves/omicsflow-deseq2:1.0.0
+          docker pull ghcr.io/gmiguelalves/helixforge-deseq2:1.0.0
           NEXTFLOW="$PWD/nextflow" \
-          DESEQ2_TEST_IMAGE=ghcr.io/gmiguelalves/omicsflow-deseq2:1.0.0 \
+          DESEQ2_TEST_IMAGE=ghcr.io/gmiguelalves/helixforge-deseq2:1.0.0 \
           tests/native_de/run_regression.sh
           NEXTFLOW="$PWD/nextflow" \
-          DESEQ2_TEST_IMAGE=ghcr.io/gmiguelalves/omicsflow-deseq2:1.0.0 \
+          DESEQ2_TEST_IMAGE=ghcr.io/gmiguelalves/helixforge-deseq2:1.0.0 \
           tests/native_de/run_cache_tests.sh

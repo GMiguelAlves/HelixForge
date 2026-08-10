@@ -96,7 +96,7 @@ def main():
         with open(args.versions, "w", encoding="utf-8") as handle:
             handle.write(f'"CONSENSUS_AGGREGATE":\n    python: "{sys.version.split()[0]}"\n')
         manifest = {
-            "schema_version": "1.0", "type": "consensus_idr", "groups": len(rows),
+            "schema_version": "1.0", "type": "consensus_idr", "id": "chipseq.consensus.aggregate", "groups": len(rows),
             "strategies": strategies,
             "provider_manifests": [
                 {"group_id": identifier, "path": os.path.basename(path), "sha256": sha256(path),

@@ -21,7 +21,7 @@ def run(program: Path, arguments: list[str], cwd: Path, success: bool, message: 
         raise AssertionError(f"missing {message!r}: {result.stderr}")
 
 
-with tempfile.TemporaryDirectory(prefix="omicsflow-scientific-review-") as temporary:
+with tempfile.TemporaryDirectory(prefix="helixforge-scientific-review-") as temporary:
     case = Path(temporary)
     metadata = case / "metadata.csv"
     metadata.write_text(

@@ -55,7 +55,7 @@ docker run --rm \
         --outSAMtype BAM SortedByCoordinate \
         --quantMode GeneCounts \
         --readFilesCommand zcat \
-        --outTmpDir /tmp/omicsflow_star_tmp
+        --outTmpDir /tmp/helixforge_star_tmp
 
 docker run --rm -v "${case_root}:/data" "$image" \
     samtools index -@ 1 /data/legacy/output/Aligned.sortedByCoord.out.bam
@@ -81,7 +81,7 @@ run_nextflow run "${project_root}/tests/native_alignment/main.nf" \
     --read2 "${input_dir}/reads_R2.fastq.gz" \
     --target_root "$native_dir" \
     --docker_bind_root "$case_root" \
-    --extra_args '--outTmpDir /tmp/omicsflow_star_tmp' \
+    --extra_args '--outTmpDir /tmp/helixforge_star_tmp' \
     --outdir "$nextflow_out"
 end_native=$(date +%s%N)
 

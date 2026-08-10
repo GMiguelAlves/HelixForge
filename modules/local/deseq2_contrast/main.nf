@@ -62,7 +62,7 @@ process DESEQ2_CONTRAST {
         '${meta.id}' '${task.process}' '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         '${params.deseq2_container}' '${gitCommit}' '${profile}' "\$model_sha" "\$contrast_sha" \
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" > '${outputDir}/execution.json'
-    printf '{"schema_version":"1.0","type":"differential_expression_contrast","id":"%s","provider":"deseq2","test":"wald","inputs":{"model_sha256":"%s","contrast_sha256":"%s"},"artifacts":{"results":{"path":"%s","sha256":"%s","available":true},"common_results":{"path":"common_results.tsv","sha256":"%s","available":true}}}\n' \
+    printf '{"schema_version":"1.0","type":"differential_expression_contrast","id":"%s","status":"complete","provider":"deseq2","test":"wald","inputs":{"model_sha256":"%s","contrast_sha256":"%s"},"artifacts":{"results":{"path":"%s","sha256":"%s","available":true},"common_results":{"path":"common_results.tsv","sha256":"%s","available":true}}}\n' \
         '${meta.id}' "\$model_sha" "\$contrast_sha" "\$(basename "\$result_file")" "\$result_sha" "\$common_sha" \
         > '${outputDir}/contrast_manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' \
@@ -81,7 +81,7 @@ process DESEQ2_CONTRAST {
     printf 'stub\n' > '${outputDir}/sessionInfo.txt'
     printf '"DESEQ2_CONTRAST":\n    r: "stub"\n    bioconductor: "stub"\n    deseq2: "stub"\n' > '${outputDir}/versions.yml'
     printf '{"id":"%s","process":"DESEQ2_CONTRAST","status":"stub"}\n' '${meta.id}' > '${outputDir}/execution.json'
-    printf '{"schema_version":"1.0","type":"differential_expression_contrast","id":"%s","provider":"deseq2","test":"wald"}\n' '${meta.id}' > '${outputDir}/contrast_manifest.json'
+    printf '{"schema_version":"1.0","type":"differential_expression_contrast","id":"%s","status":"stub","provider":"deseq2","test":"wald"}\n' '${meta.id}' > '${outputDir}/contrast_manifest.json'
     printf '{"id":"%s","process":"DESEQ2_CONTRAST","status":"stub"}\n' '${meta.id}' > '${outputDir}/deseq2_contrast.done'
     """
 }

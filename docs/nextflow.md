@@ -129,10 +129,12 @@ also selects the legacy QC path. Partial native QC is intentionally unsupported.
 ## Native RNA-seq alignment
 
 The generic Alignment API and STAR provider are enabled by default when the
-legacy configuration selects `QUANT_METHOD=star`. Select the legacy STAR path:
+legacy configuration selects `QUANT_METHOD=star`. An unselected provider may be
+disabled in `config` mode:
 
 ```bash
 nextflow run . -profile local --workflow rnaseq \
+  --rnaseq_analysis_mode quantification \
   --rnaseq_native_alignment false
 ```
 
@@ -153,17 +155,19 @@ Choose which independent analytical layers run after QC:
 # Preserve QUANT_METHOD behavior (default)
 nextflow run . --workflow rnaseq --rnaseq_analysis_mode config
 
-# STAR only; import and differential analysis are not launched
-nextflow run . --workflow rnaseq --rnaseq_analysis_mode alignment
+# STAR only as an explicit stage stop
+nextflow run . --workflow rnaseq --rnaseq_run_mode alignment
 
-# Salmon plus the native Import API
-nextflow run . --workflow rnaseq --rnaseq_analysis_mode quantification
+# Salmon only as an explicit stage stop
+nextflow run . --workflow rnaseq --rnaseq_run_mode quantification
 
 # STAR and Salmon in parallel; Import API uses QUANT_METHOD
 nextflow run . --workflow rnaseq --rnaseq_analysis_mode both
 ```
 
-Forced modes require their native provider flags to remain enabled. Salmon
+Forced modes require their native provider flags to remain enabled. A provider
+required by `QUANT_METHOD` cannot be disabled when Import or DE is requested,
+because no legacy provider manifest fallback exists. Salmon
 version, index/quantification parameters, paths, and output names remain
 controlled by `pipeline_config.sh`. See
 [native-rnaseq-quantification.md](native-rnaseq-quantification.md).

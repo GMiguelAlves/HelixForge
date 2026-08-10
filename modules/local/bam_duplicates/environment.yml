@@ -1,4 +1,4 @@
-name: omicsflow-bam-duplicates
+name: helixforge-bam-duplicates
 channels: [bioconda, conda-forge]
 dependencies:
   - samtools=1.20

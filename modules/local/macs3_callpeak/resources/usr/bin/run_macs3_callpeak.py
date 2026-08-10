@@ -97,7 +97,7 @@ def main():
         json.dump(execution, handle, indent=2, sort_keys=True)
         handle.write("\n")
     manifest = {
-        "schema_version": "1.0", "type": "peak_calling_provider", "id": peak_id,
+        "schema_version": "1.0", "type": "peak_calling_provider", "id": peak_id, "status": "complete",
         "caller": "macs3", "caller_version": request["caller_version"],
         "peak_type": request["peak_type"], "sample_id": request["sample_id"],
         "record_id": request["record_id"], "target": request["target"],

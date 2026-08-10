@@ -1,7 +1,7 @@
 # Module contracts
 
 This document defines the interface required for every new native Nextflow DSL2
-module in OmicsFlow. The contract standardizes orchestration and provenance; it
+module in HelixForge. The contract standardizes orchestration and provenance; it
 does not force unrelated scientific tools to produce the same file types.
 
 Contract version: `2.1`
@@ -43,6 +43,13 @@ Optional identity fields should be retained when available:
 - `dataset`
 - `sample_id`
 - `run_accession`
+- `record_id`
+- `condition`
+- `target`
+- `biological_replicate`
+- `technical_replicate`
+- `genome_id`
+- `build`
 - `single_end`
 
 Tool-specific values may be added to `meta`, but a module must not silently
@@ -116,6 +123,26 @@ through `meta` rather than relying on tool-specific channel names.
 Primary scientific outputs must retain the names, formats, compression, and
 directory contract of the pipeline being migrated. Temporary files must be
 written first and atomically renamed when materializing compatibility outputs.
+
+### Native manifest envelope
+
+Every manifest exchanged between API boundaries must validate against
+`schemas/manifest-v1.schema.json` and contain at least:
+
+```json
+{
+  "schema_version": "1.0",
+  "type": "alignment",
+  "id": "dataset.sample.alignment",
+  "status": "complete"
+}
+```
+
+`id` is a stable semantic identity, not a staged filename. `status` must be
+honest (`complete`, `complete_empty`, `incomplete`, `not_implemented`, `stub`,
+or `failed`). Cross-API inputs must be represented in `upstream_manifests` by
+checksum. Domain-specific artifact fields remain extensible in manifest v1,
+but paths alone must never be used to infer biological identity.
 
 ## Process directives
 

@@ -156,6 +156,7 @@ def main() -> None:
     manifest = {
         "schema_version": "1.0",
         "type": "differential_expression",
+        "status": "complete",
         "id": analysis_id,
         "provider": "deseq2",
         "test": "wald",

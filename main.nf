@@ -7,7 +7,7 @@ include { ALL }        from './workflows/all'
 
 workflow {
     def selected = params.workflow.toString().toLowerCase()
-    def seed = channel.value('omicsflow-start')
+    def seed = channel.value('helixforge-start')
 
     if (selected == 'rnaseq') {
         RNASEQ(seed)

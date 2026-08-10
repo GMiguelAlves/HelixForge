@@ -58,7 +58,7 @@ fi
 if [[ "$optional_enabled" != "true" ]]; then
     printf '[SKIP] Optional legacy step disabled by pipeline_config.sh: %s/%s\n' "$pipeline" "$step" | tee "$log_file"
 else
-    printf '[INFO] OmicsFlow compatibility step: %s/%s\n' "$pipeline" "$step" | tee "$log_file"
+    printf '[INFO] HelixForge compatibility step: %s/%s\n' "$pipeline" "$step" | tee "$log_file"
     printf '[INFO] Legacy root: %s\n' "$legacy_root" | tee -a "$log_file"
     printf '[INFO] Config: %s\n' "$config_file" | tee -a "$log_file"
 

@@ -1,5 +1,5 @@
 name: star_align
-description: Align reads with STAR and implement the OmicsFlow Alignment API.
+description: Align reads with STAR and implement the HelixForge Alignment API.
 keywords: [alignment, bam, rna-seq, star]
 tools:
   - star:
@@ -26,4 +26,4 @@ output:
   - manifest: {type: file, pattern: '*.manifest.json'}
   - status: {type: file, pattern: '*.star_align.done'}
 authors:
-  - OmicsFlow contributors
+  - HelixForge contributors

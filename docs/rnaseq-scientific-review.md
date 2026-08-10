@@ -98,7 +98,7 @@ reproduzir uma regra antiga de IDs ou filtro, ela deve ser solicitada
 explicitamente e aparecer na provenance.
 
 O fallback `rnaseq_native_de=false` continua disponível. Ele não define a
-verdade científica do OmicsFlow e serve apenas como baseline histórico.
+verdade científica do HelixForge e serve apenas como baseline histórico.
 
 ## 7. Decisões científicas
 
