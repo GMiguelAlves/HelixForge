@@ -1,0 +1,5 @@
+name: helixforge-track-context
+channels: [bioconda, conda-forge]
+dependencies:
+  - python=3.11.9
+  - samtools=1.20

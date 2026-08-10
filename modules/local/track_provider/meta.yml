@@ -1,0 +1,15 @@
+name: track_provider
+description: Generate an individual or explicit aggregate BigWig using deepTools bamCoverage.
+keywords: [chipseq, tracks, bigwig, deeptools]
+input:
+  - meta: Stable track identity and role.
+  - bams: Manifest-validated final BAMs.
+  - bais: Matching indexes.
+  - request: TRACK_CONTEXT request.
+output:
+  - artifacts: BigWig, optional merged BAM/BAI, metrics, and manifest.
+  - reports: Command and provider log.
+  - versions: deepTools, samtools, and Python versions.
+  - execution_metadata: Command, resources, and runtime.
+  - manifest: Partial Track Generation manifest.
+  - status: Explicit completion record.

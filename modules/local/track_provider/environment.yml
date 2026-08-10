@@ -1,0 +1,6 @@
+name: helixforge-track-provider
+channels: [bioconda, conda-forge]
+dependencies:
+  - python=3.11.9
+  - deeptools=3.5.5
+  - samtools=1.20
