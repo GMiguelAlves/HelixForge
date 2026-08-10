@@ -60,6 +60,18 @@ flowchart TD
     TPROV --> TAGG["TRACK_AGGREGATE"]
     TSTAT --> TAGG
 
+    META --> RCTX["REPORT_CONTEXT"]
+    REF --> RCTX
+    FINAL --> RCTX
+    PAGG --> RCTX
+    QAGG --> RCTX
+    CAGG --> RCTX
+    DBA --> RCTX
+    AAGG --> RCTX
+    TAGG --> RCTX
+    RCTX --> RAGG["REPORT_AGGREGATE"]
+    RAGG --> RGEN["REPORT_GENERATOR / HTML + JSON"]
+
     LEG["Legacy fallback"] --> FULL["full or native peak calling disabled"]
 ```
 
@@ -96,6 +108,11 @@ flowchart TD
   provider creates individual and optional non-control aggregate BigWigs.
   Statistics and aggregation are independent cache boundaries; tracks mode
   never triggers alignment or BAM processing.
+- `REPORT_CONTEXT` is a terminal manifest-only integration boundary. It accepts
+  optional components, preserves explicit status, and validates project,
+  dataset, build, record/sample identity, and version compatibility.
+  `REPORT_AGGREGATE` owns scientific structure; `REPORT_GENERATOR` owns only
+  presentation and cannot schedule an upstream producer.
 - Large data remain Nextflow outputs. Lightweight reports and provenance are
   published under `pipeline_info` and optional legacy-compatible target paths.
 
@@ -113,4 +130,4 @@ Docker, Conda, Singularity or Apptainer execution.
 6. Differential Binding API with explicit design/contrasts (foundation 0.6);
 7. manifest-driven Peak Annotation API (foundation 0.7);
 8. manifest-driven Track Generation API (foundation 0.8);
-9. reporting.
+9. manifest-driven Report/Integration API (foundation 0.9; functional DAG complete).

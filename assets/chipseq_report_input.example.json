@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "type": "chipseq_report_input",
+  "project": {
+    "project_id": "project_001",
+    "dataset": "dataset_001",
+    "genome_id": "GRCh38",
+    "build": "GRCh38"
+  },
+  "required_components": ["bam"],
+  "components": [
+    {
+      "component": "bam",
+      "manifest": "../results/pipeline_info/native_chipseq/bam_final/sample_1.manifest.json",
+      "artifacts": []
+    },
+    {
+      "component": "consensus_idr",
+      "manifest": "../results/pipeline_info/native_chipseq/consensus/aggregate/consensus_manifest.json",
+      "artifacts": [
+        "../results/pipeline_info/native_chipseq/consensus/aggregate/consolidation_summary.json"
+      ]
+    }
+  ]
+}
