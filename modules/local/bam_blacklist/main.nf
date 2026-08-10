@@ -19,7 +19,7 @@ process BAM_BLACKLIST {
         pattern: '*.{json,yml,done,bam_blacklist_reports}'
 
     input:
-    tuple val(meta), path(bam), path(bam_contigs), path(blacklist), val(blacklist_params)
+    tuple val(meta), path(bam), path(bam_contigs), path(blacklist), val(blacklist_params), path(upstream_manifest)
 
     output:
     tuple val(meta), path("${meta.id}.blacklist.bam"), emit: artifacts
@@ -107,6 +107,7 @@ process BAM_BLACKLIST {
 
     input_sha=\$(sha256sum '${bam}' | awk '{print \$1}')
     output_sha=\$(sha256sum "\$output" | awk '{print \$1}')
+    upstream_sha=\$(sha256sum '${upstream_manifest}' | awk '{print \$1}')
     command_base64=\$(base64 -w0 "\$reports/command.txt")
     end_epoch=\$(date +%s)
     printf '"%s":\n    samtools: %s\n' '${task.process}' "\$(samtools --version | sed -n '1s/samtools //p')" > '${meta.id}.versions.yml'
@@ -114,8 +115,8 @@ process BAM_BLACKLIST {
         '${meta.id}' '${task.process}' "\$command_base64" '${has_blacklist}' '${mode}' "\$blacklist_path" "\$blacklist_sha" \
         "\$input_sha" "\$output_sha" "\$before" "\$after" '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" > '${meta.id}.execution.json'
-    printf '{"schema_version":"0.1","type":"bam_blacklist","id":"%s","enabled":%s,"overlap_mode":"%s","artifact":"%s","sha256":"%s","blacklist_sha256":"%s","reads_removed":%s}\n' \
-        '${meta.id}' '${has_blacklist}' '${mode}' "\$output" "\$output_sha" "\$blacklist_sha" "\$removed" > '${meta.id}.manifest.json'
+    printf '{"schema_version":"1.0","type":"bam_blacklist","id":"%s","status":"complete","enabled":%s,"overlap_mode":"%s","artifact":"%s","sha256":"%s","blacklist_sha256":"%s","reads_removed":%s,"upstream_manifests":[{"sha256":"%s"}]}\n' \
+        '${meta.id}' '${has_blacklist}' '${mode}' "\$output" "\$output_sha" "\$blacklist_sha" "\$removed" "\$upstream_sha" > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' '${meta.id}' '${task.process}' > '${meta.id}.bam_blacklist.done'
     """
 
@@ -131,7 +132,8 @@ process BAM_BLACKLIST {
     printf 'metric\tvalue\nblacklist_enabled\t${has_blacklist}\noverlap_mode\t${mode}\nreads_before\t2\nreads_after\t1\nreads_removed\t1\nblacklisted_templates\t1\n' > '${meta.id}.bam_blacklist_reports/metrics.tsv'
     printf '"BAM_BLACKLIST":\n    samtools: stub\n' > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"BAM_BLACKLIST","status":"stub"}\n' '${meta.id}' > '${meta.id}.execution.json'
-    printf '{"schema_version":"0.1","type":"bam_blacklist","id":"%s","enabled":${has_blacklist}}\n' '${meta.id}' > '${meta.id}.manifest.json'
+    upstream_sha=\$(sha256sum '${upstream_manifest}' | awk '{print \$1}')
+    printf '{"schema_version":"1.0","type":"bam_blacklist","id":"%s","status":"stub","enabled":${has_blacklist},"upstream_manifests":[{"sha256":"%s"}]}\n' '${meta.id}' "\$upstream_sha" > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"BAM_BLACKLIST","status":"stub"}\n' '${meta.id}' > '${meta.id}.bam_blacklist.done'
     """
 }

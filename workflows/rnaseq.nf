@@ -30,8 +30,7 @@ workflow RNASEQ {
             RNASEQ_QC.out.plans
         )
         analysis_logs = RNASEQ_ALIGNMENT_QUANTIFICATION.out.logs
-        analysis_mode = params.rnaseq_analysis_mode.toString().toLowerCase()
-        if (run_mode in ['alignment', 'quant', 'quantification', 'import'] || analysis_mode == 'alignment') {
+        if (run_mode in ['alignment', 'quant', 'quantification', 'import']) {
             completed_status = RNASEQ_ALIGNMENT_QUANTIFICATION.out.status
             downstream_logs = channel.empty()
         } else {

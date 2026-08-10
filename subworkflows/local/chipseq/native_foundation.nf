@@ -105,7 +105,8 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             annotation,
             [
                 extra_args    : row.bowtie2_opts,
-                index_basename: file(row.index_prefix).name
+                index_basename: file(row.index_prefix).name,
+                index_key     : "${row.genome_id}|${file(row.index_prefix).parent}|${file(row.index_prefix).name}"
             ],
             [
                 blacklist: blacklist_path,
@@ -195,6 +196,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                     genome_id : row.genome_id,
                     organism  : row.organism,
                     aligner   : 'bowtie2',
+                    index_key : "${row.genome_id}|${prefix.parent}|${prefix.name}",
                     target_dir: prefix.parent
                 ]
                 tuple(
@@ -212,9 +214,16 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             }
         REFERENCE_INDEX(reference_inputs)
 
-        alignment_inputs = records
-            .combine(REFERENCE_INDEX.out.artifacts)
-            .map { record_meta, record_reads, reference_text, annotation_path, alignment_params, _bam_params, _index_meta, index ->
+        records_by_index = records.map {
+            record_meta, record_reads, reference_text, annotation_path, alignment_params, bam_params ->
+            tuple(alignment_params.index_key, record_meta, record_reads, reference_text, annotation_path, alignment_params, bam_params)
+        }
+        indexes_by_key = REFERENCE_INDEX.out.artifacts.map { index_meta, index ->
+            tuple(index_meta.index_key, index)
+        }
+        alignment_inputs = records_by_index
+            .combine(indexes_by_key, by: 0)
+            .map { _index_key, record_meta, record_reads, reference_text, annotation_path, alignment_params, _bam_params, index ->
                 tuple(
                     record_meta,
                     record_reads,
@@ -239,8 +248,9 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             }
             processing_inputs = ALIGNMENT.out.artifacts
                 .map { record_meta, bam, bai -> tuple(record_meta.id, record_meta, bam, bai) }
+                .join(ALIGNMENT.out.manifest.map { record_meta, manifest -> tuple(record_meta.id, manifest) })
                 .join(processing_context)
-                .map { _id, record_meta, bam, bai, reference, bam_params ->
+                .map { _id, record_meta, bam, bai, alignment_manifest, reference, bam_params ->
                     tuple(
                         record_meta,
                         bam,
@@ -250,7 +260,8 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                         bam_params.select,
                         bam_params.duplicates,
                         bam_params.blacklist_params,
-                        bam_params.final_qc
+                        bam_params.final_qc,
+                        alignment_manifest
                     )
                 }
             CHIPSEQ_BAM_PROCESSING(processing_inputs)

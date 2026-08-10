@@ -22,6 +22,7 @@ run_pipeline() {
         --bam "$input/reads.bam" \
         --bai "$input/reads.bam.bai" \
         --reference "$fixture/reference.fa" \
+        --upstream_manifest "$fixture/alignment.manifest.json" \
         --blacklist "$fixture/blacklist.bed" \
         --target_root "$result/final" \
         --outdir "$result" \

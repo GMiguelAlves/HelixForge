@@ -19,7 +19,7 @@ process BAM_DUPLICATES {
         pattern: '*.{json,yml,done,bam_duplicates_reports}'
 
     input:
-    tuple val(meta), path(bam), val(duplicate_params)
+    tuple val(meta), path(bam), val(duplicate_params), path(upstream_manifest)
 
     output:
     tuple val(meta), path("${meta.id}.duplicates.bam"), emit: artifacts
@@ -96,14 +96,15 @@ process BAM_DUPLICATES {
 
     input_sha=\$(sha256sum '${bam}' | awk '{print \$1}')
     output_sha=\$(sha256sum "\$output" | awk '{print \$1}')
+    upstream_sha=\$(sha256sum '${upstream_manifest}' | awk '{print \$1}')
     command_base64=\$(base64 -w0 "\$reports/command.txt")
     end_epoch=\$(date +%s)
     printf '"%s":\n    samtools: %s\n' '${task.process}' "\$(samtools --version | sed -n '1s/samtools //p')" > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"%s","command_base64":"%s","duplicate_mode":"%s","input_sha256":"%s","output_sha256":"%s","reads_before":%s,"duplicates_detected":%s,"reads_after":%s,"cpus":%s,"memory_bytes":%s,"time":"%s","started_epoch":%s,"ended_epoch":%s,"elapsed_seconds":%s}\n' \
         '${meta.id}' '${task.process}' "\$command_base64" '${mode}' "\$input_sha" "\$output_sha" "\$before" "\$duplicates_detected" "\$after" \
         '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" > '${meta.id}.execution.json'
-    printf '{"schema_version":"0.1","type":"bam_duplicates","id":"%s","policy":"%s","artifact":"%s","sha256":"%s","reads_before":%s,"duplicates_detected":%s,"reads_after":%s}\n' \
-        '${meta.id}' '${mode}' "\$output" "\$output_sha" "\$before" "\$duplicates_detected" "\$after" > '${meta.id}.manifest.json'
+    printf '{"schema_version":"1.0","type":"bam_duplicates","id":"%s","status":"complete","policy":"%s","artifact":"%s","sha256":"%s","reads_before":%s,"duplicates_detected":%s,"reads_after":%s,"upstream_manifests":[{"sha256":"%s"}]}\n' \
+        '${meta.id}' '${mode}' "\$output" "\$output_sha" "\$before" "\$duplicates_detected" "\$after" "\$upstream_sha" > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' '${meta.id}' '${task.process}' > '${meta.id}.bam_duplicates.done'
     """
 
@@ -118,7 +119,8 @@ process BAM_DUPLICATES {
     printf 'stub\n' > '${meta.id}.bam_duplicates_reports/flagstat.txt'
     printf '"BAM_DUPLICATES":\n    samtools: stub\n' > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"BAM_DUPLICATES","status":"stub"}\n' '${meta.id}' > '${meta.id}.execution.json'
-    printf '{"schema_version":"0.1","type":"bam_duplicates","id":"%s","policy":"${mode}"}\n' '${meta.id}' > '${meta.id}.manifest.json'
+    upstream_sha=\$(sha256sum '${upstream_manifest}' | awk '{print \$1}')
+    printf '{"schema_version":"1.0","type":"bam_duplicates","id":"%s","status":"stub","policy":"${mode}","upstream_manifests":[{"sha256":"%s"}]}\n' '${meta.id}' "\$upstream_sha" > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"BAM_DUPLICATES","status":"stub"}\n' '${meta.id}' > '${meta.id}.bam_duplicates.done'
     """
 }

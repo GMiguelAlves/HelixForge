@@ -18,6 +18,7 @@ run_expected_failure() {
         -c "$root/tests/native_chipseq_bam/nextflow.config" -ansi-log false \
         --bam "$input/reads.bam" --bai "$input/reads.bam.bai" \
         --reference "$reference" --blacklist "$blacklist" \
+        --upstream_manifest "$fixture/alignment.manifest.json" \
         --target_root "$result/$name/final" --outdir "$result/$name" \
         --trace_file "$result/$name/execution_trace.tsv"; then
         echo "ERROR: $name unexpectedly succeeded" >&2

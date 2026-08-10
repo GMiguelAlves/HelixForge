@@ -7,6 +7,7 @@ workflow {
     bai = file(params.bai, checkIfExists: true)
     reference = file(params.reference, checkIfExists: true)
     blacklist = params.blacklist ? file(params.blacklist, checkIfExists: true) : []
+    upstream_manifest = file(params.upstream_manifest, checkIfExists: true)
 
     with_blacklist = tuple(
         [
@@ -23,7 +24,8 @@ workflow {
         [min_mapq: 30, include_flags: 0, exclude_flags: 2308, region: ''],
         [mode: 'remove'],
         [overlap_mode: 'fragment'],
-        [sort_if_needed: false]
+        [sort_if_needed: false],
+        upstream_manifest
     )
     without_blacklist = tuple(
         [
@@ -40,9 +42,9 @@ workflow {
         [min_mapq: 30, include_flags: 0, exclude_flags: 2308, region: ''],
         [mode: 'none'],
         [overlap_mode: 'fragment'],
-        [sort_if_needed: false]
+        [sort_if_needed: false],
+        upstream_manifest
     )
 
     CHIPSEQ_BAM_PROCESSING(channel.of(with_blacklist, without_blacklist))
 }
-
