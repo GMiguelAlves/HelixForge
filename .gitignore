@@ -9,6 +9,9 @@ tests/native_chipseq_peak_annotation/top_level_results/
 tests/native_chipseq_tracks/fixture_work/
 tests/native_chipseq_tracks/results/
 tests/native_chipseq_tracks/top_level_results/
+tests/native_chipseq_report/fixture_work/
+tests/native_chipseq_report/results/
+tests/native_chipseq_report/top_level_results/
 benchmark/reports/*
 !benchmark/reports/.gitkeep
 __pycache__/
