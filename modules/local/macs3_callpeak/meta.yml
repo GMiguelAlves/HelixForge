@@ -1,5 +1,5 @@
 name: macs3_callpeak
-description: MACS3 provider for the OmicsFlow Peak Calling API.
+description: MACS3 provider for the HelixForge Peak Calling API.
 keywords: [chipseq, peak-calling, macs3]
 tools:
   - macs3:

@@ -1,4 +1,4 @@
-name: omicsflow-chipseq-metadata
+name: helixforge-chipseq-metadata
 channels:
   - conda-forge
 dependencies:

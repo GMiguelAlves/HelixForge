@@ -1,5 +1,11 @@
 # Tests
 
+Run the dependency-free consolidation checks with:
+
+```bash
+python tests/architecture/test_consolidation.py
+```
+
 `run_stub_tests.sh` compiles and executes the four workflow graphs with process
 stub blocks. It does not run scientific tools.
 

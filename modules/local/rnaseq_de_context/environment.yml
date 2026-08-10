@@ -1,4 +1,4 @@
-name: omicsflow-de-context
+name: helixforge-de-context
 channels: [conda-forge]
 dependencies:
   - python=3.11.9

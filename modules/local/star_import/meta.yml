@@ -1,5 +1,5 @@
 name: star_import
-description: STAR GeneCounts implementation of the OmicsFlow Import API
+description: STAR GeneCounts implementation of the HelixForge Import API
 keywords: [star, gene-counts, cpm, import]
 input:
   - sample_table: ordered manifest-backed sample table

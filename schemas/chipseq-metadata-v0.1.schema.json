@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://omicsflow.dev/schemas/chipseq-metadata-v0.1.schema.json",
-  "title": "OmicsFlow normalized ChIP-seq record",
+  "$id": "https://helixforge.dev/schemas/chipseq-metadata-v0.1.schema.json",
+  "title": "HelixForge normalized ChIP-seq record",
   "type": "object",
   "additionalProperties": true,
   "required": [
@@ -46,4 +46,3 @@
     }
   ]
 }
-

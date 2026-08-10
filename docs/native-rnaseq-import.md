@@ -79,9 +79,9 @@ invalidation, manifest invalidation, and GTF/tx2gene invalidation.
 
 ## Runtime and reproducibility
 
-The R image is fixed at `ghcr.io/gmiguelalves/omicsflow-import:1.0.0` and the
+The R image is fixed at `ghcr.io/gmiguelalves/helixforge-import:1.0.0` and the
 Python adapter image at
-`ghcr.io/gmiguelalves/omicsflow-import-python:1.0.0`. The matching Conda files
+`ghcr.io/gmiguelalves/helixforge-import-python:1.0.0`. The matching Conda files
 pin R 4.3.2, Bioconductor 3.18, tximport 1.30.0, rtracklayer 1.62.0,
 SummarizedExperiment 1.32.0, readr 2.1.4, and data.table 1.14.8. Each R task
 writes `sessionInfo.txt`; every provider emits `versions.yml`, execution

@@ -22,7 +22,7 @@ process BAM_INDEX_QC {
         pattern: '*.filtered.bam*'
 
     input:
-    tuple val(meta), path(bam), path(reference), val(qc_params)
+    tuple val(meta), path(bam), path(reference), val(qc_params), path(upstream_manifest)
 
     output:
     tuple val(meta), path("${meta.id}.filtered.bam"), path("${meta.id}.filtered.bam.bai"), emit: artifacts
@@ -97,6 +97,7 @@ process BAM_INDEX_QC {
     input_sha=\$(sha256sum '${bam}' | awk '{print \$1}')
     output_sha=\$(sha256sum "\$output" | awk '{print \$1}')
     bai_sha=\$(sha256sum "\$bai" | awk '{print \$1}')
+    upstream_sha=\$(sha256sum '${upstream_manifest}' | awk '{print \$1}')
     command_base64=\$(base64 -w0 "\$reports/command.txt")
     end_epoch=\$(date +%s)
     printf '"%s":\n    samtools: %s\n' '${task.process}' "\$(samtools --version | sed -n '1s/samtools //p')" > '${meta.id}.versions.yml'
@@ -104,10 +105,10 @@ process BAM_INDEX_QC {
         '${meta.id}' '${task.process}' "\$command_base64" "\$sorted_by_module" "\$input_sha" "\$reference_sha" "\$output_sha" "\$bai_sha" \
         "\$total" "\$mapped" "\$proper" "\$duplicates" '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" > '${meta.id}.execution.json'
-    printf '{"schema_version":"0.1","type":"bam_final","id":"%s","dataset":"%s","sample_id":"%s","artifact":"%s","sha256":"%s","index":"%s","index_sha256":"%s","reference_sha256":"%s","duplicate_policy":"%s","selection":{"min_mapq":%s,"include_flags":%s,"exclude_flags":%s},"blacklist_policy":"%s","metrics":{"total_reads":%s,"mapped_reads":%s,"properly_paired":%s,"duplicates":%s}}\n' \
-        '${meta.id}' '${meta.dataset}' '${meta.sample_id}' "\$output" "\$output_sha" "\$bai" "\$bai_sha" "\$reference_sha" \
+    printf '{"schema_version":"1.0","type":"bam_final","id":"%s","status":"complete","record_id":"%s","dataset":"%s","sample_id":"%s","condition":"%s","target":"%s","genome_id":"%s","artifact":"%s","sha256":"%s","index":"%s","index_sha256":"%s","reference_sha256":"%s","duplicate_policy":"%s","selection":{"min_mapq":%s,"include_flags":%s,"exclude_flags":%s},"blacklist_policy":"%s","metrics":{"total_reads":%s,"mapped_reads":%s,"properly_paired":%s,"duplicates":%s},"upstream_manifests":[{"sha256":"%s"}]}\n' \
+        '${meta.id}' '${meta.id}' '${meta.dataset}' '${meta.sample_id}' '${meta.condition ?: ''}' '${meta.target ?: ''}' '${meta.genome_id ?: ''}' "\$output" "\$output_sha" "\$bai" "\$bai_sha" "\$reference_sha" \
         '${meta.bam_duplicate_policy ?: 'unknown'}' '${meta.bam_min_mapq ?: 0}' '${meta.bam_include_flags ?: 0}' '${meta.bam_exclude_flags ?: 0}' '${meta.bam_blacklist_policy ?: 'unknown'}' \
-        "\$total" "\$mapped" "\$proper" "\$duplicates" > '${meta.id}.manifest.json'
+        "\$total" "\$mapped" "\$proper" "\$duplicates" "\$upstream_sha" > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' '${meta.id}' '${task.process}' > '${meta.id}.bam_index_qc.done'
     """
 
@@ -129,8 +130,9 @@ process BAM_INDEX_QC {
     printf 'mapq\talignments\n42\t1\n' > '${meta.id}.bam_index_qc_reports/mapq_distribution.tsv'
     printf '"BAM_INDEX_QC":\n    samtools: stub\n' > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"BAM_INDEX_QC","status":"stub"}\n' '${meta.id}' > '${meta.id}.execution.json'
-    printf '{"schema_version":"0.1","type":"bam_final","id":"%s","duplicate_policy":"%s","selection":{"min_mapq":%s,"include_flags":%s,"exclude_flags":%s},"blacklist_policy":"%s"}\n' \
-        '${meta.id}' '${meta.bam_duplicate_policy ?: 'unknown'}' '${meta.bam_min_mapq ?: 0}' '${meta.bam_include_flags ?: 0}' '${meta.bam_exclude_flags ?: 0}' '${meta.bam_blacklist_policy ?: 'unknown'}' > '${meta.id}.manifest.json'
+    upstream_sha=\$(sha256sum '${upstream_manifest}' | awk '{print \$1}')
+    printf '{"schema_version":"1.0","type":"bam_final","id":"%s","status":"stub","record_id":"%s","duplicate_policy":"%s","selection":{"min_mapq":%s,"include_flags":%s,"exclude_flags":%s},"blacklist_policy":"%s","upstream_manifests":[{"sha256":"%s"}]}\n' \
+        '${meta.id}' '${meta.id}' '${meta.bam_duplicate_policy ?: 'unknown'}' '${meta.bam_min_mapq ?: 0}' '${meta.bam_include_flags ?: 0}' '${meta.bam_exclude_flags ?: 0}' '${meta.bam_blacklist_policy ?: 'unknown'}' "\$upstream_sha" > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"BAM_INDEX_QC","status":"stub"}\n' '${meta.id}' > '${meta.id}.bam_index_qc.done'
     """
 }

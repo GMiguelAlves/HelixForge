@@ -1,4 +1,4 @@
-name: omicsflow-fastqc
+name: helixforge-fastqc
 channels:
   - conda-forge
   - bioconda

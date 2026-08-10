@@ -33,6 +33,9 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
         ? params.rnaseq_native_import \
         : params.rnaseq_native_import.toString().toBoolean()
 
+    run_alignment = analysis_mode in ['alignment', 'both'] || (analysis_mode == 'config' && native_alignment_enabled)
+    run_quantification = analysis_mode in ['quantification', 'both'] || (analysis_mode == 'config' && native_quantification_enabled)
+
     if (analysis_mode in ['alignment', 'both'] && !native_alignment_enabled) {
         error "rnaseq_analysis_mode=${analysis_mode} requires rnaseq_native_alignment=true"
     }
@@ -76,7 +79,7 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
     import_manifest = channel.empty()
     imported_metadata = channel.empty()
 
-    if (native_alignment_enabled) {
+    if (run_alignment && native_alignment_enabled) {
         star_settings = alignment_settings_rows
             .filter { row -> row.method == 'star' && row.enabled.toBoolean() }
 
@@ -161,7 +164,7 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
         alignment_manifest = ALIGNMENT.out.manifest
     }
 
-    if (native_quantification_enabled) {
+    if (run_quantification && native_quantification_enabled) {
         salmon_settings = quantification_settings_rows
             .filter { row -> row.method == 'salmon' && row.enabled.toBoolean() }
 
@@ -239,7 +242,7 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
         quantification_manifest = QUANTIFICATION.out.manifest
     }
 
-    if (analysis_mode == 'alignment' || run_mode in ['quant', 'quantification']) {
+    if (run_mode in ['alignment', 'quant', 'quantification']) {
         completion_status = provider_status
             .map { _provider, status -> status }
             .collect()

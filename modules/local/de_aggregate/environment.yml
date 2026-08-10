@@ -1,4 +1,4 @@
-name: omicsflow-de-aggregate
+name: helixforge-de-aggregate
 channels: [conda-forge]
 dependencies:
   - python=3.11.9

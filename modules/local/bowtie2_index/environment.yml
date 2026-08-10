@@ -1,4 +1,4 @@
-name: omicsflow-bowtie2-index
+name: helixforge-bowtie2-index
 channels:
   - bioconda
   - conda-forge

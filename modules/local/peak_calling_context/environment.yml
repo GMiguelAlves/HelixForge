@@ -1,4 +1,4 @@
-name: omicsflow-peak-context
+name: helixforge-peak-context
 channels:
   - conda-forge
 dependencies:

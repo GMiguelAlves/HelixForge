@@ -1,5 +1,5 @@
 name: salmon_quant
-description: Quantify transcript abundance with Salmon through the OmicsFlow Quantification API.
+description: Quantify transcript abundance with Salmon through the HelixForge Quantification API.
 keywords: [quantification, rna-seq, salmon, transcriptome]
 tools:
   - salmon:
@@ -21,4 +21,4 @@ output:
   - manifest: {type: file, pattern: '*.manifest.json'}
   - status: {type: file, pattern: '*.salmon_quant.done'}
 authors:
-  - OmicsFlow contributors
+  - HelixForge contributors

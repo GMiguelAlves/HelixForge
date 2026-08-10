@@ -1,112 +1,125 @@
-# Implementation architecture
+# HelixForge implementation architecture
+
+HelixForge is a compatibility-first Nextflow DSL2 platform. Native APIs exchange
+typed channels and versioned manifests; unchanged pipeline coordinators remain
+behind `LEGACY_STEP` only where migration or scientific validation is pending.
+
+## Top-level composition
 
 ```mermaid
 flowchart TB
-    MAIN["main.nf"] --> RNA["workflow rnaseq"]
-    MAIN --> CHIP["workflow chipseq"]
-    MAIN --> INT["workflow integrative"]
-    MAIN --> ALL["workflow all"]
-
-    RNA --> RSW["RNA subworkflows"]
-    CHIP --> CSW["ChIP subworkflows"]
-    INT --> ISW["Integration subworkflow"]
-
-    RSW --> QC["Native RNA QC subworkflow"]
-    RSW --> RNAALIGN["Generic Alignment API"]
-    RSW --> RNAQUANT["Generic Quantification API"]
-    RSW --> RNAIMPORT["Generic Import API"]
-    RSW --> RNADE["Generic Differential Expression API"]
-    RSW --> WRAP["LEGACY_STEP module"]
-    CSW --> WRAP
-    CSW --> CHIPNATIVE["Native ChIP foundation"]
-    ISW --> WRAP
-
-    WRAP --> RB["rnaseq_pipeline.sh --local"]
-    WRAP --> CB["chipseq_pipeline.sh --local"]
-    WRAP --> IB["integrative_pipeline.sh --mode local"]
-    QC --> FASTQC["FastQC raw / trimmed / merged"]
-    QC --> TRIM["Trim Galore"]
-    QC --> MERGE["FASTQ merge"]
-    QC --> MULTIQC["MultiQC"]
-    RNAALIGN --> REFINDEX["REFERENCE_INDEX"]
-    REFINDEX --> STARINDEX["STAR_INDEX"]
-    REFINDEX --> BOWTIEINDEX["BOWTIE2_INDEX"]
-    RNAALIGN --> ALIGN["ALIGNMENT"]
-    ALIGN --> STARALIGN["STAR_ALIGN"]
-    ALIGN --> BOWTIEALIGN["BOWTIE2_ALIGN"]
-    STARINDEX --> STARALIGN
-    BOWTIEINDEX --> BOWTIEALIGN
-    STARALIGN --> STAROUT["Legacy-compatible BAM, counts, logs"]
-    RNAQUANT --> TRANSCRIPTINDEX["TRANSCRIPTOME_INDEX"]
-    TRANSCRIPTINDEX --> SALMONINDEX["SALMON_INDEX"]
-    RNAQUANT --> QUANTIFY["QUANTIFICATION"]
-    QUANTIFY --> SALMONQUANT["SALMON_QUANT"]
-    SALMONINDEX --> SALMONQUANT
-    SALMONQUANT --> SALMONOUT["Legacy-compatible quant.sf, JSON, aux_info, logs"]
-    STAROUT --> RNAIMPORT
-    SALMONOUT --> RNAIMPORT
-    RNAIMPORT --> SOURCE["IMPORT_SOURCE manifest validation"]
-    SOURCE --> PROVIDER{"Provider"}
-    PROVIDER -->|Salmon| TX2GENE["TX2GENE_BUILD"]
-    TX2GENE --> TXIMPORT["TXIMPORT"]
-    PROVIDER -->|STAR| STARIMPORT["STAR_IMPORT"]
-    TXIMPORT --> COMMON["Counts + abundance + metadata + provenance"]
-    STARIMPORT --> COMMON
-    COMMON --> RNADE
-    RNADE --> PREFLIGHT["Design and contrast preflight"]
-    PREFLIGHT --> MODEL["DESEQ2_MODEL"]
-    MODEL --> CONTRAST["DESEQ2_CONTRAST per comparison"]
-    CONTRAST --> DEOUT["Common + legacy DEG outputs"]
-    DEOUT --> WRAP
-    TRIM --> TRIMMED["Legacy-compatible run FASTQs"]
-    MERGE --> MERGED["Legacy-compatible sample FASTQs"]
-    CHIPNATIVE --> CHIPMETA["ChIP metadata/control validation"]
-    CHIPMETA --> FASTQC
-    CHIPMETA --> BOWTIEALIGN
-    BOWTIEALIGN --> CHIPBAM["Sorted BAM + BAI + statistics"]
-    CHIPBAM --> BAMSELECT["BAM_SELECT"]
-    BAMSELECT --> BAMDUP["BAM_DUPLICATES"]
-    BAMDUP --> BAMBLACK["BAM_BLACKLIST"]
-    BAMBLACK --> BAMFINAL["BAM_INDEX_QC + final BAM"]
-    CHIPMETA --> PEAKCTX["PEAK_CALLING_CONTEXT"]
-    BAMFINAL --> MACS3["PEAK_CALLING / MACS3 3.0.4"]
-    PEAKCTX --> MACS3
-    MACS3 --> PEAKOUT["Semantic peaks + metrics + manifest"]
+    MAIN["main.nf"] --> RNA["RNASEQ"]
+    MAIN --> CHIP["CHIPSEQ"]
+    MAIN --> INT["INTEGRATIVE"]
+    MAIN --> ALL["ALL"]
+    ALL --> RNA
+    ALL --> CHIP
+    RNA --> GATE["completion status barrier"]
+    CHIP --> GATE
+    GATE --> INT
 ```
 
-Native modules emit primary artifacts, reports, versions, and status tuples.
-Scientific outputs remain in the directories defined by each unchanged
-`pipeline_config.sh`.
+`ALL` starts RNA-seq and ChIP-seq independently, waits for both completion
+channels, then invokes Integrative. The current Integrative coordinator is a
+legacy boundary and resolves its scientific inputs from the unchanged
+integrative configuration. Completion status is therefore synchronization,
+not an artifact API; semantic RNA+ChIP manifest coupling remains a final
+validation item.
 
-The RNA-seq QC subworkflow reads its scientific parameters from that same
-configuration, fans out one FastQC task per FASTQ and one Trim Galore task per
-technical run, groups trimmed runs by biological sample for byte-concatenation,
-and runs a reusable MultiQC process. The legacy QC coordinator is used only
-when native QC is explicitly disabled.
+## RNA-seq native DAG
 
-The alignment adapter converts the unchanged STAR plan into Alignment API
-tuples. The quantification adapter converts the unchanged Salmon plan into
-Quantification API tuples. Each API owns an independent content-tracked index
-and per-sample provider. `rnaseq_analysis_mode=both` fans merged FASTQs into
-both branches; no STAR output is an input to Salmon.
+```mermaid
+flowchart LR
+    REF["Reference wrapper"] --> PLAN["QC planning adapters"]
+    PLAN --> RAW["FASTQC raw"]
+    RAW --> TRIM["TRIM_GALORE"]
+    TRIM --> POST["FASTQC trimmed"]
+    POST --> MERGE["MERGE_FASTQ"]
+    MERGE --> MQC["MULTIQC"]
+    MQC --> FAN{"analysis mode"}
+    FAN -->|alignment or both| SI["STAR_INDEX"]
+    SI --> SA["STAR_ALIGN"]
+    FAN -->|quantification or both| QI["SALMON_INDEX"]
+    QI --> SQ["SALMON_QUANT"]
+    SA --> IMP{"Import provider"}
+    SQ --> IMP
+    IMP -->|STAR| STARIMP["STAR_IMPORT"]
+    IMP -->|Salmon| TX2["TX2GENE_BUILD"]
+    TX2 --> TXI["TXIMPORT"]
+    STARIMP --> DE["Differential Expression API"]
+    TXI --> DE
+    DE --> PRE["preflight"]
+    PRE --> MODEL["DESEQ2_MODEL"]
+    MODEL --> CONTRAST["DESEQ2_CONTRAST"]
+    CONTRAST --> AGG["DE_AGGREGATE"]
+```
 
-The Import API consumes only the provider selected by authoritative
-`QUANT_METHOD`. It validates upstream manifests, builds a sample table, then
-normalizes Salmon through `TX2GENE_BUILD` + `TXIMPORT` or STAR gene counts
-through `STAR_IMPORT`. The Differential Expression API consumes only the
-common matrix, metadata, manifest, and a user-supplied DE specification. The
-native path models batch only as an explicit design covariate and does not run
-matrix correction before DESeq2. The legacy batch wrapper remains available
-only with the legacy DE fallback; final reporting remains a compatibility
-wrapper.
+`rnaseq_run_mode=alignment` executes only STAR; `quant`/`quantification`
+executes only Salmon. `rnaseq_analysis_mode=both` fans the same merged reads to
+independent providers. `config` respects enabled provider plans. Import and DE
+never infer the provider from filenames: they consume provider manifests and
+channels. Reference preparation and metadata/download planning are still
+compatibility wrappers. `rnaseq_native_import=false` has no supported fallback
+because the former tximport wrapper was intentionally removed.
 
-For ChIP-seq, `qc`, `alignment`, `post_alignment`, `peaks`, `peak_qc`,
-`consensus`, `idr`, and `differential_binding` use the native foundation. The workflow
-reuses generic FastQC/MultiQC and the generic Alignment API with Bowtie2.
-MAPQ/flag selection, duplicate handling, optional blacklist exclusion and final
-BAM integrity/QC, per-replicate peak calling, Peak QC and interval consensus
-are native independent boundaries. IDR currently validates a provider request
-without producing statistical peaks. Differential Binding has native preflight,
-featureCounts, DESeq2 model/contrast and manifest boundaries, while its legacy
-step remains selectable. Annotation, tracks and reporting remain legacy.
-See `docs/chipseq-architecture.md` for the staged graph.
+## ChIP-seq native DAG
+
+```mermaid
+flowchart LR
+    CTX["Context adapter"] --> META["Metadata and controls"]
+    META --> FQC["FASTQC"]
+    FQC --> MQC["MULTIQC"]
+    META --> IDX["BOWTIE2_INDEX keyed by reference"]
+    IDX --> ALN["BOWTIE2_ALIGN"]
+    ALN --> SEL["BAM_SELECT"]
+    SEL --> DUP["BAM_DUPLICATES"]
+    DUP --> BL["BAM_BLACKLIST"]
+    BL --> FINAL["BAM_INDEX_QC"]
+    FINAL --> PEAK["MACS3 Peak Calling API"]
+    PEAK --> PQC["Peak QC API"]
+    PQC --> CONS["Consensus or IDR context"]
+    CONS --> DB["Differential Binding API"]
+    PEAK -. manifest inventory .-> ANN["Peak Annotation API"]
+    FINAL -. manifest inventory .-> TRACK["Track Generation API"]
+    PQC -. component manifests .-> REPORT["ChIP-seq Report API"]
+    CONS -. component manifests .-> REPORT
+    DB -. component manifests .-> REPORT
+    ANN -. component manifests .-> REPORT
+    TRACK -. component manifests .-> REPORT
+```
+
+Records and Bowtie2 indices are paired by an explicit reference key, preventing
+cross-reference Cartesian products. Each BAM transformation records the hash
+of its upstream manifest, so the final BAM can be traced back to alignment.
+Standalone `annotation`, `tracks`, and `report` modes require explicit inventory
+manifests and do not search result directories.
+
+Native staged modes are `qc`, `alignment`, `post_alignment`, `peaks`,
+`peak_qc`, `consensus`, `idr`, `differential_binding`, `annotation`, `tracks`,
+and `report`. The ChIP-seq `full` mode deliberately retains the unchanged legacy
+coordinator until end-to-end equivalence is run on real data. IDR validates its
+request but honestly reports `not_implemented`; it does not fabricate a result.
+
+## Contracts and provenance
+
+All new modules follow [module contracts](module_contracts.md). API manifests
+use the common envelope in `schemas/manifest-v1.schema.json`:
+`schema_version`, `type`, stable `id`, and honest `status`. Cross-API lineage is
+recorded with upstream manifest checksums. Scientific outputs keep the legacy
+names and locations where compatibility requires them.
+
+Scientific parameters remain explicit in `nextflow.config` and are all exposed
+by `nextflow_schema.json`. Scheduler queues, resources and environment engines
+remain orchestration concerns; scientific defaults stay in the authoritative
+pipeline configuration until their controlled migration.
+
+## Deliberate legacy boundaries
+
+- RNA reference preparation, download and metadata planning.
+- ChIP-seq `full` compatibility execution.
+- Integrative execution and its configured input discovery.
+- Final RNA reporting and any analysis not yet represented by a native API.
+
+These boundaries are not described as scientifically validated native paths.
+Their replacement requires the mandatory comparisons in
+[final validation plan](final-validation-plan.md).

@@ -61,7 +61,7 @@ process STAR_IMPORT {
         '${meta.id}' '${task.process}' '${import_params.star_count_column}' '${import_params.gene_id_normalization}' '${task.cpus}' \
         '${task.memory.toBytes()}' '${task.time}' '${params.star_import_container}' "\$sources_sha" \
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" > execution.json
-    printf '{"schema_version":"1.0","type":"import","id":"%s","provider":"star","sample_count":%s,"parameters":{"star_count_column":"%s","gene_id_normalization":"%s"},"artifacts":{"counts":{"path":"counts_matrix.tsv","sha256":"%s","available":true},"abundance":{"path":"star_cpm_matrix.tsv","sha256":"%s","available":true},"lengths":{"available":false,"reason":"STAR GeneCounts does not estimate transcript effective lengths"},"experiment":{"available":false,"reason":"not emitted by STAR provider in Import API v1.0"},"metadata":{"path":"quant_samples.tsv","sha256":"%s","available":true}}}\n' \
+    printf '{"schema_version":"1.0","type":"import","id":"%s","status":"complete","provider":"star","sample_count":%s,"parameters":{"star_count_column":"%s","gene_id_normalization":"%s"},"artifacts":{"counts":{"path":"counts_matrix.tsv","sha256":"%s","available":true},"abundance":{"path":"star_cpm_matrix.tsv","sha256":"%s","available":true},"lengths":{"available":false,"reason":"STAR GeneCounts does not estimate transcript effective lengths"},"experiment":{"available":false,"reason":"not emitted by STAR provider in Import API v1.0"},"metadata":{"path":"quant_samples.tsv","sha256":"%s","available":true}}}\n' \
         '${meta.id}' "\$sample_count" '${import_params.star_count_column}' '${import_params.gene_id_normalization}' "\$counts_sha" \
         "\$abundance_sha" "\$metadata_sha" > import_manifest.json
     printf '{"id":"%s","process":"%s","status":"complete"}\n' \
@@ -77,7 +77,7 @@ process STAR_IMPORT {
     printf '{"provider":"star","samples":1,"genes":1}\n' > import_statistics.json
     printf '"STAR_IMPORT":\n    python: "stub"\n' > versions.yml
     printf '{"id":"%s","process":"STAR_IMPORT","status":"stub"}\n' '${meta.id}' > execution.json
-    printf '{"schema_version":"1.0","type":"import","id":"%s","provider":"star","artifacts":{"lengths":{"available":false},"experiment":{"available":false}}}\n' '${meta.id}' > import_manifest.json
+    printf '{"schema_version":"1.0","type":"import","id":"%s","status":"stub","provider":"star","artifacts":{"lengths":{"available":false},"experiment":{"available":false}}}\n' '${meta.id}' > import_manifest.json
     printf '{"id":"%s","process":"STAR_IMPORT","status":"stub"}\n' '${meta.id}' > star_import.done
     """
 }

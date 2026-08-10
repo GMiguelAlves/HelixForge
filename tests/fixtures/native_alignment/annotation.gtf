@@ -1,3 +1,3 @@
-chrSynthetic	OmicsFlow	gene	1	5000	.	+	.	gene_id "gene_synthetic"; gene_name "synthetic";
-chrSynthetic	OmicsFlow	transcript	1	5000	.	+	.	gene_id "gene_synthetic"; transcript_id "transcript_synthetic";
-chrSynthetic	OmicsFlow	exon	1	5000	.	+	.	gene_id "gene_synthetic"; transcript_id "transcript_synthetic"; exon_number "1";
+chrSynthetic	HelixForge	gene	1	5000	.	+	.	gene_id "gene_synthetic"; gene_name "synthetic";
+chrSynthetic	HelixForge	transcript	1	5000	.	+	.	gene_id "gene_synthetic"; transcript_id "transcript_synthetic";
+chrSynthetic	HelixForge	exon	1	5000	.	+	.	gene_id "gene_synthetic"; transcript_id "transcript_synthetic"; exon_number "1";

@@ -1,6 +1,6 @@
 # HelixForge
 
-HelixForge (formerly OmicsFlow) is a compatibility-first Nextflow DSL2 implementation for the existing
+HelixForge is a compatibility-first Nextflow DSL2 implementation for the existing
 RNA-seq, ChIP-seq, and IntegrateSeq pipelines. The scientific Bash, Python, and
 R implementations are preserved under `pipelines/*/legacy` and remain directly
 executable.
@@ -20,7 +20,8 @@ The ChIP-seq native foundation validates flexible metadata, controls and
 biological/technical replicate identity, reuses FastQC/MultiQC, and implements
 Bowtie2 indexing/alignment behind the same generic Alignment API used by STAR.
 Native modes include `qc`, `alignment`, `post_alignment`, `peaks`, `peak_qc`,
-`consensus`, `idr`, `differential_binding`, and `annotation`. The BAM mode adds
+`consensus`, `idr`, `differential_binding`, `annotation`, `tracks`, and
+`report`. The BAM mode adds
 explicit MAPQ/flag selection, duplicate policy, optional blacklist and final
 BAM integrity/QC. Peak Calling API v1 validates explicit treatment/control
 relationships and runs a pinned MACS3 provider independently for each replicate.
@@ -167,5 +168,7 @@ See [docs/nextflow.md](docs/nextflow.md),
 [docs/native-chipseq-report.md](docs/native-chipseq-report.md),
 [docs/chipseq-differential-binding-review.md](docs/chipseq-differential-binding-review.md),
 [docs/module_contracts.md](docs/module_contracts.md),
-[docs/script-mapping.md](docs/script-mapping.md), and
+[docs/script-mapping.md](docs/script-mapping.md),
+[docs/architecture-consolidation-audit.md](docs/architecture-consolidation-audit.md),
+[docs/final-validation-plan.md](docs/final-validation-plan.md), and
 [docs/limitations.md](docs/limitations.md).

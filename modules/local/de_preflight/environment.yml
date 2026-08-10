@@ -1,4 +1,4 @@
-name: omicsflow-de-preflight
+name: helixforge-de-preflight
 channels:
   - conda-forge
 dependencies:

@@ -80,7 +80,7 @@ process TXIMPORT {
         '${meta.id}' '${task.process}' '${import_params.countsFromAbundance}' '${import_params.libraryProtocol}' '${import_params.ignoreTxVersion}' '${import_params.ignoreAfterBar}' '${import_params.unmappedTranscripts}' '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         '${params.tximport_container}' "\$sources_sha" "\$tx2gene_sha" "\$start_epoch" "\$end_epoch" \
         "\$((end_epoch-start_epoch))" > execution.json
-    printf '{"schema_version":"1.0","type":"import","id":"%s","provider":"salmon","sample_count":%s,"parameters":{"countsFromAbundance":"%s","libraryProtocol":"%s","ignoreTxVersion":%s,"ignoreAfterBar":%s,"unmappedTranscripts":"%s"},"artifacts":{"counts":{"path":"counts_matrix.tsv","sha256":"%s","available":true},"abundance":{"path":"tpm_matrix.tsv","sha256":"%s","available":true},"lengths":{"path":"length_matrix.tsv","sha256":"%s","available":true},"experiment":{"path":"summarized_experiment.rds","sha256":"%s","available":true},"metadata":{"path":"quant_samples.tsv","sha256":"%s","available":true}},"tx2gene_sha256":"%s"}\n' \
+    printf '{"schema_version":"1.0","type":"import","id":"%s","status":"complete","provider":"salmon","sample_count":%s,"parameters":{"countsFromAbundance":"%s","libraryProtocol":"%s","ignoreTxVersion":%s,"ignoreAfterBar":%s,"unmappedTranscripts":"%s"},"artifacts":{"counts":{"path":"counts_matrix.tsv","sha256":"%s","available":true},"abundance":{"path":"tpm_matrix.tsv","sha256":"%s","available":true},"lengths":{"path":"length_matrix.tsv","sha256":"%s","available":true},"experiment":{"path":"summarized_experiment.rds","sha256":"%s","available":true},"metadata":{"path":"quant_samples.tsv","sha256":"%s","available":true}},"tx2gene_sha256":"%s"}\n' \
         '${meta.id}' "\$sample_count" '${import_params.countsFromAbundance}' '${import_params.libraryProtocol}' '${import_params.ignoreTxVersion}' '${import_params.ignoreAfterBar}' '${import_params.unmappedTranscripts}' "\$counts_sha" "\$abundance_sha" "\$length_sha" \
         "\$experiment_sha" "\$metadata_sha" "\$tx2gene_sha" > import_manifest.json
     printf '{"id":"%s","process":"%s","status":"complete"}\n' \
@@ -99,7 +99,7 @@ process TXIMPORT {
     printf 'stub\n' > sessionInfo.txt
     printf '"TXIMPORT":\n    r: "stub"\n    bioconductor: "stub"\n    tximport: "stub"\n    SummarizedExperiment: "stub"\n    readr: "stub"\n    data.table: "stub"\n' > versions.yml
     printf '{"id":"%s","process":"TXIMPORT","status":"stub"}\n' '${meta.id}' > execution.json
-    printf '{"schema_version":"1.0","type":"import","id":"%s","provider":"salmon"}\n' '${meta.id}' > import_manifest.json
+    printf '{"schema_version":"1.0","type":"import","id":"%s","status":"stub","provider":"salmon"}\n' '${meta.id}' > import_manifest.json
     printf '{"id":"%s","process":"TXIMPORT","status":"stub"}\n' '${meta.id}' > tximport.done
     """
 }

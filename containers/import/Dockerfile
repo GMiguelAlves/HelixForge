@@ -1,7 +1,7 @@
 FROM mambaorg/micromamba:2.8.1-ubuntu22.04@sha256:e6109b71ce41db7d3ef6084751a6be005420308847737cc8d758d14c4ecf86ed
 
-LABEL org.opencontainers.image.source="https://github.com/GMiguelAlves/OmicsFlow"
-LABEL org.opencontainers.image.description="Pinned R/Bioconductor runtime for OmicsFlow Import API"
+LABEL org.opencontainers.image.source="https://github.com/GMiguelAlves/HelixForge"
+LABEL org.opencontainers.image.description="Pinned R/Bioconductor runtime for HelixForge Import API"
 LABEL org.opencontainers.image.version="1.0.0"
 
 COPY --chown=$MAMBA_USER:$MAMBA_USER modules/local/tximport/environment.yml /tmp/environment.yml

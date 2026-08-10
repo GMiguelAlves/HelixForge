@@ -115,7 +115,7 @@ def main():
         with open(args.versions, "w", encoding="utf-8") as handle:
             handle.write(f'"PEAK_QC_AGGREGATE":\n    python: "{sys.version.split()[0]}"\n')
         manifest = {
-            "schema_version": "1.0", "type": "peak_qc", "records": len(rows),
+            "schema_version": "1.0", "type": "peak_qc", "id": "chipseq.peak_qc.aggregate", "records": len(rows),
             "replicate_ids": [row["peak_id"] for row in rows],
             "frip_manifests": [{"path": os.path.basename(path), "sha256": sha256(path)} for path in args.frip_manifest],
             "statistics_manifests": [{"path": os.path.basename(path), "sha256": sha256(path)} for path in args.statistics_manifest],

@@ -18,7 +18,7 @@ def digest(path: Path) -> str:
 
 
 def run_case(name: str, mutate, expected_success: bool, expected_text: str = "", manifest_mutate=None) -> None:
-    with tempfile.TemporaryDirectory(prefix=f"omicsflow-de-{name}-") as temporary:
+    with tempfile.TemporaryDirectory(prefix=f"helixforge-de-{name}-") as temporary:
         case = Path(temporary)
         counts = case / "counts.tsv"
         samples = case / "samples.tsv"

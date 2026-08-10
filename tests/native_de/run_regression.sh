@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-IMAGE="${DESEQ2_TEST_IMAGE:-omicsflow-deseq2:test}"
+IMAGE="${DESEQ2_TEST_IMAGE:-helixforge-deseq2:test}"
 NXF_BIN="${NEXTFLOW:-nextflow}"
 if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
   echo "[SKIP] Missing validated DESeq2 image: $IMAGE" >&2

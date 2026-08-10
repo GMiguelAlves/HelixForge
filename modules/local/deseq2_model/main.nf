@@ -66,7 +66,7 @@ process DESEQ2_MODEL {
         > '${modelDir}/execution.json'
     dds_name=\$(basename \$(find '${modelDir}' -maxdepth 1 -name 'dds_*.rds' -print -quit))
     normalized_name=\$(basename \$(find '${modelDir}' -maxdepth 1 -name 'normalized_counts_*.tsv' -print -quit))
-    printf '{"schema_version":"1.0","type":"differential_expression_model","id":"%s","provider":"deseq2","test":"wald","inputs":{"counts_sha256":"%s","sample_metadata_sha256":"%s","design_sha256":"%s"},"artifacts":{"model":{"path":"%s","sha256":"%s","available":true},"normalized_counts":{"path":"%s","sha256":"%s","available":true},"dispersions":{"sha256":"%s","available":true},"coefficients":{"sha256":"%s","available":true}}}\n' \
+    printf '{"schema_version":"1.0","type":"differential_expression_model","id":"%s","status":"complete","provider":"deseq2","test":"wald","inputs":{"counts_sha256":"%s","sample_metadata_sha256":"%s","design_sha256":"%s"},"artifacts":{"model":{"path":"%s","sha256":"%s","available":true},"normalized_counts":{"path":"%s","sha256":"%s","available":true},"dispersions":{"sha256":"%s","available":true},"coefficients":{"sha256":"%s","available":true}}}\n' \
         '${meta.id}' "\$counts_sha" "\$samples_sha" "\$spec_sha" "\$dds_name" "\$dds_sha" \
         "\$normalized_name" "\$normalized_sha" "\$dispersions_sha" "\$coefficients_sha" \
         > '${modelDir}/model_manifest.json'
@@ -89,7 +89,7 @@ process DESEQ2_MODEL {
     printf 'stub\n' > '${modelDir}/sessionInfo.txt'
     printf '"DESEQ2_MODEL":\n    r: "stub"\n    bioconductor: "stub"\n    deseq2: "stub"\n' > '${modelDir}/versions.yml'
     printf '{"id":"%s","process":"DESEQ2_MODEL","status":"stub"}\n' '${meta.id}' > '${modelDir}/execution.json'
-    printf '{"schema_version":"1.0","type":"differential_expression_model","id":"%s","provider":"deseq2","test":"wald"}\n' '${meta.id}' > '${modelDir}/model_manifest.json'
+    printf '{"schema_version":"1.0","type":"differential_expression_model","id":"%s","status":"stub","provider":"deseq2","test":"wald"}\n' '${meta.id}' > '${modelDir}/model_manifest.json'
     printf '{"id":"%s","process":"DESEQ2_MODEL","status":"stub"}\n' '${meta.id}' > '${modelDir}/deseq2_model.done'
     """
 }

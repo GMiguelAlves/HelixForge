@@ -19,7 +19,7 @@ process BAM_SELECT {
         pattern: '*.{json,yml,done,bam_select_reports}'
 
     input:
-    tuple val(meta), path(bam), path(bai), path(reference), val(select_params)
+    tuple val(meta), path(bam), path(bai), path(reference), val(select_params), path(upstream_manifest)
 
     output:
     tuple val(meta), path("${meta.id}.selected.bam"), emit: artifacts
@@ -99,6 +99,7 @@ process BAM_SELECT {
     reference_sha=\$(sha256sum '${reference}' | awk '{print \$1}')
     input_sha=\$(sha256sum '${bam}' | awk '{print \$1}')
     output_sha=\$(sha256sum "\$output" | awk '{print \$1}')
+    upstream_sha=\$(sha256sum '${upstream_manifest}' | awk '{print \$1}')
     command_base64=\$(base64 -w0 "\$reports/command.txt")
     end_epoch=\$(date +%s)
     printf '"%s":\n    samtools: %s\n' '${task.process}' "\$(samtools --version | sed -n '1s/samtools //p')" > '${meta.id}.versions.yml'
@@ -106,8 +107,8 @@ process BAM_SELECT {
         '${meta.id}' '${task.process}' "\$command_base64" '${min_mapq}' '${include_flags}' '${exclude_flags}' '${region}' \
         "\$input_sha" "\$reference_sha" "\$output_sha" '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" > '${meta.id}.execution.json'
-    printf '{"schema_version":"0.1","type":"bam_selection","id":"%s","artifact":"%s","sha256":"%s","reference_sha256":"%s","parameters":{"min_mapq":%s,"include_flags":%s,"exclude_flags":%s,"region":"%s"}}\n' \
-        '${meta.id}' "\$output" "\$output_sha" "\$reference_sha" '${min_mapq}' '${include_flags}' '${exclude_flags}' '${region}' \
+    printf '{"schema_version":"1.0","type":"bam_selection","id":"%s","status":"complete","artifact":"%s","sha256":"%s","reference_sha256":"%s","parameters":{"min_mapq":%s,"include_flags":%s,"exclude_flags":%s,"region":"%s"},"upstream_manifests":[{"sha256":"%s"}]}\n' \
+        '${meta.id}' "\$output" "\$output_sha" "\$reference_sha" '${min_mapq}' '${include_flags}' '${exclude_flags}' '${region}' "\$upstream_sha" \
         > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' '${meta.id}' '${task.process}' > '${meta.id}.bam_select.done'
     """
@@ -130,7 +131,8 @@ process BAM_SELECT {
     printf '[STUB] BAM selection\n' > '${meta.id}.bam_select_reports/bam_select.log'
     printf '"BAM_SELECT":\n    samtools: stub\n' > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"BAM_SELECT","status":"stub"}\n' '${meta.id}' > '${meta.id}.execution.json'
-    printf '{"schema_version":"0.1","type":"bam_selection","id":"%s"}\n' '${meta.id}' > '${meta.id}.manifest.json'
+    upstream_sha=\$(sha256sum '${upstream_manifest}' | awk '{print \$1}')
+    printf '{"schema_version":"1.0","type":"bam_selection","id":"%s","status":"stub","upstream_manifests":[{"sha256":"%s"}]}\n' '${meta.id}' "\$upstream_sha" > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"BAM_SELECT","status":"stub"}\n' '${meta.id}' > '${meta.id}.bam_select.done'
     """
 }

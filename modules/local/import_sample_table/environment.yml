@@ -1,4 +1,4 @@
-name: omicsflow-import-sample-table
+name: helixforge-import-sample-table
 channels:
   - conda-forge
 dependencies:

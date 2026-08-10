@@ -1,4 +1,4 @@
-name: omicsflow-peak-aggregate
+name: helixforge-peak-aggregate
 channels:
   - conda-forge
 dependencies:

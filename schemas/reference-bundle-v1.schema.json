@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://omicsflow.dev/schemas/reference-bundle-v1.json",
-  "title": "OmicsFlow reference bundle v1",
+  "$id": "https://helixforge.dev/schemas/reference-bundle-v1.json",
+  "title": "HelixForge reference bundle v1",
   "type": "object",
   "additionalProperties": false,
   "required": ["reference_bundle_version", "reference_id", "organism", "assembly", "files"],
@@ -27,4 +27,3 @@
     }
   }
 }
-

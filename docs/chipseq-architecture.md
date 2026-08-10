@@ -72,7 +72,7 @@ flowchart TD
     RCTX --> RAGG["REPORT_AGGREGATE"]
     RAGG --> RGEN["REPORT_GENERATOR / HTML + JSON"]
 
-    LEG["Legacy fallback"] --> FULL["full or native peak calling disabled"]
+    LEG["Legacy compatibility"] --> FULL["full and explicit per-stage fallbacks"]
 ```
 
 ## Boundaries
@@ -115,6 +115,11 @@ flowchart TD
   presentation and cannot schedule an upstream producer.
 - Large data remain Nextflow outputs. Lightweight reports and provenance are
   published under `pipeline_info` and optional legacy-compatible target paths.
+- `annotation`, `tracks`, and `report` are standalone manifest-inventory modes;
+  the arrows above describe semantic dependencies, not implicit reruns.
+- `full` deliberately remains the unchanged legacy graph until real-data
+  equivalence is complete. The staged native graph must not be described as
+  scientifically validated by lint or stub success.
 
 The Nextflow executor owns all scheduling. Modules contain no Slurm submission,
 partition, account or host-specific path logic. Profiles select local, Slurm,

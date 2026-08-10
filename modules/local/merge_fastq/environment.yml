@@ -1,4 +1,4 @@
-name: omicsflow-merge-fastq
+name: helixforge-merge-fastq
 channels:
   - conda-forge
 dependencies:

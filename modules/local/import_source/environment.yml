@@ -1,4 +1,4 @@
-name: omicsflow-import-source
+name: helixforge-import-source
 channels:
   - conda-forge
 dependencies:

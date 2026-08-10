@@ -109,6 +109,7 @@ def main():
         with open(args.versions, "w", encoding="utf-8") as handle:
             handle.write(f'"TRACK_AGGREGATE":\n    python: "{sys.version.split()[0]}"\n')
         manifest = {"schema_version": "1.0", "type": "track_aggregate", "tracks": len(rows), "references": references, "artifacts": {"tracks": {"path": "tracks", "available": True}, "track_table": {"path": "tracks.tsv", "sha256": sha256(output / "tracks.tsv")}}, "execution": execution, "status": "complete" if rows else "complete_empty"}
+        manifest["id"] = "chipseq.tracks.aggregate"
         with open(args.manifest, "w", encoding="utf-8") as handle:
             json.dump(manifest, handle, indent=2, sort_keys=True); handle.write("\n")
         with open(output / "manifest.json", "w", encoding="utf-8") as handle:

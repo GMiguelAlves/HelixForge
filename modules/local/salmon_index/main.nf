@@ -83,7 +83,7 @@ process SALMON_INDEX {
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" \
         > '${meta.id}.execution.json'
 
-    printf '{"schema_version":"1.0","type":"transcriptome_index","id":"%s","quantifier":"salmon","artifact":"salmon_index","sha256":"%s","transcriptome_sha256":"%s","parameters":{"kmer_size":%s}}\n' \
+    printf '{"schema_version":"1.0","type":"transcriptome_index","id":"%s","status":"complete","quantifier":"salmon","artifact":"salmon_index","sha256":"%s","transcriptome_sha256":"%s","parameters":{"kmer_size":%s}}\n' \
         '${meta.id}' "\$index_sha" "\$transcriptome_sha" '${kmer_size}' \
         > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' \
@@ -107,7 +107,7 @@ process SALMON_INDEX {
     printf 'artifact\tsha256\ntranscriptome\tstub\nindex\tstub\n' > '${meta.id}.salmon_index_reports/checksums.tsv'
     printf '"SALMON_INDEX":\n    salmon: "stub"\n' > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"SALMON_INDEX","status":"stub"}\n' '${meta.id}' > '${meta.id}.execution.json'
-    printf '{"schema_version":"1.0","type":"transcriptome_index","id":"%s","quantifier":"salmon","sha256":"stub"}\n' '${meta.id}' > '${meta.id}.manifest.json'
+    printf '{"schema_version":"1.0","type":"transcriptome_index","id":"%s","status":"stub","quantifier":"salmon","sha256":"stub"}\n' '${meta.id}' > '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"SALMON_INDEX","status":"stub"}\n' '${meta.id}' > '${meta.id}.salmon_index.done'
     """
 }

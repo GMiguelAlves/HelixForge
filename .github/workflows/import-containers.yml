@@ -22,10 +22,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: omicsflow-import
+          - name: helixforge-import
             context: .
             file: containers/import/Dockerfile
-          - name: omicsflow-import-python
+          - name: helixforge-import-python
             context: .
             file: containers/import-python/Dockerfile
     steps:
