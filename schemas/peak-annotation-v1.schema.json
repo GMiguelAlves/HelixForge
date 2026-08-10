@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/GMiguelAlves/HelixForge/schemas/peak-annotation-v1.schema.json",
+  "title": "HelixForge Peak Annotation manifest v1",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "type", "id", "source_type", "source_id", "record_ids", "sample_ids", "genome_id", "build", "provider", "provider_version", "parameters", "artifacts", "status"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "type": {"const": "peak_annotation"},
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "source_type": {"enum": ["peak_calling", "consensus"]},
+    "source_id": {"type": "string", "minLength": 1},
+    "record_id": {"type": ["string", "null"]},
+    "record_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "sample_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "genome_id": {"type": "string", "minLength": 1},
+    "build": {"type": "string", "minLength": 1},
+    "provider": {"type": "string", "minLength": 1},
+    "provider_version": {"type": "string", "minLength": 1},
+    "parameters": {
+      "type": "object", "additionalProperties": false,
+      "required": ["mode", "overlap_mode", "promoter_upstream", "promoter_downstream", "max_tss_distance", "feature_priority", "gene_assignment", "strand_aware", "intergenic_policy"],
+      "properties": {
+        "mode": {"const": "overlap_priority"},
+        "overlap_mode": {"const": "any"},
+        "promoter_upstream": {"type": "integer", "minimum": 0},
+        "promoter_downstream": {"type": "integer", "minimum": 0},
+        "max_tss_distance": {"type": ["integer", "null"], "minimum": 0},
+        "feature_priority": {"type": "array", "minItems": 5, "maxItems": 5, "uniqueItems": true, "items": {"enum": ["promoter", "exon", "intron", "downstream", "gene"]}},
+        "gene_assignment": {"enum": ["first", "all"]},
+        "strand_aware": {"type": "boolean"},
+        "intergenic_policy": {"enum": ["retain", "drop"]}
+      }
+    },
+    "artifacts": {
+      "type": "object", "required": ["annotated_peaks", "peak_gene_associations"],
+      "properties": {
+        "annotated_peaks": {"$ref": "#/$defs/artifact"},
+        "peak_gene_associations": {"$ref": "#/$defs/artifact"}
+      }
+    },
+    "status": {"enum": ["complete", "complete_empty", "stub"]}
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object", "required": ["available", "path"],
+      "properties": {
+        "available": {"type": "boolean"},
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    }
+  }
+}

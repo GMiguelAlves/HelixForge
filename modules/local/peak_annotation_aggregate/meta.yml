@@ -1,0 +1,16 @@
+name: peak_annotation_aggregate
+description: Aggregate provider outputs and metrics behind one Peak Annotation API interface.
+keywords: [chipseq, peak-annotation, aggregate]
+input:
+  - meta: Global aggregate identity.
+  - annotation_dirs: Provider semantic artifacts.
+  - annotation_manifests: Provider manifests.
+  - statistics_json: Per-set statistics.
+  - statistics_manifests: Statistics manifests.
+output:
+  - artifacts: Combined annotated peaks, associations, statistics, and manifest.
+  - reports: Combined statistics table.
+  - versions: Python version.
+  - execution_metadata: Resource and runtime record.
+  - manifest: Aggregate manifest.
+  - status: Explicit completion record.

@@ -72,6 +72,10 @@ Native foundation (`chipseq_run_mode=qc|alignment`):
 | `DESEQ2_DB_MODEL` | Replaces the monolithic model with one cached `~ condition` or `~ batch + condition` fit |
 | `DESEQ2_DB_CONTRAST` | Replaces inferred/in-loop pairs with one task per named numerator/denominator contrast |
 | `DB_AGGREGATE` | Replaces path-only tables with a semantic manifest for downstream APIs |
+| `PEAK_ANNOTATION_CONTEXT` | Replaces directory globs/filename inference with manifest, checksum, build, coordinate, seqname and parameter validation |
+| `PEAK_ANNOTATOR` | Replaces `annotate_peaks.R` with an explicit provider implementing the same conceptual priority and compatibility defaults |
+| `PEAK_ANNOTATION_STATISTICS` | Separates metrics from provider execution and derives them only from semantic tables |
+| `PEAK_ANNOTATION_AGGREGATE` | Publishes provider-neutral annotated peaks, peak-to-gene associations, statistics and provenance |
 
 The native Alignment provider stops before MAPQ/flag selection. The
 `post_alignment` mode applies those later policies through independent native
@@ -80,6 +84,9 @@ contracts.
 Legacy fallback (`chipseq_run_mode=full`, `chipseq_native_foundation=false`, or
 `chipseq_native_peak_calling=false` for the `peaks`/`peak_qc` peak step, or
 native consensus disabled for `consensus`):
+
+Dedicated `annotation` mode uses this fallback when
+`chipseq_native_peak_annotation=false`; `full` remains unchanged.
 
 | Nextflow alias | Legacy step | Direct legacy script |
 |---|---|---|

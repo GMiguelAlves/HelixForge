@@ -26,6 +26,12 @@ nextflow run . -profile slurm --workflow chipseq --chipseq_run_mode peaks \
 nextflow run . -profile slurm --workflow chipseq --chipseq_run_mode differential_binding \
   --chipseq_consensus_method union --chipseq_db_spec chipseq_db_spec.json \
   -c conf/my_cluster.config
+nextflow run . -profile local --workflow chipseq --chipseq_run_mode annotation \
+  --chipseq_annotation_peaks peaks.bed \
+  --chipseq_annotation_peak_manifest peak_manifest.json \
+  --chipseq_annotation_reference genome.fa \
+  --chipseq_annotation_reference_manifest reference_manifest.json \
+  --chipseq_annotation_gtf annotation.gtf
 ```
 
 `qc` performs metadata validation, raw FastQC and MultiQC. `alignment` adds
@@ -37,6 +43,9 @@ effective genome size. `full` remains the complete legacy fallback. Use
 `differential_binding` advances through Peak QC and Consensus into explicit
 featureCounts/DESeq2 providers and requires a versioned DB specification. Use
 `--chipseq_native_differential_binding false` for the legacy differential step.
+`annotation` consumes an already produced Peak Calling or Consensus manifest
+and never reruns upstream analysis. Set `--chipseq_native_peak_annotation false`
+for the unchanged legacy annotation step.
 
 The existing configuration remains authoritative:
 
