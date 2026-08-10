@@ -1,0 +1,12 @@
+name: report_generator
+description: Render provider-neutral ChIP-seq report data as self-contained HTML and structured JSON.
+keywords: [chipseq, report, html, json]
+input:
+  - meta: Stable project report identity.
+  - aggregate_dir: REPORT_AGGREGATE semantic output.
+  - presentation_base64: Renderer-only versioned presentation options.
+output:
+  - artifacts: HTML, structured JSON, final manifest, provenance, versions, and execution metadata.
+  - reports: Generator execution metadata and log.
+  - versions: Python and provider version.
+  - status: Explicit completion record.

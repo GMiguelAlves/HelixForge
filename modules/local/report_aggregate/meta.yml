@@ -1,0 +1,13 @@
+name: report_aggregate
+description: Convert validated ChIP-seq manifests and declared artifacts into provider-neutral report data.
+keywords: [chipseq, report, aggregate, provenance]
+input:
+  - meta: Stable project report identity.
+  - context: Immutable REPORT_CONTEXT output.
+  - manifests: Explicit upstream semantic manifests.
+  - semantic_artifacts: Optional checksum-declared result files.
+output:
+  - artifacts: Structured report data, tables, provenance, versions, and manifest.
+  - reports: Execution metadata and log.
+  - versions: Python and upstream versions.
+  - status: Explicit completion record.

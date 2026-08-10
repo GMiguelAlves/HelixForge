@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helixforge.dev/schemas/chipseq-report-input-v1.schema.json",
+  "title": "HelixForge ChIP-seq Report Input v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "type", "project", "required_components", "components"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "type": {"const": "chipseq_report_input"},
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["project_id", "dataset", "genome_id", "build"],
+      "properties": {
+        "project_id": {"type": "string", "minLength": 1},
+        "dataset": {"type": "string", "minLength": 1},
+        "genome_id": {"type": "string", "minLength": 1},
+        "build": {"type": "string", "minLength": 1}
+      }
+    },
+    "required_components": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/component"}
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["component", "manifest"],
+        "properties": {
+          "component": {"$ref": "#/$defs/component"},
+          "manifest": {"type": "string", "minLength": 1},
+          "artifacts": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "component": {
+      "enum": ["metadata", "reference", "alignment", "bam", "peak", "peak_qc", "consensus_idr", "differential_binding", "annotation", "tracks", "provenance"]
+    }
+  }
+}

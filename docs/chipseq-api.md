@@ -1,6 +1,6 @@
 # ChIP-seq APIs
 
-ChIP-seq API version: `0.8`
+ChIP-seq API version: `0.9`
 
 These contracts define semantic roles independently from organism, aligner,
 peak caller and legacy directory names. Version 0.1 implemented metadata, raw
@@ -12,6 +12,8 @@ Version 0.6 adds separate differential-binding preflight, peak counting,
 statistical model, contrast and aggregation boundaries.
 Version 0.7 adds manifest-driven Peak Annotation API v1. Version 0.8 adds
 manifest-driven Track Generation API v1.
+Version 0.9 adds terminal Report/Integration API v1 and completes the native
+functional DAG.
 
 ## Common experiment metadata
 
@@ -139,7 +141,7 @@ See `docs/consensus_idr_api.md`.
 
 ## Modes and implementation state
 
-| Mode | Native state in 0.8 |
+| Mode | Native state in 0.9 |
 |---|---|
 | `qc` | metadata validation + raw FastQC + MultiQC |
 | `alignment` | native QC + Bowtie2 index/alignment |
@@ -151,6 +153,7 @@ See `docs/consensus_idr_api.md`.
 | `differential_binding` | native Consensus + featureCounts provider + explicit DESeq2 model/contrasts |
 | `annotation` | external Peak/Consensus manifest + native annotation provider/statistics/aggregate; no upstream rerun |
 | `tracks` | external FINAL_BAM inventory + native deepTools provider/statistics/aggregate; no upstream rerun |
+| `report` | external semantic manifest inventory + native context/aggregate/HTML+JSON provider; no upstream rerun |
 | `full` | legacy fallback |
 
 The fallback remains the complete legacy graph. Native and legacy outputs must
@@ -184,3 +187,12 @@ or unsupported behavior, `TRACK_PROVIDER` dispatches deepTools bamCoverage,
 provider-neutral inventory. All records receive individual tracks; aggregates
 contain explicitly grouped non-controls and perform no treatment/control
 subtraction. See `docs/track_generation_api.md`.
+
+## Report/Integration API v1
+
+`REPORT_CONTEXT` validates an explicit project inventory and upstream semantic
+manifests, including optional and non-available component states.
+`REPORT_AGGREGATE` builds ordered provider-neutral scientific sections, while
+`REPORT_GENERATOR` renders self-contained HTML and structured JSON as a
+renderer-only cache boundary. No module scans producer directories or invokes
+an upstream stage. See `docs/chipseq_report_api.md`.

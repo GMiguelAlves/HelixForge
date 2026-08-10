@@ -312,3 +312,12 @@ Track format, binning, normalization, scale, unit, extension, strand, effective
 genome size, aggregate scope, and provider version are explicit cache inputs.
 Providers must not repeat final-BAM filters. Context, provider execution, track
 statistics, and provider-neutral aggregation are independent boundaries.
+
+Contract 2.4 adds terminal Report/Integration providers. Report inputs are
+explicit manifests and checksum-declared semantic artifacts; module directories,
+globs, filenames, and channel order are forbidden identity sources. Context,
+scientific aggregation, and presentation are separate cache boundaries.
+Optional components retain `not_requested`, `not_implemented`, `failed`, or
+`incomplete` status, and missing scientific values remain null rather than
+zero. Presentation providers must emit structured JSON beside their rendered
+format and must not schedule upstream analyses.

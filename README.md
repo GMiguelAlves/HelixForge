@@ -43,6 +43,10 @@ Track Generation API v1 independently consumes an existing final-BAM inventory
 and reference manifest. It creates explicitly parameterized individual and
 non-control aggregate BigWigs through a reusable provider, statistics, and
 aggregation graph without rerunning upstream stages.
+Report/Integration API v1 closes the native ChIP-seq functional DAG. It joins
+existing semantic manifests, preserves optional and `not_implemented` states,
+and emits self-contained HTML, structured JSON, final manifest, versions,
+execution metadata, and provenance without rerunning upstream stages.
 
 Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy
@@ -90,7 +94,7 @@ nextflow run . -profile test -stub-run --workflow chipseq \
 ```
 
 For a real run, use `--chipseq_run_mode qc`, `alignment`, `post_alignment`,
-`peaks`, `peak_qc`, `consensus`, `annotation`, or `tracks` and provide the
+`peaks`, `peak_qc`, `consensus`, `annotation`, `tracks`, or `report` and provide the
 required existing config or external manifest.
 Native peaks require explicit `--chipseq_peak_type narrow|broad` and a numerical
 `--chipseq_effective_genome_size`. `full` retains the complete legacy fallback;
@@ -119,6 +123,12 @@ Native tracks use `--chipseq_run_mode tracks`,
 `--chipseq_tracks_input_manifest /path/to/tracks_input.json`. Copy
 `assets/chipseq_tracks_input.example.json` as a starting point. Set
 `--chipseq_native_tracks false` for the unchanged legacy tracks fallback.
+
+Native report generation uses `--chipseq_run_mode report`,
+`--chipseq_native_report true`, and
+`--chipseq_report_input_manifest /path/to/chipseq_report_input.json`. Copy
+`assets/chipseq_report_input.example.json` as a starting point. Set
+`--chipseq_native_report false` for the unchanged legacy report fallback.
 
 The default configs remain the versioned `config/pipeline_config.sh` files in
 each legacy pipeline. Create their existing untracked user configuration files
@@ -153,6 +163,8 @@ See [docs/nextflow.md](docs/nextflow.md),
 [docs/native-chipseq-peak-annotation.md](docs/native-chipseq-peak-annotation.md),
 [docs/track_generation_api.md](docs/track_generation_api.md),
 [docs/native-chipseq-tracks.md](docs/native-chipseq-tracks.md),
+[docs/chipseq_report_api.md](docs/chipseq_report_api.md),
+[docs/native-chipseq-report.md](docs/native-chipseq-report.md),
 [docs/chipseq-differential-binding-review.md](docs/chipseq-differential-binding-review.md),
 [docs/module_contracts.md](docs/module_contracts.md),
 [docs/script-mapping.md](docs/script-mapping.md), and

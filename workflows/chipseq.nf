@@ -4,14 +4,21 @@ include { CHIPSEQ_PEAK_ANALYSIS } from '../subworkflows/local/chipseq/peak_analy
 include { CHIPSEQ_NATIVE_FOUNDATION } from '../subworkflows/local/chipseq/native_foundation'
 include { PEAK_ANNOTATION } from '../subworkflows/local/chipseq/peak_annotation'
 include { TRACK_GENERATION } from '../subworkflows/local/chipseq/tracks'
+include { CHIPSEQ_REPORT } from '../subworkflows/local/chipseq/report'
 include { LEGACY_STEP as CHIPSEQ_LEGACY_PEAKS } from '../modules/local/legacy_step/main'
 include { LEGACY_STEP as CHIPSEQ_LEGACY_CONSENSUS } from '../modules/local/legacy_step/main'
 include { LEGACY_STEP as CHIPSEQ_LEGACY_DIFFERENTIAL } from '../modules/local/legacy_step/main'
 include { LEGACY_STEP as CHIPSEQ_LEGACY_ANNOTATION } from '../modules/local/legacy_step/main'
 include { LEGACY_STEP as CHIPSEQ_LEGACY_TRACKS } from '../modules/local/legacy_step/main'
+include { LEGACY_STEP as CHIPSEQ_LEGACY_REPORT } from '../modules/local/legacy_step/main'
 
 
 def resolve_track_inventory_location(inventory_file, value) {
+    def candidate = java.nio.file.Paths.get(value.toString())
+    candidate.isAbsolute() ? value.toString() : "${inventory_file.parent}/${value}"
+}
+
+def resolve_report_inventory_location(inventory_file, value) {
     def candidate = java.nio.file.Paths.get(value.toString())
     candidate.isAbsolute() ? value.toString() : "${inventory_file.parent}/${value}"
 }
@@ -30,8 +37,9 @@ workflow CHIPSEQ {
     native_differential = params.chipseq_native_differential_binding.toString().toBoolean()
     native_annotation = params.chipseq_native_peak_annotation.toString().toBoolean()
     native_tracks = params.chipseq_native_tracks.toString().toBoolean()
-    if (!(run_mode in ['qc', 'alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'annotation', 'tracks', 'full'])) {
-        error "Unknown chipseq_run_mode '${params.chipseq_run_mode}'. Use qc, alignment, post_alignment, peaks, peak_qc, consensus, idr, differential_binding, annotation, tracks, or full."
+    native_report = params.chipseq_native_report.toString().toBoolean()
+    if (!(run_mode in ['qc', 'alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'annotation', 'tracks', 'report', 'full'])) {
+        error "Unknown chipseq_run_mode '${params.chipseq_run_mode}'. Use qc, alignment, post_alignment, peaks, peak_qc, consensus, idr, differential_binding, annotation, tracks, report, or full."
     }
 
     native_mode = params.chipseq_native_foundation && (
@@ -41,7 +49,63 @@ workflow CHIPSEQ {
         (run_mode == 'differential_binding' && native_peak_calling && native_peak_qc && native_consensus && native_differential)
     )
 
-    if (run_mode == 'tracks' && native_tracks) {
+    if (run_mode == 'report' && native_report) {
+        if (params.chipseq_report_input_manifest == null || params.chipseq_report_input_manifest.toString().trim() == '') {
+            error 'Native report mode requires --chipseq_report_input_manifest'
+        }
+        report_inventory_file = file(params.chipseq_report_input_manifest, checkIfExists: true)
+        report_inventory = new groovy.json.JsonSlurper().parse(report_inventory_file.toFile())
+        if (report_inventory.schema_version != '1.0' || report_inventory.type != 'chipseq_report_input') {
+            error 'Report inventory must declare schema_version=1.0 and type=chipseq_report_input'
+        }
+        if (!(report_inventory.project instanceof Map) || !(report_inventory.components instanceof List) || !(report_inventory.required_components instanceof List)) {
+            error 'Report inventory requires project, required_components, and components'
+        }
+        required_project = ['project_id', 'dataset', 'genome_id', 'build']
+        missing_project = required_project.findAll { field -> report_inventory.project[field] == null || report_inventory.project[field].toString().trim() == '' }
+        if (missing_project) {
+            error "Report inventory project is missing: ${missing_project.join(', ')}"
+        }
+        manifest_files = report_inventory.components.collect { entry ->
+            if (!(entry instanceof Map) || !entry.component || !entry.manifest) {
+                error 'Every report component requires component and manifest'
+            }
+            file(resolve_report_inventory_location(report_inventory_file, entry.manifest), checkIfExists: true)
+        }
+        semantic_artifacts = report_inventory.components.collectMany { entry ->
+            def values = entry.artifacts ?: []
+            if (!(values instanceof List)) {
+                error "Report component ${entry.component} artifacts must be a list"
+            }
+            values.collect { value -> file(resolve_report_inventory_location(report_inventory_file, value), checkIfExists: true) }
+        }
+        report_id = "${report_inventory.project.project_id}.chipseq_report".replaceAll(/[^A-Za-z0-9._-]+/, '_')
+        report_meta = [
+            id        : report_id,
+            project_id: report_inventory.project.project_id.toString(),
+            dataset   : report_inventory.project.dataset.toString(),
+            genome_id : report_inventory.project.genome_id.toString(),
+            build     : report_inventory.project.build.toString(),
+        ]
+        presentation = [
+            provider: params.chipseq_report_provider,
+            title   : params.chipseq_report_title,
+            language: params.chipseq_report_language,
+        ]
+        presentation_base64 = groovy.json.JsonOutput.toJson(presentation).getBytes('UTF-8').encodeBase64().toString()
+        report_inputs = channel.value(tuple(report_meta, report_inventory_file, manifest_files, semantic_artifacts, presentation_base64))
+        CHIPSEQ_REPORT(report_inputs)
+        completed_ch = CHIPSEQ_REPORT.out.status
+        logs_ch = CHIPSEQ_REPORT.out.reports
+    } else if (run_mode == 'report') {
+        no_dep = channel.value('none')
+        CHIPSEQ_LEGACY_REPORT(
+            'chipseq', 'report', 'medium', config_file, legacy_root,
+            seed, no_dep, no_dep
+        )
+        completed_ch = CHIPSEQ_LEGACY_REPORT.out.status
+        logs_ch = CHIPSEQ_LEGACY_REPORT.out.log
+    } else if (run_mode == 'tracks' && native_tracks) {
         if (params.chipseq_tracks_input_manifest == null || params.chipseq_tracks_input_manifest.toString().trim() == '') {
             error 'Native tracks mode requires --chipseq_tracks_input_manifest'
         }
