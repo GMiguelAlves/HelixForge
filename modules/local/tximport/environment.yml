@@ -1,4 +1,4 @@
-name: omicsflow-tximport
+name: helixforge-tximport
 channels:
   - conda-forge
   - bioconda

@@ -10,7 +10,7 @@ legacy_root="${case_root}/legacy_root"
 legacy_out="${case_root}/legacy"
 native_out="${case_root}/native"
 nextflow_out="${case_root}/nextflow"
-image=${OMICSFLOW_IMPORT_CONTAINER:-ghcr.io/gmiguelalves/omicsflow-import:1.0.0}
+image=${HELIXFORGE_IMPORT_CONTAINER:-ghcr.io/gmiguelalves/helixforge-import:1.0.0}
 
 case "$case_root" in
     "${project_root}"/results/test/*) ;;

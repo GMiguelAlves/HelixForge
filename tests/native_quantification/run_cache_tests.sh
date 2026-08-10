@@ -9,11 +9,11 @@ image=${SALMON_CONTAINER:-quay.io/biocontainers/salmon@sha256:f83ebb158845ee8138
 case_root="${project_root}/results/test/native-quantification-cache"
 fixture_root="${project_root}/tests/fixtures/native_quantification"
 input_dir="${case_root}/input"
-launch_root=$(mktemp -d /tmp/omicsflow-native-quantification-cache.XXXXXX)
+launch_root=$(mktemp -d /tmp/helixforge-native-quantification-cache.XXXXXX)
 
 cleanup() {
     case "$launch_root" in
-        /tmp/omicsflow-native-quantification-cache.*)
+        /tmp/helixforge-native-quantification-cache.*)
             docker run --rm -v "${launch_root}:/cleanup" "$image" \
                 chmod -R a+rwX /cleanup >/dev/null 2>&1 || true
             rm -rf "$launch_root" || true

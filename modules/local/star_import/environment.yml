@@ -1,4 +1,4 @@
-name: omicsflow-star-import
+name: helixforge-star-import
 channels:
   - conda-forge
 dependencies:

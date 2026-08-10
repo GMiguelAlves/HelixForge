@@ -1,5 +1,5 @@
 name: star_index
-description: Build a STAR genome index through the OmicsFlow Reference Index API.
+description: Build a STAR genome index through the HelixForge Reference Index API.
 keywords:
   - alignment
   - reference
@@ -24,4 +24,4 @@ output:
   - manifest: {type: file, pattern: '*.manifest.json'}
   - status: {type: file, pattern: '*.star_index.done'}
 authors:
-  - OmicsFlow contributors
+  - HelixForge contributors

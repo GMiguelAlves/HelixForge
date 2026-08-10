@@ -1,4 +1,4 @@
-name: omicsflow-deseq2
+name: helixforge-deseq2
 channels:
   - conda-forge
   - bioconda

@@ -1,5 +1,5 @@
 name: tximport
-description: Salmon implementation of the OmicsFlow Import API
+description: Salmon implementation of the HelixForge Import API
 keywords: [salmon, tximport, counts, tpm, summarizedexperiment]
 tools:
   - tximport:

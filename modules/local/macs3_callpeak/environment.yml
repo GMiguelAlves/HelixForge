@@ -1,4 +1,4 @@
-name: omicsflow-macs3-callpeak
+name: helixforge-macs3-callpeak
 channels:
   - conda-forge
   - bioconda
