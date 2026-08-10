@@ -1,0 +1,20 @@
+name: featurecounts_peak
+description: Count a semantic ChIP-seq peak universe against explicitly mapped final BAMs.
+keywords: [chipseq, differential-binding, featurecounts, peaks]
+tools:
+  - featurecounts: {description: Read and fragment summarization from Subread}
+  - python: {description: Contract validation and semantic matrix conversion}
+input:
+  - meta: Differential-binding analysis identity.
+  - peak_bed: Validated BED4 comparison universe.
+  - bams: Explicit final BAM artifacts.
+  - bais: Matching final BAM indexes.
+  - bam_manifests: Final-BAM identity and processing provenance.
+  - count_spec: Validated provider/sample/counting specification.
+output:
+  - artifacts: Raw peak count matrix and provider summary.
+  - reports: SAF annotation, command and provider-native reports.
+  - versions: Subread/featureCounts and Python versions.
+  - execution_metadata: Resources, runtime, command and checksums.
+  - manifest: Semantic raw-count manifest.
+  - status: Completion marker.

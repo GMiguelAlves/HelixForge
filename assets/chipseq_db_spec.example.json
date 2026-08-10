@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "provider": "deseq2",
+  "test": "wald",
+  "peak_universe": {
+    "method": "union"
+  },
+  "counting": {
+    "provider": "featurecounts",
+    "unit": "fragments",
+    "strandedness": 0,
+    "min_mapq": 0,
+    "overlap_policy": "any",
+    "allow_multi_overlap": false,
+    "allow_multimapping": false,
+    "fractional": false,
+    "require_both_ends_mapped": true,
+    "exclude_chimeric": true
+  },
+  "design": {
+    "formula": "~ condition",
+    "variable": "condition",
+    "covariates": []
+  },
+  "contrasts": [
+    {
+      "id": "treated_vs_control",
+      "factor": "condition",
+      "numerator": "treated",
+      "denominator": "control",
+      "description": "Treated versus control"
+    }
+  ],
+  "filter": {
+    "method": "minimum_count",
+    "min_count": 10,
+    "min_samples": 2
+  },
+  "normalization": "deseq2_median_of_ratios",
+  "parameters": {
+    "alpha": 0.05,
+    "lfc_threshold": 1.0,
+    "min_replicates": 2
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/GMiguelAlves/HelixForge/schemas/differential-binding-v1.schema.json",
+  "title": "HelixForge Differential Binding specification v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "provider", "test", "peak_universe", "counting", "design", "contrasts", "filter", "normalization", "parameters"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "provider": {"const": "deseq2"},
+    "test": {"const": "wald"},
+    "peak_universe": {
+      "type": "object", "additionalProperties": false, "required": ["method"],
+      "properties": {"method": {"const": "union"}}
+    },
+    "counting": {
+      "type": "object", "additionalProperties": false,
+      "required": ["provider", "unit", "strandedness", "min_mapq", "overlap_policy", "allow_multi_overlap", "allow_multimapping", "fractional"],
+      "properties": {
+        "provider": {"const": "featurecounts"},
+        "unit": {"enum": ["reads", "fragments"]},
+        "strandedness": {"type": "integer", "enum": [0, 1, 2]},
+        "min_mapq": {"type": "integer", "minimum": 0},
+        "overlap_policy": {"const": "any"},
+        "allow_multi_overlap": {"const": false},
+        "allow_multimapping": {"const": false},
+        "fractional": {"const": false},
+        "require_both_ends_mapped": {"type": "boolean"},
+        "exclude_chimeric": {"type": "boolean"}
+      }
+    },
+    "design": {
+      "type": "object", "additionalProperties": false, "required": ["formula", "variable", "covariates"],
+      "properties": {
+        "formula": {"enum": ["~ condition", "~ batch + condition"]},
+        "variable": {"const": "condition"},
+        "covariates": {"type": "array", "items": {"const": "batch"}, "maxItems": 1, "uniqueItems": true}
+      }
+    },
+    "contrasts": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "factor", "numerator", "denominator"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+          "factor": {"const": "condition"},
+          "numerator": {"type": "string", "minLength": 1},
+          "denominator": {"type": "string", "minLength": 1},
+          "description": {"type": "string"}
+        }
+      }
+    },
+    "filter": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false, "required": ["method"], "properties": {"method": {"const": "none"}}},
+        {"type": "object", "additionalProperties": false, "required": ["method", "min_count", "min_samples"], "properties": {"method": {"const": "minimum_count"}, "min_count": {"type": "integer", "minimum": 0}, "min_samples": {"type": "integer", "minimum": 1}}}
+      ]
+    },
+    "normalization": {"const": "deseq2_median_of_ratios"},
+    "parameters": {
+      "type": "object", "additionalProperties": false, "required": ["alpha", "lfc_threshold", "min_replicates"],
+      "properties": {
+        "alpha": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "lfc_threshold": {"type": "number", "minimum": 0},
+        "min_replicates": {"type": "integer", "minimum": 2}
+      }
+    }
+  }
+}

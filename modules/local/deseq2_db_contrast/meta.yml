@@ -1,0 +1,21 @@
+name: deseq2_db_contrast
+description: Evaluate one explicit ChIP-seq differential-binding contrast from a fitted DESeq2 model.
+keywords: [chipseq, differential-binding, deseq2, contrast]
+tools:
+  - deseq2: {description: Wald contrast evaluation}
+  - r: {description: Statistical runtime}
+input:
+  - meta: Contrast identity and direction.
+  - model_dir: Fitted DESeq2 Differential Binding model.
+  - model_spec: Validated design specification.
+  - contrast_spec: One explicit numerator/denominator contrast.
+  - peak_bed: Stable peak genomic coordinates.
+output:
+  - artifacts: Complete contrast result directory.
+  - results: Semantic differential-binding result table.
+  - ma_data: Machine-readable MA plot data.
+  - reports: Contrast log and statistics.
+  - versions: R, Bioconductor and DESeq2 versions.
+  - execution_metadata: Runtime resources and hashes.
+  - manifest: Semantic contrast manifest.
+  - status: Completion marker.

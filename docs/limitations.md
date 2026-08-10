@@ -6,8 +6,8 @@
 - ChIP raw QC, Bowtie2 alignment, BAM selection, duplicate policy, blacklist
   exclusion, final BAM QC, per-replicate MACS3 peak calling, Peak QC and
   interval consensus fan out natively. IDR has a validated provider boundary
-  only; annotation, tracks and differential binding still use compatibility
-  wrappers or remain future work.
+  only. Differential Binding has native architecture and stub validation;
+  annotation and tracks still use compatibility wrappers.
 - The generic compatibility process uses resource classes rather than exact
   per-tool requirements.
 - Container and native Conda profiles remain placeholders for legacy tools.
@@ -57,5 +57,13 @@
   compared with the legacy union in this local stage. IDR is intentionally
   `not_implemented`: the manifest records unavailable peaks and no placeholder
   interval file is emitted.
+- Differential Binding has not run real featureCounts or DESeq2 in this stage.
+  The Subread and DESeq2 Conda environments are pinned, but featureCounts OCI/
+  Apptainer parameters intentionally remain null until final validation. No real
+  normalization, Wald statistic, p-value, legacy regression, biological
+  comparison or benchmark is claimed.
+- The v1 comparison universe is an explicit union of compatible condition-level
+  Consensus BEDs. This is not IDR and may not be optimal for every experiment;
+  final validation must compare it with curated and IDR-derived universes.
 - Existing `.done` files remain active inside legacy pipelines. Nextflow status
   markers are an additional orchestration layer.

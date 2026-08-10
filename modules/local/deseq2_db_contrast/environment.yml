@@ -1,0 +1,9 @@
+name: helixforge-deseq2-db
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base=4.3.3
+  - bioconductor-biocversion=3.18.1
+  - bioconductor-deseq2=1.42.0
+  - r-jsonlite=1.8.8

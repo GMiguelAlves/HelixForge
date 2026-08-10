@@ -1,0 +1,21 @@
+name: deseq2_db_model
+description: Fit one explicit DESeq2 Wald model to a raw ChIP-seq peak count matrix.
+keywords: [chipseq, differential-binding, deseq2, model]
+tools:
+  - deseq2: {description: Negative-binomial count model}
+  - r: {description: Statistical runtime}
+input:
+  - meta: Model identity.
+  - counts_dir: Raw peak counts and counting evidence.
+  - count_spec: Counting/sample provenance.
+  - sample_table: Explicit biological-replicate metadata.
+  - model_spec: Design, filter and normalization specification.
+  - peak_bed: Peak coordinates.
+  - count_manifest: Raw count manifest.
+output:
+  - artifacts: Serialized model, normalized counts, dispersions and coefficients.
+  - reports: Model log and filter/sample statistics.
+  - versions: R, Bioconductor and DESeq2 versions.
+  - execution_metadata: Runtime resources and hashes.
+  - manifest: Semantic model manifest.
+  - status: Completion marker.
