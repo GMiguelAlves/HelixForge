@@ -35,6 +35,9 @@ nextflow run . -profile local --workflow chipseq --chipseq_run_mode annotation \
 nextflow run . -profile local --workflow chipseq --chipseq_run_mode tracks \
   --chipseq_native_tracks true \
   --chipseq_tracks_input_manifest tracks_input.json
+nextflow run . -profile local --workflow chipseq --chipseq_run_mode report \
+  --chipseq_native_report true \
+  --chipseq_report_input_manifest chipseq_report_input.json
 ```
 
 `qc` performs metadata validation, raw FastQC and MultiQC. `alignment` adds
@@ -52,6 +55,9 @@ for the unchanged legacy annotation step.
 `tracks` consumes an external final-BAM/reference inventory, creates individual
 and optional non-control aggregate BigWigs, and never reruns upstream stages.
 Set `--chipseq_native_tracks false` for the unchanged legacy tracks step.
+`report` consumes a versioned inventory of existing semantic manifests and
+does not rerun upstream stages. Set `--chipseq_native_report false` for the
+unchanged legacy report step.
 
 The existing configuration remains authoritative:
 

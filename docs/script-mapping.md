@@ -80,6 +80,9 @@ Native foundation (`chipseq_run_mode=qc|alignment`):
 | `TRACK_PROVIDER` / `DEEPTOOLS_BAMCOVERAGE` | Replaces native execution in `tracks.sh`; creates one BigWig per record and explicitly declared non-control aggregate groups without adding filters |
 | `TRACK_STATISTICS` | Derives provider-neutral BigWig/source metrics as a separate cache boundary |
 | `TRACK_AGGREGATE` | Joins provider and statistics artifacts by stable track ID and publishes `tracks.tsv` plus the Track Generation manifest |
+| `REPORT_CONTEXT` | Replaces numbered-directory/glob discovery with explicit manifest roles, stable IDs, compatibility checks, and component status |
+| `REPORT_AGGREGATE` | Replaces ad hoc parsing inside `render_report.R` with presentation-neutral scientific sections and checksum-declared inputs |
+| `REPORT_GENERATOR` / `html_v1` | Replaces native presentation in `report.sh`/`render_report.R` with self-contained HTML, structured JSON, final manifest, versions, execution metadata, and provenance |
 
 The native Alignment provider stops before MAPQ/flag selection. The
 `post_alignment` mode applies those later policies through independent native
@@ -93,6 +96,9 @@ Dedicated `annotation` mode uses this fallback when
 `chipseq_native_peak_annotation=false`; `full` remains unchanged.
 Dedicated `tracks` mode uses this fallback when `chipseq_native_tracks=false`;
 native tracks consume an external final-BAM inventory and do not rerun upstream
+stages.
+Dedicated `report` mode uses this fallback when `chipseq_native_report=false`;
+native report mode consumes existing manifests only and never reruns upstream
 stages.
 
 | Nextflow alias | Legacy step | Direct legacy script |
