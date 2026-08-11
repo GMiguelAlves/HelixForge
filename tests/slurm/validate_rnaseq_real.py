@@ -51,16 +51,20 @@ def main() -> None:
 
     expected_samples, expected = read_matrix(args.case_root / "expected_counts.tsv")
     observed_samples, observed = read_matrix(pipeline / "050-quantification/counts_matrix.tsv")
-    if observed_samples != expected_samples:
-        raise AssertionError(f"sample order changed: {observed_samples} != {expected_samples}")
+    observed_sample_ids = [sample.split("__", 1)[-1] for sample in observed_samples]
+    if observed_sample_ids != expected_samples:
+        raise AssertionError(
+            f"sample order changed: {observed_sample_ids} != {expected_samples} "
+            f"(matrix columns: {observed_samples})"
+        )
 
     sample_metrics = {}
-    for sample in expected_samples:
+    for sample, observed_sample in zip(expected_samples, observed_samples):
         genes = sorted(expected[sample])
-        if set(genes) != set(observed[sample]):
+        if set(genes) != set(observed[observed_sample]):
             raise AssertionError(f"gene set changed for {sample}")
         expected_values = [expected[sample][gene] for gene in genes]
-        observed_values = [observed[sample][gene] for gene in genes]
+        observed_values = [observed[observed_sample][gene] for gene in genes]
         pearson = correlation(expected_values, observed_values)
         expected_total = sum(expected_values)
         observed_total = sum(observed_values)
@@ -92,6 +96,7 @@ def main() -> None:
     report = {
         "status": "pass",
         "samples": expected_samples,
+        "matrix_columns": observed_samples,
         "genes": len(next(iter(expected.values()))),
         "sample_metrics": sample_metrics,
         "deseq2_results": [str(path.relative_to(args.case_root)) for path in deg_results],
