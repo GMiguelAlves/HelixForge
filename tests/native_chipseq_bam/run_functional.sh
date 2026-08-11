@@ -2,21 +2,34 @@
 set -euo pipefail
 
 nextflow_bin=${NEXTFLOW_BIN:-nextflow}
+nextflow_jar=${NEXTFLOW_JAR:-}
 root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 fixture="$root/tests/fixtures/native_chipseq_bam"
 result="$root/tests/results/native_chipseq_bam/functional"
 input="$result/input"
 
+run_nextflow() {
+    if [[ -n "$nextflow_jar" ]]; then
+        java -jar "$nextflow_jar" "$@"
+    else
+        "$nextflow_bin" "$@"
+    fi
+}
+
 command -v samtools >/dev/null 2>&1 || {
     echo "SKIP: samtools is not available" >&2
     exit 77
 }
+case "$result" in
+    "$root"/tests/results/native_chipseq_bam/functional) rm -rf "$result" ;;
+    *) echo "Refusing to clean unexpected result path: $result" >&2; exit 2 ;;
+esac
 mkdir -p "$input"
 samtools view -b "$fixture/reads.sam" | samtools sort -o "$input/reads.bam" -
 samtools index "$input/reads.bam"
 
 run_pipeline() {
-    "$nextflow_bin" run "$root/tests/native_chipseq_bam/main.nf" \
+    run_nextflow run "$root/tests/native_chipseq_bam/main.nf" \
         -c "$root/tests/native_chipseq_bam/nextflow.config" \
         -ansi-log false "$@" \
         --bam "$input/reads.bam" \
