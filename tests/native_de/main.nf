@@ -6,7 +6,12 @@ workflow {
     repository = file("${projectDir}/../..")
     fixture = file("${repository}/tests/fixtures/native_de")
     request = channel.of(tuple(
-        [id: 'golden.de', provider: 'deseq2', analysis_id: 'golden', target_dir: "${repository}/tests/results/native_de/legacy_layout"],
+        [
+            id         : 'golden.de',
+            provider   : 'deseq2',
+            analysis_id: 'golden',
+            target_dir : params.de_target_dir ?: "${repository}/tests/results/native_de/legacy_layout"
+        ],
         file("${fixture}/import_manifest.json", checkIfExists: true),
         file("${fixture}/counts_matrix.tsv", checkIfExists: true),
         file("${fixture}/quant_samples.tsv", checkIfExists: true),
