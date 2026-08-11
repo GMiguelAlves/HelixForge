@@ -30,6 +30,7 @@ process TRACK_CONTEXT {
     def baiArgs = bais.collect { value -> "--bai '${value}'" }.join(' ')
     def manifestArgs = bam_manifests.collect { value -> "--bam-manifest '${value}'" }.join(' ')
     """
+    set -o pipefail
     validate_track_context.py \
         --meta-base64 '${groovy.json.JsonOutput.toJson(meta).getBytes('UTF-8').encodeBase64().toString()}' \
         ${bamArgs} \
