@@ -61,10 +61,11 @@ Salmon users must declare `--rnaseq_library_protocol full_length` with
 `--rnaseq_counts_from_abundance no`. Original full-length counts are rejected
 by the current matrix-based provider until offset-aware tximport input exists.
 
-HelixForge currently certifies **Nextflow 25.10.7** as its production runtime.
-The temporary exact pin protects `-resume` while a cache-persistence regression
-observed with Nextflow 26.04.x on the institutional Slurm environment is
-investigated.
+HelixForge currently pins **Nextflow 25.10.7** as the runtime certified for
+complete scientific execution. The exact pin holds the runtime stable while a
+task-cache persistence failure observed on the institutional Slurm environment
+is investigated. Top-level `-resume` and selective invalidation are not yet
+certified.
 
 ## Workflows
 

@@ -23,9 +23,11 @@
   or the affected task cache should be invalidated.
 - Alignment and Quantification cache/invalidation previously passed in
   isolated tests with Nextflow 26.04.2, but 26.04.4/26.04.6 did not resume a
-  minimal Slurm probe. HelixForge is temporarily pinned to certified Nextflow
-  25.10.7, which resumed the same probe on both Java 21 and Java 23. The full
-  production invalidation matrix remains the release gate.
+  minimal Slurm probe. HelixForge is temporarily pinned to Nextflow 25.10.7,
+  which resumed the same probe on both Java 21 and Java 23 and completed the
+  full RNA path. Its identical full-DAG resume nevertheless left the LevelDB
+  task store empty and resubmitted jobs. Selective invalidation remains a
+  release gate and was not inferred after that prerequisite failed.
 - The deterministic QC mock validates orchestration and byte-preserving merge
   behavior. STAR and Salmon have separate real-tool Docker regressions; a real-tool QC
   golden dataset still needs to run on Linux/HPC with FastQC 0.12.1, Trim
