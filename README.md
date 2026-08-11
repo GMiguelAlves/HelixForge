@@ -173,5 +173,7 @@ See [docs/nextflow.md](docs/nextflow.md),
 [docs/module_contracts.md](docs/module_contracts.md),
 [docs/script-mapping.md](docs/script-mapping.md),
 [docs/architecture-consolidation-audit.md](docs/architecture-consolidation-audit.md),
-[docs/final-validation-plan.md](docs/final-validation-plan.md), and
+[docs/final-validation-plan.md](docs/final-validation-plan.md),
+[docs/final-validation-report.md](docs/final-validation-report.md),
+[docs/scientific-deviation-log.md](docs/scientific-deviation-log.md), and
 [docs/limitations.md](docs/limitations.md).
