@@ -44,16 +44,16 @@ Nextflow version before it is interpreted as a pipeline cache defect.
 | Salmon Import | Yes, container and Slurm Conda runtime | Yes | CONDITIONAL | Workflow-level normalization/count policy still requires a release decision |
 | STAR Import | Yes | Yes | CONDITIONAL | Native provider ran on host; current Python production image was unavailable |
 | DESeq2 | Yes on Slurm Conda runtime | Yes | CONDITIONAL | Scientific regression passes; production image remains unbuilt |
-| ChIP BAM processing | Yes | Expected metrics validated | CONDITIONAL | Scientific behavior passed; cache reuse failed in this environment |
-| Bowtie2 index | Yes, 2.5.4 | No | CONDITIONAL | Index completed |
-| Bowtie2 alignment | No | No | BLOCKED | Configured image lacks `samtools`, which the module invokes |
-| MACS3 | Yes, 3.0.4, two replicates | No | CONDITIONAL | Real peaks passed; Python adapter container and cache remain unresolved |
-| FRiP | Stub only | No | BLOCKED | No real SAMtools/BEDTools environment was assembled |
-| Consensus | Stub only | No | BLOCKED | No real provider container configured |
-| Differential binding | Stub only | No | BLOCKED | featureCounts container is unset and DESeq2 is not certified |
-| Annotation | Contract/static evidence | No | BLOCKED | No controlled real run in this pass |
-| Tracks | Stub only | No | BLOCKED | deepTools container is unset |
-| Report | Stub/contract evidence | No visual regression | CONDITIONAL | Depends on blocked upstream components |
+| ChIP BAM processing | Yes, including Slurm | Expected metrics validated | CONDITIONAL | Reduced fixture passed; cache reuse remains unresolved |
+| Bowtie2 index | Yes on Slurm, cluster 2.5.5 | Yes, same cluster runtime | CONDITIONAL | Direct compiled binary bypassed a broken Conda Perl wrapper |
+| Bowtie2 alignment | Yes on Slurm, cluster 2.5.5 | Yes, same cluster runtime | CONDITIONAL | BAM records, flagstat and idxstats passed; pinned 2.5.4 image remains uncertified |
+| MACS3 | Yes, 3.0.4, including Slurm | No full legacy pair | CONDITIONAL | Two replicates and matched control passed |
+| FRiP | Yes on Slurm | Semantic invariants | CONDITIONAL | Two real BAM/peak pairs passed; no full legacy regression |
+| Consensus | Yes, union on Slurm | Semantic invariants | CONDITIONAL | Two-replicate union passed; IDR is still not implemented |
+| Differential binding | Yes on Slurm | Semantic invariants | CONDITIONAL | featureCounts, DESeq2, two contrasts and aggregate passed in the available runtime |
+| Annotation | Yes on Slurm | Semantic invariants | CONDITIONAL | Coordinates, configured promoter window and aggregate passed |
+| Tracks | Yes on Slurm | Semantic invariants | CONDITIONAL | Three individual and one aggregate BigWig passed |
+| Report | Yes on Slurm | Contract and content checks | CONDITIONAL | HTML passed and correctly discloses IDR as incomplete |
 | Integrative | Manifest contract only | Legacy implementation retained | CONDITIONAL | No new analytic implementation was in scope |
 
 `READY_TO_RETIRE` applies to the named component, not to the complete RNA-seq
@@ -183,11 +183,23 @@ also exercised. BED validation now accepts CRLF without changing coordinates.
 
 ### Bowtie2
 
-The real Bowtie2 index completed. Alignment then failed at the first
-`samtools` pipe because `quay.io/biocontainers/bowtie2:2.5.4--he20e202_1` does
-not contain samtools. The module contract requires both Bowtie2 and samtools,
-matching its Conda environment. A declarative composite image is required; the
-existing image must not be patched in place.
+The configured Docker image remains unsuitable because it contains Bowtie2 but
+not samtools. On Slurm, the existing `chipseq` Conda environment supplied both.
+Its Perl dispatch wrapper was broken because the absolute environment prefix
+contains `@`; Perl interpreted the path while loading `Config_heavy.pl`.
+
+One isolated compatibility directory under the validation root exposed the
+unchanged compiled `bowtie2-align-s` and `bowtie2-build-s` binaries. The same
+compatibility path was used by the reference command and the native API. The
+index and alignment passed on compute nodes: BAM records were semantically
+identical, and flagstat/idxstats were byte-identical. The runtime reports
+Bowtie2 2.5.5, so this is strong orchestration evidence but not certification
+of the pinned 2.5.4 production image.
+
+The run also found a test-workflow integration defect: the STAR-only
+`--outTmpDir` default was forwarded to Bowtie2. Provider-specific
+`bowtie2_extra_args` now defaults independently. No scientific parameter was
+changed.
 
 ### MACS3
 
@@ -200,6 +212,45 @@ The Python slim adapter image lacks `ps`, which Nextflow requires to collect
 task metrics. For this isolated scientific test only, adapters ran on the WSL
 host while MACS3 remained containerized. The production Docker profile needs a
 small adapter image containing `procps` or an equivalent supported solution.
+
+The same two-replicate fixture then passed on Slurm with MACS3 3.0.4. Five
+native tasks validated context, two independent peak calls and their aggregate
+outputs. Peak files were non-empty, used the ten-column narrowPeak format, and
+retained matched-control identity.
+
+### ChIP-seq downstream APIs
+
+The Slurm pass connected real reduced artifacts rather than independent stubs:
+
+- BAM processing ran eight native tasks. Selection reduced 12 reads to 8,
+  duplicate removal detected 2, fragment blacklist filtering removed 2 reads,
+  and final counts were 4 with blacklist and 8 without it.
+- FRiP and peak statistics ran for both MACS3 replicates. Each FRiP was in
+  `(0, 1]`, and the two-record aggregate passed.
+- Consensus union consumed those same peak and FRiP manifests. One group with
+  two biological replicates emitted a non-empty consolidated BED. A staging
+  collision between homonymous `manifest.json` files was fixed with unique
+  staging directories.
+- Differential binding used 30 reduced peaks and four biological samples.
+  featureCounts, the DESeq2 model, both reciprocal contrasts and the aggregate
+  passed. The original two-peak fixture was correctly rejected by DESeq2 as
+  statistically degenerate; the provider algorithm was not weakened. A real
+  `args.models`/`args.model` typo in the aggregate was fixed.
+- Peak annotation completed context, provider, statistics and aggregate. With
+  the configured 2 kb/500 bp promoter window on the 100 bp fixture, all three
+  peaks correctly associated with `gene1` as promoters.
+- Track generation completed four contexts, four providers, four statistics
+  tasks and one aggregate. Three individual and one aggregate BigWig were
+  non-empty and opened with `pyBigWig` with exact `chrTest:2000` metadata.
+- Report context, aggregation and HTML generation passed. The self-contained
+  report contains Differential Binding, Annotation and Tracks sections. Its
+  manifest deliberately reports `incomplete` because IDR is declared
+  `not_implemented`; this is expected fail-honest behavior.
+
+The annotation/track/report pass exposed missing executable bits on packaged
+resource scripts. Directly invoked resource executables now carry Git mode
+`100755`; stages that pipe validators through `tee` also use `pipefail`, so
+permission or provider errors cannot be masked.
 
 ## Cache and invalidation
 
@@ -230,9 +281,10 @@ this pass.
 - Docker: real execution validated for Trim Galore, FastQC, STAR, Salmon,
   current Salmon Import, Bowtie2 indexing, and MACS3.
 - Slurm: real submission validated. Preflight job 12083 ran on a compute node;
-  Trim Galore, Salmon, Import, and DESeq2 native tasks completed under the
-  Nextflow Slurm executor. No scientific command ran directly on the head node
-  and no nested submission was found in native modules.
+  RNA-seq plus Bowtie2, BAM processing, MACS3, FRiP, consensus, Differential
+  Binding, annotation, tracks, and report tasks completed under the Nextflow
+  Slurm executor. No scientific command ran directly on the head node and no
+  nested submission was found in native modules.
 - Apptainer/Singularity: not tested because no runtime is installed.
 - Local WSL Conda profile: not tested because no runtime is installed there.
 - Conda on Slurm: existing environments were used without installation.
@@ -242,7 +294,7 @@ this pass.
 
 ## Lint and static validation
 
-Nextflow 26.04.6 linted 87 files without errors. One existing warning remains:
+Nextflow 26.04.6 linted 127 files without errors. One existing warning remains:
 `LEGACY_STEP` accesses `projectDir` inside a process. This warning belongs to
 the compatibility wrapper and does not affect native scientific processes.
 
@@ -267,6 +319,11 @@ Slurm task elapsed times are scheduler measurements rounded to seconds:
 | Salmon | 11,000 | 1,000 summed tasks |
 | Salmon Import | 15,000 | 20,000 summed tasks |
 | DESeq2 | 17,000 | 48,000 summed tasks |
+| Bowtie2 | 1,000 | 2,000 summed tasks |
+
+Additional ChIP-seq native task sums on Slurm were: BAM processing 1,000 ms,
+MACS3 4,000 ms, Peak QC 2,000 ms, consensus union 1,000 ms, Differential
+Binding 32,000 ms, annotation 1,000 ms, tracks 14,000 ms, and report 1,000 ms.
 
 The cluster allocates a minimum of two CPUs even when one CPU is requested, so
 these fixtures are correctness evidence rather than efficiency claims.
@@ -287,11 +344,12 @@ Import is close but needs an explicit decision on workflow-level identifier and
 `countsFromAbundance` policy. Global retirement is blocked by:
 
 1. the unbuilt DESeq2 production image, despite a passing conditional Slurm regression;
-2. the Bowtie2 image missing samtools;
+2. the Bowtie2 production image missing samtools, despite the passing conditional Slurm regression;
 3. the missing real MultiQC run;
-4. missing real FRiP, consensus, differential-binding, annotation, and track runs;
+4. IDR remaining explicitly not implemented;
 5. unresolved cache reuse on the target filesystem;
-6. STAR 2.7.11b crashing during index generation in the available cluster runtime.
+6. STAR 2.7.11b crashing during index generation in the available cluster runtime;
+7. no production-scale, top-level ChIP-seq regression against a reviewed biological dataset.
 
 The detailed decisions and deviations are tracked in
 `docs/scientific-deviation-log.md`.
@@ -302,7 +360,8 @@ The detailed decisions and deviations are tracked in
 2. Publish one declarative Bowtie2 2.5.4 + samtools 1.20 image and rerun alignment.
 3. Make the metadata adapter image Nextflow-compatible by adding `procps`.
 4. Obtain the pinned MultiQC image and run the complete native QC entrypoint.
-5. Execute FRiP and consensus with the existing two-replicate MACS3 fixture.
-6. Run featureCounts/DESeq2 differential binding only after item 1.
+5. Implement and validate IDR, or explicitly exclude it from the first release.
+6. Repeat Differential Binding with the declarative DESeq2 image after item 1.
 7. Run a bounded `-dump-hashes` cache diagnostic on Slurm before any large dataset.
 8. Validate STAR with the pinned production image/runtime rather than the crashing cluster package.
+9. Run the top-level ChIP-seq workflow on one reviewed reduced biological dataset before reconsidering legacy removal.
