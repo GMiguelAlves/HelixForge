@@ -35,10 +35,22 @@ load_annotations <- function(path, genes) {
   gff <- rtracklayer::import(path)
   gene_rows <- gff[gff$type == "gene"]
   if (length(gene_rows) == 0) return(fallback)
-  gene_id <- gsub("\\.[0-9]+$", "", gsub("^gene:", "", as.character(gene_rows$ID)))
-  gene_name <- as.character(gene_rows$Name)
+  attributes <- S4Vectors::mcols(gene_rows)
+  attribute_or <- function(name, default) {
+    if (name %in% colnames(attributes)) as.character(attributes[[name]]) else rep(default, length(gene_rows))
+  }
+  gene_id <- attribute_or("ID", "")
+  fallback_id <- attribute_or("gene_id", "")
+  gene_id[is.na(gene_id) | gene_id == ""] <- fallback_id[is.na(gene_id) | gene_id == ""]
+  gene_id <- gsub("\\.[0-9]+$", "", gsub("^gene:", "", gene_id))
+  valid <- !is.na(gene_id) & gene_id != ""
+  if (!any(valid)) return(fallback)
+  gene_id <- gene_id[valid]
+  gene_name <- attribute_or("Name", "")[valid]
   gene_name[is.na(gene_name) | gene_name == ""] <- gene_id[is.na(gene_name) | gene_name == ""]
-  biotype <- as.character(gene_rows$biotype)
+  biotype <- attribute_or("biotype", "")[valid]
+  fallback_biotype <- attribute_or("gene_biotype", "")[valid]
+  biotype[is.na(biotype) | biotype == ""] <- fallback_biotype[is.na(biotype) | biotype == ""]
   biotype[is.na(biotype) | biotype == ""] <- "Unknown"
   out <- data.frame(gene_id = gene_id, gene_name = gene_name, biotype = biotype, stringsAsFactors = FALSE)
   out[!duplicated(out$gene_id), , drop = FALSE]
