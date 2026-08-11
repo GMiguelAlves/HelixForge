@@ -24,6 +24,12 @@ workflow RNASEQ_QC {
         ? params.rnaseq_native_trim_galore \
         : params.rnaseq_native_trim_galore.toString().toBoolean()
     native_qc_enabled = requested_native_qc && native_trim_enabled
+    trim_quality_override = params.rnaseq_trim_quality == null \
+        ? '' \
+        : params.rnaseq_trim_quality.toString()
+    trim_length_override = params.rnaseq_trim_length == null \
+        ? '' \
+        : params.rnaseq_trim_length.toString()
 
     RNASEQ_DOWNLOAD_STEP(
         'rnaseq', 'download', 'medium', config_file, legacy_root,
@@ -40,7 +46,9 @@ workflow RNASEQ_QC {
             file("${projectDir}/bin/annotate_qc_plan.py", checkIfExists: true),
             legacy_root,
             RNASEQ_DOWNLOAD_STEP.out.status,
-            RNASEQ_METADATA_STEP.out.status
+            RNASEQ_METADATA_STEP.out.status,
+            trim_quality_override,
+            trim_length_override
         )
 
         qc_rows = RNASEQ_QC_PLAN.out.plans
@@ -216,7 +224,9 @@ workflow RNASEQ_QC {
             file("${projectDir}/bin/annotate_qc_plan.py", checkIfExists: true),
             legacy_root,
             RNASEQ_QC_STEP.out.status,
-            RNASEQ_METADATA_STEP.out.status
+            RNASEQ_METADATA_STEP.out.status,
+            trim_quality_override,
+            trim_length_override
         )
 
         qc_status = RNASEQ_QC_STEP.out.status
