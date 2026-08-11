@@ -29,6 +29,7 @@ process REPORT_AGGREGATE {
     def manifestArgs = manifests.collect { value -> "--manifest '${value}'" }.join(' ')
     def artifactArgs = semantic_artifacts.collect { value -> "--artifact '${value}'" }.join(' ')
     """
+    set -o pipefail
     report_aggregate.py \
         --context '${context}' \
         ${manifestArgs} \

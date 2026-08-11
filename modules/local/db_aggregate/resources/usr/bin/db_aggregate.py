@@ -59,7 +59,7 @@ def main():
         analyses[analysis_id] = {"analysis_id": analysis_id, "count_manifest": document,
                                  "raw_counts": {"path": str(target.relative_to(output) / "raw_peak_counts.tsv"), "sha256": sha256(target / "raw_peak_counts.tsv")}}
 
-    for directory in args.models:
+    for directory in args.model:
         model_spec = load_json(directory / "model_spec.json")
         analysis_id = model_spec["analysis_id"]
         if analysis_id not in analyses or "model" in analyses[analysis_id]:

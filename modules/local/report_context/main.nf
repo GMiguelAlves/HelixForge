@@ -28,6 +28,7 @@ process REPORT_CONTEXT {
     script:
     def manifestArgs = manifests.collect { value -> "--manifest '${value}'" }.join(' ')
     """
+    set -o pipefail
     validate_report_context.py \
         --inventory '${inventory}' \
         ${manifestArgs} \

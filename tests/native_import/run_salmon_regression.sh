@@ -4,6 +4,7 @@ set -euo pipefail
 
 project_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 nextflow_bin=${NEXTFLOW_BIN:-nextflow}
+nextflow_jar=${NEXTFLOW_JAR:-}
 fixture_root="${project_root}/tests/fixtures/native_import"
 case_root="${project_root}/results/test/native-import-salmon-regression"
 legacy_root="${case_root}/legacy_root"
@@ -11,6 +12,14 @@ legacy_out="${case_root}/legacy"
 native_out="${case_root}/native"
 nextflow_out="${case_root}/nextflow"
 image=${HELIXFORGE_IMPORT_CONTAINER:-ghcr.io/gmiguelalves/helixforge-import:1.0.0}
+
+run_nextflow() {
+    if [[ -n "$nextflow_jar" ]]; then
+        java -jar "$nextflow_jar" "$@"
+    else
+        "$nextflow_bin" "$@"
+    fi
+}
 
 case "$case_root" in
     "${project_root}"/results/test/*) ;;
@@ -36,7 +45,7 @@ docker run --rm \
 end_legacy=$(date +%s%N)
 
 start_native=$(date +%s%N)
-"$nextflow_bin" run "${project_root}/tests/native_import/main.nf" \
+run_nextflow run "${project_root}/tests/native_import/main.nf" \
     -c "${project_root}/tests/native_import/nextflow.config" \
     -profile docker -ansi-log false \
     --provider salmon \

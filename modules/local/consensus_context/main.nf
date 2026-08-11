@@ -17,7 +17,7 @@ process CONSENSUS_CONTEXT {
         mode: 'copy', overwrite: true, pattern: '*.{json,yml,done,log}'
 
     input:
-    tuple val(meta), path(peak_dirs), path(peak_manifests), path(qc_manifests), val(records_base64), val(spec_base64)
+    tuple val(meta), path(peak_dirs), path(peak_manifests, stageAs: 'peak_manifests??/*'), path(qc_manifests, stageAs: 'qc_manifests??/*'), val(records_base64), val(spec_base64)
 
     output:
     tuple val(meta), path("${meta.id}.consensus_request.json"), emit: artifacts

@@ -80,7 +80,8 @@ process TRIM_GALORE {
 
     printf '"%s":\n    trim_galore: %s\n    cutadapt: %s\n' \
         '${task.process}' \
-        "\$(trim_galore --version 2>&1 | awk 'NF { print \$NF; exit }')" \
+        "\$(trim_galore --version 2>&1 \
+            | awk 'tolower(\$1) == "version" { print \$2; exit }')" \
         "\$(cutadapt --version 2>&1 | awk 'NF { print \$NF; exit }')" \
         > '${meta.id}.versions.yml'
 
