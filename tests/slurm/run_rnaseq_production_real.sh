@@ -72,16 +72,20 @@ if [[ "$mode" == "validate-job" ]]; then
     exit 0
 fi
 
-if [[ "$mode" != "driver" ]]; then
-    echo "mode must be driver, preflight-job, fixture-job, or validate-job" >&2
+if [[ "$mode" != "driver" && "$mode" != "resume-driver" ]]; then
+    echo "mode must be driver, resume-driver, preflight-job, fixture-job, or validate-job" >&2
     exit 2
 fi
-if [[ -e "$case_root" ]]; then
-    echo "Refusing to overwrite an existing validation case: $case_root" >&2
-    exit 2
+if [[ "$mode" == "driver" ]]; then
+    if [[ -e "$case_root" ]]; then
+        echo "Refusing to overwrite an existing validation case: $case_root" >&2
+        exit 2
+    fi
+    mkdir -p "$case_root/logs" "$case_root/traces"
+else
+    test -d "$case_root/logs"
+    test -s "$case_root/traces/baseline.tsv"
 fi
-
-mkdir -p "$case_root/logs" "$case_root/traces"
 
 submit_helper() {
     local job_name=$1
@@ -142,10 +146,11 @@ run_pipeline() {
     cp "$case_root/results/pipeline_info/execution_trace.tsv" "$case_root/traces/${scenario}.tsv"
 }
 
-submit_helper hf-rna-preflight preflight-job
-submit_helper hf-rna-fixture fixture-job baseline
-
-run_pipeline baseline false true
+if [[ "$mode" == "driver" ]]; then
+    submit_helper hf-rna-preflight preflight-job
+    submit_helper hf-rna-fixture fixture-job baseline
+    run_pipeline baseline false true
+fi
 submit_helper hf-rna-validate validate-job baseline
 
 run_pipeline identical true true
