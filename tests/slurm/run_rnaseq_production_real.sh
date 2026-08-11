@@ -29,9 +29,16 @@ test -s "$nextflow_jar"
 if [[ "$mode" == "preflight-job" ]]; then
     test -n "${SLURM_JOB_ID:-}"
     export PATH="$runtime_path"
+    missing=0
     for command_name in java salmon fastqc trim_galore cutadapt multiqc Rscript python3; do
-        command -v "$command_name" >/dev/null
+        if command_path=$(command -v "$command_name"); then
+            printf '[OK] %s=%s\n' "$command_name" "$command_path"
+        else
+            printf '[MISSING] %s\n' "$command_name" >&2
+            missing=1
+        fi
     done
+    [[ "$missing" -eq 0 ]] || exit 3
     salmon --version
     fastqc --version
     trim_galore --version
