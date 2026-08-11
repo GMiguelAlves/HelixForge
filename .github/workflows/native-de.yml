@@ -19,6 +19,8 @@ jobs:
           java-version: '21'
       - name: Install Nextflow
         run: curl -fsSL https://get.nextflow.io | bash
+      - name: Run Python unit tests
+        run: python3 tests/run_unit_tests.py
       - name: Validate contracts
         run: |
           tests/native_de/run_invalid_inputs.sh
