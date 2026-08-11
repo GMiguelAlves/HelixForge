@@ -36,11 +36,11 @@ contracts only; it does **not** constitute scientific validation.
 
 - Build and publish the renamed `helixforge-*` OCI images.
 - Rebuild the DESeq2 image from one declarative, solver-consistent environment.
-  The current Dockerfile copies Micromamba 1.5.8 into a pinned Biocontainers
-  image and mutates its existing `/usr/local` environment; this has failed in
-  CI while reconciling the pinned R/Bioconductor stack. Do not treat the
-  current image as validated until that mixed-environment construction is
-  replaced and the exact DESeq2/rtracklayer package set passes regression.
+  The previous Dockerfile copied Micromamba into a pinned Biocontainers image
+  and mutated its existing `/usr/local` environment. The controlled validation
+  pass replaced it with a single environment specification, but the resulting
+  image is not validated until CI builds it and the exact DESeq2/rtracklayer
+  package set passes regression.
 - Record and verify image digests for Docker and Apptainer.
 - Validate pinned Conda environments against the same tool versions.
 - Execute reduced workflows on the production Slurm profile and verify CPU,
