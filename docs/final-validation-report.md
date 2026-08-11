@@ -369,7 +369,9 @@ GitHub Actions run `31520434883` both reported `Discovered 62 tests`, `Ran 62
 tests`, and `OK`. The clean DESeq2 1.0.1 build plus regression/cache workflow
 passed in run `31526144851`. The current branch revision was then revalidated
 successfully by contracts, unit tests, and the published image regression in
-run `31532483855`.
+run `31532483855`. After the runtime pin, manual branch run `31537899176`
+confirmed Nextflow 25.10.7 installation, 62 unit tests, contract/lint checks and
+the published DESeq2 image regression.
 
 ## Preliminary benchmark
 
