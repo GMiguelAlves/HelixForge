@@ -20,6 +20,7 @@ conda_root=$(cd "$(dirname "$conda_bin")/.." && pwd)
 runtime_path="${conda_root}/envs/${r_env}/bin:${conda_root}/envs/${rna_env}/bin:${conda_root}/envs/${python_env}/bin:/usr/bin:/bin"
 nextflow_jar="${HELIXFORGE_NEXTFLOW_JAR:-${validation_root}/nextflow.jar}"
 work_root="${validation_root}/work/${case_name}"
+cache_root="${HELIXFORGE_NXF_CACHE_DIR:-${repo_root}/.validation-cache/${case_name}}"
 
 case "$validation_root" in
     /scratch/Schisto-epigenetics/gustavo/helixforge-validation-*) ;;
@@ -90,6 +91,7 @@ else
     test -s "$case_root/pipeline_config.sh"
     test -s "$case_root/analysis_spec.json"
 fi
+mkdir -p "$cache_root"
 
 submit_helper() {
     local job_name=$1
@@ -124,6 +126,7 @@ run_pipeline() {
     cd "$repo_root"
     env PATH="$runtime_path" \
         NXF_HOME="${repo_root}/.nextflow-home" \
+        NXF_CACHE_DIR="$cache_root" \
         "${conda_root}/envs/${rna_env}/bin/java" \
         -Xms128m -Xmx1g \
         -jar "$nextflow_jar" \
