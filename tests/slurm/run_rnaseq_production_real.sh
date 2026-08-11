@@ -10,7 +10,11 @@ r_env=${5:-r-analysis}
 queue=${6:-general}
 mode=${7:-driver}
 case_name=${8:-rnaseq-production-real}
-repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+if [[ -n "${SLURM_JOB_ID:-}" ]]; then
+    repo_root=${HELIXFORGE_REPO_ROOT:-$PWD}
+else
+    repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+fi
 case_root="${validation_root}/results/${case_name}"
 conda_root=$(cd "$(dirname "$conda_bin")/.." && pwd)
 runtime_path="${conda_root}/envs/${r_env}/bin:${conda_root}/envs/${rna_env}/bin:${conda_root}/envs/${python_env}/bin:/usr/bin:/bin"
@@ -91,6 +95,7 @@ submit_helper() {
         --cpus-per-task=1
         --mem=2G
         --time=00:10:00
+        --chdir="$repo_root"
         --output="$case_root/logs/${job_name}-%j.out"
         "$0" "$validation_root" "$conda_bin" "$rna_env" "$python_env" "$r_env" "$queue" "$helper_mode" "$case_name"
     )
