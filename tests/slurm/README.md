@@ -1,8 +1,9 @@
 # Controlled Slurm validation
 
 These harnesses are intentionally small and conservative. They target an
-isolated validation directory, submit at most one task at a time, and refuse
-unexpected scratch paths.
+isolated validation directory and refuse unexpected scratch paths. Individual
+stage harnesses submit one task at a time; the top-level RNA production
+validation permits at most five concurrent tasks.
 
 - `run_trim_stub.sh` verifies Nextflow-to-Slurm submission without running the
   scientific command.
@@ -34,6 +35,23 @@ unexpected scratch paths.
   native Import API and validates the emitted `SummarizedExperiment`.
 - `run_deseq2_real.sh` compares the legacy DESeq2 script with the native
   model/contrast/aggregation API using the golden reduced dataset.
+- `run_rnaseq_production_real.sh` validates the official top-level
+  QC -> Salmon -> Import -> DESeq2 path, then attempts identical and selective
+  invalidation scenarios. `resume-driver` continues a completed baseline
+  without overwriting its evidence.
+- `cache_probe.nf` and `cache-probe.config` provide a one-process diagnostic
+  for task-cache persistence independently of the scientific DAG.
+
+The 2026-08-11 runtime matrix for that probe found:
+
+- Nextflow 25.10.7 resumed from cache with Java 21 and Java 23;
+- Nextflow 26.04.6 submitted the identical task again with Java 21 and Java 23;
+- earlier 26.04.4/26.04.6 probes also failed with Java 25 and with both syntax
+  parsers.
+
+This makes Nextflow 25.10.7 the candidate runtime for the next full production
+resume/invalidation pass. It does not by itself certify selective invalidation
+for the top-level RNA workflow.
 
 The scripts do not install software or remove data. Cluster paths, the Conda
 executable, environment, and Slurm partition are explicit arguments.

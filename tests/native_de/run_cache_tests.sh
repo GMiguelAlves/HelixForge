@@ -2,8 +2,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-IMAGE="${DESEQ2_TEST_IMAGE:-helixforge-deseq2:test}"
-ADAPTER_IMAGE="${DE_ADAPTER_TEST_IMAGE:-python:3.11.9-slim-bookworm}"
+IMAGE="${DESEQ2_TEST_IMAGE:-ghcr.io/gmiguelalves/helixforge-deseq2:1.0.1}"
+ADAPTER_IMAGE="${DE_ADAPTER_TEST_IMAGE:-ghcr.io/gmiguelalves/helixforge-import-python:1.0.0}"
 NXF_BIN="${NEXTFLOW:-nextflow}"
 NXF_JAR="${NEXTFLOW_JAR:-}"
 
@@ -22,6 +22,7 @@ cd "$ROOT"
 SPEC="$(mktemp --suffix=.json)"
 cp tests/fixtures/native_de/analysis_spec.json "$SPEC"
 COMMON=(run tests/native_de/main.nf -profile docker,test -ansi-log false -resume
+  -process.containerOptions="--user $(id -u):$(id -g)"
   --deseq2_container "$IMAGE" --de_adapter_container "$ADAPTER_IMAGE"
   --de_analysis_spec "$SPEC" --outdir tests/results/native_de/cache
   -work-dir work/tests/native-de-cache)

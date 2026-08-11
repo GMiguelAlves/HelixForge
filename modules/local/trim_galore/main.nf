@@ -33,43 +33,31 @@ process TRIM_GALORE {
     """
     mkdir -p '${meta.id}.trim_galore_reports'
 
-    if [[ -s '${meta.trimmed_r1}' && -s '${meta.trimmed_r2}' ]]; then
-        echo '[SKIP] Trimmed run ja existe: ${meta.run_accession}' \
-            | tee '${meta.id}.trim_galore.log'
-        cp '${meta.trimmed_r1}' '${meta.trimmed_r1_name}'
-        cp '${meta.trimmed_r2}' '${meta.trimmed_r2_name}'
-        for report in '${report_r1}' '${report_r2}'; do
-            if [[ -s '${meta.trimmed_dir}'/"\$report" ]]; then
-                cp '${meta.trimmed_dir}'/"\$report" "\$report"
-            fi
-        done
-    else
-        trim_galore --paired \
-            --quality '${meta.trim_quality}' \
-            --length '${meta.trim_length}' \
-            --cores ${task.cpus} \
-            --output_dir . \
-            '${raw_r1}' '${raw_r2}' \
-            2>&1 | tee '${meta.id}.trim_galore.log'
+    trim_galore --paired \
+        --quality '${meta.trim_quality}' \
+        --length '${meta.trim_length}' \
+        --cores ${task.cpus} \
+        --output_dir . \
+        '${raw_r1}' '${raw_r2}' \
+        2>&1 | tee '${meta.id}.trim_galore.log'
 
-        [[ -s '${generated_r1}' && -s '${generated_r2}' ]]
-        mv '${generated_r1}' '${meta.trimmed_r1_name}'
-        mv '${generated_r2}' '${meta.trimmed_r2_name}'
+    [[ -s '${generated_r1}' && -s '${generated_r2}' ]]
+    mv '${generated_r1}' '${meta.trimmed_r1_name}'
+    mv '${generated_r2}' '${meta.trimmed_r2_name}'
 
-        mkdir -p '${meta.trimmed_dir}'
-        cp '${meta.trimmed_r1_name}' '${meta.trimmed_r1}.nextflow.tmp'
-        cp '${meta.trimmed_r2_name}' '${meta.trimmed_r2}.nextflow.tmp'
-        mv '${meta.trimmed_r1}.nextflow.tmp' '${meta.trimmed_r1}'
-        mv '${meta.trimmed_r2}.nextflow.tmp' '${meta.trimmed_r2}'
+    mkdir -p '${meta.trimmed_dir}'
+    cp '${meta.trimmed_r1_name}' '${meta.trimmed_r1}.nextflow.tmp'
+    cp '${meta.trimmed_r2_name}' '${meta.trimmed_r2}.nextflow.tmp'
+    mv '${meta.trimmed_r1}.nextflow.tmp' '${meta.trimmed_r1}'
+    mv '${meta.trimmed_r2}.nextflow.tmp' '${meta.trimmed_r2}'
 
-        for report in '${report_r1}' '${report_r2}'; do
-            if [[ -s "\$report" ]]; then
-                cp "\$report" "${meta.trimmed_dir}/\${report}.nextflow.tmp"
-                mv "${meta.trimmed_dir}/\${report}.nextflow.tmp" \
-                    "${meta.trimmed_dir}/\${report}"
-            fi
-        done
-    fi
+    for report in '${report_r1}' '${report_r2}'; do
+        if [[ -s "\$report" ]]; then
+            cp "\$report" "${meta.trimmed_dir}/\${report}.nextflow.tmp"
+            mv "${meta.trimmed_dir}/\${report}.nextflow.tmp" \
+                "${meta.trimmed_dir}/\${report}"
+        fi
+    done
 
     cp '${meta.id}.trim_galore.log' '${meta.id}.trim_galore_reports/'
     for report in '${report_r1}' '${report_r2}'; do

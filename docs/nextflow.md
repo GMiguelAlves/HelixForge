@@ -128,9 +128,9 @@ also selects the legacy QC path. Partial native QC is intentionally unsupported.
 
 ## Native RNA-seq alignment
 
-The generic Alignment API and STAR provider are enabled by default when the
-legacy configuration selects `QUANT_METHOD=star`. An unselected provider may be
-disabled in `config` mode:
+The generic Alignment API remains available, but STAR is optional and
+experimental. It runs only when explicitly requested through `alignment`,
+`both`, or the legacy-compatible `config` mode with `QUANT_METHOD=star`:
 
 ```bash
 nextflow run . -profile local --workflow rnaseq \
@@ -144,7 +144,7 @@ from `pipeline_config.sh`. See
 
 ## Native RNA-seq quantification
 
-The Quantification API and Salmon provider are enabled by default. A provider
+The Quantification API and Salmon provider are the default production path. A provider
 selected by Import API must remain native because the legacy path does not emit
 the required manifest. An unselected provider may still be disabled in
 `config` mode for compatibility.
@@ -152,7 +152,10 @@ the required manifest. An unselected provider may still be disabled in
 Choose which independent analytical layers run after QC:
 
 ```bash
-# Preserve QUANT_METHOD behavior (default)
+# Official production path (default)
+nextflow run . --workflow rnaseq --rnaseq_analysis_mode quantification
+
+# Preserve legacy QUANT_METHOD behavior explicitly
 nextflow run . --workflow rnaseq --rnaseq_analysis_mode config
 
 # STAR only as an explicit stage stop
@@ -165,7 +168,9 @@ nextflow run . --workflow rnaseq --rnaseq_run_mode quantification
 nextflow run . --workflow rnaseq --rnaseq_analysis_mode both
 ```
 
-Forced modes require their native provider flags to remain enabled. A provider
+Forced modes require their native provider flags to remain enabled. STAR is
+architecturally supported but is not part of the currently certified RNA-seq
+production path. A provider
 required by `QUANT_METHOD` cannot be disabled when Import or DE is requested,
 because no legacy provider manifest fallback exists. Salmon
 version, index/quantification parameters, paths, and output names remain

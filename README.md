@@ -12,8 +12,9 @@ The RNA-seq QC layer is native: FastQC before trimming, Trim Galore, FastQC
 after trimming, per-sample FASTQ merge, merged-read FastQC, and MultiQC are
 separate DSL2 processes. Download and metadata preparation remain wrappers,
 STAR alignment is native behind a generic Alignment API, and Salmon implements
-an independent generic Quantification API. A native Import API converts Salmon
-or STAR artifacts into provider-neutral matrices. A Differential Expression
+the production RNA-seq Quantification API. Salmon is the default path; STAR is
+an optional, experimental provider that must be selected explicitly. A native
+Import API converts Salmon or STAR artifacts into provider-neutral matrices. A Differential Expression
 API validates explicit designs and runs DESeq2 Wald models and contrasts
 natively. Final reports remain compatibility wrappers; legacy batch correction
 is reachable only through the legacy DE fallback. Existing filenames and result
@@ -76,6 +77,10 @@ nextflow run . -profile local --workflow rnaseq \
   --rnaseq_counts_from_abundance lengthScaledTPM \
   --rnaseq_de_spec /path/to/rnaseq_de_spec.json
 ```
+
+This command follows the official path `QC -> Salmon -> Import/tximport ->
+DESeq2`. Use `--rnaseq_analysis_mode config`, `alignment`, or `both` only when
+explicitly testing the optional STAR provider.
 
 Inspect the complete graph without running scientific tools:
 

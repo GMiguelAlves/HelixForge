@@ -2,8 +2,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-IMAGE="${DESEQ2_TEST_IMAGE:-helixforge-deseq2:test}"
-ADAPTER_IMAGE="${DE_ADAPTER_TEST_IMAGE:-python:3.11.9-slim-bookworm}"
+IMAGE="${DESEQ2_TEST_IMAGE:-ghcr.io/gmiguelalves/helixforge-deseq2:1.0.1}"
+ADAPTER_IMAGE="${DE_ADAPTER_TEST_IMAGE:-ghcr.io/gmiguelalves/helixforge-import-python:1.0.0}"
 NXF_BIN="${NEXTFLOW:-nextflow}"
 NXF_JAR="${NEXTFLOW_JAR:-}"
 
@@ -21,7 +21,9 @@ if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
 fi
 cd "$ROOT"
 mkdir -p tests/results/native_de/legacy tests/results/native_de/native
-docker run --rm -v "$ROOT:/workspace" -w /workspace "$IMAGE" \
+docker run --rm \
+  --user "$(id -u):$(id -g)" \
+  -v "$ROOT:/workspace" -w /workspace "$IMAGE" \
   Rscript pipelines/rnaseq/legacy/scripts/060-deg-analysis/deseq2_analysis.R \
   --counts tests/fixtures/native_de/counts_matrix.tsv \
   --samples tests/fixtures/native_de/quant_samples.tsv \
@@ -29,6 +31,7 @@ docker run --rm -v "$ROOT:/workspace" -w /workspace "$IMAGE" \
   --output-dir tests/results/native_de/legacy \
   --analysis-id golden --test-variables condition --design-covariates batch
 run_nextflow run tests/native_de/main.nf -profile docker,test -ansi-log false \
+  -process.containerOptions="--user $(id -u):$(id -g)" \
   --deseq2_container "$IMAGE" --de_adapter_container "$ADAPTER_IMAGE" \
   --outdir tests/results/native_de/native -work-dir work/tests/native-de-regression
 python3 tests/native_de/compare_results.py \
