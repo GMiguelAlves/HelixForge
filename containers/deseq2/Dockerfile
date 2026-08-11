@@ -1,5 +1,11 @@
 FROM mambaorg/micromamba:1.5.8
 
+USER root
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends procps \
+    && rm -rf /var/lib/apt/lists/*
+USER $MAMBA_USER
+
 COPY --chown=$MAMBA_USER:$MAMBA_USER \
     modules/local/deseq2_model/environment.yml /tmp/environment.yml
 RUN micromamba install --yes --name base --file /tmp/environment.yml \
