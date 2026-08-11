@@ -51,7 +51,7 @@ workflow {
                 aligner == 'star' ? [
                     read_files_command: 'zcat',
                     extra_args        : params.extra_args
-                ] : [index_basename: 'genome', extra_args: params.extra_args]
+                ] : [index_basename: 'genome', extra_args: params.bowtie2_extra_args ?: '']
             )
         }
         ALIGNMENT(alignment_inputs)
