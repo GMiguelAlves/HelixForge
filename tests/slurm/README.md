@@ -49,9 +49,13 @@ The 2026-08-11 runtime matrix for that probe found:
 - earlier 26.04.4/26.04.6 probes also failed with Java 25 and with both syntax
   parsers.
 
-This makes Nextflow 25.10.7 the candidate runtime for the next full production
-resume/invalidation pass. It does not by itself certify selective invalidation
-for the top-level RNA workflow.
+The subsequent full RNA baseline completed with Nextflow 25.10.7, but its
+identical resume resubmitted tasks even with an explicit persistent
+`NXF_CACHE_DIR`. The same session UUID was retained while the LevelDB task
+store remained empty. The driver stopped before the FASTQ, transcriptome,
+contrast, QC-parameter and module-script mutations because unchanged resume is
+a prerequisite for interpreting them. `recovery-driver` can continue an
+interrupted baseline, and the task cache is isolated per validation case.
 
 The scripts do not install software or remove data. Cluster paths, the Conda
 executable, environment, and Slurm partition are explicit arguments.

@@ -288,8 +288,8 @@ top-level diagnostics showed:
 
 Cache and invalidation are therefore **BLOCKED**, not silently accepted.
 
-The production Slurm pass reproduced the miss for both isolated probes and the
-complete RNA workflow. A one-process probe demonstrated that:
+The initial production Slurm pass reproduced the miss for the complete RNA
+workflow. A one-process probe then demonstrated that:
 
 - the same session UUID and logical cache hash were reused;
 - every hash entry reported by `-dump-hashes json` was identical;
@@ -311,25 +311,35 @@ The controlled version/JVM matrix was:
 | 26.04.6 | Conda OpenJDK 23.0.2 | FAIL | Task submitted again |
 | 26.04.4/26.04.6 | Conda OpenJDK 25.0.2 | FAIL | Prior focused probes |
 
-This isolates the failure to the Nextflow 26.04.x runtime behavior in this
-environment rather than to Java 23/25 or the scientific workflow. It is strong
-regression evidence, although an upstream report still needs a packaged
-reproducer and maintainer confirmation. The official
+This proves that 26.04.x regressed even the one-task case in this environment
+and excludes Java 23/25 as the sole cause. It did not yet prove that 25.10.7
+would persist a larger workflow cache. The official
 [Caching and resuming](https://docs.seqera.io/nextflow/cache-and-resume)
 documentation states that completed tasks are automatically persisted and
 that a resumed task requires both its task-cache entry and preserved workdir
 outputs. The 25.10.7 probe demonstrated both conditions; 26.04.x preserved the
 workdir but failed to persist the matching task entry.
 
-Therefore an identical resume and the FASTQ/transcriptome/parameter
-invalidation matrix remain **BLOCKED for the current Nextflow 26.04.x
-production runtime**. They were not reported as passing. A small isolated JRE
-21 and Nextflow 25.10.7 launcher were used only for this probe; no system or
-Conda environment was modified. The reduced probe and its configuration are
-retained under `tests/slurm/` for administrator or upstream reproduction. The
-next operational validation should pin Nextflow 25.10.7, rerun the top-level
-RNA `-resume` matrix, and keep 26.04.x out of production until the regression
-is resolved.
+The full RNA workflow was subsequently rerun with Nextflow 25.10.7, Java 23,
+an explicit persistent `NXF_CACHE_DIR` on `/home`, and the existing workdir on
+`/scratch`. The baseline completed through QC, Salmon, Import and DESeq2 and
+passed the scientific validator. Its identical resume kept session UUID
+`3170ba4a-cc0e-4f7c-bfa1-3fb1080ce718`, but began submitting scientific tasks
+again. The dedicated LevelDB contained run indexes but no task records: its
+log remained zero bytes and no SST task table was created. The repeated run
+was stopped as soon as re-submissions were established, with no more than five
+jobs active concurrently.
+
+Therefore 25.10.7 is certified here for complete scientific execution and is
+temporarily pinned to hold the runtime stable, but **top-level cache and
+selective invalidation remain BLOCKED-RUNTIME**. The FASTQ, transcriptome,
+contrast, QC-parameter and module-script scenarios were deliberately not run
+after the unchanged prerequisite failed. The 26.04.x behavior is still a
+regression relative to the one-task probe, while the full-DAG result indicates
+an additional task-cache persistence interaction involving workflow scale,
+configuration or the shared environment. No system or Conda environment was
+modified. The retained probe and driver are ready for administrator or
+upstream reproduction.
 
 ## Execution environments
 

@@ -1,9 +1,10 @@
 # Running with Nextflow
 
-The certified runtime is Nextflow `25.10.7`, enforced by the project manifest.
-This is a temporary exact pin while the demonstrated 26.04.x task-cache
-regression is investigated. Java 21 and Java 23 both resumed correctly with
-25.10.7 in the controlled Slurm probe.
+The runtime certified for complete scientific execution is Nextflow `25.10.7`,
+enforced by the project manifest. This is a temporary exact pin while the
+demonstrated task-cache persistence failure is investigated. Java 21 and Java
+23 both resumed a one-task probe with 25.10.7, but the identical top-level RNA
+workflow did not persist task records; production `-resume` is not certified.
 
 ## Available workflows
 
