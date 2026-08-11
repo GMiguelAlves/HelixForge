@@ -31,25 +31,19 @@ process MULTIQC {
     def input_args = inputs.collect { artifact -> "'${artifact}'" }.join(' ')
     def target_dir = meta.target_dir ?: ''
     """
-    if [[ -n '${target_dir}' && -s '${target_dir}/${meta.report_name}' && -d '${target_dir}/${report_data_dir}' ]]; then
-        echo '[SKIP] MultiQC ja existe: ${meta.id}' | tee '${meta.id}.multiqc.log'
-        cp '${target_dir}/${meta.report_name}' '${meta.report_name}'
-        cp -a '${target_dir}/${report_data_dir}' '${report_data_dir}'
-    else
-        multiqc ${input_args} \
-            -o . \
-            -n '${meta.report_name}' \
-            2>&1 | tee '${meta.id}.multiqc.log'
+    multiqc ${input_args} \
+        -o . \
+        -n '${meta.report_name}' \
+        2>&1 | tee '${meta.id}.multiqc.log'
 
-        [[ -s '${meta.report_name}' && -d '${report_data_dir}' ]]
+    [[ -s '${meta.report_name}' && -d '${report_data_dir}' ]]
 
-        if [[ -n '${target_dir}' ]]; then
-            mkdir -p '${target_dir}'
-            cp '${meta.report_name}' '${target_dir}/${meta.report_name}.nextflow.tmp'
-            cp -a '${report_data_dir}' '${target_dir}/${report_data_dir}.nextflow.tmp'
-            mv '${target_dir}/${meta.report_name}.nextflow.tmp' '${target_dir}/${meta.report_name}'
-            mv '${target_dir}/${report_data_dir}.nextflow.tmp' '${target_dir}/${report_data_dir}'
-        fi
+    if [[ -n '${target_dir}' ]]; then
+        mkdir -p '${target_dir}'
+        cp '${meta.report_name}' '${target_dir}/${meta.report_name}.nextflow.tmp'
+        cp -a '${report_data_dir}' '${target_dir}/${report_data_dir}.nextflow.tmp'
+        mv '${target_dir}/${meta.report_name}.nextflow.tmp' '${target_dir}/${meta.report_name}'
+        mv '${target_dir}/${report_data_dir}.nextflow.tmp' '${target_dir}/${report_data_dir}'
     fi
 
     printf '"%s":\n    multiqc: %s\n' \
