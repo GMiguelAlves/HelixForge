@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 IMAGE="${DESEQ2_TEST_IMAGE:-helixforge-deseq2:test}"
-ADAPTER_IMAGE="${DE_ADAPTER_TEST_IMAGE:-python:3.11.9-slim-bookworm}"
+ADAPTER_IMAGE="${DE_ADAPTER_TEST_IMAGE:-ghcr.io/gmiguelalves/helixforge-import-python:1.0.0}"
 NXF_BIN="${NEXTFLOW:-nextflow}"
 NXF_JAR="${NEXTFLOW_JAR:-}"
 
