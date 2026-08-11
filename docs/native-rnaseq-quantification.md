@@ -55,6 +55,7 @@ flowchart TD
     TX --> DEG["DESeq2 wrapper"]
 ```
 
+`--rnaseq_analysis_mode quantification` is the production default.
 `--rnaseq_analysis_mode both` fans the same QC outputs into STAR and Salmon.
 The two provider APIs have no edge between them. Import waits only for the method in
 `QUANT_METHOD`, allowing the other provider to continue independently.
