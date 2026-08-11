@@ -22,6 +22,7 @@ cd "$ROOT"
 SPEC="$(mktemp --suffix=.json)"
 cp tests/fixtures/native_de/analysis_spec.json "$SPEC"
 COMMON=(run tests/native_de/main.nf -profile docker,test -ansi-log false -resume
+  -process.containerOptions="--user $(id -u):$(id -g)"
   --deseq2_container "$IMAGE" --de_adapter_container "$ADAPTER_IMAGE"
   --de_analysis_spec "$SPEC" --outdir tests/results/native_de/cache
   -work-dir work/tests/native-de-cache)

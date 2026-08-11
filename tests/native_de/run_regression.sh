@@ -31,6 +31,7 @@ docker run --rm \
   --output-dir tests/results/native_de/legacy \
   --analysis-id golden --test-variables condition --design-covariates batch
 run_nextflow run tests/native_de/main.nf -profile docker,test -ansi-log false \
+  -process.containerOptions="--user $(id -u):$(id -g)" \
   --deseq2_container "$IMAGE" --de_adapter_container "$ADAPTER_IMAGE" \
   --outdir tests/results/native_de/native -work-dir work/tests/native-de-regression
 python3 tests/native_de/compare_results.py \
