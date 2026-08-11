@@ -51,9 +51,10 @@ flowchart TD
     TX --> DEG["DESeq2 wrapper"]
 ```
 
-In the default `config` mode, STAR runs when `QUANT_METHOD=star`. Explicit
-`alignment` and `both` modes also enable STAR. The `both` mode runs STAR and
-Salmon independently from the same merged FASTQs.
+STAR is an optional, experimental provider. It runs in explicit `alignment` or
+`both` modes, or in the legacy-compatible `config` mode when
+`QUANT_METHOD=star`. The production default is Salmon quantification. The
+`both` mode runs STAR and Salmon independently from the same merged FASTQs.
 
 ## Modules and outputs
 

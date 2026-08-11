@@ -31,25 +31,19 @@ process FASTQC {
     def zip_name = "${prefix}_fastqc.zip"
     def target_dir = meta.target_dir ?: ''
     """
-    if [[ -n '${target_dir}' && -s '${target_dir}/${html_name}' && -s '${target_dir}/${zip_name}' ]]; then
-        echo '[SKIP] FastQC ja existe: ${meta.id}' | tee '${meta.id}.fastqc.log'
-        cp '${target_dir}/${html_name}' '${html_name}'
-        cp '${target_dir}/${zip_name}' '${zip_name}'
-    else
-        fastqc '${input_artifact}' \
-            --outdir . \
-            --threads ${task.cpus} \
-            2>&1 | tee '${meta.id}.fastqc.log'
+    fastqc '${input_artifact}' \
+        --outdir . \
+        --threads ${task.cpus} \
+        2>&1 | tee '${meta.id}.fastqc.log'
 
-        [[ -s '${html_name}' && -s '${zip_name}' ]]
+    [[ -s '${html_name}' && -s '${zip_name}' ]]
 
-        if [[ -n '${target_dir}' ]]; then
-            mkdir -p '${target_dir}'
-            cp '${html_name}' '${target_dir}/${html_name}.nextflow.tmp'
-            cp '${zip_name}' '${target_dir}/${zip_name}.nextflow.tmp'
-            mv '${target_dir}/${html_name}.nextflow.tmp' '${target_dir}/${html_name}'
-            mv '${target_dir}/${zip_name}.nextflow.tmp' '${target_dir}/${zip_name}'
-        fi
+    if [[ -n '${target_dir}' ]]; then
+        mkdir -p '${target_dir}'
+        cp '${html_name}' '${target_dir}/${html_name}.nextflow.tmp'
+        cp '${zip_name}' '${target_dir}/${zip_name}.nextflow.tmp'
+        mv '${target_dir}/${html_name}.nextflow.tmp' '${target_dir}/${html_name}'
+        mv '${target_dir}/${zip_name}.nextflow.tmp' '${target_dir}/${zip_name}'
     fi
 
     printf '"%s":\n    fastqc: %s\n' \

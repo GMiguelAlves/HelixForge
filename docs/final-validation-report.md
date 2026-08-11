@@ -25,7 +25,8 @@ the scheduler driver. Every scientific command ran in Slurm allocations on
 compute nodes. Work and results were isolated under a new validation directory
 on shared storage; no pre-existing scratch data was removed. The existing
 `rna-tools`, `chipseq`, and `r-analysis` environments were inspected and used
-without modification.
+without modification. The RNA driver used the Java 23 runtime already present
+in `rna-tools`; Java 25 was used only for one minimal cache probe.
 
 The project declares Nextflow `>=24.10.0`; this pass used a newer runtime. The
 cache result below must be repeated on native Linux storage and the production
@@ -37,13 +38,13 @@ Nextflow version before it is interpreted as a pipeline cache defect.
 |---|---|---|---|---|
 | Trim Galore | Yes, including Slurm | Yes | READY_TO_RETIRE | Minimal paired-end fixture only |
 | FastQC | Yes, 0.12.1 | Contract/mock comparison only | CONDITIONAL | Real report generated; no real legacy pair in this pass |
-| MultiQC | No real run | Mock comparison | BLOCKED | Fixed image did not finish downloading within the controlled limit |
+| MultiQC | Yes on Slurm, 1.30 | Contract comparison | CONDITIONAL | Real top-level report passed; pinned OCI image still needs certification |
 | FASTQ merge | Native mock/regression evidence | Yes | CONDITIONAL | Not rerun with a fully real QC chain |
 | STAR | Yes locally; cluster index blocked | Yes locally | CONDITIONAL | Cluster Conda STAR 2.7.11b aborts after index generation |
 | Salmon | Yes, 1.10.3, including Slurm | Yes | READY_TO_RETIRE | Semantic outputs passed on compute nodes |
 | Salmon Import | Yes, container and Slurm Conda runtime | Yes | CONDITIONAL | Workflow-level normalization/count policy still requires a release decision |
 | STAR Import | Yes | Yes | CONDITIONAL | Native provider ran on host; current Python production image was unavailable |
-| DESeq2 | Yes on Slurm Conda runtime | Yes | CONDITIONAL | Scientific regression passes; production image remains unbuilt |
+| DESeq2 | Yes on Slurm and CI image | Yes | CONDITIONAL | Image 1.0.1 passed regression/cache tests; Slurm used the existing 1.42.1 environment |
 | ChIP BAM processing | Yes, including Slurm | Expected metrics validated | CONDITIONAL | Reduced fixture passed; cache reuse remains unresolved |
 | Bowtie2 index | Yes on Slurm, cluster 2.5.5 | Yes, same cluster runtime | CONDITIONAL | Direct compiled binary bypassed a broken Conda Perl wrapper |
 | Bowtie2 alignment | Yes on Slurm, cluster 2.5.5 | Yes, same cluster runtime | CONDITIONAL | BAM records, flagstat and idxstats passed; pinned 2.5.4 image remains uncertified |
@@ -55,6 +56,7 @@ Nextflow version before it is interpreted as a pipeline cache defect.
 | Tracks | Yes on Slurm | Semantic invariants | CONDITIONAL | Three individual and one aggregate BigWig passed |
 | Report | Yes on Slurm | Contract and content checks | CONDITIONAL | HTML passed and correctly discloses IDR as incomplete |
 | Integrative | Manifest contract only | Legacy implementation retained | CONDITIONAL | No new analytic implementation was in scope |
+| Top-level RNA-seq | Yes on Slurm | Scientific invariants | CONDITIONAL | QC -> Salmon -> Import -> DESeq2 passed; `-resume` remains blocked by the cache runtime |
 
 `READY_TO_RETIRE` applies to the named component, not to the complete RNA-seq
 or ChIP-seq legacy pipeline.
@@ -71,10 +73,11 @@ the legacy command and native process:
 | R1 | `98384f001538af22fc484c62836dd83ed21aec7a8c791100214b3ad73ac5a10e` | 2 |
 | R2 | `7942f4a2e16a3090728cbfe0566275e55083858eb771915530c0c01c59298eac` | 2 |
 
-FastQC 0.12.1 ran through the native process and emitted a non-empty HTML
-report, process log, status, trace, and `versions.yml`. Peak RSS was 118.9 MB.
-The full real FastQC -> Trim Galore -> FastQC -> merge -> MultiQC chain was not
-certified because the MultiQC image was unavailable within the download limit.
+FastQC 0.12.1 and MultiQC 1.30 ran through the complete native QC subworkflow
+on Slurm. The top-level run covered raw and post-trim FastQC, four paired-end
+Trim Galore tasks, merged FASTQs, merged-read FastQC, and a non-empty MultiQC
+report. Re-execution exposed an idempotence defect when replacing an existing
+MultiQC data directory; publication now uses a bounded temporary/previous swap.
 
 The same Trim Galore fixture passed on Slurm using jobs 12088 and 12089. A
 provenance defect was found: the multiline `trim_galore --version` banner was
@@ -155,18 +158,38 @@ ggrepel/ggplot2 combination calls the unavailable `replace_null` function. That
 image contains ggplot2 3.4.4 and is not the declared production environment.
 It is not valid release evidence.
 
-The production Dockerfile was changed to create one solver-consistent
-Micromamba environment from `modules/local/deseq2_model/environment.yml` rather
-than mutating `/usr/local` in a Biocontainers image. One controlled local build
-was attempted and stopped after five minutes without producing an image. The
-CI must build and run the regression before DE can be certified.
+The production Dockerfile creates one solver-consistent Micromamba environment
+from `modules/local/deseq2_model/environment.yml` rather than mutating
+`/usr/local` in a Biocontainers image. Image
+`ghcr.io/gmiguelalves/helixforge-deseq2:1.0.1` adds `procps`, was built and
+published by CI, and passed the native scientific regression and cache suite in
+GitHub Actions run `31526144851`.
 
 The pre-existing cluster `r-analysis` environment allowed the scientific code
 to be tested independently of that image build. The legacy script and native
 DE API produced semantically equivalent aggregate results for one model and
 three contrasts (jobs 12107-12114). R reported 4.3.3, Bioconductor 3.18.1, and
 DESeq2 1.42.1. This validates the model/contrast/aggregation architecture but
-does not certify the still-unbuilt image or its exact declared package set.
+uses a different package patch level from the separately certified OCI image.
+
+The top-level RNA-seq validation subsequently exercised one DESeq2 model and
+one contrast after Salmon/tximport. It found and fixed missing optional
+`Name`/`biotype` handling in sparse GFF3 annotations. The final contrast table
+was produced for 30 genes without changing the Wald test, design, thresholds,
+or count policy.
+
+### Official top-level RNA-seq path
+
+Case `rnaseq-production-03` completed the official production path on Slurm:
+
+`FASTQ -> native QC -> Salmon -> Import/tximport -> DESeq2 -> results`
+
+STAR was explicitly disabled. Four paired-end samples and 30 genes passed.
+Per-sample count correlations ranged from 0.9999999999999998 to
+1.0000000000000002, and total-count ratios ranged from 0.9999999999999997 to
+1.0000000000000002. Salmon mapped more than 98% of processed fragments for
+every sample, the Import API emitted all three matrices plus a
+`SummarizedExperiment`, and DESeq2 emitted the requested contrast table.
 
 ### ChIP-seq BAM processing
 
@@ -254,8 +277,8 @@ permission or provider errors cannot be masked.
 
 ## Cache and invalidation
 
-`-resume` did not reuse STAR, Salmon, BAM, or MACS3 tasks in this environment.
-The focused STAR diagnostic showed:
+`-resume` did not reuse scientific tasks in this environment. Focused and
+top-level diagnostics showed:
 
 - the resumed run reused the same Nextflow session UUID;
 - `cache 'deep'` was active;
@@ -263,18 +286,50 @@ The focused STAR diagnostic showed:
 - the prior work directory and outputs existed;
 - Nextflow nevertheless submitted a new task.
 
-This is consistent with a cache-store/filesystem compatibility problem involving
-Nextflow 26.04.6 and WSL/NTFS. Cache and invalidation are therefore
-**CONDITIONAL**, not silently accepted.
+Cache and invalidation are therefore **BLOCKED**, not silently accepted.
 
-The production Slurm pass reproduced the miss for both stub and real Trim
-Galore tasks. Session UUID, input checksums, generated command scripts, and
-work directories were stable, but task hashes changed and new jobs were
-submitted. Moving `NXF_CACHE_DIR` from NFS to head-node local storage did not
-restore reuse. The compatibility guard then skipped already materialized
-FASTQs, but this is not a Nextflow cache hit. A focused two-run
-`-dump-hashes` analysis is required; no additional jobs were spent on it in
-this pass.
+The production Slurm pass reproduced the miss for both isolated probes and the
+complete RNA workflow. A one-process probe demonstrated that:
+
+- the same session UUID and logical cache hash were reused;
+- every hash entry reported by `-dump-hashes json` was identical;
+- all declared outputs and `.exitcode` files remained present in the workdir;
+- the task cache database contained run indexes but no persisted task records;
+- both NFS (`/home`) and head-local ext4 (`/tmp`) cache stores behaved the same;
+- Nextflow 26.04.4 and 26.04.6, Java 21, 23 and 25, and syntax parsers v1 and
+  v2 reproduced the miss;
+- the same probe resumed correctly with Nextflow 25.10.7 on both Java 21 and
+  Java 23 (`cached: 1`, with the original work hash and no second Slurm task).
+
+The controlled version/JVM matrix was:
+
+| Nextflow | JVM | Identical `-resume` | Interpretation |
+|---|---|---|---|
+| 25.10.7 | Temurin 21.0.12 | PASS | Task recovered from cache |
+| 25.10.7 | Conda OpenJDK 23.0.2 | PASS | Task recovered from cache |
+| 26.04.6 | Temurin 21.0.12 | FAIL | Task submitted again |
+| 26.04.6 | Conda OpenJDK 23.0.2 | FAIL | Task submitted again |
+| 26.04.4/26.04.6 | Conda OpenJDK 25.0.2 | FAIL | Prior focused probes |
+
+This isolates the failure to the Nextflow 26.04.x runtime behavior in this
+environment rather than to Java 23/25 or the scientific workflow. It is strong
+regression evidence, although an upstream report still needs a packaged
+reproducer and maintainer confirmation. The official
+[Caching and resuming](https://docs.seqera.io/nextflow/cache-and-resume)
+documentation states that completed tasks are automatically persisted and
+that a resumed task requires both its task-cache entry and preserved workdir
+outputs. The 25.10.7 probe demonstrated both conditions; 26.04.x preserved the
+workdir but failed to persist the matching task entry.
+
+Therefore an identical resume and the FASTQ/transcriptome/parameter
+invalidation matrix remain **BLOCKED for the current Nextflow 26.04.x
+production runtime**. They were not reported as passing. A small isolated JRE
+21 and Nextflow 25.10.7 launcher were used only for this probe; no system or
+Conda environment was modified. The reduced probe and its configuration are
+retained under `tests/slurm/` for administrator or upstream reproduction. The
+next operational validation should pin Nextflow 25.10.7, rerun the top-level
+RNA `-resume` matrix, and keep 26.04.x out of production until the regression
+is resolved.
 
 ## Execution environments
 
@@ -290,13 +345,21 @@ this pass.
 - Conda on Slurm: existing environments were used without installation.
   Results are conditional where their package versions differ from declared
   module environments.
-- MultiQC: fixed image not available locally after the bounded pull attempt.
+- MultiQC: real Slurm execution passed with the existing 1.30 runtime; the
+  pinned OCI image remains uncertified.
 
 ## Lint and static validation
 
-Nextflow 26.04.6 linted 127 files without errors. One existing warning remains:
+Nextflow 26.04.6 linted 87 project files without errors. One existing warning remains:
 `LEGACY_STEP` accesses `projectDir` inside a process. This warning belongs to
 the compatibility wrapper and does not affect native scientific processes.
+
+Python discovery is no longer ambiguous: `tests/run_unit_tests.py` and the
+GitHub Actions run `31520434883` both reported `Discovered 62 tests`, `Ran 62
+tests`, and `OK`. The clean DESeq2 1.0.1 build plus regression/cache workflow
+passed in run `31526144851`. The current branch revision was then revalidated
+successfully by contracts, unit tests, and the published image regression in
+run `31532483855`.
 
 ## Preliminary benchmark
 
@@ -328,6 +391,11 @@ Binding 32,000 ms, annotation 1,000 ms, tracks 14,000 ms, and report 1,000 ms.
 The cluster allocates a minimum of two CPUs even when one CPU is requested, so
 these fixtures are correctness evidence rather than efficiency claims.
 
+The successful top-level RNA baseline ran 58 processes with zero failures,
+peak concurrency of five tasks, five requested CPUs, and 10 GB requested
+memory. Nextflow reported 2m22s of summed successful task duration; wall time
+was about six minutes including Slurm polling and report generation.
+
 ## Provenance assessment
 
 The real runs emitted versions, command/execution metadata, manifests and
@@ -343,25 +411,23 @@ start only for Trim Galore and Salmon after review of this report.
 Import is close but needs an explicit decision on workflow-level identifier and
 `countsFromAbundance` policy. Global retirement is blocked by:
 
-1. the unbuilt DESeq2 production image, despite a passing conditional Slurm regression;
-2. the Bowtie2 production image missing samtools, despite the passing conditional Slurm regression;
-3. the missing real MultiQC run;
-4. IDR remaining explicitly not implemented;
-5. unresolved cache reuse on the target filesystem;
-6. STAR 2.7.11b crashing during index generation in the available cluster runtime;
-7. no production-scale, top-level ChIP-seq regression against a reviewed biological dataset.
+1. the Bowtie2 production image missing samtools, despite the passing conditional Slurm regression;
+2. the pinned MultiQC OCI image remaining uncertified;
+3. IDR remaining explicitly not implemented;
+4. unresolved task-cache persistence in the available Nextflow runtime;
+5. STAR 2.7.11b crashing during index generation in the available cluster runtime;
+6. no production-scale, top-level ChIP-seq regression against a reviewed biological dataset.
 
 The detailed decisions and deviations are tracked in
 `docs/scientific-deviation-log.md`.
 
 ## Next controlled pass
 
-1. Let CI build the declarative DESeq2 image, then repeat the passing model/contrast regression.
+1. Reproduce the one-process cache probe with an administrator-supported
+   Nextflow installation and, if necessary, report the empty task DB upstream.
 2. Publish one declarative Bowtie2 2.5.4 + samtools 1.20 image and rerun alignment.
-3. Make the metadata adapter image Nextflow-compatible by adding `procps`.
-4. Obtain the pinned MultiQC image and run the complete native QC entrypoint.
-5. Implement and validate IDR, or explicitly exclude it from the first release.
-6. Repeat Differential Binding with the declarative DESeq2 image after item 1.
-7. Run a bounded `-dump-hashes` cache diagnostic on Slurm before any large dataset.
-8. Validate STAR with the pinned production image/runtime rather than the crashing cluster package.
-9. Run the top-level ChIP-seq workflow on one reviewed reduced biological dataset before reconsidering legacy removal.
+3. Obtain and certify the pinned MultiQC image.
+4. Implement and validate IDR, or explicitly exclude it from the first release.
+5. Repeat Differential Binding with the certified DESeq2 1.0.1 image.
+6. Validate STAR with the pinned production image/runtime rather than the crashing cluster package.
+7. Run the top-level ChIP-seq workflow on one reviewed reduced biological dataset before reconsidering legacy removal.

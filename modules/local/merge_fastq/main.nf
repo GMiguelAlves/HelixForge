@@ -32,22 +32,17 @@ process MERGE_FASTQ {
     def r2_args = r2_list.collect { read -> "'${read}'" }.join(' ')
     def target_dir = meta.target_dir ?: ''
     """
-    if [[ -n '${target_dir}' && -s '${meta.output_r1}' && -s '${meta.output_r2}' ]]; then
-        cp '${meta.output_r1}' '${meta.output_r1_name}'
-        cp '${meta.output_r2}' '${meta.output_r2_name}'
-    else
-        cat ${r1_args} > '${meta.output_r1_name}.tmp'
-        cat ${r2_args} > '${meta.output_r2_name}.tmp'
-        mv '${meta.output_r1_name}.tmp' '${meta.output_r1_name}'
-        mv '${meta.output_r2_name}.tmp' '${meta.output_r2_name}'
+    cat ${r1_args} > '${meta.output_r1_name}.tmp'
+    cat ${r2_args} > '${meta.output_r2_name}.tmp'
+    mv '${meta.output_r1_name}.tmp' '${meta.output_r1_name}'
+    mv '${meta.output_r2_name}.tmp' '${meta.output_r2_name}'
 
-        if [[ -n '${target_dir}' ]]; then
-            mkdir -p '${target_dir}'
-            cp '${meta.output_r1_name}' '${meta.output_r1}.nextflow.tmp'
-            cp '${meta.output_r2_name}' '${meta.output_r2}.nextflow.tmp'
-            mv '${meta.output_r1}.nextflow.tmp' '${meta.output_r1}'
-            mv '${meta.output_r2}.nextflow.tmp' '${meta.output_r2}'
-        fi
+    if [[ -n '${target_dir}' ]]; then
+        mkdir -p '${target_dir}'
+        cp '${meta.output_r1_name}' '${meta.output_r1}.nextflow.tmp'
+        cp '${meta.output_r2_name}' '${meta.output_r2}.nextflow.tmp'
+        mv '${meta.output_r1}.nextflow.tmp' '${meta.output_r1}'
+        mv '${meta.output_r2}.nextflow.tmp' '${meta.output_r2}'
     fi
 
     {

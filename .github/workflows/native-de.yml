@@ -1,6 +1,7 @@
 name: Native differential expression
 
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches: [master]
@@ -26,3 +27,9 @@ jobs:
           tests/native_de/run_invalid_inputs.sh
           ./nextflow lint main.nf
           NEXTFLOW="$PWD/nextflow" tests/native_de/run_stub.sh
+      - name: Validate published DESeq2 image
+        run: |
+          docker pull ghcr.io/gmiguelalves/helixforge-deseq2:1.0.1
+          NEXTFLOW="$PWD/nextflow" \
+          DESEQ2_TEST_IMAGE=ghcr.io/gmiguelalves/helixforge-deseq2:1.0.1 \
+          tests/native_de/run_regression.sh
