@@ -54,9 +54,11 @@ flowchart LR
     CONTRAST --> AGG["DE_AGGREGATE"]
 ```
 
-`rnaseq_run_mode=alignment` executes only STAR; `quant`/`quantification`
+The default production path executes Salmon. `rnaseq_run_mode=alignment`
+explicitly selects the experimental STAR stage; `quant`/`quantification`
 executes only Salmon. `rnaseq_analysis_mode=both` fans the same merged reads to
-independent providers. `config` respects enabled provider plans. Import and DE
+independent providers. `config` retains legacy `QUANT_METHOD` compatibility but
+is not the production default. Import and DE
 never infer the provider from filenames: they consume provider manifests and
 channels. Reference preparation and metadata/download planning are still
 compatibility wrappers. `rnaseq_native_import=false` has no supported fallback
