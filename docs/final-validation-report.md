@@ -6,8 +6,9 @@ Overall decision: **BLOCKED for global legacy retirement**
 
 This report records the first controlled real validation pass after the native
 API consolidation. It distinguishes a missing test from a demonstrated defect.
-No large dataset, Slurm cluster, Apptainer runtime, or Conda installation was
-introduced for this pass.
+No large dataset or new dependency chain was introduced for this pass. After
+the local pass, the reduced fixtures were also executed on an institutional
+Slurm cluster using pre-existing Conda environments.
 
 ## Environment
 
@@ -16,8 +17,15 @@ introduced for this pass.
 - Java 21.0.11.
 - Docker Engine 29.1.3.
 - WSL filesystem: about 929 GB free; Windows volume: about 28 GB free at audit.
-- No Slurm, Apptainer/Singularity, Conda/Mamba, or Micromamba runtime was added.
+- No Apptainer/Singularity, Conda/Mamba, or Micromamba runtime was added.
 - R 4.3.3 and Python 3 with pandas 2.1.4 were already available in WSL.
+
+The controlled Slurm pass used Nextflow 26.04.6 on the head node strictly as
+the scheduler driver. Every scientific command ran in Slurm allocations on
+compute nodes. Work and results were isolated under a new validation directory
+on shared storage; no pre-existing scratch data was removed. The existing
+`rna-tools`, `chipseq`, and `r-analysis` environments were inspected and used
+without modification.
 
 The project declares Nextflow `>=24.10.0`; this pass used a newer runtime. The
 cache result below must be repeated on native Linux storage and the production
@@ -27,15 +35,15 @@ Nextflow version before it is interpreted as a pipeline cache defect.
 
 | Component | Real native evidence | Legacy comparison | Status | Blocker or qualification |
 |---|---|---|---|---|
-| Trim Galore | Yes | Yes | READY_TO_RETIRE | Minimal paired-end fixture only |
+| Trim Galore | Yes, including Slurm | Yes | READY_TO_RETIRE | Minimal paired-end fixture only |
 | FastQC | Yes, 0.12.1 | Contract/mock comparison only | CONDITIONAL | Real report generated; no real legacy pair in this pass |
 | MultiQC | No real run | Mock comparison | BLOCKED | Fixed image did not finish downloading within the controlled limit |
 | FASTQ merge | Native mock/regression evidence | Yes | CONDITIONAL | Not rerun with a fully real QC chain |
-| STAR | Yes, 2.7.11b | Yes | READY_TO_RETIRE | Cache must be repeated on native Linux storage |
-| Salmon | Yes, 1.10.3 | Yes | READY_TO_RETIRE | Cache must be repeated on native Linux storage |
-| Salmon Import | Yes, current `helixforge-import:1.0.0` | Yes | CONDITIONAL | Workflow-level normalization/count policy still requires a release decision |
+| STAR | Yes locally; cluster index blocked | Yes locally | CONDITIONAL | Cluster Conda STAR 2.7.11b aborts after index generation |
+| Salmon | Yes, 1.10.3, including Slurm | Yes | READY_TO_RETIRE | Semantic outputs passed on compute nodes |
+| Salmon Import | Yes, container and Slurm Conda runtime | Yes | CONDITIONAL | Workflow-level normalization/count policy still requires a release decision |
 | STAR Import | Yes | Yes | CONDITIONAL | Native provider ran on host; current Python production image was unavailable |
-| DESeq2 | No certified production run | Legacy began but failed in obsolete image | BLOCKED | Production image build did not complete; obsolete image has incompatible plotting packages |
+| DESeq2 | Yes on Slurm Conda runtime | Yes | CONDITIONAL | Scientific regression passes; production image remains unbuilt |
 | ChIP BAM processing | Yes | Expected metrics validated | CONDITIONAL | Scientific behavior passed; cache reuse failed in this environment |
 | Bowtie2 index | Yes, 2.5.4 | No | CONDITIONAL | Index completed |
 | Bowtie2 alignment | No | No | BLOCKED | Configured image lacks `samtools`, which the module invokes |
@@ -68,6 +76,12 @@ report, process log, status, trace, and `versions.yml`. Peak RSS was 118.9 MB.
 The full real FastQC -> Trim Galore -> FastQC -> merge -> MultiQC chain was not
 certified because the MultiQC image was unavailable within the download limit.
 
+The same Trim Galore fixture passed on Slurm using jobs 12088 and 12089. A
+provenance defect was found: the multiline `trim_galore --version` banner was
+parsed by taking the first non-empty line. The parser now selects the explicit
+`version` line and records Trim Galore 0.6.10 and Cutadapt 5.1. Scientific
+FASTQ content and report statistics were unchanged.
+
 ### STAR Alignment API
 
 The legacy command and native STAR process were semantically equivalent for:
@@ -83,6 +97,13 @@ The real test found and fixed an orchestration bug: an unescaped Bash regex end
 anchor in `STAR_ALIGN` shifted subsequent Nextflow interpolations. No STAR
 algorithm or scientific parameter changed.
 
+On the target Slurm cluster, the pre-existing Conda STAR 2.7.11b binary aborted
+with `double free or corruption` after writing the suffix-array index. The same
+failure occurred with its AVX2 and plain binaries and with the working directory
+on shared scratch (jobs 12097-12099). No native alignment job was submitted.
+This is an environment/runtime blocker, not evidence against the locally
+validated Alignment API.
+
 ### Salmon Quantification API
 
 The legacy command and native Salmon process passed semantic comparison for:
@@ -92,6 +113,10 @@ The legacy command and native Salmon process passed semantic comparison for:
 - the `aux_info` file set and `meta_info.json`;
 - `ambig_info.tsv` and fragment-length distribution;
 - Salmon log presence and mapping statistics.
+
+The Slurm regression (jobs 12094-12096) repeated every semantic check and
+passed. Both native processes recorded Salmon 1.10.3. The native index and
+quantification ran sequentially with a one-task queue limit.
 
 ### Import API
 
@@ -112,6 +137,12 @@ The regression fixtures exposed missing LF policies for `.sf` and `.tab`.
 Those extensions are now normalized so manifest checksums remain stable across
 Windows and Linux checkouts.
 
+The Salmon Import regression also passed on Slurm. Two source adapters,
+`TX2GENE_BUILD`, sample-table construction, and `TXIMPORT` ran as five
+sequential tasks. Counts and abundance had maximum delta 0, `tx2gene` had two
+identical rows, and the emitted `SummarizedExperiment` contained the expected
+counts, abundance, and length assays in the expected sample order.
+
 ### DESeq2
 
 The original fixture was statistically degenerate and DESeq2 correctly refused
@@ -129,6 +160,13 @@ Micromamba environment from `modules/local/deseq2_model/environment.yml` rather
 than mutating `/usr/local` in a Biocontainers image. One controlled local build
 was attempted and stopped after five minutes without producing an image. The
 CI must build and run the regression before DE can be certified.
+
+The pre-existing cluster `r-analysis` environment allowed the scientific code
+to be tested independently of that image build. The legacy script and native
+DE API produced semantically equivalent aggregate results for one model and
+three contrasts (jobs 12107-12114). R reported 4.3.3, Bioconductor 3.18.1, and
+DESeq2 1.42.1. This validates the model/contrast/aggregation architecture but
+does not certify the still-unbuilt image or its exact declared package set.
 
 ### ChIP-seq BAM processing
 
@@ -176,18 +214,30 @@ The focused STAR diagnostic showed:
 
 This is consistent with a cache-store/filesystem compatibility problem involving
 Nextflow 26.04.6 and WSL/NTFS. Cache and invalidation are therefore
-**CONDITIONAL**, not silently accepted. Repeat the same scripts on a native
-Linux filesystem and on the production Slurm shared filesystem.
+**CONDITIONAL**, not silently accepted.
+
+The production Slurm pass reproduced the miss for both stub and real Trim
+Galore tasks. Session UUID, input checksums, generated command scripts, and
+work directories were stable, but task hashes changed and new jobs were
+submitted. Moving `NXF_CACHE_DIR` from NFS to head-node local storage did not
+restore reuse. The compatibility guard then skipped already materialized
+FASTQs, but this is not a Nextflow cache hit. A focused two-run
+`-dump-hashes` analysis is required; no additional jobs were spent on it in
+this pass.
 
 ## Execution environments
 
 - Docker: real execution validated for Trim Galore, FastQC, STAR, Salmon,
   current Salmon Import, Bowtie2 indexing, and MACS3.
-- Slurm: configuration-only validation. `profiles/slurm.config` assigns the
-  Slurm executor, queue size, and submit rate. No non-legacy native code invokes
-  `sbatch`, `srun`, `qsub`, or `bsub`; nested submission was not found.
+- Slurm: real submission validated. Preflight job 12083 ran on a compute node;
+  Trim Galore, Salmon, Import, and DESeq2 native tasks completed under the
+  Nextflow Slurm executor. No scientific command ran directly on the head node
+  and no nested submission was found in native modules.
 - Apptainer/Singularity: not tested because no runtime is installed.
-- Conda: not tested because no runtime is installed.
+- Local WSL Conda profile: not tested because no runtime is installed there.
+- Conda on Slurm: existing environments were used without installation.
+  Results are conditional where their package versions differ from declared
+  module environments.
 - MultiQC: fixed image not available locally after the bounded pull attempt.
 
 ## Lint and static validation
@@ -209,6 +259,18 @@ startup. They must not be used as performance claims.
 | Salmon Import | 24,414 | 126,983 |
 | STAR Import | 2,448 | 17,356 |
 
+Slurm task elapsed times are scheduler measurements rounded to seconds:
+
+| Component | Legacy ms | Native task ms |
+|---|---:|---:|
+| Trim Galore | 10,013 | 25,904 end-to-end driver |
+| Salmon | 11,000 | 1,000 summed tasks |
+| Salmon Import | 15,000 | 20,000 summed tasks |
+| DESeq2 | 17,000 | 48,000 summed tasks |
+
+The cluster allocates a minimum of two CPUs even when one CPU is requested, so
+these fixtures are correctness evidence rather than efficiency claims.
+
 ## Provenance assessment
 
 The real runs emitted versions, command/execution metadata, manifests and
@@ -220,27 +282,27 @@ documents and the downloaded OCI digest is not propagated into every manifest.
 ## Retirement decision
 
 The complete legacy pipelines must remain available. Component retirement can
-start only for Trim Galore, STAR, and Salmon after review of this report.
+start only for Trim Galore and Salmon after review of this report.
 Import is close but needs an explicit decision on workflow-level identifier and
 `countsFromAbundance` policy. Global retirement is blocked by:
 
-1. the unbuilt DESeq2 production image and incomplete real DE regression;
+1. the unbuilt DESeq2 production image, despite a passing conditional Slurm regression;
 2. the Bowtie2 image missing samtools;
 3. the missing real MultiQC run;
 4. missing real FRiP, consensus, differential-binding, annotation, and track runs;
 5. unresolved cache reuse on the target filesystem;
-6. absence of a production Slurm run, which is intentionally not simulated.
+6. STAR 2.7.11b crashing during index generation in the available cluster runtime.
 
 The detailed decisions and deviations are tracked in
 `docs/scientific-deviation-log.md`.
 
 ## Next controlled pass
 
-1. Let CI build the declarative DESeq2 image, then run model/contrast regression.
+1. Let CI build the declarative DESeq2 image, then repeat the passing model/contrast regression.
 2. Publish one declarative Bowtie2 2.5.4 + samtools 1.20 image and rerun alignment.
 3. Make the metadata adapter image Nextflow-compatible by adding `procps`.
 4. Obtain the pinned MultiQC image and run the complete native QC entrypoint.
 5. Execute FRiP and consensus with the existing two-replicate MACS3 fixture.
 6. Run featureCounts/DESeq2 differential binding only after item 1.
-7. Repeat cache tests on native Linux and then on the actual Slurm filesystem.
-
+7. Run a bounded `-dump-hashes` cache diagnostic on Slurm before any large dataset.
+8. Validate STAR with the pinned production image/runtime rather than the crashing cluster package.
