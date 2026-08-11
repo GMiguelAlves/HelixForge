@@ -1,8 +1,9 @@
 # Controlled Slurm validation
 
 These harnesses are intentionally small and conservative. They target an
-isolated validation directory, submit at most one task at a time, and refuse
-unexpected scratch paths.
+isolated validation directory and refuse unexpected scratch paths. Individual
+stage harnesses submit one task at a time; the top-level RNA production
+validation permits at most five concurrent tasks.
 
 - `run_trim_stub.sh` verifies Nextflow-to-Slurm submission without running the
   scientific command.
