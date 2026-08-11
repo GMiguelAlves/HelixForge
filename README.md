@@ -61,6 +61,11 @@ Salmon users must declare `--rnaseq_library_protocol full_length` with
 `--rnaseq_counts_from_abundance no`. Original full-length counts are rejected
 by the current matrix-based provider until offset-aware tximport input exists.
 
+HelixForge currently certifies **Nextflow 25.10.7** as its production runtime.
+The temporary exact pin protects `-resume` while a cache-persistence regression
+observed with Nextflow 26.04.x on the institutional Slurm environment is
+investigated.
+
 ## Workflows
 
 - `rnaseq`
@@ -77,6 +82,10 @@ nextflow run . -profile local --workflow rnaseq \
   --rnaseq_counts_from_abundance lengthScaledTPM \
   --rnaseq_de_spec /path/to/rnaseq_de_spec.json
 ```
+
+Use `--rnaseq_trim_quality` or `--rnaseq_trim_length` only when intentionally
+overriding the corresponding legacy QC setting. Their defaults remain the
+values sourced from `config/pipeline_config.sh`.
 
 This command follows the official path `QC -> Salmon -> Import/tximport ->
 DESeq2`. Use `--rnaseq_analysis_mode config`, `alignment`, or `both` only when

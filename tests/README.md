@@ -103,7 +103,7 @@ distribution is compared semantically because Salmon samples that distribution
 stochastically even when the command and inputs are identical.
 
 Set `NEXTFLOW_BIN` or `NEXTFLOW_JAR` when Nextflow is not on `PATH`. Cache
-validation is pinned to the tested official Nextflow 26.04.2 runtime; Docker
+validation is pinned to the certified official Nextflow 25.10.7 runtime; Docker
 must be available.
 
 ## Native Import API
