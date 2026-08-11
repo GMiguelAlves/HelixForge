@@ -40,10 +40,17 @@ process MULTIQC {
 
     if [[ -n '${target_dir}' ]]; then
         mkdir -p '${target_dir}'
+        rm -rf '${target_dir}/${report_data_dir}.nextflow.tmp' \
+            '${target_dir}/${report_data_dir}.nextflow.previous'
         cp '${meta.report_name}' '${target_dir}/${meta.report_name}.nextflow.tmp'
         cp -a '${report_data_dir}' '${target_dir}/${report_data_dir}.nextflow.tmp'
         mv '${target_dir}/${meta.report_name}.nextflow.tmp' '${target_dir}/${meta.report_name}'
+        if [[ -d '${target_dir}/${report_data_dir}' ]]; then
+            mv '${target_dir}/${report_data_dir}' \
+                '${target_dir}/${report_data_dir}.nextflow.previous'
+        fi
         mv '${target_dir}/${report_data_dir}.nextflow.tmp' '${target_dir}/${report_data_dir}'
+        rm -rf '${target_dir}/${report_data_dir}.nextflow.previous'
     fi
 
     printf '"%s":\n    multiqc: %s\n' \
