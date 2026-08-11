@@ -35,6 +35,12 @@ validation permits at most five concurrent tasks.
   native Import API and validates the emitted `SummarizedExperiment`.
 - `run_deseq2_real.sh` compares the legacy DESeq2 script with the native
   model/contrast/aggregation API using the golden reduced dataset.
+- `run_rnaseq_production_real.sh` validates the official top-level
+  QC -> Salmon -> Import -> DESeq2 path, then attempts identical and selective
+  invalidation scenarios. `resume-driver` continues a completed baseline
+  without overwriting its evidence.
+- `cache_probe.nf` and `cache-probe.config` provide a one-process diagnostic
+  for task-cache persistence independently of the scientific DAG.
 
 The scripts do not install software or remove data. Cluster paths, the Conda
 executable, environment, and Slurm partition are explicit arguments.
