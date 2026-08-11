@@ -46,14 +46,14 @@ process BAM_BLACKLIST {
 
     if [[ '${has_blacklist}' == 'true' ]]; then
         [[ -s '${blacklist_file}' ]] || { echo '[ERROR] supplied blacklist BED is empty or missing' >&2; exit 3; }
-        awk 'BEGIN {valid=0} /^#/ || NF==0 {next} {
+        awk 'BEGIN {valid=0} {sub(/\\r\$/, "", \$0)} /^#/ || NF==0 {next} {
             if (NF < 3 || \$2 !~ /^[0-9]+\$/ || \$3 !~ /^[0-9]+\$/ || \$2 < 0 || \$3 <= \$2) {
                 printf "invalid BED line %d: %s\\n", NR, \$0 > "/dev/stderr"; exit 1
             }
             valid++
         } END {if (valid == 0) {print "blacklist contains no intervals" > "/dev/stderr"; exit 1}}' '${blacklist_file}' \
             > "\$reports/bed_validation.log" 2>&1 || { cat "\$reports/bed_validation.log" >&2; exit 4; }
-        awk 'NR==FNR {bam[\$1]=1; next} /^#/ || NF==0 {next} ! (\$1 in bam) {if (!(\$1 in missing)) {missing[\$1]=1; missing_count++}}
+        awk '{sub(/\\r\$/, "", \$0)} NR==FNR {bam[\$1]=1; next} /^#/ || NF==0 {next} ! (\$1 in bam) {if (!(\$1 in missing)) {missing[\$1]=1; missing_count++}}
             END {for (contig in missing) print contig; if (missing_count>0) exit 1}' \
             '${bam_contigs}' '${blacklist_file}' > "\$reports/incompatible_contigs.txt" || {
                 echo '[ERROR] blacklist contains contigs absent from the BAM/reference; no automatic renaming is performed.' >&2
