@@ -12,6 +12,24 @@ unexpected scratch paths.
   with the native Quantification API using the reduced transcriptome fixture.
 - `run_star_real.sh` compares legacy STAR indexing/alignment commands with the
   native Alignment API using the reduced genome fixture.
+- `run_bowtie2_real.sh` compares legacy Bowtie2 indexing/alignment with the
+  native Alignment API using one sequential task at a time.
+- `run_chipseq_bam_real.sh` validates native selection, duplicate handling,
+  blacklist filtering, indexing, and QC on a reduced BAM fixture.
+- `run_chipseq_peaks_real.sh` validates native MACS3 peak calling for two
+  treatment replicates against one control.
+- `run_chipseq_peak_qc_real.sh` connects those real BAM and peak artifacts to
+  the native FRiP and peak-statistics API.
+- `run_chipseq_consensus_real.sh` validates union consensus using the real peak
+  and FRiP manifests from the preceding controlled cases.
+- `run_chipseq_db_real.sh` validates featureCounts, a DESeq2 binding model, two
+  contrasts, and the aggregate on a reduced four-replicate dataset.
+- `run_chipseq_annotation_real.sh` validates coordinate-aware peak annotation,
+  statistics, and aggregation on a reduced reference and GTF.
+- `run_chipseq_tracks_real.sh` validates individual and aggregate BigWig tracks
+  from the real reduced ChIP-seq BAM fixture.
+- `run_chipseq_report_real.sh` validates report context, aggregation, and the
+  self-contained HTML provider on a complete reduced component inventory.
 - `run_import_salmon_real.sh` compares the legacy tximport script with the
   native Import API and validates the emitted `SummarizedExperiment`.
 - `run_deseq2_real.sh` compares the legacy DESeq2 script with the native
