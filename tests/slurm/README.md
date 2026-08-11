@@ -42,5 +42,16 @@ validation permits at most five concurrent tasks.
 - `cache_probe.nf` and `cache-probe.config` provide a one-process diagnostic
   for task-cache persistence independently of the scientific DAG.
 
+The 2026-08-11 runtime matrix for that probe found:
+
+- Nextflow 25.10.7 resumed from cache with Java 21 and Java 23;
+- Nextflow 26.04.6 submitted the identical task again with Java 21 and Java 23;
+- earlier 26.04.4/26.04.6 probes also failed with Java 25 and with both syntax
+  parsers.
+
+This makes Nextflow 25.10.7 the candidate runtime for the next full production
+resume/invalidation pass. It does not by itself certify selective invalidation
+for the top-level RNA workflow.
+
 The scripts do not install software or remove data. Cluster paths, the Conda
 executable, environment, and Slurm partition are explicit arguments.
