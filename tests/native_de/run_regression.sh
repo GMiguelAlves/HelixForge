@@ -21,7 +21,9 @@ if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
 fi
 cd "$ROOT"
 mkdir -p tests/results/native_de/legacy tests/results/native_de/native
-docker run --rm -v "$ROOT:/workspace" -w /workspace "$IMAGE" \
+docker run --rm \
+  --user "$(id -u):$(id -g)" \
+  -v "$ROOT:/workspace" -w /workspace "$IMAGE" \
   Rscript pipelines/rnaseq/legacy/scripts/060-deg-analysis/deseq2_analysis.R \
   --counts tests/fixtures/native_de/counts_matrix.tsv \
   --samples tests/fixtures/native_de/quant_samples.tsv \
