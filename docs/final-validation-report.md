@@ -296,14 +296,40 @@ complete RNA workflow. A one-process probe demonstrated that:
 - all declared outputs and `.exitcode` files remained present in the workdir;
 - the task cache database contained run indexes but no persisted task records;
 - both NFS (`/home`) and head-local ext4 (`/tmp`) cache stores behaved the same;
-- Nextflow 26.04.4 and 26.04.6, Java 23 and 25, and syntax parsers v1 and v2
-  all reproduced the miss.
+- Nextflow 26.04.4 and 26.04.6, Java 21, 23 and 25, and syntax parsers v1 and
+  v2 reproduced the miss;
+- the same probe resumed correctly with Nextflow 25.10.7 on both Java 21 and
+  Java 23 (`cached: 1`, with the original work hash and no second Slurm task).
+
+The controlled version/JVM matrix was:
+
+| Nextflow | JVM | Identical `-resume` | Interpretation |
+|---|---|---|---|
+| 25.10.7 | Temurin 21.0.12 | PASS | Task recovered from cache |
+| 25.10.7 | Conda OpenJDK 23.0.2 | PASS | Task recovered from cache |
+| 26.04.6 | Temurin 21.0.12 | FAIL | Task submitted again |
+| 26.04.6 | Conda OpenJDK 23.0.2 | FAIL | Task submitted again |
+| 26.04.4/26.04.6 | Conda OpenJDK 25.0.2 | FAIL | Prior focused probes |
+
+This isolates the failure to the Nextflow 26.04.x runtime behavior in this
+environment rather than to Java 23/25 or the scientific workflow. It is strong
+regression evidence, although an upstream report still needs a packaged
+reproducer and maintainer confirmation. The official
+[Caching and resuming](https://docs.seqera.io/nextflow/cache-and-resume)
+documentation states that completed tasks are automatically persisted and
+that a resumed task requires both its task-cache entry and preserved workdir
+outputs. The 25.10.7 probe demonstrated both conditions; 26.04.x preserved the
+workdir but failed to persist the matching task entry.
 
 Therefore an identical resume and the FASTQ/transcriptome/parameter
-invalidation matrix are **BLOCKED by the available Nextflow cache runtime**.
-They were not reported as passing, and no larger dependency chain was
-installed. The reduced probe and its configuration are retained under
-`tests/slurm/` for administrator or upstream reproduction.
+invalidation matrix remain **BLOCKED for the current Nextflow 26.04.x
+production runtime**. They were not reported as passing. A small isolated JRE
+21 and Nextflow 25.10.7 launcher were used only for this probe; no system or
+Conda environment was modified. The reduced probe and its configuration are
+retained under `tests/slurm/` for administrator or upstream reproduction. The
+next operational validation should pin Nextflow 25.10.7, rerun the top-level
+RNA `-resume` matrix, and keep 26.04.x out of production until the regression
+is resolved.
 
 ## Execution environments
 
