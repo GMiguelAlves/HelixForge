@@ -72,8 +72,8 @@ if [[ "$mode" == "validate-job" ]]; then
     exit 0
 fi
 
-if [[ "$mode" != "driver" && "$mode" != "resume-driver" ]]; then
-    echo "mode must be driver, resume-driver, preflight-job, fixture-job, or validate-job" >&2
+if [[ "$mode" != "driver" && "$mode" != "resume-driver" && "$mode" != "recovery-driver" ]]; then
+    echo "mode must be driver, resume-driver, recovery-driver, preflight-job, fixture-job, or validate-job" >&2
     exit 2
 fi
 if [[ "$mode" == "driver" ]]; then
@@ -82,9 +82,13 @@ if [[ "$mode" == "driver" ]]; then
         exit 2
     fi
     mkdir -p "$case_root/logs" "$case_root/traces"
-else
+elif [[ "$mode" == "resume-driver" ]]; then
     test -d "$case_root/logs"
     test -s "$case_root/traces/baseline.tsv"
+else
+    test -d "$case_root/logs"
+    test -s "$case_root/pipeline_config.sh"
+    test -s "$case_root/analysis_spec.json"
 fi
 
 submit_helper() {
@@ -121,6 +125,7 @@ run_pipeline() {
     env PATH="$runtime_path" \
         NXF_HOME="${repo_root}/.nextflow-home" \
         "${conda_root}/envs/${rna_env}/bin/java" \
+        -Xms128m -Xmx1g \
         -jar "$nextflow_jar" \
         -log "$case_root/logs/${scenario}.nextflow.log" \
         run main.nf \
@@ -150,15 +155,19 @@ run_pipeline() {
     cp "$case_root/results/pipeline_info/execution_trace.tsv" "$case_root/traces/${scenario}.tsv"
 }
 
-if [[ "$mode" == "driver" ]]; then
-    runtime_version=$("${conda_root}/envs/${rna_env}/bin/java" -jar "$nextflow_jar" -version 2>&1)
+if [[ "$mode" == "driver" || "$mode" == "resume-driver" || "$mode" == "recovery-driver" ]]; then
+    runtime_version=$("${conda_root}/envs/${rna_env}/bin/java" -Xms128m -Xmx1g -jar "$nextflow_jar" -version 2>&1)
     [[ "$runtime_version" == *"version 25.10.7"* ]] || {
         printf 'Expected certified Nextflow 25.10.7, observed:\n%s\n' "$runtime_version" >&2
         exit 4
     }
+fi
+if [[ "$mode" == "driver" ]]; then
     submit_helper hf-rna-preflight preflight-job
     submit_helper hf-rna-fixture fixture-job baseline
     run_pipeline baseline false true
+elif [[ "$mode" == "recovery-driver" ]]; then
+    run_pipeline baseline true true
 fi
 submit_helper hf-rna-validate validate-job baseline
 
