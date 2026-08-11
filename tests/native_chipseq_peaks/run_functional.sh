@@ -4,14 +4,26 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TEST_ROOT="${ROOT}/tests/native_chipseq_peaks"
 NEXTFLOW_BIN="${NEXTFLOW_BIN:-nextflow}"
-if ! command -v macs3 >/dev/null 2>&1; then
-    echo "SKIP: MACS3 3.0.4 is not installed in the active test environment" >&2
+NEXTFLOW_JAR="${NEXTFLOW_JAR:-}"
+MACS3_IMAGE="${MACS3_TEST_IMAGE:-quay.io/biocontainers/macs3:3.0.4--py312h71493bf_0}"
+
+run_nextflow() {
+    if [[ -n "$NEXTFLOW_JAR" ]]; then
+        java -jar "$NEXTFLOW_JAR" "$@"
+    else
+        "$NEXTFLOW_BIN" "$@"
+    fi
+}
+
+if ! docker image inspect "$MACS3_IMAGE" >/dev/null 2>&1; then
+    echo "SKIP: MACS3 image is not available: $MACS3_IMAGE" >&2
     exit 77
 fi
 python3 "${TEST_ROOT}/generate_fixture.py" --outdir "${TEST_ROOT}/fixture_work"
 rm -rf "${TEST_ROOT}/results"
 
-"${NEXTFLOW_BIN}" run "${TEST_ROOT}/main.nf" -c "${TEST_ROOT}/nextflow.config" -ansi-log false
+run_nextflow run "${TEST_ROOT}/main.nf" -c "${TEST_ROOT}/nextflow.config" -ansi-log false \
+    --macs3_container "$MACS3_IMAGE"
 python3 - "${TEST_ROOT}/results" <<'PY'
 import json, pathlib, sys
 root = pathlib.Path(sys.argv[1]) / "peaks"
@@ -32,7 +44,8 @@ for path in manifests:
 assert ids == {"chip_rep1", "chip_rep2"}, ids
 PY
 
-"${NEXTFLOW_BIN}" run "${TEST_ROOT}/main.nf" -c "${TEST_ROOT}/nextflow.config" -resume -ansi-log false 2>&1 | tee "${TEST_ROOT}/resume.log"
+run_nextflow run "${TEST_ROOT}/main.nf" -c "${TEST_ROOT}/nextflow.config" -resume -ansi-log false \
+    --macs3_container "$MACS3_IMAGE" 2>&1 | tee "${TEST_ROOT}/resume.log"
 grep -q 'Cached process.*MACS3_CALLPEAK' "${TEST_ROOT}/resume.log"
 grep -q 'Cached process.*PEAK_CALLING_AGGREGATE' "${TEST_ROOT}/resume.log"
 echo "PASS: MACS3 functional, independent replicates, formats, metadata and resume"

@@ -6,6 +6,8 @@
 *.md text eol=lf
 *.json text eol=lf
 *.tsv text eol=lf
+*.sf text eol=lf
+*.tab text eol=lf
 *.fa text eol=lf
 *.gtf text eol=lf
 *.fastq text eol=lf

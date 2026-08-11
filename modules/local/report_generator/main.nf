@@ -29,6 +29,7 @@ process REPORT_GENERATOR {
 
     script:
     """
+    set -o pipefail
     generate_chipseq_report.py \
         --aggregate-dir '${aggregate_dir}' \
         --presentation-base64 '${presentation_base64}' \

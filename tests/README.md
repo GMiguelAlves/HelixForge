@@ -1,5 +1,14 @@
 # Tests
 
+Run all dependency-free Python tests through standard discovery:
+
+```bash
+python3 -m unittest discover -s tests -p 'test_*.py'
+```
+
+CI uses `python3 tests/run_unit_tests.py`, which applies the same discovery
+pattern and fails explicitly if zero tests are found.
+
 Run the dependency-free consolidation checks with:
 
 ```bash

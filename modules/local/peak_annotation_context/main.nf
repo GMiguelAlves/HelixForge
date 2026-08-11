@@ -27,6 +27,7 @@ process PEAK_ANNOTATION_CONTEXT {
 
     script:
     """
+    set -o pipefail
     validate_peak_annotation_context.py \
         --meta-base64 '${groovy.json.JsonOutput.toJson(meta).getBytes('UTF-8').encodeBase64().toString()}' \
         --peaks '${peaks}' \
