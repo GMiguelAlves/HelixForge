@@ -39,8 +39,8 @@ workflow {
             ignoreTxVersion    : true,
             ignoreAfterBar     : true,
             stripGeneVersion   : true,
-            stripTranscriptPrefix: false,
-            stripGenePrefix    : false,
+            stripTranscriptPrefix: true,
+            stripGenePrefix    : true,
             unmappedTranscripts: 'error'
         ]
         salmon_context = channel.of(tuple(import_meta, metadata, annotation, import_params))
@@ -62,7 +62,7 @@ workflow {
             )
         }
         import_meta = [id: 'synthetic.import', provider: 'star', target_dir: target_root]
-        import_params = [project: '', allow_missing: false, star_count_column: params.star_count_column, gene_id_normalization: 'preserve']
+        import_params = [project: '', allow_missing: false, star_count_column: params.star_count_column, gene_id_normalization: 'legacy']
         salmon_context = channel.empty()
         star_context = channel.of(tuple(import_meta, metadata, import_params))
     }
