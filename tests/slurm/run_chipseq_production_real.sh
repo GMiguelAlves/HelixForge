@@ -111,6 +111,11 @@ if [[ "$mode" != "driver" && "$mode" != "recovery-driver" ]]; then
     exit 2
 fi
 
+resume_args=()
+if [[ "$mode" == "recovery-driver" ]]; then
+    resume_args=(-resume)
+fi
+
 if [[ "$mode" == "driver" ]]; then
     if [[ -e "$case_root" ]]; then
         echo "Refusing to overwrite an existing validation case: $case_root" >&2
@@ -158,6 +163,7 @@ run_stage() {
         "${conda_root}/envs/${rna_env}/bin/java" -Xms128m -Xmx1g -jar "$nextflow_jar" \
         -log "$case_root/logs/${stage}.nextflow.log" \
         run main.nf \
+        "${resume_args[@]}" \
         -c tests/slurm/chipseq-production.config \
         -ansi-log false \
         -work-dir "$work_root/$stage" \
