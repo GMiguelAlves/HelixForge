@@ -1,0 +1,2 @@
+analysis_id	variable	contrast	level_a	level_b	gene_id	baseMean	log2FoldChange	lfcSE	stat	pvalue	padj	gene_name	biotype
+stub	condition	condition__control_vs_treated	control	treated	gene_stub	1	0	1	0	1	1	gene_stub	Unknown
