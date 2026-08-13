@@ -197,7 +197,7 @@ if [[ ! -s "$case_root/traces/full.tsv" ]]; then
         --chipseq_duplicate_mode none \
         --chipseq_peak_caller macs3 \
         --chipseq_peak_type narrow \
-        --chipseq_effective_genome_size 9000 \
+        --chipseq_effective_genome_size 30000 \
         --chipseq_peak_q_value 0.5 \
         --chipseq_peak_format BAMPE \
         --chipseq_peak_duplicate_policy all \
