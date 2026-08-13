@@ -18,5 +18,7 @@ NXF_HOME="$case_root/nxf-home" "$nextflow_bin" run "$root/tests/native_multiqc/m
     --outdir "$case_root/out" \
     --multiqc_container "$image"
 
+docker image inspect --format='{{index .RepoDigests 0}}' "$image" \
+    > "$case_root/image_digest.txt"
 python3 "$root/tests/native_multiqc/validate_real.py" --root "$case_root"
 printf '[OK] MultiQC real certification: %s\n' "$case_root/certification.json"
