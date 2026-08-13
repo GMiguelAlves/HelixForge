@@ -16,7 +16,7 @@ process CHIPSEQ_REFERENCE_BUNDLE {
         mode: 'copy', overwrite: true, pattern: '*.{json,yml,done,log}'
 
     input:
-    tuple val(meta), path(reference), path(annotation), path(blacklist, arity: '0..1')
+    tuple val(meta), path(reference), path(annotation), path(blacklist, arity: '0..*')
 
     output:
     tuple val(meta), path(reference), path(annotation), path('reference_bundle.manifest.json'), emit: artifacts
@@ -25,7 +25,7 @@ process CHIPSEQ_REFERENCE_BUNDLE {
     tuple val(meta), path('reference_bundle.done'), emit: status
 
     script:
-    def blacklistArg = blacklist ? "--blacklist '${blacklist}'" : ''
+    def blacklistArg = blacklist ? "--blacklist '${blacklist[0]}'" : ''
     """
     python '${moduleDir}/build_chipseq_reference_bundle.py' \
         --reference-id '${meta.id}' \
