@@ -11,7 +11,7 @@ from pathlib import Path
 
 READ_LENGTH = 50
 FRAGMENT_LENGTH = 140
-GENOME_LENGTH = 9000
+GENOME_LENGTH = 30000
 SEED = 20260813
 
 
@@ -118,7 +118,7 @@ def main():
     blacklist = reference_dir / "blacklist.bed"
     blacklist.write_text("chrSynthetic\t7000\t7100\n", encoding="utf-8")
 
-    centers = tuple(range(400, 8401, 320))
+    centers = tuple(range(1000, 26001, 1000))
     background = background_positions(160, centers)
     control_rep1 = tuple(55 + ((index * 37) % 85) for index in range(len(centers)))
     control_rep2 = tuple(50 + ((index * 53 + 20) % 90) for index in range(len(centers)))

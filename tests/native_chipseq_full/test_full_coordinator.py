@@ -128,6 +128,7 @@ class FullCoordinatorTopologyTest(unittest.TestCase):
         self.assertIn('test -e "$repo_root/.git"', harness)
         self.assertIn('--chipseq_consensus_method "$consensus_method"', harness)
         self.assertIn("--chipseq_idr_threshold 0.05", harness)
+        self.assertIn("--chipseq_effective_genome_size 30000", harness)
 
 
 if __name__ == "__main__":
