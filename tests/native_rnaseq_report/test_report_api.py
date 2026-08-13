@@ -14,7 +14,6 @@ ROOT = Path(__file__).resolve().parents[2]
 VALIDATOR = ROOT / "modules/local/rnaseq_report_context/resources/usr/bin/validate_rnaseq_report_context.py"
 FINALIZER = ROOT / "modules/local/rnaseq_gene_report/resources/usr/bin/finalize_rnaseq_report.py"
 NATIVE_REPORT = ROOT / "modules/local/rnaseq_gene_report/resources/usr/bin/gene_set_report.R"
-LEGACY_REPORT = ROOT / "pipelines/rnaseq/legacy/scripts/090-search-gene/gene_set_report.R"
 
 
 def digest(path: Path) -> str:
@@ -27,11 +26,7 @@ def canonical_text_digest(path: Path) -> str:
 
 
 class ReportApiTest(unittest.TestCase):
-    def test_native_r_provider_matches_reviewed_legacy_source(self):
-        self.assertEqual(
-            canonical_text_digest(NATIVE_REPORT),
-            canonical_text_digest(LEGACY_REPORT),
-        )
+    def test_native_r_provider_matches_certified_source_digest(self):
         self.assertEqual(
             canonical_text_digest(NATIVE_REPORT),
             "36e084d6a36ec16d125ad94f5cd3e9890de265ffa63d80d01ab8e6b98ed03930",

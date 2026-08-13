@@ -3,6 +3,7 @@
 set -euo pipefail
 
 project_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "${project_root}/tests/lib/materialize_rnaseq_legacy.sh"
 nextflow_bin=${NEXTFLOW_BIN:-nextflow}
 nextflow_jar=${NEXTFLOW_JAR:-}
 fixture_root="${project_root}/tests/fixtures/native_import"
@@ -27,6 +28,9 @@ case "$case_root" in
 esac
 rm -rf "$case_root"
 mkdir -p "$legacy_root/SYNTHETIC/sample_a" "$legacy_root/SYNTHETIC/sample_b" "$legacy_out" "$native_out" "$nextflow_out"
+materialize_rnaseq_legacy "$project_root" \
+    'scripts/050-quantification/txtimport_quant.R' \
+    "$case_root/legacy_source/txtimport_quant.R"
 cp "$fixture_root/salmon/sample_a/quant.sf" "$legacy_root/SYNTHETIC/sample_a/"
 cp "$fixture_root/salmon/sample_b/quant.sf" "$legacy_root/SYNTHETIC/sample_b/"
 
@@ -36,7 +40,7 @@ docker run --rm \
     -v "${case_root}:/case" \
     -v "${fixture_root}:/fixtures:ro" \
     "$image" \
-    Rscript /project/pipelines/rnaseq/legacy/scripts/050-quantification/txtimport_quant.R \
+    Rscript /case/legacy_source/txtimport_quant.R \
         --metadata /fixtures/metadata_single.csv \
         --quant-root /case/legacy_root \
         --gtf /fixtures/annotation.gtf \

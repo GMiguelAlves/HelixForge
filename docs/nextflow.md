@@ -68,7 +68,7 @@ unchanged legacy report step.
 The existing configuration remains authoritative:
 
 ```text
-pipelines/rnaseq/legacy/config/pipeline_config.sh
+pipelines/rnaseq/config/pipeline_config.sh
 pipelines/chipseq/legacy/config/pipeline_config.sh
 pipelines/integrative/legacy/config/pipeline_config.sh
 ```
@@ -196,8 +196,8 @@ and a `SummarizedExperiment`. See
 
 `--rnaseq_run_mode` defines the last requested native layer and works with
 Nextflow `-resume`: `qc`, `alignment`, `quantification`, `import`, `de`,
-`report`, or `full`. The default is `full`. `--rnaseq_native_de false` explicitly restores
-the preserved DEG wrapper; it is never selected implicitly.
+`report`, or `full`. The default is `full`. `--rnaseq_native_de false` is rejected
+because the retired DEG wrapper is available only from `rnaseq-legacy-v1.0.0`.
 
 ```bash
 nextflow run . --workflow rnaseq --rnaseq_run_mode de -resume

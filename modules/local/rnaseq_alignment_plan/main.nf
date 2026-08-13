@@ -15,7 +15,7 @@ process RNASEQ_ALIGNMENT_PLAN {
 
     input:
     path config_file
-    val legacy_root
+    val pipeline_root
     path qc_plan
     val reference_status
     val qc_status
@@ -29,7 +29,7 @@ process RNASEQ_ALIGNMENT_PLAN {
 
     script:
     """
-    export PROJECT_DIR='${legacy_root}'
+    export PROJECT_DIR='${pipeline_root}'
     export PIPELINE_CONFIG="\$PWD/${config_file}"
     source "\$PIPELINE_CONFIG"
     activate_python_env
@@ -56,7 +56,7 @@ process RNASEQ_ALIGNMENT_PLAN {
     if [[ "\$enabled" == true ]]; then
         [[ -s "\$REF_GENOME_FA" ]] || { echo "[ERRO] Reference genome ausente: \$REF_GENOME_FA"; exit 1; }
         [[ -s "\$REF_GTF" ]] || { echo "[ERRO] Annotation GTF ausente: \$REF_GTF"; exit 1; }
-        python '${legacy_root}/scripts/040-alignment/generate_star_plan.py' \
+        python '${moduleDir}/resources/usr/bin/generate_star_plan.py' \
             --qc-plan '${qc_plan}' \
             --project "\$project" \
             --output-root "\$STAR_QUANT_DIR" \

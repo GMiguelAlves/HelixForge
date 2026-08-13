@@ -54,8 +54,8 @@ The native branch no longer calls these step-030 wrappers:
 - `fastqc_merged_plan.sh`
 - `multiqc_plan.sh`
 
-They remain unchanged in `pipelines/rnaseq/legacy` only as a regression
-reference. `RNASEQ_DOWNLOAD_STEP`, `RNASEQ_METADATA_STEP`, `RNASEQ_QC_PLAN`,
+They are archived in `rnaseq-legacy-v1.0.0` as a regression reference.
+`RNASEQ_DOWNLOAD_STEP`, `RNASEQ_METADATA_STEP`, `RNASEQ_QC_PLAN`,
 and the complete QC fallback are no longer scheduled. STAR remains optional;
 Salmon, Import, and DESeq2 are native. Batch assessment and final reports are
 separate retirement items.

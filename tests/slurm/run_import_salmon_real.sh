@@ -10,6 +10,7 @@ queue=${5:-general}
 mode=${6:-driver}
 case_name=${7:-import-salmon-real}
 repo_root="${validation_root}/repo"
+source "${repo_root}/tests/lib/materialize_rnaseq_legacy.sh"
 case_root="${validation_root}/results/${case_name}"
 fixture_root="${repo_root}/tests/fixtures/native_import"
 legacy_root="${case_root}/legacy_root"
@@ -40,7 +41,7 @@ if [[ "$mode" == "legacy-job" ]]; then
         "$legacy_root/SYNTHETIC/sample_b/"
     cd "$case_root"
     env PATH="$runtime_path" Rscript \
-        "$repo_root/pipelines/rnaseq/legacy/scripts/050-quantification/txtimport_quant.R" \
+        "$case_root/legacy_source/txtimport_quant.R" \
         --metadata "$fixture_root/metadata_single.csv" \
         --quant-root "$legacy_root" \
         --gtf "$fixture_root/annotation.gtf" \
@@ -78,6 +79,9 @@ if [[ -e "$legacy_out" || -e "$native_out" || -e "$nextflow_out" ]]; then
 fi
 
 mkdir -p "$case_root"
+materialize_rnaseq_legacy "$repo_root" \
+    'scripts/050-quantification/txtimport_quant.R' \
+    "$case_root/legacy_source/txtimport_quant.R"
 legacy_job=$(sbatch --wait --parsable \
     --job-name=hf-import-legacy \
     --partition="$queue" \

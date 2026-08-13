@@ -4,10 +4,10 @@ Start with the [HelixForge Wiki](https://github.com/GMiguelAlves/HelixForge/wiki
 overview of the current architecture, workflows, execution, and development.
 Planned scientific APIs are tracked in the [roadmap](docs/roadmap.md).
 
-HelixForge is a compatibility-first Nextflow DSL2 implementation for the existing
-RNA-seq, ChIP-seq, and IntegrateSeq pipelines. The scientific Bash, Python, and
-R implementations are preserved under `pipelines/*/legacy` and remain directly
-executable.
+HelixForge is a Nextflow DSL2 implementation for RNA-seq, ChIP-seq, and
+IntegrateSeq analyses. RNA-seq is fully native; its retired implementation is
+archived in the immutable `rnaseq-legacy-v1.0.0` tag. ChIP-seq and IntegrateSeq
+retain compatibility boundaries while their remaining providers are migrated.
 
 The RNA-seq input boundary and QC layer are native: validated local FASTQs and
 metadata feed a checksummed Reference Bundle, FastQC, Trim Galore, per-sample
@@ -28,6 +28,8 @@ hierarchy are preserved. The native gene-report image is pinned by certified
 OCI digest and its real reduced R execution is enforced by CI.
 The complete production path was also revalidated on Slurm with the synthetic
 release fixture; see the [RNA-seq final validation](docs/rnaseq-final-validation.md).
+The removal boundary and historical regression procedure are recorded in the
+[RNA-seq legacy retirement note](docs/rnaseq-legacy-retirement.md).
 
 The ChIP-seq native foundation validates flexible metadata, controls and
 biological/technical replicate identity, reuses FastQC/MultiQC, and implements
@@ -97,7 +99,7 @@ nextflow run . -profile local --workflow rnaseq \
 ```
 
 Use `--rnaseq_trim_quality` or `--rnaseq_trim_length` only when intentionally
-overriding the corresponding legacy QC setting. Their defaults remain the
+overriding the corresponding shell-configuration QC setting. Their defaults remain the
 values sourced from `config/pipeline_config.sh`.
 
 FASTQs and references must already exist at the locations declared by the

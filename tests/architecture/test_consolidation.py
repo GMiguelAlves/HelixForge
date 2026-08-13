@@ -60,7 +60,13 @@ def test_workflow_composition_guards() -> None:
     de = (ROOT / "subworkflows/local/rnaseq/differential_expression.nf").read_text(encoding="utf-8")
     assert "RNASEQ_BATCH_STEP" not in de
     assert "RNASEQ_BATCH_STEP.out.status" not in de
-    assert "quantification_status, no_dep, no_dep" in de
+    assert "RNASEQ_DEG_STEP" not in de
+    assert "rnaseq_native_de=false is no longer supported" in de
+
+    workflow = (ROOT / "workflows/rnaseq.nf").read_text(encoding="utf-8")
+    assert "legacy_root" not in workflow
+    assert not (ROOT / "pipelines/rnaseq/legacy").exists()
+    assert (ROOT / "pipelines/rnaseq/config/pipeline_config.sh").is_file()
 
     production_fixture = (ROOT / "tests/slurm/generate_rnaseq_fixture.py").read_text(encoding="utf-8")
     assert '"covariates": ["batch"]' in production_fixture
