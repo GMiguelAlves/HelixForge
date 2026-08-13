@@ -5,6 +5,7 @@ import argparse
 import csv
 import hashlib
 import json
+import re
 import subprocess
 from pathlib import Path
 
@@ -38,12 +39,12 @@ def trace_metrics(path):
     failed = [row for row in entries if row.get("status") not in {"COMPLETED", "CACHED"}]
     if failed:
         raise AssertionError(f"failed trace entries in {path}: {failed[:3]}")
-    duration_ms = 0
+    duration_ms = 0.0
     for row in entries:
         raw = row.get("realtime") or row.get("duration") or "0"
-        if raw.isdigit():
-            duration_ms += int(raw)
-    return len(entries), duration_ms
+        for value, unit in re.findall(r"([0-9]+(?:\.[0-9]+)?)\s*(ms|s|m|h|d)", raw):
+            duration_ms += float(value) * {"ms": 1, "s": 1000, "m": 60000, "h": 3600000, "d": 86400000}[unit]
+    return len(entries), round(duration_ms)
 
 
 def main():
