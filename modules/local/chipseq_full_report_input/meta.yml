@@ -1,0 +1,12 @@
+name: CHIPSEQ_FULL_REPORT_INPUT
+description: Assemble the in-session native ChIP-seq manifests into a report inventory.
+keywords: [chipseq, full, report, manifest]
+input:
+  - meta: Project identity.
+  - manifests: Native component manifests.
+  - semantic_artifacts: Checksum-declared summaries used by the report.
+output:
+  - artifacts: Report input inventory.
+  - reports: Construction log.
+  - versions: Python version.
+  - status: Completion record.

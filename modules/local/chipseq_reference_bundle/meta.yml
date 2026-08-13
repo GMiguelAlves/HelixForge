@@ -1,0 +1,13 @@
+name: CHIPSEQ_REFERENCE_BUNDLE
+description: Validate and checksum the ChIP-seq genome, annotation, and optional blacklist.
+keywords: [chipseq, reference, manifest]
+input:
+  - meta: Reference identity including genome_id and build.
+  - reference: Genome FASTA.
+  - annotation: GTF/GFF annotation.
+  - blacklist: Optional BED blacklist.
+output:
+  - artifacts: Reference, annotation, and reference-bundle manifest.
+  - reports: Validation JSON and log.
+  - versions: Python version.
+  - status: Completion record.

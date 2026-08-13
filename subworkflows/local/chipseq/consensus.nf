@@ -94,7 +94,18 @@ workflow CONSENSUS_IDR {
             if (group_ids.size() != 1) {
                 error "Consensus group-id collision: ${group_ids}"
             }
-            def meta = [id: group_ids[0], strategy: strategy]
+            def identity = records[0]
+            def meta = [
+                id           : group_ids[0],
+                strategy     : strategy,
+                dataset      : identity.dataset,
+                experiment_id: identity.experiment_id,
+                condition    : identity.condition,
+                target       : identity.target,
+                genome_id    : identity.genome_id,
+                organism     : identity.organism,
+                peak_type    : identity.peak_type,
+            ]
             def recordsBase64 = groovy.json.JsonOutput.toJson(records).getBytes('UTF-8').encodeBase64().toString()
             tuple(meta, result_dirs, manifests, qc_files, recordsBase64)
         }
