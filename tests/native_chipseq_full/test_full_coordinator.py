@@ -112,6 +112,8 @@ class FullCoordinatorTopologyTest(unittest.TestCase):
         self.assertIn("(run_mode == 'full' && full_native_flags.values().every", workflow)
         self.assertIn("PEAK_ANNOTATION(annotation_inputs)", foundation)
         self.assertIn("TRACK_GENERATION(individual_track_inputs.mix(aggregate_track_inputs))", foundation)
+        self.assertIn(".combine(annotation_references, by: 0)", foundation)
+        self.assertIn(".combine(track_references, by: 0)", foundation)
         self.assertIn("CHIPSEQ_REPORT(report_records)", foundation)
         self.assertNotIn("nextflow run", foundation.lower())
         self.assertIn("run_stage full", harness)
