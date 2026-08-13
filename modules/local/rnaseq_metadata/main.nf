@@ -57,7 +57,7 @@ process RNASEQ_METADATA {
         'dataset,sample_id,file_prefix,run_accession,raw_r1,raw_r2,trimmed_run_r1,trimmed_run_r2,merged_sample_r1,merged_sample_r2,trim_quality,trim_length' \
         'STUB,stub_sample,stub_sample,stub_run,'"\$PWD"'/stub_input_R1.fastq,'"\$PWD"'/stub_input_R2.fastq,${params.outdir}/stub/trimmed_runs/stub_sample_stub_run_R1_trimmed.fastq.gz,${params.outdir}/stub/trimmed_runs/stub_sample_stub_run_R2_trimmed.fastq.gz,${params.outdir}/stub/trimmed_merged/stub_sample_R1_trimmed.fastq.gz,${params.outdir}/stub/trimmed_merged/stub_sample_R2_trimmed.fastq.gz,20,20' \
         > STUB_qc_plan.csv
-    printf 'reference_id\torganism\tgenome\ttranscriptome\tannotation\nSTUB\tstub\t%s/rnaseq_context/reference/genome.fa\t%s/rnaseq_context/reference/transcriptome.fa\t%s/rnaseq_context/reference/annotation.gtf\n' \
+    printf 'reference_id\torganism\tgenome\ttranscriptome\tannotation\nSTUB\tstub\t%s/reference/genome.fa\t%s/reference/transcriptome.fa\t%s/reference/annotation.gtf\n' \
         "\$PWD/${context_dir}" "\$PWD/${context_dir}" "\$PWD/${context_dir}" > reference_plan.tsv
     printf 'dataset,sample_id,file_prefix,run_accession,condition,batch,fastq_1,fastq_2\nSTUB,stub_sample,stub_sample,stub_run,control,B1,%s/stub_input_R1.fastq,%s/stub_input_R2.fastq\n' "\$PWD" "\$PWD" > validated_metadata.csv
     printf '{"schema_version":"1.0","status":"stub","rows":1,"biological_samples":1}\n' > metadata_validation.json
