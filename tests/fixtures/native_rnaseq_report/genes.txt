@@ -1,1 +1,2 @@
-Candidates: gene_stub
+Induced: gene_alpha
+Repressed: gene_beta

@@ -1,1 +1,2 @@
-chrStub	stub	gene	1	100	.	+	.	gene_id "gene_stub"; gene_name "Stub gene";
+chr1	fixture	gene	1	100	.	+	.	gene_id "gene_alpha"; gene_name "Alpha"; gene_biotype "protein_coding";
+chr1	fixture	gene	201	350	.	-	.	gene_id "gene_beta"; gene_name "Beta"; gene_biotype "protein_coding";

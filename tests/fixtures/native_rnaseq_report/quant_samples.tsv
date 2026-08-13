@@ -1,2 +1,5 @@
-dataset	sample_id	import_id	condition	batch
-STUB	stub_sample	STUB__stub_sample	control	B1
+dataset	sample_id	import_id	condition	batch	stage	tissue	sex
+STUDY	control_1	STUDY__control_1	control	B1	adult	ovary	female
+STUDY	control_2	STUDY__control_2	control	B2	adult	testis	male
+STUDY	treated_1	STUDY__treated_1	treated	B1	adult	ovary	female
+STUDY	treated_2	STUDY__treated_2	treated	B2	adult	testis	male

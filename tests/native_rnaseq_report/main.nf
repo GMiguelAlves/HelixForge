@@ -23,6 +23,5 @@ workflow {
         file("${fixture}/genes.txt", checkIfExists: true),
         parameters
     ))
-    report_script = file("${projectDir}/../../pipelines/rnaseq/legacy/scripts/090-search-gene/gene_set_report.R", checkIfExists: true)
-    RNASEQ_REPORT(request, report_script)
+    RNASEQ_REPORT(request)
 }
