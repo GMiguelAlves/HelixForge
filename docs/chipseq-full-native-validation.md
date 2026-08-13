@@ -65,10 +65,16 @@ A evidência leve de auditoria foi preservada na home institucional em
 README em português. Workdirs e resultados temporários do scratch não são
 evidência permanente.
 
+## Atualização: execução real com IDR
+
+O caso reduzido `chipseq-production-idr-real-07` executou o caminho completo
+com ferramentas reais no Slurm usando Nextflow 25.10.7, fila máxima de cinco
+jobs e IDR 2.0.4.2 em ambiente Conda isolado. As 105 tarefas concluíram sem
+falhas. O validador aprovou 12 grupos de verificações, incluindo 12 regiões IDR
+para controle, 15 para tratado, differential binding, annotation, sete tracks
+e o relatório HTML final de 37.472 bytes.
+
 ## Pendências
 
-- execução real top-level com os runtimes científicos certificados;
-- execução real top-level do ramo opcional IDR no Slurm; o provider estatístico
-  2.0.4.2 e seu teste OCI reduzido estão implementados;
 - regressão com dataset biológico revisado após aposentadoria do legado;
 - certificação OCI/Apptainer dos runtimes ChIP-seq restantes.
