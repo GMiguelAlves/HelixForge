@@ -49,7 +49,7 @@ process CONSENSUS_AGGREGATE {
     stub:
     """
     printf 'group_id\tdataset\texperiment_id\tcondition\ttarget\tgenome_id\tpeak_type\tstrategy\tstatus\treplicate_count\tconsolidated_peaks_available\nfixture.treated.H3K27ac.fixture_v1.narrow\tfixture\tfixture.H3K27ac\ttreated\tH3K27ac\tfixture_v1\tnarrow\t%s\t%s\t2\t%s\n' \
-        '${meta.strategy}' '${meta.strategy == 'idr' ? 'not_implemented' : 'stub'}' '${meta.strategy == 'idr' ? 'false' : 'true'}' > consolidation_summary.tsv
+        '${meta.strategy}' 'stub' 'true' > consolidation_summary.tsv
     printf '{"schema_version":"1.0","type":"consensus_idr_summary","groups":1,"strategy":"%s","status":"stub"}\n' '${meta.strategy}' > consolidation_summary.json
     printf '{"schema_version":"1.0","type":"consensus_idr","id":"chipseq.consensus.aggregate","groups":1,"strategy":"%s","status":"stub"}\n' '${meta.strategy}' > consensus_manifest.json
     printf '{"schema_version":"1.0","id":"chipseq.consensus.aggregate","process":"CONSENSUS_AGGREGATE","status":"stub"}\n' > consensus_aggregate.execution.json

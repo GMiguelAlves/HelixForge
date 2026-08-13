@@ -51,6 +51,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--case-root", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--consensus-method", choices=("union", "idr"), default="union")
     args = parser.parse_args()
     case_root = args.case_root.resolve()
     result = case_root / "results"
@@ -65,7 +66,7 @@ def main():
     fastqc_zips = find_exact(result, "030-qc-fastq/raw/*/*_fastqc.zip", 10)
     checks["qc"] = {"fastqc_archives": len(fastqc_zips), "multiqc": True, "status": "pass"}
 
-    bam_manifests = find_exact(result, "pipeline_info/native_chipseq/bam_final/*.manifest.json", 5)
+    bam_manifests = find_exact(result, "pipeline_info/native_chipseq/bam_final/*.bam_final.manifest.json", 5)
     bam_reads = {}
     for manifest in bam_manifests:
         document = load(manifest)
@@ -96,17 +97,28 @@ def main():
         assert int(row["peak_count"]) > 0
     checks["peak_qc"] = {"records": 4, "frip": [float(row["frip"]) for row in qc_rows], "status": "pass"}
 
-    consensus_manifests = find_exact(result, "chipseq/consensus/*/*.consensus_result/manifest.json", 2)
+    suffix = "consensus_result" if args.consensus_method == "union" else "idr_result"
+    consensus_manifests = find_exact(result, f"chipseq/consensus/*/*.{suffix}/manifest.json", 2)
     consensus = {}
     for manifest in consensus_manifests:
         document = load(manifest)
-        assert document["strategy"] == "union"
-        assert document["status"] == "complete"
+        assert document["strategy"] == args.consensus_method
+        assert document["status"] in {"complete", "complete_empty"}
         assert len(document["replicates"]) == 2
         assert document["statistics"]["consolidated_peaks"] > 0
+        artifact = document["artifacts"]["consolidated_bed"]
+        bed = require(manifest.parent / artifact["path"])
+        assert hashlib.sha256(bed.read_bytes()).hexdigest() == artifact["sha256"]
+        if args.consensus_method == "idr":
+            assert document["type"] == "idr"
+            assert document["provider"] == "idr"
+            assert document["provider_version"] == "2.0.4.2"
+            assert document["parameters"]["rank_metric"] == "signal_value"
+            assert float(document["parameters"]["idr_threshold"]) == 0.05
+            require(manifest.parent / document["artifacts"]["idr_output"]["path"])
         consensus[document["condition"]] = document["statistics"]["consolidated_peaks"]
     assert set(consensus) == {"control", "treated"}
-    checks["consensus"] = {"groups": consensus, "status": "pass"}
+    checks["consensus"] = {"method": args.consensus_method, "groups": consensus, "status": "pass"}
 
     db_root = result / "120-differential-binding/differential_binding_results"
     db_manifest = load(require(db_root / "manifest.json"))
@@ -158,6 +170,7 @@ def main():
         "type": "chipseq_top_level_validation",
         "dataset": "synthetic_chipseq_validation",
         "nextflow_version": "25.10.7",
+        "consensus_method": args.consensus_method,
         "checks": checks,
         "status": "pass",
     }

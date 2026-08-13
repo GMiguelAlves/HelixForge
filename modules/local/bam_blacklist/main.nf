@@ -26,7 +26,7 @@ process BAM_BLACKLIST {
     tuple val(meta), path("${meta.id}.bam_blacklist_reports"), emit: reports
     tuple val(meta), path("${meta.id}.versions.yml"), emit: versions
     tuple val(meta), path("${meta.id}.execution.json"), emit: execution_metadata
-    tuple val(meta), path("${meta.id}.manifest.json"), emit: manifest
+    tuple val(meta), path("${meta.id}.bam_blacklist.manifest.json"), emit: manifest
     tuple val(meta), path("${meta.id}.bam_blacklist.done"), emit: status
 
     script:
@@ -116,7 +116,7 @@ process BAM_BLACKLIST {
         "\$input_sha" "\$output_sha" "\$before" "\$after" '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" > '${meta.id}.execution.json'
     printf '{"schema_version":"1.0","type":"bam_blacklist","id":"%s","status":"complete","enabled":%s,"overlap_mode":"%s","artifact":"%s","sha256":"%s","blacklist_sha256":"%s","reads_removed":%s,"upstream_manifests":[{"sha256":"%s"}]}\n' \
-        '${meta.id}' '${has_blacklist}' '${mode}' "\$output" "\$output_sha" "\$blacklist_sha" "\$removed" "\$upstream_sha" > '${meta.id}.manifest.json'
+        '${meta.id}' '${has_blacklist}' '${mode}' "\$output" "\$output_sha" "\$blacklist_sha" "\$removed" "\$upstream_sha" > '${meta.id}.bam_blacklist.manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' '${meta.id}' '${task.process}' > '${meta.id}.bam_blacklist.done'
     """
 
@@ -133,7 +133,7 @@ process BAM_BLACKLIST {
     printf '"BAM_BLACKLIST":\n    samtools: stub\n' > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"BAM_BLACKLIST","status":"stub"}\n' '${meta.id}' > '${meta.id}.execution.json'
     upstream_sha=\$(sha256sum '${upstream_manifest}' | awk '{print \$1}')
-    printf '{"schema_version":"1.0","type":"bam_blacklist","id":"%s","status":"stub","enabled":${has_blacklist},"upstream_manifests":[{"sha256":"%s"}]}\n' '${meta.id}' "\$upstream_sha" > '${meta.id}.manifest.json'
+    printf '{"schema_version":"1.0","type":"bam_blacklist","id":"%s","status":"stub","enabled":${has_blacklist},"upstream_manifests":[{"sha256":"%s"}]}\n' '${meta.id}' "\$upstream_sha" > '${meta.id}.bam_blacklist.manifest.json'
     printf '{"id":"%s","process":"BAM_BLACKLIST","status":"stub"}\n' '${meta.id}' > '${meta.id}.bam_blacklist.done'
     """
 }

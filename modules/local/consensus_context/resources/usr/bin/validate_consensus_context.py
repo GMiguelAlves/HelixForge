@@ -200,8 +200,8 @@ def build_request(records, peak_dirs, peak_manifests, qc_manifests, spec):
     return {
         "schema_version": "1.0", "type": "consensus_idr_request",
         "id": first["group_id"], "strategy": strategy,
-        "provider": "idr_pending" if strategy == "idr" else "bedtools_multiinter",
-        "provider_version": "0.1.0" if strategy == "idr" else "2.31.1",
+        "provider": "idr" if strategy == "idr" else "bedtools_multiinter",
+        "provider_version": "2.0.4.2" if strategy == "idr" else "2.31.1",
         "dataset": first["dataset"], "experiment_id": first["experiment_id"],
         "condition": first["condition"], "treatment": first.get("treatment") or None,
         "target": first["target"], "genome_id": first["genome_id"],

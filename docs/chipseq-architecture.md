@@ -35,7 +35,7 @@ flowchart TD
     CCTX --> UNION["Union provider"]
     CCTX --> INTER["Intersection provider"]
     CCTX --> SUPPORT["Replicate-support provider"]
-    CCTX --> IDR["IDR provider request (not implemented)"]
+    CCTX --> IDR["IDR provider 2.0.4.2"]
     UNION --> CAGG["CONSENSUS_AGGREGATE"]
     INTER --> CAGG
     SUPPORT --> CAGG
@@ -96,11 +96,11 @@ flowchart TD
 - `CONSENSUS_CONTEXT` joins peak and Peak QC manifests by stable IDs, validates
   complete grouping identity and makes biological/technical replicate policy
   explicit. Consensus providers operate on atomic segments; IDR remains a
-  separate non-result provider request until its runtime is validated.
+  separate statistical provider with its own threshold, rank and provenance.
 - `DB_PREFLIGHT` creates a recorded cross-condition peak universe and validates
   statistical units, design, covariates, filters and contrasts. featureCounts,
   model fitting, each contrast and aggregation are independent cache boundaries.
-- `PEAK_ANNOTATION_CONTEXT` consumes an existing Peak Calling or Consensus
+- `PEAK_ANNOTATION_CONTEXT` consumes an existing Peak Calling, Consensus or IDR
   manifest plus reference/annotation identity. Provider execution, annotation
   statistics, and provider-neutral aggregation are separate boundaries and
   never trigger peak calling or differential binding.
@@ -139,7 +139,7 @@ The native top-level stub evidence is recorded in
 2. BAM selection, duplicate policy, blacklist and final QC (foundation 0.2);
 3. explicit MACS3 provider and caller-neutral peak outputs (foundation 0.3);
 4. explicit FRiP/Peak QC API and per-replicate aggregation (foundation 0.4);
-5. Consensus API and IDR provider boundary (foundation 0.5);
+5. Consensus API boundary (foundation 0.5) and optional IDR provider (0.10);
 6. Differential Binding API with explicit design/contrasts (foundation 0.6);
 7. manifest-driven Peak Annotation API (foundation 0.7);
 8. manifest-driven Track Generation API (foundation 0.8);

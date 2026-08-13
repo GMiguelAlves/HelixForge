@@ -24,16 +24,16 @@ The logical request contains:
 
 ```text
 meta
-Consensus provider artifacts and manifests
+Consensus or IDR provider artifacts and manifests
 FINAL_BAM/BAI artifacts and manifests
 validated ChIP-seq metadata plan
 versioned differential-binding specification
 ```
 
-Consensus inputs must describe compatible dataset/experiment, target, genome,
-peak type and caller-neutral semantic coordinates. V1 accepts completed native
-`consensus` manifests only. `idr` with `consolidated_peaks.available=false` is a
-fatal unavailable-input error, never an empty peak set.
+Inputs must describe compatible dataset/experiment, target, genome, peak type
+and caller-neutral semantic coordinates. V1 accepts completed native
+`consensus` or `idr` manifests. An unavailable IDR artifact is a fatal input
+error; `complete_empty` remains an explicit empty statistical result.
 
 The specification defines:
 
