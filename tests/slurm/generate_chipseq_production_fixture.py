@@ -119,7 +119,7 @@ def main():
     blacklist.write_text("chrSynthetic\t7000\t7100\n", encoding="utf-8")
 
     centers = tuple(range(1000, 26001, 1000))
-    background = background_positions(160, centers)
+    background = background_positions(600, centers)
     control_rep1 = tuple(55 + ((index * 37) % 85) for index in range(len(centers)))
     control_rep2 = tuple(50 + ((index * 53 + 20) % 90) for index in range(len(centers)))
     treated_rep1 = tuple(45 + ((index * 61 + 35) % 95) for index in range(len(centers)))
