@@ -24,10 +24,23 @@ top-level execution used the production Import policy
 valid final report manifest. The temporary scratch tree was removed after
 verification.
 
-A real provider run, container build and scientific comparison remain required
-before the report image is certified.
-The dedicated environment pins R 4.3.3, rtracklayer 1.62.0 and plotting/data
-packages used by the script.
+The clean container and real reduced provider were certified by
+[GitHub Actions run 31721249182](https://github.com/GMiguelAlves/HelixForge/actions/runs/31721249182)
+on 2026-08-13. The test used four samples, two biological conditions and two
+candidate genes. It semantically verified five required tables, eight
+gene/sample expression rows, both DEG joins, the rendered HTML, twelve
+non-empty PNG figures, the complete manifest and R 4.3.3 session information.
+
+Certified image:
+
+```text
+ghcr.io/gmiguelalves/helixforge-rnaseq-report:1.0.0
+sha256:ec8818c48c91e2fe501c01ffa27291e92662ddd6d8ab9eb1bc9e6afc99e6f863
+```
+
+The default Docker and Apptainer references include that digest. The dedicated
+environment pins R 4.3.3, rtracklayer 1.62.0 and every plotting/data package
+used by the script.
 
 The Docker image runs as container root so Nextflow work directories mounted
 from arbitrary host UIDs remain writable. It requests no privileged mode and
@@ -36,3 +49,6 @@ metrics. Apptainer retains its standard host-user mapping.
 
 The current migration preserves table, figure and HTML names. It does not add
 batch correction, enrichment databases or new biological interpretations.
+Certification proves the reduced provider contract and runtime. A reviewed
+biological benchmark and broad legacy-result comparison remain release-level
+validation, as planned; they are not inferred from the synthetic fixture.
