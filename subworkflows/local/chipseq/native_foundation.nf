@@ -423,7 +423,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                         tuple(row.dataset, row.genome_id, row.organism)
                                     }
                                     .unique()
-                                    .collect()
+                                    .toList()
                                     .map { projects ->
                                         if (projects.size() != 1) {
                                             error "chipseq_run_mode=full currently requires one dataset/genome; observed ${projects}"
