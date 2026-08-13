@@ -203,6 +203,7 @@ if [[ ! -s "$case_root/traces/full.tsv" ]]; then
         --chipseq_peak_duplicate_policy all \
         --chipseq_peak_output_dir "$result_root/080-peak-calling" \
         --chipseq_consensus_method "$consensus_method" \
+        --chipseq_idr_threshold 0.05 \
         --chipseq_idr_rank_metric signal_value \
         --chipseq_min_replicates 2 \
         --chipseq_db_spec "$case_root/db_spec.json" \

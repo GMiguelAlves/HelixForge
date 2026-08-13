@@ -61,6 +61,8 @@ def test_workflow_composition_guards() -> None:
     idr = (ROOT / "modules/local/idr_provider/main.nf").read_text(encoding="utf-8")
     assert "run_idr.py" in idr
     assert "not_implemented" not in idr
+    consensus_context = (ROOT / "modules/local/consensus_context/main.nf").read_text(encoding="utf-8")
+    assert "set -o pipefail" in consensus_context
 
     chip_workflow = (ROOT / "workflows/chipseq.nf").read_text(encoding="utf-8")
     assert "chipseq_run_mode=full is exclusively native" in chip_workflow
