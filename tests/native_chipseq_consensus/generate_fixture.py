@@ -60,6 +60,32 @@ def main():
         writer.writeheader()
         writer.writerows(rows)
 
+    request = {
+        "schema_version": "1.0", "type": "consensus_idr_request",
+        "id": "fixture.fixture.H3K27ac.treated.H3K27ac.fixture_v1.narrow",
+        "status": "valid", "strategy": "idr", "provider": "idr",
+        "provider_version": "2.0.4.2", "dataset": "fixture",
+        "experiment_id": "fixture.H3K27ac", "condition": "treated",
+        "treatment": "drug", "target": "H3K27ac", "genome_id": "fixture_v1",
+        "peak_type": "narrow", "caller": "macs3", "caller_version": "3.0.4",
+        "replicate_mode": "biological", "replicate_policy": "require_premerged",
+        "replicate_count": 2,
+        "parameters": {"idr_threshold": 0.05, "rank_metric": "signal_value"},
+        "replicates": [
+            {
+                "evidence_replicate_id": str(replicate),
+                "record_id": f"chip_rep{replicate}", "sample_id": f"chip_rep{replicate}",
+                "peak_id": f"chip_rep{replicate}.H3K27ac.narrow.macs3",
+                "peak_directory": f"chip_rep{replicate}.H3K27ac.narrow.macs3.peak_calling",
+                "peak_file": "peaks.narrowPeak",
+            }
+            for replicate in (1, 2)
+        ],
+    }
+    (root / "idr_request.json").write_text(
+        json.dumps(request, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
 
 if __name__ == "__main__":
     main()

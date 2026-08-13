@@ -10,14 +10,13 @@ case_root=${IDR_TEST_ROOT:-$(mktemp -d "${TMPDIR:-/tmp}/helixforge-idr.XXXXXX")}
 mkdir -p "$case_root/fixture" "$case_root/results" "$case_root/work" "$case_root/nxf-home"
 python3 "$root/tests/native_chipseq_consensus/generate_fixture.py" --outdir "$case_root/fixture"
 
-NXF_HOME="$case_root/nxf-home" "$nextflow_bin" run "$root/tests/native_chipseq_consensus/main.nf" \
+NXF_HOME="$case_root/nxf-home" "$nextflow_bin" run "$root/tests/native_chipseq_consensus/real.nf" \
     -c "$root/tests/native_chipseq_consensus/nextflow.config" \
     -c "$root/tests/native_chipseq_consensus/real.config" \
     -ansi-log false \
     -work-dir "$case_root/work" \
     --fixture_dir "$case_root/fixture" \
     --outdir "$case_root/results" \
-    --chipseq_run_mode idr \
     --idr_container "$image"
 
 docker image inspect --format='{{index .RepoDigests 0}}' "$image" \
