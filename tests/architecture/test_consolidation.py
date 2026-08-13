@@ -57,6 +57,15 @@ def test_workflow_composition_guards() -> None:
     assert ".combine(indexes_by_key, by: 0)" in chip
     assert "index_key" in chip
 
+    de = (ROOT / "subworkflows/local/rnaseq/differential_expression.nf").read_text(encoding="utf-8")
+    assert "RNASEQ_BATCH_STEP" not in de
+    assert "RNASEQ_BATCH_STEP.out.status" not in de
+    assert "quantification_status, no_dep, no_dep" in de
+
+    production_fixture = (ROOT / "tests/slurm/generate_rnaseq_fixture.py").read_text(encoding="utf-8")
+    assert '"covariates": ["batch"]' in production_fixture
+    assert '"formula": "~ batch + condition"' in production_fixture
+
 
 def test_manifest_identity_and_lineage_guards() -> None:
     expected = {

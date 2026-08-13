@@ -162,6 +162,12 @@ def main() -> None:
         raise ValueError("unsupported Differential Expression specification version")
     if spec.get("provider") != "deseq2" or str(spec.get("test", "")).lower() != "wald":
         raise ValueError("Differential Expression API 1.0 supports provider=deseq2 and test=wald only")
+    correction = str(spec.get("correction", "raw"))
+    if correction != "raw":
+        raise ValueError(
+            "Differential Expression accepts only uncorrected Import API counts; "
+            "batch-corrected matrices are exploratory artifacts"
+        )
 
     design = spec.get("design")
     if not isinstance(design, dict):
@@ -261,7 +267,7 @@ def main() -> None:
     model = {
         "schema_version": "1.0", "model_id": model_id, "model_order": 1,
         "analysis_id": analysis_id, "scope": str(spec.get("scope", "all_projects")),
-        "correction": str(spec.get("correction", "raw")), "provider": "deseq2",
+        "correction": correction, "provider": "deseq2",
         "test": "wald", "variable": variable, "covariates": covariates,
         "formula": formula, "valid_levels": sorted(levels), "filter": filter_spec,
         "parameters": {"alpha": alpha, "lfc_threshold": lfc_threshold,
