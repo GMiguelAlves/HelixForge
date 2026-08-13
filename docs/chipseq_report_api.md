@@ -98,7 +98,10 @@ without scheduling scientific producers.
 
 `--chipseq_run_mode report --chipseq_native_report true` requires
 `--chipseq_report_input_manifest`. Setting `--chipseq_native_report false`
-invokes the unchanged legacy report step. `full` remains unchanged.
+invokes the unchanged legacy report step only in dedicated `report` mode. Native
+`full` builds the same inventory from current-session manifests and checksum-
+declared semantic artifacts, then executes this Report API without filesystem
+discovery.
 
 This contract defines architecture and executable validation only. It does not
 claim scientific equivalence to the legacy report.

@@ -37,8 +37,8 @@ pre-normalization, ComBat, multimapping, fractional/multiple assignment and IDR
 results are rejected.
 
 Set `--chipseq_native_differential_binding false` to execute the unchanged
-legacy `differential` step in this dedicated mode. `full` remains the complete
-legacy graph.
+legacy `differential` step in this dedicated mode. Native `full` requires this
+provider and does not permit fallback.
 
 ## Cache behavior
 

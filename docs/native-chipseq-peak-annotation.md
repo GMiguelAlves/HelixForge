@@ -51,7 +51,8 @@ nextflow run . -profile local --workflow chipseq \
 
 The dedicated mode consumes existing artifacts and never calls peaks again.
 Set `--chipseq_native_peak_annotation false` for the unchanged legacy
-`annotate` fallback. `full` retains the complete legacy graph.
+`annotate` fallback. Native `full` passes Consensus and Reference Bundle outputs
+directly to this API and does not permit fallback.
 
 ## Validation and outputs
 

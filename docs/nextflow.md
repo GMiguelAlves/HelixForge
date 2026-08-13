@@ -50,8 +50,10 @@ nextflow run . -profile local --workflow chipseq --chipseq_run_mode report \
 Bowtie2 indexing and per-record alignment. `post_alignment` adds selection,
 duplicate, blacklist, integrity and final-QC providers. `peaks` adds validated
 per-replicate MACS3 3.0.4 calling and requires explicit peak type and numerical
-effective genome size. `full` remains the complete legacy fallback. Use
-`--chipseq_native_peak_calling false` to run only the legacy peaks step.
+effective genome size. `full` is the native single-session coordinator and
+requires all native provider flags, an explicit Consensus strategy, and a
+Differential Binding spec. It never falls back to the legacy coordinator. Use
+`--chipseq_native_peak_calling false` only for the dedicated legacy peaks step.
 `differential_binding` advances through Peak QC and Consensus into explicit
 featureCounts/DESeq2 providers and requires a versioned DB specification. Use
 `--chipseq_native_differential_binding false` for the legacy differential step.

@@ -131,11 +131,15 @@ nextflow run . -profile test -stub-run --workflow chipseq \
 ```
 
 For a real run, use `--chipseq_run_mode qc`, `alignment`, `post_alignment`,
-`peaks`, `peak_qc`, `consensus`, `annotation`, `tracks`, or `report` and provide the
-required existing config or external manifest.
+`peaks`, `peak_qc`, `consensus`, `differential_binding`, `annotation`, `tracks`,
+`report`, or `full` and provide the required config or external manifest.
 Native peaks require explicit `--chipseq_peak_type narrow|broad` and a numerical
-`--chipseq_effective_genome_size`. `full` retains the complete legacy fallback;
-`--chipseq_native_peak_calling false` selects only the legacy peak step.
+`--chipseq_effective_genome_size`. `full` is the native, single-session
+coordinator from QC through the final report; it also requires an explicit
+consensus method and `--chipseq_db_spec`. It rejects disabled native providers
+instead of falling back to the legacy coordinator.
+`--chipseq_native_peak_calling false` selects only the legacy peak step in its
+dedicated mode.
 `--chipseq_native_peak_qc false` stops `peak_qc` mode after native Peak Calling.
 Native consensus additionally requires `--chipseq_consensus_method
 union|intersection|replicate_support`; the latter also requires
