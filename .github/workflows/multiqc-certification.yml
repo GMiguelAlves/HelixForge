@@ -1,0 +1,52 @@
+name: MultiQC container certification
+
+on:
+  push:
+    branches: [master, contrib/multiqc-certification]
+    paths:
+      - 'modules/local/multiqc/**'
+      - 'tests/native_multiqc/**'
+      - 'tests/fixtures/native_multiqc/**'
+      - 'nextflow.config'
+      - 'nextflow_schema.json'
+      - '.github/workflows/multiqc-certification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    env:
+      MULTIQC_TEST_IMAGE: quay.io/biocontainers/multiqc@sha256:fb7d6625fb5adaed43ced8bd051a875038714180bcfcd7c8e467204f72882de9
+      MULTIQC_TEST_ROOT: /tmp/helixforge-multiqc-certification
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install certified Nextflow
+        run: curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
+      - name: Pull and identify image
+        id: image
+        run: |
+          docker pull "$MULTIQC_TEST_IMAGE"
+          digest=$(docker image inspect --format='{{index .RepoDigests 0}}' "$MULTIQC_TEST_IMAGE")
+          test -n "$digest"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+          printf '### MultiQC OCI\n\n- Image: `%s`\n- Digest: `%s`\n' \
+            "$MULTIQC_TEST_IMAGE" "$digest" >> "$GITHUB_STEP_SUMMARY"
+          docker run --rm "$MULTIQC_TEST_IMAGE" multiqc --version | grep -F '1.17'
+      - name: Run real reduced MultiQC process
+        env:
+          NEXTFLOW: ${{ github.workspace }}/nextflow
+        run: tests/native_multiqc/run_real.sh
+      - name: Run certification contract tests
+        run: python3 -m unittest tests.native_multiqc.test_contract
+      - uses: actions/upload-artifact@v4
+        with:
+          name: multiqc-1.17-certification
+          path: /tmp/helixforge-multiqc-certification
+          if-no-files-found: error

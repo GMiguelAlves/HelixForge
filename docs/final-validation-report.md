@@ -46,7 +46,7 @@ packages. At most five scientific jobs were queued concurrently.
 |---|---|---|---|---|
 | Trim Galore | Yes, including Slurm | Yes | READY_TO_RETIRE | Minimal paired-end fixture only |
 | FastQC | Yes, 0.12.1 | Contract/mock comparison only | CONDITIONAL | Real report generated; no real legacy pair in this pass |
-| MultiQC | Yes on Slurm, 1.30 | Contract comparison | CONDITIONAL | Real top-level report passed; pinned OCI image still needs certification |
+| MultiQC | Yes on Slurm 1.30 and Docker 1.17 | Contract comparison | CONDITIONAL | Immutable OCI image certified on two reduced FastQC records; no real legacy pair in this pass |
 | FASTQ merge | Native mock/regression evidence | Yes | CONDITIONAL | Not rerun with a fully real QC chain |
 | STAR | Yes locally; cluster index blocked | Yes locally | CONDITIONAL | Cluster Conda STAR 2.7.11b aborts after index generation |
 | Salmon | Yes, 1.10.3, including Slurm | Yes | READY_TO_RETIRE | Semantic outputs passed on compute nodes |
@@ -85,7 +85,8 @@ FastQC 0.12.1 and MultiQC 1.30 ran through the complete native QC subworkflow
 on Slurm. The top-level run covered raw and post-trim FastQC, four paired-end
 Trim Galore tasks, merged FASTQs, merged-read FastQC, and a non-empty MultiQC
 report. Re-execution exposed an idempotence defect when replacing an existing
-MultiQC data directory; publication now uses a bounded temporary/previous swap.
+MultiQC data directory; publication now uses Nextflow `publishDir`, including
+inside Docker where arbitrary host paths are not automatically mounted.
 
 The same Trim Galore fixture passed on Slurm using jobs 12088 and 12089. A
 provenance defect was found: the multiline `trim_galore --version` banner was
@@ -396,8 +397,10 @@ upstream reproduction.
 - Conda on Slurm: existing environments were used without installation.
   Results are conditional where their package versions differ from declared
   module environments.
-- MultiQC: real Slurm execution passed with the existing 1.30 runtime; the
-  pinned OCI image remains uncertified.
+- MultiQC: real Slurm execution passed with the existing 1.30 runtime. The
+  production 1.17 BioContainer was independently certified with Java 21,
+  Nextflow 25.10.7 and Docker in GitHub Actions run `31726522504`, then pinned
+  by OCI digest `sha256:fb7d6625fb5adaed43ced8bd051a875038714180bcfcd7c8e467204f72882de9`.
 
 ## Lint and static validation
 
@@ -465,11 +468,10 @@ Import is close but needs an explicit decision on workflow-level identifier and
 `countsFromAbundance` policy. Global retirement is blocked by:
 
 1. the Bowtie2 production image missing samtools, despite the passing conditional Slurm regression;
-2. the pinned MultiQC OCI image remaining uncertified;
-3. IDR remaining explicitly not implemented;
-4. unresolved task-cache persistence in the available Nextflow runtime;
-5. STAR 2.7.11b crashing during index generation in the available cluster runtime;
-6. no production-scale, top-level ChIP-seq regression against a reviewed biological dataset.
+2. IDR remaining explicitly not implemented;
+3. unresolved task-cache persistence in the available Nextflow runtime;
+4. STAR 2.7.11b crashing during index generation in the available cluster runtime;
+5. no production-scale, top-level ChIP-seq regression against a reviewed biological dataset.
 
 The detailed decisions and deviations are tracked in
 `docs/scientific-deviation-log.md`.
@@ -479,8 +481,7 @@ The detailed decisions and deviations are tracked in
 1. Reproduce the one-process cache probe with an administrator-supported
    Nextflow installation and, if necessary, report the empty task DB upstream.
 2. Publish one declarative Bowtie2 2.5.4 + samtools 1.20 image and rerun alignment.
-3. Obtain and certify the pinned MultiQC image.
-4. Implement and validate IDR, or explicitly exclude it from the first release.
-5. Repeat Differential Binding with the certified DESeq2 1.0.1 image.
-6. Validate STAR with the pinned production image/runtime rather than the crashing cluster package.
-7. Run the top-level ChIP-seq workflow on one reviewed reduced biological dataset before reconsidering legacy removal.
+3. Implement and validate IDR, or explicitly exclude it from the first release.
+4. Repeat Differential Binding with the certified DESeq2 1.0.1 image.
+5. Validate STAR with the pinned production image/runtime rather than the crashing cluster package.
+6. Run the top-level ChIP-seq workflow on one reviewed reduced biological dataset before reconsidering legacy removal.
