@@ -66,7 +66,7 @@ Native foundation (`chipseq_run_mode=qc|alignment`):
 | `PEAK_QC_AGGREGATE` | Produces one QC row per replicate without pooling, ranking, consensus or IDR |
 | `CONSENSUS_CONTEXT` | Replaces metadata/glob grouping with manifest-ID joins and explicit replicate policy |
 | `CONSENSUS_UNION` / `CONSENSUS_INTERSECTION` / `CONSENSUS_SUPPORT` | Decompose `consensus_peaks.sh` into explicit atomic-segment strategies; no count matrix is implied |
-| `IDR_PROVIDER` | New honest provider boundary; validates a request but emits no IDR peaks until a runtime is validated |
+| `IDR_PROVIDER` | Native IDR 2.0.4.2 execution with explicit rank/threshold, deterministic seed, normalized peaks and provenance |
 | `CONSENSUS_AGGREGATE` | Publishes provider-neutral group summaries and availability state |
 | `DB_PREFLIGHT` | Replaces filename/order inference with manifest joins, an explicit comparison universe, design and contrasts |
 | `PEAK_COUNTING_PROVIDER` / `FEATURECOUNTS_PEAK` | Replaces headerless `bedtools multicov` matrices with explicit sample columns and a raw-count manifest |

@@ -12,7 +12,7 @@ flowchart LR
     C --> U["CONSENSUS_UNION"]
     C --> I["CONSENSUS_INTERSECTION"]
     C --> S["CONSENSUS_SUPPORT"]
-    C --> R["IDR_PROVIDER: request only"]
+    C --> R["IDR_PROVIDER 2.0.4.2"]
     U --> A["CONSENSUS_AGGREGATE"]
     I --> A
     S --> A
@@ -35,10 +35,10 @@ silently merge technical replicates. Technical evidence can instead be retained
 with `replicate_mode=technical` and `replicate_policy=preserve`.
 
 `--chipseq_run_mode idr` additionally requires explicit
-`--chipseq_idr_threshold` and `--chipseq_idr_rank_metric`. It currently checks
-for exactly two premerged biological narrowPeak inputs from a compatible caller
-and records a provider request. It returns `status=not_implemented` and
-`consolidated_peaks.available=false`; this is not an IDR analysis.
+`--chipseq_idr_threshold` and `--chipseq_idr_rank_metric`. It checks for exactly
+two premerged biological narrowPeak inputs from a compatible caller and runs
+the pinned statistical provider. The same optional branch is selected inside
+`chipseq_run_mode=full` with `--chipseq_consensus_method idr`.
 
 ## Outputs and provenance
 
@@ -50,11 +50,12 @@ peaks, manifests, QC evidence or strategy invalidate the deep-cache boundary.
 
 ## Validation performed in this stage
 
-- six pure-Python contract tests;
+- pure-Python contract and downstream-compatibility tests;
 - Nextflow lint of the new modules/subworkflow;
 - isolated stub graphs for union and IDR provider selection;
-- JSON schema syntax validation.
+- JSON schema syntax validation;
+- a dedicated GitHub Actions certification that pulls the immutable IDR OCI
+  image and executes the provider on two deterministic ranked peak lists.
 
-No real BEDTools consensus, IDR runtime, legacy scientific regression, cache
-benchmark or complete ChIP-seq execution was run. Those tests require a Linux/HPC
-environment with validated tools and representative biological fixtures.
+The reduced fixture validates runtime and contracts, not biological equivalence.
+A reviewed biological regression remains scheduled after legacy retirement.

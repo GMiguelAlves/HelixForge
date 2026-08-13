@@ -68,6 +68,7 @@ evidência permanente.
 ## Pendências
 
 - execução real top-level com os runtimes científicos certificados;
-- implementação estatística do provider IDR;
+- execução real top-level do ramo opcional IDR no Slurm; o provider estatístico
+  2.0.4.2 e seu teste OCI reduzido estão implementados;
 - regressão com dataset biológico revisado após aposentadoria do legado;
 - certificação OCI/Apptainer dos runtimes ChIP-seq restantes.

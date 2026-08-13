@@ -65,16 +65,21 @@ BroadPeak remains broadPeak evidence and is never converted to narrowPeak.
 ## IDR provider
 
 IDR is a statistical reproducibility strategy, not interval intersection. The
-v1 abstraction validates exactly two premerged biological replicates,
-narrowPeak input, an explicit `idr_threshold`, and an explicit rank metric.
-The runtime provider is intentionally `not_implemented` until a pinned IDR
-tool/environment and scientific validation are available. It produces an
-explicit status/manifest with `consolidated_peaks.available=false`; it never
-emits a false IDR peak set.
+v1 provider validates exactly two premerged biological replicates, narrowPeak
+input, an explicit `idr_threshold`, and an explicit rank metric. It executes
+IDR `2.0.4.2`, maps `signal_value`, `p_value`, or `q_value` to the corresponding
+narrowPeak rank, fixes `--random-seed 0`, and records the complete command.
+
+The provider emits the filtered raw IDR narrowPeak result, plot when produced,
+local/global IDR values, provider-neutral BED/table roles, evidence checksums,
+statistics, versions and execution metadata. `complete_empty` is a valid
+statistical result and never falls back to interval consensus. Upstream peak
+lists should be sufficiently permissive; HelixForge does not silently relax the
+MACS3 cutoff.
 
 ## Output contract
 
-Implemented consensus providers emit:
+Implemented Consensus and IDR providers emit:
 
 - a consolidated interval table and BED file;
 - exact replicate support per segment;
