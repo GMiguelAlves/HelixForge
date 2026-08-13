@@ -2,10 +2,14 @@ name: RNA-seq report container
 
 on:
   push:
-    branches: [master]
+    branches: [master, contrib/rnaseq-report-api]
     paths:
       - 'containers/rnaseq-report/**'
-      - 'modules/local/rnaseq_gene_report/environment.yml'
+      - 'modules/local/rnaseq_gene_report/**'
+      - 'modules/local/rnaseq_report_context/**'
+      - 'subworkflows/local/rnaseq/report.nf'
+      - 'tests/native_rnaseq_report/**'
+      - 'tests/fixtures/native_rnaseq_report/**'
       - '.github/workflows/rnaseq-report-container.yml'
   workflow_dispatch:
 
@@ -34,3 +38,16 @@ jobs:
           cache-to: type=gha,mode=max
           provenance: true
           sbom: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install certified Nextflow
+        run: curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
+      - name: Run real reduced provider
+        env:
+          NEXTFLOW: ${{ github.workspace }}/nextflow
+          RNASEQ_REPORT_TEST_IMAGE: ghcr.io/gmiguelalves/helixforge-rnaseq-report:1.0.0
+        run: |
+          docker pull "$RNASEQ_REPORT_TEST_IMAGE"
+          tests/native_rnaseq_report/run_real.sh
