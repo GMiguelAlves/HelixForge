@@ -65,6 +65,11 @@ The `rnaseq_report` manifest records provider, parameters, sample/gene/query
 counts, upstream manifest checksums and a SHA-256 inventory. Report results are
 presentation/exploration products; they do not feed DESeq2 inference.
 
+The `candidate_genes_v1` runtime is certified as image `1.0.0`, pinned by OCI
+digest in `nextflow.config`. Certification executes the real R provider and
+requires its semantic table, figure, HTML, manifest and session assertions to
+pass after every image build.
+
 ## Execution modes
 
 The report is opt-in during `full` runs:
