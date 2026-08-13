@@ -30,6 +30,7 @@ process CONSENSUS_CONTEXT {
     def peakManifestArgs = peak_manifests.collect { manifest -> "--peak-manifest '${manifest}'" }.join(' ')
     def qcManifestArgs = qc_manifests.collect { manifest -> "--qc-manifest '${manifest}'" }.join(' ')
     """
+    set -o pipefail
     validate_consensus_context.py \
         ${peakDirArgs} \
         ${peakManifestArgs} \
