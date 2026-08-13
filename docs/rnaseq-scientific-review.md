@@ -60,8 +60,9 @@ explícitas. Ela não constitui validação de produção com dados reais.
   `lengthScaledTPM`) para bibliotecas full-length, ou counts originais sem
   correção para protocolo 3′ declarado. Counts originais full-length sem offset
   são rejeitados.
-- O caminho DE nativo não aplica correção de matriz. O fallback legado mantém
-  seu comportamento anterior.
+- Nenhum caminho top-level aplica correção de matriz antes do DE. O fallback
+  legado recebe diretamente a saída de quantificação; os scripts de correção
+  permanecem disponíveis apenas para comparação exploratória manual.
 - Salmon expõe `salmon_lib_type` e `salmon_validate_mappings`; k-mer é validado
   como inteiro ímpar entre 1 e 31 e transcript IDs duplicados falham no índice.
 - Argumentos STAR controlados pela Alignment API não podem ser sobrescritos por
@@ -93,12 +94,14 @@ não é usada automaticamente para inferência diferencial.
 
 As diferenças intencionais são: preservação de IDs como padrão; falha em vez de
 coerção de dados inválidos; contrasts obrigatórios; filtro obrigatório e
-declarado; e ausência de batch correction automática no DE nativo. Para
+declarado; e ausência de batch correction automática em qualquer caminho
+inferencial top-level. Para
 reproduzir uma regra antiga de IDs ou filtro, ela deve ser solicitada
 explicitamente e aparecer na provenance.
 
-O fallback `rnaseq_native_de=false` continua disponível. Ele não define a
-verdade científica do HelixForge e serve apenas como baseline histórico.
+O fallback `rnaseq_native_de=false` continua disponível como baseline
+histórico, mas também recebe counts não corrigidos. Matrizes exploratórias de
+batch não são entradas reconhecidas pela Differential Expression API.
 
 ## 7. Decisões científicas
 

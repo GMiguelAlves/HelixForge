@@ -3,8 +3,9 @@
 The RNA-seq Salmon path implements Quantification API 1.0. Workflows call the
 generic `TRANSCRIPTOME_INDEX` and `QUANTIFICATION` subworkflows; they do not
 call Salmon processes directly. The native Import API consumes Salmon
-manifests; DESeq2, batch correction, and final reports remain unchanged
-compatibility steps.
+manifests; DESeq2 and final reporting are now native. Automatic batch
+correction is absent from the inferential DAG, while exploratory batch
+assessment is tracked in the scientific roadmap.
 
 ## Legacy audit
 

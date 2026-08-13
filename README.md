@@ -2,6 +2,7 @@
 
 Start with the [HelixForge Wiki](https://github.com/GMiguelAlves/HelixForge/wiki) for a Portuguese, navigable
 overview of the current architecture, workflows, execution, and development.
+Planned scientific APIs are tracked in the [roadmap](docs/roadmap.md).
 
 HelixForge is a compatibility-first Nextflow DSL2 implementation for the existing
 RNA-seq, ChIP-seq, and IntegrateSeq pipelines. The scientific Bash, Python, and
@@ -19,10 +20,12 @@ Import API converts Salmon or STAR artifacts into provider-neutral matrices. A D
 API validates explicit designs and runs DESeq2 Wald models and contrasts
 natively. The RNA-seq Report API now validates explicit Import/DE manifests and
 generates the established candidate-gene tables, figures and HTML through a
-native provider. Legacy batch correction is reachable only through the legacy
-DE fallback. Existing scientific filenames and the report `results/` hierarchy
-are preserved. The native gene-report image is pinned by certified OCI digest
-and its real reduced R execution is enforced by CI.
+native provider. No top-level RNA-seq path applies matrix batch correction
+before inference; DESeq2 represents an estimable batch effect in the explicit
+design, such as `~ batch + condition`. The preserved batch utilities are manual
+exploratory tools only. Existing scientific filenames and the report `results/`
+hierarchy are preserved. The native gene-report image is pinned by certified
+OCI digest and its real reduced R execution is enforced by CI.
 
 The ChIP-seq native foundation validates flexible metadata, controls and
 biological/technical replicate identity, reuses FastQC/MultiQC, and implements

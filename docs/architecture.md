@@ -127,11 +127,13 @@ pipeline configuration until their controlled migration.
 
 ## Deliberate legacy boundaries
 
-- Optional exploratory Batch Effect Assessment API.
+- Optional exploratory Batch Effect Assessment API, tracked in the
+  [scientific roadmap](roadmap.md). The current inferential DAG never consumes
+  a batch-corrected matrix.
 - ChIP-seq `full` compatibility execution.
 - Integrative execution and its configured input discovery.
-- RNA pathway/enrichment reporting and any analysis not yet represented by a
-  native provider.
+- RNA Pathway Enrichment API and any analysis not yet represented by a native
+  provider, tracked in the [scientific roadmap](roadmap.md).
 
 These boundaries are not described as scientifically validated native paths.
 Their replacement requires the mandatory comparisons in

@@ -3,8 +3,9 @@
 The RNA-seq STAR path now implements Alignment API 1.0. Workflows call the
 generic `REFERENCE_INDEX` and `ALIGNMENT` subworkflows; they do not call STAR
 modules directly. Salmon now implements the independent Quantification API;
-DESeq2, batch correction, and final reports remain compatibility steps. STAR
-gene counts feed the native Import API.
+Import, DESeq2, and final reporting are native. Automatic batch correction is
+not scheduled; exploratory assessment is tracked in the scientific roadmap.
+STAR gene counts feed the native Import API.
 
 ## Legacy audit
 
