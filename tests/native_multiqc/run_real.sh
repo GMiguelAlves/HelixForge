@@ -4,7 +4,7 @@ set -euo pipefail
 
 root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 nextflow_bin=${NEXTFLOW:-nextflow}
-image=${MULTIQC_TEST_IMAGE:-quay.io/biocontainers/multiqc:1.17--pyhdfd78af_1}
+image=${MULTIQC_TEST_IMAGE:-quay.io/biocontainers/multiqc@sha256:fb7d6625fb5adaed43ced8bd051a875038714180bcfcd7c8e467204f72882de9}
 case_root=${MULTIQC_TEST_ROOT:-$(mktemp -d "${TMPDIR:-/tmp}/helixforge-multiqc.XXXXXX")}
 
 mkdir -p "$case_root/results" "$case_root/out" "$case_root/work" "$case_root/nxf-home"

@@ -33,7 +33,10 @@ class MultiqcCertificationContractTest(unittest.TestCase):
         validator = (ROOT / "tests/native_multiqc/validate_real.py").read_text(
             encoding="utf-8"
         )
-        image = "quay.io/biocontainers/multiqc:1.17--pyhdfd78af_1"
+        image = (
+            "quay.io/biocontainers/multiqc@sha256:"
+            "fb7d6625fb5adaed43ced8bd051a875038714180bcfcd7c8e467204f72882de9"
+        )
         self.assertIn(image, workflow)
         self.assertIn(image, runner)
         self.assertIn("docker pull", workflow)

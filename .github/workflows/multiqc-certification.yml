@@ -19,7 +19,7 @@ jobs:
   certify:
     runs-on: ubuntu-latest
     env:
-      MULTIQC_TEST_IMAGE: quay.io/biocontainers/multiqc:1.17--pyhdfd78af_1
+      MULTIQC_TEST_IMAGE: quay.io/biocontainers/multiqc@sha256:fb7d6625fb5adaed43ced8bd051a875038714180bcfcd7c8e467204f72882de9
       MULTIQC_TEST_ROOT: /tmp/helixforge-multiqc-certification
     steps:
       - uses: actions/checkout@v4

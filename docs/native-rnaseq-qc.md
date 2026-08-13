@@ -67,6 +67,8 @@ separate retirement items.
 - Runs are sorted by `run_accession` before merge.
 - Merge uses direct byte concatenation of gzip members, without recompression.
 - MultiQC keeps `<dataset>_multiqc_030.html` and its associated data directory.
+- MultiQC 1.17 uses the certified BioContainer pinned at OCI digest
+  `sha256:fb7d6625fb5adaed43ced8bd051a875038714180bcfcd7c8e467204f72882de9`.
 - Compatibility copies are written through a temporary name and atomically
   renamed where a native process creates external scientific outputs.
 - Existing `pipeline_config.sh` is translated once by `RNASEQ_CONTEXT` while a
@@ -82,12 +84,16 @@ fails explicitly because the legacy QC fallback has been retired.
 - Two-run mock integration: passed all native QC processes without stubs.
 - Regression: merged FASTQs, 10 FastQC HTML reports, and MultiQC table matched
   the equivalent legacy command sequence by SHA-256.
+- Real MultiQC certification: GitHub Actions run `31726522504` executed the
+  reusable process with Java 21, Nextflow 25.10.7, Docker, the immutable OCI
+  reference, and two deterministic FastQC records. HTML, data tables, version,
+  process status, trace, and container digest passed validation.
 - Mock benchmark: legacy commands 1.743 s; Nextflow graph 25.827 s. This tiny
   fixture measures JVM/scheduler startup, not scientific throughput.
 
-The development host has no Docker executable, so the complete real-tool
-comparison was not run here. The versioned regression harness is ready for a
-Linux/HPC runner with the pinned tools or containers.
+The development host has no Docker executable. Real MultiQC validation is
+therefore performed by its dedicated Linux GitHub Actions workflow; the broad
+biological regression remains a separate release gate.
 
 ## Downstream status
 
