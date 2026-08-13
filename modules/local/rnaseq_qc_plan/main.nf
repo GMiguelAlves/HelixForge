@@ -18,6 +18,8 @@ process RNASEQ_QC_PLAN {
     val legacy_root
     val download_status
     val metadata_status
+    val trim_quality_override
+    val trim_length_override
 
     output:
     path '*_qc_plan.csv', emit: plans
@@ -30,6 +32,11 @@ process RNASEQ_QC_PLAN {
     export PROJECT_DIR='${legacy_root}'
     export PIPELINE_CONFIG="\$PWD/${config_file}"
     source "\$PIPELINE_CONFIG"
+
+    trim_quality='${trim_quality_override}'
+    trim_length='${trim_length_override}'
+    [[ -n "\$trim_quality" ]] || trim_quality="\$TRIM_QUALITY"
+    [[ -n "\$trim_length" ]] || trim_length="\$TRIM_LENGTH"
 
     require_pipeline_projects
     metadata=\$(metadata_default)
@@ -45,8 +52,8 @@ process RNASEQ_QC_PLAN {
             --output "\${project}_qc_plan.csv"
         "\$python_bin" "\$PWD/${plan_annotator}" \
             --plan "\${project}_qc_plan.csv" \
-            --quality "\$TRIM_QUALITY" \
-            --length "\$TRIM_LENGTH"
+            --quality "\$trim_quality" \
+            --length "\$trim_length"
         mkdir -p "\$QC_DIR/work"
         cp "\${project}_qc_plan.csv" "\$QC_DIR/work/\${project}_qc_plan.csv.nextflow.tmp"
         mv "\$QC_DIR/work/\${project}_qc_plan.csv.nextflow.tmp" \

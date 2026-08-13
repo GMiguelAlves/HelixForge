@@ -18,8 +18,9 @@ fi
 case_root="${validation_root}/results/${case_name}"
 conda_root=$(cd "$(dirname "$conda_bin")/.." && pwd)
 runtime_path="${conda_root}/envs/${r_env}/bin:${conda_root}/envs/${rna_env}/bin:${conda_root}/envs/${python_env}/bin:/usr/bin:/bin"
-nextflow_jar="${validation_root}/nextflow.jar"
+nextflow_jar="${HELIXFORGE_NEXTFLOW_JAR:-${validation_root}/nextflow.jar}"
 work_root="${validation_root}/work/${case_name}"
+cache_root="${HELIXFORGE_NXF_CACHE_DIR:-${repo_root}/.validation-cache/${case_name}}"
 
 case "$validation_root" in
     /scratch/Schisto-epigenetics/gustavo/helixforge-validation-*) ;;
@@ -72,8 +73,8 @@ if [[ "$mode" == "validate-job" ]]; then
     exit 0
 fi
 
-if [[ "$mode" != "driver" && "$mode" != "resume-driver" ]]; then
-    echo "mode must be driver, resume-driver, preflight-job, fixture-job, or validate-job" >&2
+if [[ "$mode" != "driver" && "$mode" != "resume-driver" && "$mode" != "recovery-driver" ]]; then
+    echo "mode must be driver, resume-driver, recovery-driver, preflight-job, fixture-job, or validate-job" >&2
     exit 2
 fi
 if [[ "$mode" == "driver" ]]; then
@@ -82,10 +83,15 @@ if [[ "$mode" == "driver" ]]; then
         exit 2
     fi
     mkdir -p "$case_root/logs" "$case_root/traces"
-else
+elif [[ "$mode" == "resume-driver" ]]; then
     test -d "$case_root/logs"
     test -s "$case_root/traces/baseline.tsv"
+else
+    test -d "$case_root/logs"
+    test -s "$case_root/pipeline_config.sh"
+    test -s "$case_root/analysis_spec.json"
 fi
+mkdir -p "$cache_root"
 
 submit_helper() {
     local job_name=$1
@@ -112,12 +118,17 @@ run_pipeline() {
     local scenario=$1
     local resume=$2
     local validate_mappings=$3
+    local trim_quality=${4:-}
     local -a resume_args=()
+    local -a scoped_params=()
     [[ "$resume" == true ]] && resume_args=(-resume)
+    [[ -z "$trim_quality" ]] || scoped_params+=(--rnaseq_trim_quality "$trim_quality")
     cd "$repo_root"
     env PATH="$runtime_path" \
         NXF_HOME="${repo_root}/.nextflow-home" \
+        NXF_CACHE_DIR="$cache_root" \
         "${conda_root}/envs/${rna_env}/bin/java" \
+        -Xms128m -Xmx1g \
         -jar "$nextflow_jar" \
         -log "$case_root/logs/${scenario}.nextflow.log" \
         run main.nf \
@@ -136,6 +147,7 @@ run_pipeline() {
         --rnaseq_de_spec "$case_root/analysis_spec.json" \
         --rnaseq_library_protocol full_length \
         --rnaseq_counts_from_abundance lengthScaledTPM \
+        "${scoped_params[@]}" \
         --salmon_validate_mappings "$validate_mappings" \
         --salmon_index_queue "$queue" \
         --salmon_quant_queue "$queue" \
@@ -146,10 +158,19 @@ run_pipeline() {
     cp "$case_root/results/pipeline_info/execution_trace.tsv" "$case_root/traces/${scenario}.tsv"
 }
 
+if [[ "$mode" == "driver" || "$mode" == "resume-driver" || "$mode" == "recovery-driver" ]]; then
+    runtime_version=$("${conda_root}/envs/${rna_env}/bin/java" -Xms128m -Xmx1g -jar "$nextflow_jar" -version 2>&1)
+    [[ "$runtime_version" == *"version 25.10.7"* ]] || {
+        printf 'Expected certified Nextflow 25.10.7, observed:\n%s\n' "$runtime_version" >&2
+        exit 4
+    }
+fi
 if [[ "$mode" == "driver" ]]; then
     submit_helper hf-rna-preflight preflight-job
     submit_helper hf-rna-fixture fixture-job baseline
     run_pipeline baseline false true
+elif [[ "$mode" == "recovery-driver" ]]; then
+    run_pipeline baseline true true
 fi
 submit_helper hf-rna-validate validate-job baseline
 
@@ -177,6 +198,34 @@ run_pipeline parameter-change true false
     "$repo_root/tests/slurm/assert_rnaseq_cache.py" \
     "$case_root/traces/parameter-change.tsv" parameters
 submit_helper hf-rna-validate-parameters validate-job parameters
+
+submit_helper hf-rna-contrast fixture-job contrast
+run_pipeline contrast-change true false
+"${conda_root}/envs/${python_env}/bin/python3" \
+    "$repo_root/tests/slurm/assert_rnaseq_cache.py" \
+    "$case_root/traces/contrast-change.tsv" contrast
+
+run_pipeline qc-parameter-change true false 25
+"${conda_root}/envs/${python_env}/bin/python3" \
+    "$repo_root/tests/slurm/assert_rnaseq_cache.py" \
+    "$case_root/traces/qc-parameter-change.tsv" qc
+
+module_file="$repo_root/modules/local/salmon_quant/main.nf"
+module_backup="$case_root/salmon_quant.main.nf.original"
+cp "$module_file" "$module_backup"
+restore_module_script() {
+    cp "$module_backup" "$module_file"
+}
+trap restore_module_script EXIT
+grep -Fq "echo '[INFO] Salmon quant:" "$module_file"
+sed -i "s/echo '\[INFO\] Salmon quant:/echo '[INFO] Salmon quant cache probe:/" "$module_file"
+grep -Fq "echo '[INFO] Salmon quant cache probe:" "$module_file"
+run_pipeline module-script-change true false 25
+restore_module_script
+trap - EXIT
+"${conda_root}/envs/${python_env}/bin/python3" \
+    "$repo_root/tests/slurm/assert_rnaseq_cache.py" \
+    "$case_root/traces/module-script-change.tsv" module_script
 
 echo "[OK] Production RNA-seq and cache matrix passed."
 echo "[OK] Case root: $case_root"

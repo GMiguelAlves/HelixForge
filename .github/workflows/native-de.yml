@@ -19,7 +19,7 @@ jobs:
           distribution: temurin
           java-version: '21'
       - name: Install Nextflow
-        run: curl -fsSL https://get.nextflow.io | bash
+        run: curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
       - name: Run Python unit tests
         run: python3 tests/run_unit_tests.py
       - name: Validate contracts

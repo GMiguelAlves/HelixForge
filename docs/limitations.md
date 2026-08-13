@@ -21,10 +21,13 @@
 - Cached native QC tasks track their work-directory outputs. If a user manually
   deletes compatibility copies under `SCRATCH_ROOT`, resume should be avoided
   or the affected task cache should be invalidated.
-- Alignment and Quantification cache/invalidation passed with official
-  Nextflow 26.04.2. The
-  locally installed 26.04.6 development artifact did not resume even a minimal
-  cache probe and is not validated for production here.
+- Alignment and Quantification cache/invalidation previously passed in
+  isolated tests with Nextflow 26.04.2, but 26.04.4/26.04.6 did not resume a
+  minimal Slurm probe. HelixForge is temporarily pinned to Nextflow 25.10.7,
+  which resumed the same probe on both Java 21 and Java 23 and completed the
+  full RNA path. Its identical full-DAG resume nevertheless left the LevelDB
+  task store empty and resubmitted jobs. Selective invalidation remains a
+  release gate and was not inferred after that prerequisite failed.
 - The deterministic QC mock validates orchestration and byte-preserving merge
   behavior. STAR and Salmon have separate real-tool Docker regressions; a real-tool QC
   golden dataset still needs to run on Linux/HPC with FastQC 0.12.1, Trim
