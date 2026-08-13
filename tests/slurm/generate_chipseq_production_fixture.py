@@ -33,7 +33,7 @@ def write_fastq(path, reference, starts, record_id, mate):
 
 def background_positions(count, excluded):
     candidates = [position for position in range(100, GENOME_LENGTH - FRAGMENT_LENGTH - 100, 37)]
-    return [position for position in candidates if all(abs(position - center) > 450 for center in excluded)][:count]
+    return [position for position in candidates if all(abs(position - center) > 100 for center in excluded)][:count]
 
 
 def clustered_positions(center, count, offset):
@@ -118,14 +118,14 @@ def main():
     blacklist = reference_dir / "blacklist.bed"
     blacklist.write_text("chrSynthetic\t7000\t7100\n", encoding="utf-8")
 
-    centers = (1300, 3000, 4600, 6200)
-    background = background_positions(120, centers)
+    centers = (700, 1250, 1800, 2350, 2900, 3450, 4000, 4550, 5100, 5650, 6200, 6750, 7300, 7850)
+    background = background_positions(160, centers)
     records = [
         ("input_rep1", "input", "input", "1", True, "", background),
-        ("control_rep1", "control", "H3K27ac", "1", False, "input_rep1", profiled_positions(zip(centers, (90, 70, 35, 25)), 1, background[:20])),
-        ("control_rep2", "control", "H3K27ac", "2", False, "input_rep1", profiled_positions(zip(centers, (80, 60, 40, 30)), 5, background[20:45])),
-        ("treated_rep1", "treated", "H3K27ac", "1", False, "input_rep1", profiled_positions(zip(centers, (35, 60, 105, 85)), 3, background[45:65])),
-        ("treated_rep2", "treated", "H3K27ac", "2", False, "input_rep1", profiled_positions(zip(centers, (40, 55, 90, 75)), 9, background[65:90])),
+        ("control_rep1", "control", "H3K27ac", "1", False, "input_rep1", profiled_positions(zip(centers, (110, 75, 125, 45, 95, 35, 85, 55, 105, 40, 90, 65, 115, 50)), 1, background[:20])),
+        ("control_rep2", "control", "H3K27ac", "2", False, "input_rep1", profiled_positions(zip(centers, (55, 80, 35, 115, 90, 95, 45, 75, 50, 105, 60, 110, 70, 85)), 5, background[20:45])),
+        ("treated_rep1", "treated", "H3K27ac", "1", False, "input_rep1", profiled_positions(zip(centers, (35, 45, 105, 80, 40, 115, 55, 100, 65, 95, 50, 120, 75, 110)), 3, background[45:65])),
+        ("treated_rep2", "treated", "H3K27ac", "2", False, "input_rep1", profiled_positions(zip(centers, (70, 30, 85, 110, 75, 60, 100, 45, 115, 55, 95, 65, 125, 40)), 9, background[65:90])),
     ]
 
     metadata_rows = []
