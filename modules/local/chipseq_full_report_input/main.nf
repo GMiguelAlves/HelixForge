@@ -29,6 +29,7 @@ process CHIPSEQ_FULL_REPORT_INPUT {
     def manifestArgs = manifests.collect { value -> "--manifest '${value}'" }.join(' ')
     def artifactArgs = semantic_artifacts.collect { value -> "--artifact '${value}'" }.join(' ')
     """
+    set -o pipefail
     python '${moduleDir}/resources/usr/bin/build_chipseq_full_report_input.py' \
         --meta-base64 '${groovy.json.JsonOutput.toJson(meta).getBytes('UTF-8').encodeBase64().toString()}' \
         ${manifestArgs} \
