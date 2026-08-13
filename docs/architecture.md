@@ -30,7 +30,9 @@ validation item.
 
 ```mermaid
 flowchart LR
-    REF["Reference wrapper"] --> PLAN["QC planning adapters"]
+    CTX["RNA context adapter"] --> META["RNASEQ_METADATA"]
+    META --> REF["REFERENCE_BUNDLE"]
+    META --> PLAN["Native QC plan"]
     PLAN --> RAW["FASTQC raw"]
     RAW --> TRIM["TRIM_GALORE"]
     TRIM --> POST["FASTQC trimmed"]
@@ -60,8 +62,9 @@ executes only Salmon. `rnaseq_analysis_mode=both` fans the same merged reads to
 independent providers. `config` retains legacy `QUANT_METHOD` compatibility but
 is not the production default. Import and DE
 never infer the provider from filenames: they consume provider manifests and
-channels. Reference preparation and metadata/download planning are still
-compatibility wrappers. `rnaseq_native_import=false` has no supported fallback
+channels. Metadata validation and Reference Bundle construction are native;
+the small context adapter only translates the existing shell configuration.
+Data acquisition is outside the scientific DAG. `rnaseq_native_import=false` has no supported fallback
 because the former tximport wrapper was intentionally removed.
 
 ## ChIP-seq native DAG
@@ -117,7 +120,7 @@ pipeline configuration until their controlled migration.
 
 ## Deliberate legacy boundaries
 
-- RNA reference preparation, download and metadata planning.
+- RNA final report and optional exploratory batch-effect assessment.
 - ChIP-seq `full` compatibility execution.
 - Integrative execution and its configured input discovery.
 - Final RNA reporting and any analysis not yet represented by a native API.

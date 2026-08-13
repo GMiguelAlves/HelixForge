@@ -1,5 +1,11 @@
 # Import API
 
+The RNA-seq workflow binds this provider-neutral API to the versioned
+[RNA-seq Import policy](rnaseq_import_policy.md).
+Although the generic provider can materialize additional tximport modes for
+standalone experimentation, the official workflow accepts only the combinations
+listed in that policy.
+
 Import API version: `1.0`
 
 The Import API converts provider-specific quantification artifacts into a
