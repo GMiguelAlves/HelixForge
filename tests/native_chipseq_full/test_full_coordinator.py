@@ -140,6 +140,9 @@ class FullCoordinatorTopologyTest(unittest.TestCase):
         self.assertIn('if [[ "$mode" == "recovery-driver" ]]', harness)
         self.assertIn('resume_args=(-resume)', harness)
         self.assertIn('"${resume_args[@]}"', harness)
+
+        validator = (ROOT / "tests/slurm/validate_chipseq_production.py").read_text(encoding="utf-8")
+        self.assertIn('bam_final/*.bam_final.manifest.json', validator)
         self.assertIn("HELIXFORGE_IDR_PREFIX", harness)
         self.assertIn('ln -sfn "${idr_prefix}/bin/idr" "$compat_bin/idr"', harness)
         self.assertIn('test -e "$repo_root/.git"', harness)
