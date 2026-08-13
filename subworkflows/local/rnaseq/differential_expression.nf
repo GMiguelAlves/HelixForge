@@ -88,8 +88,8 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
                 .combine(DIFFERENTIAL_EXPRESSION.out.results)
                 .combine(DIFFERENTIAL_EXPRESSION.out.manifest)
                 .combine(reference_annotation)
-                .map { import_meta_a, abundance, import_meta_s, samples, import_meta_m, upstream_import_manifest,
-                       de_meta_r, de_results, de_meta_m, upstream_de_manifest, annotation ->
+                .map { import_meta_a, abundance, _import_meta_s, samples, _import_meta_m, upstream_import_manifest,
+                       de_meta_r, de_results, _de_meta_m, upstream_de_manifest, annotation ->
                     def meta = [
                         id        : 'rnaseq.report.candidate_genes',
                         provider  : 'candidate_genes_v1',
