@@ -12,7 +12,7 @@ process REFERENCE_BUNDLE {
     container params.reference_bundle_container
     conda "${moduleDir}/environment.yml"
 
-    publishDir "${params.outdir}/references/${meta.id}",
+    publishDir { "${params.outdir}/references/${meta.id}" },
         mode: 'copy', overwrite: true,
         pattern: '*.{json,yml,done,log}'
 
