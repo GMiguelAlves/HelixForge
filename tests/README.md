@@ -57,6 +57,17 @@ the same deterministic mock tools. It compares byte-level merged FASTQs,
 FastQC reports, and the MultiQC data table, then writes `comparison.tsv` and
 `benchmark.tsv` under `results/test/native-qc-regression/`.
 
+Run the reusable MultiQC module with the certified immutable OCI image and two
+deterministic FastQC records:
+
+```bash
+tests/native_multiqc/run_real.sh
+```
+
+This Docker test validates the HTML/data outputs, sample inventory, versions,
+status, trace, and repository digest. It is also executed by the dedicated
+GitHub Actions certification workflow.
+
 ## Native Alignment API / STAR
 
 Run the real legacy-versus-native regression with the same pinned container:

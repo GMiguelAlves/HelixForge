@@ -35,9 +35,9 @@
   task store empty and resubmitted jobs. Selective invalidation remains a
   release gate and was not inferred after that prerequisite failed.
 - The deterministic QC mock validates orchestration and byte-preserving merge
-  behavior. STAR and Salmon have separate real-tool Docker regressions; a real-tool QC
-  golden dataset still needs to run on Linux/HPC with FastQC 0.12.1, Trim
-  Galore 0.6.10, and MultiQC 1.17 available.
+  behavior. MultiQC 1.17 has a real reduced Docker certification with an OCI
+  digest; STAR and Salmon have separate real-tool Docker regressions. A broad
+  reviewed biological QC regression is still a release gate.
 - STAR does not estimate transcript effective lengths, so Import API v1 marks
   length and `SummarizedExperiment` artifacts unavailable for that provider
   instead of inventing values.

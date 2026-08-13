@@ -90,7 +90,7 @@
     },
     "multiqc_container": {
       "type": "string",
-      "default": "quay.io/biocontainers/multiqc:1.17--pyhdfd78af_1"
+      "default": "quay.io/biocontainers/multiqc@sha256:fb7d6625fb5adaed43ced8bd051a875038714180bcfcd7c8e467204f72882de9"
     },
     "star_container": {
       "type": "string",
