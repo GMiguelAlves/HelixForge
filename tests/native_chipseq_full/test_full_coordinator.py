@@ -107,12 +107,16 @@ class FullCoordinatorTopologyTest(unittest.TestCase):
     def test_full_mode_is_native_and_single_session(self):
         workflow = (ROOT / "workflows/chipseq.nf").read_text(encoding="utf-8")
         foundation = (ROOT / "subworkflows/local/chipseq/native_foundation.nf").read_text(encoding="utf-8")
+        harness = (ROOT / "tests/slurm/run_chipseq_production_real.sh").read_text(encoding="utf-8")
         self.assertIn("chipseq_run_mode=full is exclusively native", workflow)
         self.assertIn("(run_mode == 'full' && full_native_flags.values().every", workflow)
         self.assertIn("PEAK_ANNOTATION(annotation_inputs)", foundation)
         self.assertIn("TRACK_GENERATION(individual_track_inputs.mix(aggregate_track_inputs))", foundation)
         self.assertIn("CHIPSEQ_REPORT(report_records)", foundation)
         self.assertNotIn("nextflow run", foundation.lower())
+        self.assertIn("run_stage full", harness)
+        self.assertNotIn("run_stage differential_binding", harness)
+        self.assertNotIn("submit_helper hf-chip-prepare", harness)
 
 
 if __name__ == "__main__":
