@@ -538,10 +538,10 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                         }
                                         .groupTuple(by: 0)
                                         .map { _group_key, record_metas, bams, bais, manifests, references, reference_manifests ->
-                                            def ordered = (0..<record_metas.size()).sort { left, right -> record_metas[left].id <=> record_metas[right].id }
+                                            def ordered = (0..<record_metas.size()).toList().sort { left, right -> record_metas[left].id <=> record_metas[right].id }
                                             def metas = ordered.collect { index -> record_metas[index] }
                                             def first = metas[0]
-                                            if (references.collect { it.toString() }.unique().size() != 1 || reference_manifests.collect { it.toString() }.unique().size() != 1) {
+                                            if (references.collect { it.toString() }.toSet().size() != 1 || reference_manifests.collect { it.toString() }.toSet().size() != 1) {
                                                 error "Aggregate track group ${first.dataset}/${first.condition}/${first.target} resolved to multiple references"
                                             }
                                             def group_id = ['aggregate', first.dataset, first.condition, first.target, first.genome_id, 'bigwig']
