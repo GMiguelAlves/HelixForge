@@ -1,0 +1,30 @@
+{
+  "case": "rnaseq-final-synthetic-20260813-02",
+  "commit": "967dfc4",
+  "date": "2026-08-13",
+  "deseq2": {
+    "design": "~ batch + condition",
+    "results": [
+      "pipeline/060-deg-analysis/native/contrasts/DEG_condition__control_vs_treated.tsv"
+    ]
+  },
+  "genes": 30,
+  "nextflow": "25.10.7",
+  "processes": {"failed": 0, "peak_concurrent": 5, "succeeded": 58},
+  "report": {
+    "files": 24,
+    "html": "pipeline/090-search-gene/results/gene_set_report.html",
+    "plots": 12,
+    "provider": "candidate_genes_v1",
+    "queries": 2
+  },
+  "sample_metrics": {
+    "control_1": {"pearson": 1.0000000000000002, "total_ratio": 1.0},
+    "control_2": {"pearson": 0.9999999999999999, "total_ratio": 1.0},
+    "treated_1": {"pearson": 1.0, "total_ratio": 1.0000000000000002},
+    "treated_2": {"pearson": 0.9999999999999998, "total_ratio": 0.9999999999999997}
+  },
+  "samples": ["control_1", "control_2", "treated_1", "treated_2"],
+  "status": "pass",
+  "workflow": "FASTQ -> QC -> Salmon -> Import/tximport -> DESeq2 -> Gene Report"
+}

@@ -73,11 +73,11 @@ if [[ "$mode" == "validate-job" ]]; then
     exit 0
 fi
 
-if [[ "$mode" != "driver" && "$mode" != "resume-driver" && "$mode" != "recovery-driver" ]]; then
-    echo "mode must be driver, resume-driver, recovery-driver, preflight-job, fixture-job, or validate-job" >&2
+if [[ "$mode" != "driver" && "$mode" != "baseline-driver" && "$mode" != "resume-driver" && "$mode" != "recovery-driver" ]]; then
+    echo "mode must be driver, baseline-driver, resume-driver, recovery-driver, preflight-job, fixture-job, or validate-job" >&2
     exit 2
 fi
-if [[ "$mode" == "driver" ]]; then
+if [[ "$mode" == "driver" || "$mode" == "baseline-driver" ]]; then
     if [[ -e "$case_root" ]]; then
         echo "Refusing to overwrite an existing validation case: $case_root" >&2
         exit 2
@@ -147,6 +147,12 @@ run_pipeline() {
         --rnaseq_de_spec "$case_root/analysis_spec.json" \
         --rnaseq_library_protocol full_length \
         --rnaseq_counts_from_abundance lengthScaledTPM \
+        --rnaseq_report_enabled true \
+        --rnaseq_report_genes "$case_root/candidate_genes.txt" \
+        --rnaseq_report_outdir "$case_root/pipeline/090-search-gene" \
+        --rnaseq_report_title "Synthetic RNA-seq validation" \
+        --rnaseq_report_expression_unit TPM \
+        --rnaseq_report_life_stage_levels "adult,unknown" \
         "${scoped_params[@]}" \
         --salmon_validate_mappings "$validate_mappings" \
         --salmon_index_queue "$queue" \
@@ -158,14 +164,14 @@ run_pipeline() {
     cp "$case_root/results/pipeline_info/execution_trace.tsv" "$case_root/traces/${scenario}.tsv"
 }
 
-if [[ "$mode" == "driver" || "$mode" == "resume-driver" || "$mode" == "recovery-driver" ]]; then
+if [[ "$mode" == "driver" || "$mode" == "baseline-driver" || "$mode" == "resume-driver" || "$mode" == "recovery-driver" ]]; then
     runtime_version=$("${conda_root}/envs/${rna_env}/bin/java" -Xms128m -Xmx1g -jar "$nextflow_jar" -version 2>&1)
     [[ "$runtime_version" == *"version 25.10.7"* ]] || {
         printf 'Expected certified Nextflow 25.10.7, observed:\n%s\n' "$runtime_version" >&2
         exit 4
     }
 fi
-if [[ "$mode" == "driver" ]]; then
+if [[ "$mode" == "driver" || "$mode" == "baseline-driver" ]]; then
     submit_helper hf-rna-preflight preflight-job
     submit_helper hf-rna-fixture fixture-job baseline
     run_pipeline baseline false true
@@ -173,6 +179,12 @@ elif [[ "$mode" == "recovery-driver" ]]; then
     run_pipeline baseline true true
 fi
 submit_helper hf-rna-validate validate-job baseline
+
+if [[ "$mode" == "baseline-driver" ]]; then
+    echo "[OK] Production RNA-seq synthetic baseline passed."
+    echo "[OK] Case root: $case_root"
+    exit 0
+fi
 
 run_pipeline identical true true
 "${conda_root}/envs/${python_env}/bin/python3" \
