@@ -1,0 +1,1 @@
+PASS	Basic Statistics	sample_b_R1.fastq.gz
