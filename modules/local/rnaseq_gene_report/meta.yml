@@ -1,0 +1,20 @@
+name: rnaseq_gene_report
+description: Generate the candidate-gene implementation of the RNA-seq Report API.
+keywords: [rnaseq, report, candidate-genes, visualization]
+input:
+  - meta: {type: map}
+  - context: {type: file}
+  - abundance: {type: file}
+  - samples: {type: file}
+  - annotation: {type: file}
+  - differential_expression: {type: file}
+  - genes: {type: file}
+output:
+  - artifacts: {type: directory}
+  - html: {type: file}
+  - tables: {type: directory}
+  - plots: {type: directory}
+  - manifest: {type: file}
+  - reports: {type: file}
+  - versions: {type: file}
+  - status: {type: file}

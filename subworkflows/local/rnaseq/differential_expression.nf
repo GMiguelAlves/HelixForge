@@ -1,8 +1,8 @@
 include { LEGACY_STEP as RNASEQ_BATCH_STEP }  from '../../../modules/local/legacy_step/main'
 include { LEGACY_STEP as RNASEQ_DEG_STEP }    from '../../../modules/local/legacy_step/main'
-include { LEGACY_STEP as RNASEQ_REPORT_STEP } from '../../../modules/local/legacy_step/main'
 include { RNASEQ_DE_CONTEXT }                  from '../../../modules/local/rnaseq_de_context/main'
 include { DIFFERENTIAL_EXPRESSION }            from '../differential_expression/differential_expression'
+include { RNASEQ_REPORT }                      from './report'
 
 workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
     take:
@@ -11,7 +11,9 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
     quantification_status
     import_manifest
     imported_counts
+    imported_abundance
     imported_metadata
+    reference_annotation
 
     main:
     no_dep = channel.value('none')
@@ -19,6 +21,11 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
     native_de_enabled = params.rnaseq_native_de instanceof Boolean \
         ? params.rnaseq_native_de \
         : params.rnaseq_native_de.toString().toBoolean()
+    report_enabled = params.rnaseq_report_enabled instanceof Boolean \
+        ? params.rnaseq_report_enabled \
+        : params.rnaseq_report_enabled.toString().toBoolean()
+    run_mode = params.rnaseq_run_mode.toString().toLowerCase()
+    run_report = run_mode == 'report' || (run_mode == 'full' && report_enabled)
     native_logs = channel.empty()
     batch_logs = channel.empty()
     if (native_de_enabled) {
@@ -50,7 +57,59 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
         DIFFERENTIAL_EXPRESSION(native_requests)
         deg_status = DIFFERENTIAL_EXPRESSION.out.status
         native_logs = RNASEQ_DE_CONTEXT.out.log.mix(DIFFERENTIAL_EXPRESSION.out.reports)
+
+        if (run_report) {
+            if (!params.rnaseq_report_genes) {
+                error 'RNA-seq Report API requires --rnaseq_report_genes with an explicit candidate-gene group file.'
+            }
+            if (params.rnaseq_report_provider.toString() != 'candidate_genes_v1') {
+                error "Unsupported rnaseq_report_provider '${params.rnaseq_report_provider}'."
+            }
+            genes_file = file(params.rnaseq_report_genes, checkIfExists: true)
+            report_script = file(
+                "${projectDir}/pipelines/rnaseq/legacy/scripts/090-search-gene/gene_set_report.R",
+                checkIfExists: true
+            )
+            report_target = params.rnaseq_report_outdir \
+                ? params.rnaseq_report_outdir.toString() \
+                : "${params.outdir}/rnaseq/090-search-gene"
+            report_parameters = [
+                title              : params.rnaseq_report_title ?: 'Candidate gene report',
+                expression_unit    : params.rnaseq_report_expression_unit ?: 'TPM',
+                life_stage_levels  : params.rnaseq_report_life_stage_levels ?: 'unknown',
+                stage_synonym_map  : params.rnaseq_report_stage_synonym_map ?: '',
+                organism_specific : params.rnaseq_report_organism_specific ?: false
+            ]
+            report_parameters_base64 = groovy.json.JsonOutput.toJson(report_parameters)
+                .bytes.encodeBase64().toString()
+            report_sources = imported_abundance
+                .combine(imported_metadata)
+                .combine(import_manifest)
+                .combine(DIFFERENTIAL_EXPRESSION.out.results)
+                .combine(DIFFERENTIAL_EXPRESSION.out.manifest)
+                .combine(reference_annotation)
+                .map { import_meta_a, abundance, _import_meta_s, samples, _import_meta_m, upstream_import_manifest,
+                       de_meta_r, de_results, _de_meta_m, upstream_de_manifest, annotation ->
+                    def meta = [
+                        id        : 'rnaseq.report.candidate_genes',
+                        provider  : 'candidate_genes_v1',
+                        target_dir: report_target,
+                        import_id : import_meta_a.id,
+                        analysis_id: de_meta_r.analysis_id
+                    ]
+                    tuple(meta, upstream_import_manifest, abundance, samples, annotation,
+                        de_results, upstream_de_manifest, genes_file, report_parameters_base64)
+                }
+            RNASEQ_REPORT(report_sources, report_script)
+            final_status = RNASEQ_REPORT.out.status
+            native_logs = native_logs.mix(RNASEQ_REPORT.out.reports)
+        } else {
+            final_status = deg_status
+        }
     } else {
+        if (run_report) {
+            error 'RNA-seq Report API requires rnaseq_native_de=true; the legacy report wrapper has been removed.'
+        }
         RNASEQ_BATCH_STEP(
             'rnaseq', 'batch', 'medium', config_file, legacy_root,
             quantification_status, no_dep, no_dep
@@ -62,14 +121,10 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
         deg_status = RNASEQ_DEG_STEP.out.status
         native_logs = RNASEQ_DEG_STEP.out.log
         batch_logs = RNASEQ_BATCH_STEP.out.log
+        final_status = deg_status
     }
-    RNASEQ_REPORT_STEP(
-        'rnaseq', 'report', 'medium', config_file, legacy_root,
-        deg_status, no_dep, no_dep
-    )
 
     emit:
-    status = RNASEQ_REPORT_STEP.out.status
+    status = final_status
     logs   = batch_logs.mix(native_logs)
-        .mix(RNASEQ_REPORT_STEP.out.log)
 }

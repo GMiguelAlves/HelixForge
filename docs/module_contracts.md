@@ -4,7 +4,7 @@ This document defines the interface required for every new native Nextflow DSL2
 module in HelixForge. The contract standardizes orchestration and provenance; it
 does not force unrelated scientific tools to produce the same file types.
 
-Contract version: `2.1`
+Contract version: `2.5`
 
 This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
 later native module.
@@ -355,3 +355,12 @@ Optional components retain `not_requested`, `not_implemented`, `failed`, or
 `incomplete` status, and missing scientific values remain null rather than
 zero. Presentation providers must emit structured JSON beside their rendered
 format and must not schedule upstream analyses.
+
+Contract 2.5 specializes the terminal contract for RNA-seq reporting. A report
+request must carry Import and Differential Expression manifests plus explicit
+semantic artifacts; providers may not scan published directories. Candidate
+gene, enrichment and other presentation providers remain independently
+versioned. Report outputs must include rendered content, machine-readable
+tables, figures, manifest, execution metadata, versions, session information
+and input lineage. Exploratory matrices or figures must never become implicit
+inputs to differential inference.

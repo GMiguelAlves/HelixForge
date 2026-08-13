@@ -195,8 +195,8 @@ and a `SummarizedExperiment`. See
 ## RNA-seq stage modes
 
 `--rnaseq_run_mode` defines the last requested native layer and works with
-Nextflow `-resume`: `qc`, `alignment`, `quantification`, `import`, `de`, or
-`full`. The default is `full`. `--rnaseq_native_de false` explicitly restores
+Nextflow `-resume`: `qc`, `alignment`, `quantification`, `import`, `de`,
+`report`, or `full`. The default is `full`. `--rnaseq_native_de false` explicitly restores
 the preserved DEG wrapper; it is never selected implicitly.
 
 ```bash
@@ -205,3 +205,18 @@ nextflow run . --workflow rnaseq --rnaseq_run_mode de -resume
 
 DESeq2 model fitting and each Wald contrast are separate cache boundaries.
 Changing only a contrast does not refit the model.
+
+## Native RNA-seq report
+
+The candidate-gene Report API is opt-in in `full` and mandatory when the
+terminal mode is `report`:
+
+```bash
+nextflow run . --workflow rnaseq --rnaseq_run_mode report \
+  --rnaseq_de_spec /path/to/rnaseq_de_spec.json \
+  --rnaseq_report_genes /path/to/genes.txt -resume
+```
+
+Set `--rnaseq_report_enabled true` to append it to a `full` run. The provider
+consumes the Import abundance matrix/sample table and Differential Expression
+aggregate/manifest directly. See [rnaseq_report_api.md](rnaseq_report_api.md).
