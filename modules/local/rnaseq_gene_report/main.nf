@@ -22,7 +22,6 @@ process RNASEQ_GENE_REPORT {
     tuple val(meta), path(context), path(report_environment),
         path(import_manifest), path(abundance), path(samples), path(annotation),
         path(de_results), path(de_manifest), path(genes)
-    path report_script, stageAs: 'bin/gene_set_report.R'
 
     output:
     tuple val(meta), path('results'), emit: artifacts
@@ -43,7 +42,7 @@ process RNASEQ_GENE_REPORT {
     mkdir -p de_inputs results
     cp '${de_results}' de_inputs/DEGs_all_results.tsv
     start_epoch=\$(date +%s)
-    Rscript '${report_script}' \
+    gene_set_report.R \
         --genes '${genes}' \
         --tpm '${abundance}' \
         --expression-unit "\$EXPRESSION_UNIT" \

@@ -4,11 +4,10 @@ include { RNASEQ_GENE_REPORT }     from '../../../modules/local/rnaseq_gene_repo
 workflow RNASEQ_REPORT {
     take:
     requests
-    report_script
 
     main:
     RNASEQ_REPORT_CONTEXT(requests)
-    RNASEQ_GENE_REPORT(RNASEQ_REPORT_CONTEXT.out.artifacts, report_script)
+    RNASEQ_GENE_REPORT(RNASEQ_REPORT_CONTEXT.out.artifacts)
 
     emit:
     artifacts = RNASEQ_GENE_REPORT.out.artifacts
