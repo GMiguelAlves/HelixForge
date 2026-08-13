@@ -23,7 +23,7 @@ work_root="${validation_root}/work/${case_name}"
 cache_root="${validation_root}/cache/${case_name}"
 compat_bin="${validation_root}/runtime/bowtie2-direct"
 conda_root=$(cd "$(dirname "$conda_bin")/.." && pwd)
-runtime_path="${compat_bin}:${conda_root}/envs/${python_env}/bin:${conda_root}/envs/${r_env}/bin:${conda_root}/envs/${chip_env}/bin:${conda_root}/envs/${rna_env}/bin:/usr/bin:/bin"
+runtime_path="${compat_bin}:${conda_root}/envs/${chip_env}/bin:${conda_root}/envs/${r_env}/bin:${conda_root}/envs/${rna_env}/bin:${conda_root}/envs/${python_env}/bin:/usr/bin:/bin"
 nextflow_jar=${HELIXFORGE_NEXTFLOW_JAR:-/home/ra236875@bio.ib.unicamp.br/helixforge-validation-20260811/.validation-runtimes/nxf-home-25.10.7/framework/25.10.7/nextflow-25.10.7-one.jar}
 
 case "$validation_root" in
