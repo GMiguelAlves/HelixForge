@@ -8,8 +8,8 @@ directories of step 030 in the existing pipeline.
 
 ```mermaid
 flowchart TD
-    D["Download (legacy wrapper)"] --> P["QC plan adapter"]
-    M["Metadata (legacy wrapper)"] --> P
+    I["Local FASTQs + samplesheet"] --> M["RNASEQ_METADATA"]
+    M --> P["Native QC plan"]
     P --> FR["FastQC raw: one task per FASTQ"]
     P --> T["Trim Galore: one task per run"]
     T --> FT["FastQC trimmed: one task per FASTQ"]
@@ -19,7 +19,7 @@ flowchart TD
     FR --> MQ["MultiQC: one task per dataset"]
     FT --> MQ
     FM --> MQ
-    MQ --> A["Alignment / quantification (legacy wrappers)"]
+    MQ --> A["Alignment / Quantification APIs"]
 ```
 
 Raw FastQC and trimming can run concurrently, matching the dependency graph of
@@ -54,9 +54,11 @@ The native branch no longer calls these step-030 wrappers:
 - `fastqc_merged_plan.sh`
 - `multiqc_plan.sh`
 
-They remain unchanged in `pipelines/rnaseq/legacy` as a fallback and regression
-reference. Download and metadata remain wrapped. STAR, Salmon, tximport,
-DESeq2, batch correction, and final reports were not modified.
+They remain unchanged in `pipelines/rnaseq/legacy` only as a regression
+reference. `RNASEQ_DOWNLOAD_STEP`, `RNASEQ_METADATA_STEP`, `RNASEQ_QC_PLAN`,
+and the complete QC fallback are no longer scheduled. STAR remains optional;
+Salmon, Import, and DESeq2 are native. Batch assessment and final reports are
+separate retirement items.
 
 ## Compatibility details
 
@@ -67,11 +69,11 @@ DESeq2, batch correction, and final reports were not modified.
 - MultiQC keeps `<dataset>_multiqc_030.html` and its associated data directory.
 - Compatibility copies are written through a temporary name and atomically
   renamed where a native process creates external scientific outputs.
-- Existing `pipeline_config.sh` remains authoritative.
+- Existing `pipeline_config.sh` is translated once by `RNASEQ_CONTEXT` while a
+  declarative run manifest is prepared.
 
-Set `--rnaseq_native_qc false` to use the complete unchanged legacy QC step.
-The previous `--rnaseq_native_trim_galore false` switch is retained as a legacy
-fallback alias.
+Setting `--rnaseq_native_qc false` or `--rnaseq_native_trim_galore false` now
+fails explicitly because the legacy QC fallback has been retired.
 
 ## Validation status
 

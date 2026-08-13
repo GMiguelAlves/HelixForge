@@ -1,4 +1,4 @@
-include { RNASEQ_REFERENCE }                from '../subworkflows/local/rnaseq/reference'
+include { RNASEQ_NATIVE_FOUNDATION }        from '../subworkflows/local/rnaseq/native_foundation'
 include { RNASEQ_QC }                       from '../subworkflows/local/rnaseq/qc'
 include { RNASEQ_ALIGNMENT_QUANTIFICATION } from '../subworkflows/local/rnaseq/alignment_quantification'
 include { RNASEQ_DIFFERENTIAL_EXPRESSION }  from '../subworkflows/local/rnaseq/differential_expression'
@@ -15,8 +15,8 @@ workflow RNASEQ {
         error "Invalid rnaseq_run_mode '${params.rnaseq_run_mode}'. Use qc, alignment, quantification, import, de, or full."
     }
 
-    RNASEQ_REFERENCE(config_file, legacy_root, seed)
-    RNASEQ_QC(config_file, legacy_root, seed)
+    RNASEQ_NATIVE_FOUNDATION(config_file, legacy_root, seed)
+    RNASEQ_QC(RNASEQ_NATIVE_FOUNDATION.out.qc_plans)
     if (run_mode == 'qc') {
         completed_status = RNASEQ_QC.out.status
         analysis_logs = channel.empty()
@@ -25,9 +25,11 @@ workflow RNASEQ {
         RNASEQ_ALIGNMENT_QUANTIFICATION(
             config_file,
             legacy_root,
-            RNASEQ_REFERENCE.out.status,
+            RNASEQ_NATIVE_FOUNDATION.out.reference_status,
             RNASEQ_QC.out.status,
-            RNASEQ_QC.out.plans
+            RNASEQ_QC.out.plans,
+            RNASEQ_NATIVE_FOUNDATION.out.metadata,
+            RNASEQ_NATIVE_FOUNDATION.out.annotation
         )
         analysis_logs = RNASEQ_ALIGNMENT_QUANTIFICATION.out.logs
         if (run_mode in ['alignment', 'quant', 'quantification', 'import']) {
@@ -49,7 +51,7 @@ workflow RNASEQ {
 
     emit:
     completed = completed_status
-    logs      = RNASEQ_REFERENCE.out.logs
+    logs      = RNASEQ_NATIVE_FOUNDATION.out.logs
         .mix(RNASEQ_QC.out.logs)
         .mix(analysis_logs)
         .mix(downstream_logs)

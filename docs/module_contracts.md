@@ -9,6 +9,13 @@ Contract version: `2.1`
 This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
 later native module.
 
+Input-foundation modules obey the same report/version/status envelope.
+`RNASEQ_METADATA` accepts only supplied samplesheet/FASTQ inputs and emits a
+normalized plan. `REFERENCE_BUNDLE` receives references as tracked `path`
+inputs and records SHA-256 checksums. Neither module may download, decompress,
+edit, or index inputs; acquisition utilities cannot be dependencies of the
+scientific workflow.
+
 ## Module layout
 
 Each module must live under `modules/local/<tool>/` and contain:
