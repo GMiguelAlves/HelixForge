@@ -31,7 +31,8 @@ packages used by the script.
 
 The Docker image runs as container root so Nextflow work directories mounted
 from arbitrary host UIDs remain writable. It requests no privileged mode and
-has no host-root capability. Apptainer retains its standard host-user mapping.
+has no host-root capability. `procps` is installed solely for Nextflow task
+metrics. Apptainer retains its standard host-user mapping.
 
 The current migration preserves table, figure and HTML names. It does not add
 batch correction, enrichment databases or new biological interpretations.
