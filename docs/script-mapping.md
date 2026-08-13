@@ -34,7 +34,9 @@ level orchestrator with one `--step` and forces local execution.
 | `STAR_IMPORT` | native STAR import provider | Replaces `import_star_counts.py`; preserves count-column selection, gene normalization, outer join, integer counts, CPM, and legacy filenames |
 | `RNASEQ_BATCH_STEP` | `batch` | `batch_correction_job.sh`, `run_batch_correction.sh`, `apply_batch_correction.py`; skipped when `RUN_BATCH_CORRECTION=0` |
 | `RNASEQ_DEG_STEP` | `deg` | `run_deg_analysis_slurm.sh` in local mode, `generate_deg_plan.py`, `deseq2_plan_job.sh`, `deseq2_analysis.R` |
-| `RNASEQ_REPORT_STEP` | `report` | `gene_report_job.sh`, `gene_set_report.R`; skipped when `RUN_GENE_REPORT=0` |
+| `RNASEQ_REPORT_CONTEXT` | native Report API context | Replaces path/glob discovery with explicit Import/DE manifests, sample-aligned abundance, annotation and candidate-gene validation |
+| `RNASEQ_GENE_REPORT` / `candidate_genes_v1` | native report provider | Replaces `gene_report_job.sh`; executes `gene_set_report.R` unchanged with tracked arguments, preserves `results/`, and adds manifest/provenance |
+| `RNASEQ_REPORT_STEP` | retired | No longer reachable; `report` mode or `rnaseq_report_enabled=true` invokes the native API |
 
 `validate_config.sh` is invoked by `rnaseq_pipeline.sh`. Rename helpers and
 batch-assessment utilities remain available as manual legacy utilities because

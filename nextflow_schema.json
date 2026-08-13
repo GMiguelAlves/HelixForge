@@ -43,6 +43,27 @@
       "default": "production_v1",
       "description": "Versioned policy for Salmon import parameters and ID normalization."
     },
+    "rnaseq_report_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Generate the native candidate-gene report after native differential expression."
+    },
+    "rnaseq_report_genes": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "Tracked candidate-gene group file. Required when rnaseq_report_enabled=true."
+    },
+    "rnaseq_report_provider": {
+      "type": "string",
+      "enum": ["candidate_genes_v1"],
+      "default": "candidate_genes_v1"
+    },
+    "rnaseq_report_title": { "type": ["string", "null"], "default": null },
+    "rnaseq_report_expression_unit": { "type": ["string", "null"], "enum": ["TPM", "CPM", null], "default": null },
+    "rnaseq_report_outdir": { "type": ["string", "null"], "default": null },
+    "rnaseq_report_life_stage_levels": { "type": ["string", "null"], "default": null },
+    "rnaseq_report_stage_synonym_map": { "type": ["string", "null"], "default": null },
+    "rnaseq_report_organism_specific": { "type": ["boolean", "null"], "default": null },
     "trim_galore_container": {
       "type": "string",
       "default": "quay.io/biocontainers/trim-galore:0.6.10--hdfd78af_0"
@@ -203,7 +224,7 @@
     "rnaseq_de_spec": { "type": ["string", "null"], "default": null },
     "rnaseq_run_mode": {
       "type": "string",
-      "enum": ["qc", "alignment", "quant", "quantification", "import", "de", "differential_expression", "full"],
+      "enum": ["qc", "alignment", "quant", "quantification", "import", "de", "differential_expression", "report", "full"],
       "default": "full"
     },
     "chipseq_native_foundation": { "type": "boolean", "default": true },
@@ -279,6 +300,10 @@
     "rnaseq_context_container": { "type": "string" },
     "rnaseq_metadata_container": { "type": "string" },
     "reference_bundle_container": { "type": "string" },
+    "rnaseq_report_context_container": { "type": "string" },
+    "rnaseq_report_container": { "type": "string" },
+    "rnaseq_report_apptainer_container": { "type": "string" },
+    "rnaseq_report_queue": { "type": ["string", "null"], "default": null },
     "import_source_container": { "type": "string" },
     "tx2gene_container": { "type": "string" },
     "tx2gene_apptainer_container": { "type": "string" },
