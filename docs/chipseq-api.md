@@ -7,7 +7,7 @@ peak caller and legacy directory names. Version 0.1 implemented metadata, raw
 QC and Bowtie2 alignment. Version 0.2 implements the independent BAM processing
 roles. Version 0.3 implements Peak Calling API v1 with MACS3 3.0.4. Version 0.4
 implements per-replicate Peak QC API v1. Version 0.5 implements Consensus API
-v1 and the validation/provenance boundary for a future IDR provider.
+v1; version 0.10 completes its optional IDR 2.0.4.2 provider.
 Version 0.6 adds separate differential-binding preflight, peak counting,
 statistical model, contrast and aggregation boundaries.
 Version 0.7 adds manifest-driven Peak Annotation API v1. Version 0.8 adds
@@ -134,9 +134,9 @@ upstream; technical mode explicitly preserves them.
 `union`, `intersection`, and `replicate_support` use BEDTools `multiinter`
 atomic segments and retain the supporting replicate IDs. Scores, summits and
 significance values are preserved as evidence rather than fabricated for the
-consolidated intervals. IDR is a separate provider contract: current mode
-validates exactly two premerged biological narrowPeak replicates, an explicit
-threshold and rank metric, then returns `not_implemented` without a peak set.
+consolidated intervals. IDR is a separate statistical provider: it validates
+exactly two premerged biological narrowPeak replicates, an explicit threshold
+and rank metric, and emits filtered peaks plus local/global IDR evidence.
 See `docs/consensus_idr_api.md`.
 
 ## Modes and implementation state
@@ -149,7 +149,7 @@ See `docs/consensus_idr_api.md`.
 | `peaks` | native QC + alignment + BAM processing + per-replicate MACS3 |
 | `peak_qc` | native peaks + per-replicate FRiP/peak statistics + QC aggregation |
 | `consensus` | native Peak QC + explicit union/intersection/replicate-support provider |
-| `idr` | native input validation and provenance only; statistical runtime not implemented |
+| `idr` | native IDR 2.0.4.2 provider with normalized peaks, evidence, plot and provenance |
 | `differential_binding` | native Consensus + featureCounts provider + explicit DESeq2 model/contrasts |
 | `annotation` | external Peak/Consensus manifest + native annotation provider/statistics/aggregate; no upstream rerun |
 | `tracks` | external FINAL_BAM inventory + native deepTools provider/statistics/aggregate; no upstream rerun |
@@ -162,7 +162,7 @@ outputs must not be mixed without an explicit manifest boundary.
 
 ## Differential Binding API v1
 
-`DB_PREFLIGHT` groups compatible semantic Consensus sets across conditions,
+`DB_PREFLIGHT` groups compatible semantic Consensus or IDR sets across conditions,
 validates one premerged biological sample per model column, builds the explicit
 comparison universe and emits separate count/model/contrast specs.
 `PEAK_COUNTING_PROVIDER` dispatches featureCounts, `DESEQ2_DB_MODEL` fits one

@@ -5,9 +5,8 @@
   compatibility copies are published at the existing paths.
 - ChIP raw QC, Bowtie2 alignment, BAM selection, duplicate policy, blacklist
   exclusion, final BAM QC, per-replicate MACS3 peak calling, Peak QC and
-  interval consensus fan out natively. IDR has a validated provider boundary
-  only. Differential Binding has native architecture and stub validation;
-  annotation and tracks still use compatibility wrappers.
+  interval consensus fan out natively. Optional IDR 2.0.4.2, Differential
+  Binding, annotation, tracks and report are native and composed by `full`.
 - The generic compatibility process uses resource classes rather than exact
   per-tool requirements.
 - Container and native Conda profiles remain placeholders for legacy tools.
@@ -62,18 +61,20 @@
   real SAMtools/BEDTools FRiP or consensus value and no IDR result is claimed. The pinned
   Conda environment is defined, while a joint OCI image remains unpublished and
   therefore defaults to null rather than an unverified image reference.
-- Native consensus uses a pinned Conda BEDTools version, but no verified joint
-  OCI/Apptainer image is published yet. Its provider was not benchmarked or
-  compared with the legacy union in this local stage. IDR is intentionally
-  `not_implemented`: the manifest records unavailable peaks and no placeholder
-  interval file is emitted.
+- Native interval consensus uses a pinned Conda BEDTools version, but no
+  verified joint OCI/Apptainer image is published yet. IDR has a separately
+  pinned Biocontainer/Conda provider and dedicated reduced OCI certification.
+  Its complete reduced top-level Slurm execution passed with an isolated exact
+  Conda environment because the cluster does not expose a container runtime.
+  A reviewed biological regression and administrator-supported OCI/Apptainer
+  execution remain pending.
 - Differential Binding has not run real featureCounts or DESeq2 in this stage.
   The Subread and DESeq2 Conda environments are pinned, but featureCounts OCI/
   Apptainer parameters intentionally remain null until final validation. No real
   normalization, Wald statistic, p-value, legacy regression, biological
   comparison or benchmark is claimed.
-- The v1 comparison universe is an explicit union of compatible condition-level
-  Consensus BEDs. This is not IDR and may not be optimal for every experiment;
-  final validation must compare it with curated and IDR-derived universes.
+- The v1 comparison universe is the explicit union of compatible condition-level
+  completed Consensus or IDR BEDs. Choosing IDR changes the per-condition peak
+  evidence but does not silently change the cross-condition universe policy.
 - Existing `.done` files remain active inside legacy pipelines. Nextflow status
   markers are an additional orchestration layer.

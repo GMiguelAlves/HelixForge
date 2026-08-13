@@ -11,6 +11,7 @@ python_env=${6:-python-list}
 queue=${7:-general}
 mode=${8:-driver}
 case_name=${9:-chipseq-production-real}
+consensus_method=${HELIXFORGE_CHIPSEQ_CONSENSUS_METHOD:-union}
 
 if [[ -n "${SLURM_JOB_ID:-}" ]]; then
     repo_root=${HELIXFORGE_REPO_ROOT:?HELIXFORGE_REPO_ROOT is required in Slurm helpers}
@@ -24,13 +25,21 @@ cache_root="${validation_root}/cache/${case_name}"
 compat_bin="${validation_root}/runtime/bowtie2-direct"
 conda_root=$(cd "$(dirname "$conda_bin")/.." && pwd)
 runtime_path="${compat_bin}:${conda_root}/envs/${r_env}/bin:${conda_root}/envs/${chip_env}/bin:${conda_root}/envs/${rna_env}/bin:${conda_root}/envs/${python_env}/bin:/usr/bin:/bin"
+if [[ "$consensus_method" == "idr" ]]; then
+    idr_env=${HELIXFORGE_IDR_ENV:-idr}
+    idr_prefix=${HELIXFORGE_IDR_PREFIX:-${conda_root}/envs/${idr_env}}
+    test -x "${idr_prefix}/bin/idr"
+elif [[ "$consensus_method" != "union" ]]; then
+    echo "Production validation supports consensus method union or idr, observed: $consensus_method" >&2
+    exit 2
+fi
 nextflow_jar=${HELIXFORGE_NEXTFLOW_JAR:-/home/ra236875@bio.ib.unicamp.br/helixforge-validation-20260811/.validation-runtimes/nxf-home-25.10.7/framework/25.10.7/nextflow-25.10.7-one.jar}
 
 case "$validation_root" in
     /scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-validation-*) ;;
     *) echo "Refusing unexpected validation root: $validation_root" >&2; exit 2 ;;
 esac
-test -d "$repo_root/.git"
+test -e "$repo_root/.git"
 test -x "$conda_bin"
 test -s "$nextflow_jar"
 if [[ -z "${SLURM_JOB_ID:-}" ]]; then
@@ -39,10 +48,16 @@ if [[ -z "${SLURM_JOB_ID:-}" ]]; then
     ln -sfn "${conda_root}/envs/${chip_env}/bin/bowtie2-build-s" "$compat_bin/bowtie2-build"
     ln -sfn "${conda_root}/envs/${chip_env}/bin/python3" "$compat_bin/python3"
     ln -sfn "${conda_root}/envs/${chip_env}/bin/python" "$compat_bin/python"
+    if [[ "$consensus_method" == "idr" ]]; then
+        ln -sfn "${idr_prefix}/bin/idr" "$compat_bin/idr"
+    fi
 fi
 test -x "$compat_bin/bowtie2"
 test -x "$compat_bin/bowtie2-build"
 test -x "$compat_bin/python3"
+if [[ "$consensus_method" == "idr" ]]; then
+    test -x "$compat_bin/idr"
+fi
 
 if [[ "$mode" == "preflight-job" ]]; then
     test -n "${SLURM_JOB_ID:-}"
@@ -61,6 +76,9 @@ if [[ "$mode" == "preflight-job" ]]; then
     Rscript -e 'stopifnot(requireNamespace("DESeq2", quietly=TRUE), requireNamespace("jsonlite", quietly=TRUE)); cat("DESeq2 ", as.character(packageVersion("DESeq2")), "\njsonlite ", as.character(packageVersion("jsonlite")), "\n", sep="")'
     printf 'python3=%s\n' "$(command -v python3)"
     python3 -c 'import pyBigWig; print("pyBigWig", pyBigWig.__version__)'
+    if [[ "$consensus_method" == "idr" ]]; then
+        idr --version
+    fi
     ps --version | head -n 1
     exit 0
 fi
@@ -83,13 +101,19 @@ fi
 if [[ "$mode" == "validate-job" ]]; then
     test -n "${SLURM_JOB_ID:-}"
     env PATH="$runtime_path" python3 "$repo_root/tests/slurm/validate_chipseq_production.py" \
-        --case-root "$case_root" --output "$case_root/validation.json"
+        --case-root "$case_root" --output "$case_root/validation.json" \
+        --consensus-method "$consensus_method"
     exit 0
 fi
 
 if [[ "$mode" != "driver" && "$mode" != "recovery-driver" ]]; then
     echo "mode must be driver, recovery-driver, preflight-job, fixture-job, prepare-job, or validate-job" >&2
     exit 2
+fi
+
+resume_args=()
+if [[ "$mode" == "recovery-driver" ]]; then
+    resume_args=(-resume)
 fi
 
 if [[ "$mode" == "driver" ]]; then
@@ -139,6 +163,7 @@ run_stage() {
         "${conda_root}/envs/${rna_env}/bin/java" -Xms128m -Xmx1g -jar "$nextflow_jar" \
         -log "$case_root/logs/${stage}.nextflow.log" \
         run main.nf \
+        "${resume_args[@]}" \
         -c tests/slurm/chipseq-production.config \
         -ansi-log false \
         -work-dir "$work_root/$stage" \
@@ -178,12 +203,14 @@ if [[ ! -s "$case_root/traces/full.tsv" ]]; then
         --chipseq_duplicate_mode none \
         --chipseq_peak_caller macs3 \
         --chipseq_peak_type narrow \
-        --chipseq_effective_genome_size 9000 \
+        --chipseq_effective_genome_size 30000 \
         --chipseq_peak_q_value 0.5 \
         --chipseq_peak_format BAMPE \
         --chipseq_peak_duplicate_policy all \
         --chipseq_peak_output_dir "$result_root/080-peak-calling" \
-        --chipseq_consensus_method union \
+        --chipseq_consensus_method "$consensus_method" \
+        --chipseq_idr_threshold 0.05 \
+        --chipseq_idr_rank_metric signal_value \
         --chipseq_min_replicates 2 \
         --chipseq_db_spec "$case_root/db_spec.json" \
         --chipseq_db_target_dir "$result_root/120-differential-binding" \
@@ -194,7 +221,7 @@ if [[ ! -s "$case_root/traces/full.tsv" ]]; then
         --bowtie2_index_queue "$queue" --bowtie2_align_queue "$queue" \
         --bam_select_queue "$queue" --bam_duplicates_queue "$queue" \
         --bam_blacklist_queue "$queue" --bam_index_qc_queue "$queue" \
-        --macs3_queue "$queue" --peak_qc_queue "$queue" --consensus_queue "$queue" \
+        --macs3_queue "$queue" --peak_qc_queue "$queue" --consensus_queue "$queue" --idr_queue "$queue" \
         --db_count_queue "$queue" --db_model_queue "$queue" --db_contrast_queue "$queue"
 fi
 

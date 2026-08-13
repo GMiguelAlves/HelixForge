@@ -44,9 +44,11 @@ Peak QC API v1 then calculates explicitly defined per-replicate FRiP and generic
 peak statistics and publishes a caller-neutral QC manifest.
 Consensus API v1 safely joins those manifests by identity and implements
 explicit `union`, `intersection`, and minimum-replicate-support strategies over
-atomic intervals. The separate IDR mode validates and records an IDR request,
-but deliberately produces no peak set until a pinned statistical runtime has
-been scientifically validated.
+atomic intervals. IDR is an optional statistical provider for exactly two
+premerged biological `narrowPeak` replicates. It runs IDR 2.0.4.2 with an
+explicit threshold/rank metric and fixed random seed, then publishes the same
+provider-neutral peak roles consumed by Differential Binding, Annotation and
+Report.
 Differential Binding API v1 adds the explicit `differential_binding` mode:
 semantic Consensus peak sets become a comparison universe, featureCounts
 produces an ID-mapped raw peak matrix, and DESeq2 fits one reusable model with
@@ -63,6 +65,9 @@ Report/Integration API v1 closes the native ChIP-seq functional DAG. It joins
 existing semantic manifests, preserves optional and `not_implemented` states,
 and emits self-contained HTML, structured JSON, final manifest, versions,
 execution metadata, and provenance without rerunning upstream stages.
+The optional IDR full path was validated end-to-end on Slurm with the reduced
+synthetic fixture: 105 processes completed, both condition-level IDR groups
+produced non-empty results, and the final report passed all top-level checks.
 
 Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy
@@ -142,9 +147,11 @@ instead of falling back to the legacy coordinator.
 dedicated mode.
 `--chipseq_native_peak_qc false` stops `peak_qc` mode after native Peak Calling.
 Native consensus additionally requires `--chipseq_consensus_method
-union|intersection|replicate_support`; the latter also requires
-`--chipseq_min_replicates`. `idr` is currently a validated, provenance-bearing
-provider request only and is not a scientific IDR result.
+union|intersection|replicate_support|idr`; replicate support also requires
+`--chipseq_min_replicates`. IDR additionally requires exactly two premerged
+biological narrowPeak inputs and an explicit `--chipseq_idr_rank_metric
+signal_value|p_value|q_value`. Select it in `full` with
+`--chipseq_consensus_method idr`, or use the dedicated `idr` mode.
 
 Native differential binding additionally requires
 `--chipseq_run_mode differential_binding`, an explicit consensus method, and

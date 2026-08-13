@@ -2,6 +2,7 @@
 import argparse
 import csv
 import json
+import random
 from pathlib import Path
 
 
@@ -13,15 +14,27 @@ def main():
     root.mkdir(parents=True, exist_ok=True)
 
     rows = []
+    generator = random.Random(20260813)
+    shared_ranks = list(range(1, 601))
     for replicate in (1, 2):
         record_id = f"chip_rep{replicate}"
         peak_id = f"{record_id}.H3K27ac.narrow.macs3"
         peak_dir = root / f"{peak_id}.peak_calling"
         peak_dir.mkdir(exist_ok=True)
-        (peak_dir / "peaks.narrowPeak").write_text(
-            f"chrStub\t{replicate * 4}\t{replicate * 4 + 8}\tp{replicate}\t100\t.\t5\t10\t8\t4\n",
-            encoding="utf-8",
-        )
+        ranks = shared_ranks.copy()
+        for start in range(0, len(ranks), 25):
+            block = ranks[start : start + 25]
+            generator.shuffle(block)
+            ranks[start : start + 25] = block
+        peak_rows = []
+        for index, rank in enumerate(ranks, 1):
+            start = index * 30 + replicate - 1
+            signal = 1000.0 - rank + (replicate * 0.01)
+            peak_rows.append(
+                f"chrStub\t{start}\t{start + 20}\tp{replicate}_{index:04d}\t100\t.\t"
+                f"{signal:.2f}\t{signal / 10:.3f}\t{signal / 20:.3f}\t10\n"
+            )
+        (peak_dir / "peaks.narrowPeak").write_text("".join(peak_rows), encoding="utf-8")
         identity = {
             "id": peak_id, "record_id": record_id, "sample_id": record_id,
             "experiment_id": "fixture.H3K27ac", "target": "H3K27ac",
@@ -46,6 +59,32 @@ def main():
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]), delimiter="\t", lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
+
+    request = {
+        "schema_version": "1.0", "type": "consensus_idr_request",
+        "id": "fixture.fixture.H3K27ac.treated.H3K27ac.fixture_v1.narrow",
+        "status": "valid", "strategy": "idr", "provider": "idr",
+        "provider_version": "2.0.4.2", "dataset": "fixture",
+        "experiment_id": "fixture.H3K27ac", "condition": "treated",
+        "treatment": "drug", "target": "H3K27ac", "genome_id": "fixture_v1",
+        "peak_type": "narrow", "caller": "macs3", "caller_version": "3.0.4",
+        "replicate_mode": "biological", "replicate_policy": "require_premerged",
+        "replicate_count": 2,
+        "parameters": {"idr_threshold": 0.05, "rank_metric": "signal_value"},
+        "replicates": [
+            {
+                "evidence_replicate_id": str(replicate),
+                "record_id": f"chip_rep{replicate}", "sample_id": f"chip_rep{replicate}",
+                "peak_id": f"chip_rep{replicate}.H3K27ac.narrow.macs3",
+                "peak_directory": f"chip_rep{replicate}.H3K27ac.narrow.macs3.peak_calling",
+                "peak_file": "peaks.narrowPeak",
+            }
+            for replicate in (1, 2)
+        ],
+    }
+    (root / "idr_request.json").write_text(
+        json.dumps(request, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 if __name__ == "__main__":

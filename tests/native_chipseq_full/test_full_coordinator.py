@@ -104,6 +104,20 @@ class FullCoordinatorManifestTest(unittest.TestCase):
 
 
 class FullCoordinatorTopologyTest(unittest.TestCase):
+    def test_full_report_staging_preserves_alignment_and_final_bam_manifests(self):
+        bam_select = (ROOT / "modules/local/bam_select/main.nf").read_text(encoding="utf-8")
+        bam_duplicates = (ROOT / "modules/local/bam_duplicates/main.nf").read_text(encoding="utf-8")
+        bam_blacklist = (ROOT / "modules/local/bam_blacklist/main.nf").read_text(encoding="utf-8")
+        bam_index_qc = (ROOT / "modules/local/bam_index_qc/main.nf").read_text(encoding="utf-8")
+        report_input = (ROOT / "modules/local/chipseq_full_report_input/main.nf").read_text(encoding="utf-8")
+        self.assertIn('path("${meta.id}.bam_select.manifest.json")', bam_select)
+        self.assertIn('path("${meta.id}.bam_duplicates.manifest.json")', bam_duplicates)
+        self.assertIn('path("${meta.id}.bam_blacklist.manifest.json")', bam_blacklist)
+        self.assertIn('path("${meta.id}.bam_final.manifest.json")', bam_index_qc)
+        for module in (bam_select, bam_duplicates, bam_blacklist, bam_index_qc):
+            self.assertNotIn(" > '${meta.id}.manifest.json'", module)
+        self.assertIn("set -o pipefail", report_input)
+
     def test_full_mode_is_native_and_single_session(self):
         workflow = (ROOT / "workflows/chipseq.nf").read_text(encoding="utf-8")
         foundation = (ROOT / "subworkflows/local/chipseq/native_foundation.nf").read_text(encoding="utf-8")
@@ -115,10 +129,26 @@ class FullCoordinatorTopologyTest(unittest.TestCase):
         self.assertIn(".combine(annotation_references, by: 0)", foundation)
         self.assertIn(".combine(track_references, by: 0)", foundation)
         self.assertIn("CHIPSEQ_REPORT(report_records)", foundation)
+        self.assertIn("'union', 'intersection', 'replicate_support', 'idr'", foundation)
+        self.assertIn("DIFFERENTIAL_BINDING(\n                                CONSENSUS_IDR.out.artifacts", foundation)
+        self.assertIn("annotation_sources = CONSENSUS_IDR.out.artifacts", foundation)
         self.assertNotIn("nextflow run", foundation.lower())
         self.assertIn("run_stage full", harness)
         self.assertNotIn("run_stage differential_binding", harness)
         self.assertNotIn("submit_helper hf-chip-prepare", harness)
+        self.assertIn("HELIXFORGE_CHIPSEQ_CONSENSUS_METHOD", harness)
+        self.assertIn('if [[ "$mode" == "recovery-driver" ]]', harness)
+        self.assertIn('resume_args=(-resume)', harness)
+        self.assertIn('"${resume_args[@]}"', harness)
+
+        validator = (ROOT / "tests/slurm/validate_chipseq_production.py").read_text(encoding="utf-8")
+        self.assertIn('bam_final/*.bam_final.manifest.json', validator)
+        self.assertIn("HELIXFORGE_IDR_PREFIX", harness)
+        self.assertIn('ln -sfn "${idr_prefix}/bin/idr" "$compat_bin/idr"', harness)
+        self.assertIn('test -e "$repo_root/.git"', harness)
+        self.assertIn('--chipseq_consensus_method "$consensus_method"', harness)
+        self.assertIn("--chipseq_idr_threshold 0.05", harness)
+        self.assertIn("--chipseq_effective_genome_size 30000", harness)
 
 
 if __name__ == "__main__":

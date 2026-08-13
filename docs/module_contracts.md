@@ -322,8 +322,10 @@ must be joined by stable manifest identifiers and a complete scientific group
 key; file order and globs are forbidden associations. Replicate mode and policy
 are explicit cache inputs. Consensus providers preserve atomic interval support
 and source evidence without synthesizing caller metrics. IDR providers use a
-distinct type and may emit `available: false`; a provider without a validated
-statistical runtime must never create a peak-shaped placeholder.
+distinct type, exactly two ranked biological narrowPeak inputs, an explicit
+threshold/rank metric and a deterministic random seed. They must publish raw
+provider output plus normalized peak roles; `complete_empty` must remain
+distinct from an unavailable or failed provider.
 
 Contract 2.1 adds Differential Binding providers. Raw peak counting is separate
 from filtering, normalization and inference. One model column maps through
