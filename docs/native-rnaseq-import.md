@@ -41,8 +41,8 @@ begins in the native providers.
 
 The removed wrapper chain is `RNASEQ_IMPORT_STEP` ->
 `quantification_job.sh` -> `run_quantification.sh` -> `txtimport_quant.R` or
-`import_star_counts.py`. Those files remain preserved under
-`pipelines/rnaseq/legacy` for regression and direct legacy operation.
+`import_star_counts.py`. Those files are archived in `rnaseq-legacy-v1.0.0`;
+manual regression harnesses materialize the exact tagged source when required.
 
 ## Scientific comparison
 

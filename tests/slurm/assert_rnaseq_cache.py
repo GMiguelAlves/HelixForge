@@ -62,11 +62,11 @@ def main() -> None:
     elif args.scenario == "qc":
         assert_all(statuses(rows, "SALMON_INDEX"), "CACHED", "Salmon index after QC parameter change")
         assert_all(statuses(rows, "FASTQC_RAW"), "CACHED", "raw FastQC after QC parameter change")
-        assert_all(statuses(rows, "RNASEQ_QC_PLAN"), "COMPLETED", "QC plan after QC parameter change")
+        assert_all(statuses(rows, "RNASEQ_METADATA"), "COMPLETED", "metadata/QC plan after QC parameter change")
         assert_all(statuses(rows, "TRIM_GALORE"), "COMPLETED", "Trim Galore after QC parameter change")
     else:
         assert_all(statuses(rows, "SALMON_INDEX"), "CACHED", "Salmon index after module script change")
-        for process in ("RNASEQ_QC_PLAN", "TRIM_GALORE", "MULTIQC"):
+        for process in ("RNASEQ_METADATA", "TRIM_GALORE", "MULTIQC"):
             assert_all(statuses(rows, process), "CACHED", f"{process} after module script change")
         for process in ("SALMON_QUANT", "IMPORT_SOURCE", "SALMON_IMPORT", "DESEQ2_MODEL", "DESEQ2_CONTRAST", "DE_AGGREGATE"):
             assert_all(statuses(rows, process), "COMPLETED", f"{process} after module script change")

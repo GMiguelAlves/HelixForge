@@ -17,7 +17,7 @@ process RNASEQ_DE_CONTEXT {
 
     input:
     path config_file
-    val legacy_root
+    val pipeline_root
     path analysis_spec_input, stageAs: 'requested_de_spec.json'
 
     output:
@@ -27,7 +27,7 @@ process RNASEQ_DE_CONTEXT {
 
     script:
     """
-    export PROJECT_DIR='${legacy_root}'
+    export PROJECT_DIR='${pipeline_root}'
     export PIPELINE_CONFIG="\$PWD/${config_file}"
     source "\$PIPELINE_CONFIG"
     if [[ -n "\${REF_GFF3:-}" && -s "\$REF_GFF3" ]]; then

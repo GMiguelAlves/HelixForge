@@ -5,12 +5,12 @@ include { REFERENCE_BUNDLE } from '../../../modules/local/reference_bundle/main'
 workflow RNASEQ_NATIVE_FOUNDATION {
     take:
     config_file
-    legacy_root
+    pipeline_root
     _seed
 
     main:
     context_meta = channel.value([id: 'rnaseq.context'])
-    RNASEQ_CONTEXT(config_file, legacy_root, context_meta)
+    RNASEQ_CONTEXT(config_file, pipeline_root, context_meta)
     RNASEQ_METADATA(RNASEQ_CONTEXT.out.artifacts)
 
     if (params.rnaseq_run_mode.toString().toLowerCase() == 'qc') {

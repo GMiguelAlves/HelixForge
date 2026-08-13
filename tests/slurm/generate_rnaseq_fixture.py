@@ -151,7 +151,7 @@ def write_configuration(repo_root: Path, case_root: Path, conda_base: Path) -> N
         f"export REF_GFF3='{reference_root / 'annotation.gff3'}'\n"
         f"export METADATA_FINAL='{case_root / 'metadata.csv'}'\n"
         f"export METADATA_FINAL_NEW='{case_root / 'metadata.csv'}'\n"
-        f"export SCRIPTS_DIR='{repo_root / 'pipelines/rnaseq/legacy/scripts'}'\n"
+        f"export SCRIPTS_DIR='{repo_root / 'pipelines/rnaseq'}'\n"
         f"export SALMON_INDEX_DIR='{pipeline_root / '010-reference/salmon_index'}'\n"
         f"export QUANT_DIR='{pipeline_root / '040-alignment/quants'}'\n"
         "export QUANT_METHOD='salmon'\n"
@@ -175,7 +175,7 @@ def write_configuration(repo_root: Path, case_root: Path, conda_base: Path) -> N
         "#!/usr/bin/env bash\n"
         f"export PROJECT_DIR='{pipeline_root}'\n"
         f"export USER_SETTINGS_FILE='{settings}'\n"
-        f"source '{repo_root / 'pipelines/rnaseq/legacy/config/pipeline_config.sh'}'\n",
+        f"source '{repo_root / 'pipelines/rnaseq/config/pipeline_config.sh'}'\n",
         encoding="utf-8",
     )
     spec = {
