@@ -32,7 +32,7 @@ level orchestrator with one `--step` and forces local execution.
 | `TX2GENE_BUILD` | native annotation module | Separates the unchanged GTF transcript/gene normalization previously embedded in `txtimport_quant.R` |
 | `TXIMPORT` / `SALMON_IMPORT` | native Salmon import provider | Replaces `quantification_job.sh`, `run_quantification.sh`, and `txtimport_quant.R`; preserves all tximport scientific arguments and legacy filenames |
 | `STAR_IMPORT` | native STAR import provider | Replaces `import_star_counts.py`; preserves count-column selection, gene normalization, outer join, integer counts, CPM, and legacy filenames |
-| `RNASEQ_BATCH_STEP` | `batch` | `batch_correction_job.sh`, `run_batch_correction.sh`, `apply_batch_correction.py`; skipped when `RUN_BATCH_CORRECTION=0` |
+| `RNASEQ_BATCH_STEP` | retired from the scientific DAG | Batch assessment/correction scripts remain manual exploratory utilities; their matrices are never routed into DESeq2 by HelixForge |
 | `RNASEQ_DEG_STEP` | `deg` | `run_deg_analysis_slurm.sh` in local mode, `generate_deg_plan.py`, `deseq2_plan_job.sh`, `deseq2_analysis.R` |
 | `RNASEQ_REPORT_CONTEXT` | native Report API context | Replaces path/glob discovery with explicit Import/DE manifests, sample-aligned abundance, annotation and candidate-gene validation |
 | `RNASEQ_GENE_REPORT` / `candidate_genes_v1` | native report provider | Replaces `gene_report_job.sh`; executes the module-owned, reviewed `gene_set_report.R` with tracked arguments, preserves `results/`, and adds manifest/provenance |

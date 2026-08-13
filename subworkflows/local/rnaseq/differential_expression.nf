@@ -1,4 +1,3 @@
-include { LEGACY_STEP as RNASEQ_BATCH_STEP }  from '../../../modules/local/legacy_step/main'
 include { LEGACY_STEP as RNASEQ_DEG_STEP }    from '../../../modules/local/legacy_step/main'
 include { RNASEQ_DE_CONTEXT }                  from '../../../modules/local/rnaseq_de_context/main'
 include { DIFFERENTIAL_EXPRESSION }            from '../differential_expression/differential_expression'
@@ -27,7 +26,6 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
     run_mode = params.rnaseq_run_mode.toString().toLowerCase()
     run_report = run_mode == 'report' || (run_mode == 'full' && report_enabled)
     native_logs = channel.empty()
-    batch_logs = channel.empty()
     if (native_de_enabled) {
         if (!params.rnaseq_de_spec) {
             error 'Native differential expression requires --rnaseq_de_spec with an explicit design and contrasts.'
@@ -106,21 +104,16 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
         if (run_report) {
             error 'RNA-seq Report API requires rnaseq_native_de=true; the legacy report wrapper has been removed.'
         }
-        RNASEQ_BATCH_STEP(
-            'rnaseq', 'batch', 'medium', config_file, legacy_root,
-            quantification_status, no_dep, no_dep
-        )
         RNASEQ_DEG_STEP(
             'rnaseq', 'deg', 'high_cpu', config_file, legacy_root,
-            RNASEQ_BATCH_STEP.out.status, no_dep, no_dep
+            quantification_status, no_dep, no_dep
         )
         deg_status = RNASEQ_DEG_STEP.out.status
         native_logs = RNASEQ_DEG_STEP.out.log
-        batch_logs = RNASEQ_BATCH_STEP.out.log
         final_status = deg_status
     }
 
     emit:
     status = final_status
-    logs   = batch_logs.mix(native_logs)
+    logs   = native_logs
 }
