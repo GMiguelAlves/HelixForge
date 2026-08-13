@@ -29,5 +29,9 @@ before the report image is certified.
 The dedicated environment pins R 4.3.3, rtracklayer 1.62.0 and plotting/data
 packages used by the script.
 
+The Docker image runs as container root so Nextflow work directories mounted
+from arbitrary host UIDs remain writable. It requests no privileged mode and
+has no host-root capability. Apptainer retains its standard host-user mapping.
+
 The current migration preserves table, figure and HTML names. It does not add
 batch correction, enrichment databases or new biological interpretations.
