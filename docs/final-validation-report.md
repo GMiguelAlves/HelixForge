@@ -1,6 +1,6 @@
 # Controlled real validation report
 
-Date: 2026-08-11  
+Date: 2026-08-13
 Branch: `contrib/final-validation`  
 Overall decision: **BLOCKED for global legacy retirement**
 
@@ -32,6 +32,11 @@ The project declares Nextflow `>=24.10.0`; this pass used a newer runtime. The
 cache result below must be repeated on native Linux storage and the production
 Nextflow version before it is interpreted as a pipeline cache defect.
 
+The final top-level ChIP-seq pass used the certified temporary runtime
+Nextflow 25.10.7. It reused the cluster's existing `chipseq`, `r-analysis`,
+`rna-tools`, and `python-list` environments without installing or modifying
+packages. At most five scientific jobs were queued concurrently.
+
 ## Capacity and decision matrix
 
 | Component | Real native evidence | Legacy comparison | Status | Blocker or qualification |
@@ -48,10 +53,10 @@ Nextflow version before it is interpreted as a pipeline cache defect.
 | ChIP BAM processing | Yes, including Slurm | Expected metrics validated | CONDITIONAL | Reduced fixture passed; cache reuse remains unresolved |
 | Bowtie2 index | Yes on Slurm, cluster 2.5.5 | Yes, same cluster runtime | CONDITIONAL | Direct compiled binary bypassed a broken Conda Perl wrapper |
 | Bowtie2 alignment | Yes on Slurm, cluster 2.5.5 | Yes, same cluster runtime | CONDITIONAL | BAM records, flagstat and idxstats passed; pinned 2.5.4 image remains uncertified |
-| MACS3 | Yes, 3.0.4, including Slurm | No full legacy pair | CONDITIONAL | Two replicates and matched control passed |
-| FRiP | Yes on Slurm | Semantic invariants | CONDITIONAL | Two real BAM/peak pairs passed; no full legacy regression |
-| Consensus | Yes, union on Slurm | Semantic invariants | CONDITIONAL | Two-replicate union passed; IDR is still not implemented |
-| Differential binding | Yes on Slurm | Semantic invariants | CONDITIONAL | featureCounts, DESeq2, two contrasts and aggregate passed in the available runtime |
+| MACS3 | Yes, 3.0.4, including top-level Slurm | No full legacy pair | CONDITIONAL | Four replicates and matched control passed |
+| FRiP | Yes on top-level Slurm | Semantic invariants | CONDITIONAL | Four real BAM/peak pairs passed; no full legacy regression |
+| Consensus | Yes, union on top-level Slurm | Semantic invariants | CONDITIONAL | Two conditions with two replicates each passed; IDR is still not implemented |
+| Differential binding | Yes on top-level Slurm | Semantic invariants | CONDITIONAL | featureCounts, DESeq2, one requested contrast and aggregate passed in the available runtime |
 | Annotation | Yes on Slurm | Semantic invariants | CONDITIONAL | Coordinates, configured promoter window and aggregate passed |
 | Tracks | Yes on Slurm | Semantic invariants | CONDITIONAL | Three individual and one aggregate BigWig passed |
 | Report | Yes on Slurm | Contract and content checks | CONDITIONAL | HTML passed and correctly discloses IDR as incomplete |
@@ -274,6 +279,39 @@ The annotation/track/report pass exposed missing executable bits on packaged
 resource scripts. Directly invoked resource executables now carry Git mode
 `100755`; stages that pipe validators through `tee` also use `pipefail`, so
 permission or provider errors cannot be masked.
+
+### Official top-level ChIP-seq path
+
+Case `chipseq-production-real-06` completed the supported production path on
+the institutional Slurm cluster:
+
+`FASTQ -> FastQC/MultiQC -> Bowtie2 -> BAM processing -> MACS3 -> FRiP/QC -> union consensus -> Differential Binding -> Annotation -> Tracks -> Report`
+
+The execution used five paired-end records: one input and two biological
+replicates for each of the control and treated conditions. It completed 100
+scientific process executions across four supported top-level modes (71 + 4 +
+22 + 3). All commands ran in Slurm allocations; the head node hosted only the
+Nextflow scheduler driver.
+
+Semantic validation passed for ten FastQC archives, one real MultiQC report,
+five indexed BAMs, four non-empty MACS3 peak sets, four FRiP values from
+0.8339 to 0.9146, two union consensus groups, one DESeq2 contrast with 14
+reported regions, 29 annotated peaks, seven BigWigs including two aggregates,
+and a 32,397-byte self-contained report. The ten source FASTQ checksums were
+unchanged.
+
+Summed task realtime from the Nextflow traces was 107.380 seconds for the
+foundation-through-differential-binding stage, 1.073 seconds for annotation,
+33.687 seconds for tracks, and 0.899 seconds for report generation. These are
+small-fixture task totals, not a production throughput benchmark.
+
+The pass found three validation-harness defects and one fixture limitation:
+Python/R environment precedence, the published Differential Binding manifest
+path, use of individual `consensus` manifests where the Report API requires
+the aggregate `consensus_idr` manifest, and an initially degenerate four-region
+DESeq2 fixture. Each was corrected without changing pipeline algorithms or
+scientific parameters. IDR itself was not exercised; union remains the
+validated consensus provider.
 
 ## Cache and invalidation
 

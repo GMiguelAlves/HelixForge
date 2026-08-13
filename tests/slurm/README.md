@@ -39,6 +39,17 @@ validation permits at most five concurrent tasks.
   QC -> Salmon -> Import -> DESeq2 path, then attempts identical and selective
   invalidation scenarios. `resume-driver` continues a completed baseline
   without overwriting its evidence.
+- `run_chipseq_production_real.sh` validates the complete supported ChIP-seq
+  path using a deterministic paired-end fixture and at most five concurrent
+  Slurm jobs. It chains `differential_binding`, `annotation`, `tracks`, and
+  `report` through their published manifests; `recovery-driver` skips stages
+  whose archived trace already exists.
+- `generate_chipseq_production_fixture.py`,
+  `prepare_chipseq_downstream.py`, and
+  `validate_chipseq_production.py` generate the reduced dataset, construct
+  manifest-backed inputs between top-level modes, and validate scientific and
+  operational outputs. The validated 2026-08-13 case completed 100 scientific
+  tasks with Nextflow 25.10.7.
 - `cache_probe.nf` and `cache-probe.config` provide a one-process diagnostic
   for task-cache persistence independently of the scientific DAG.
 
