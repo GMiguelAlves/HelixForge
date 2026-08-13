@@ -11,7 +11,7 @@ level orchestrator with one `--step` and forces local execution.
 | `RNASEQ_CONTEXT` | compatibility adapter | Reads the existing shell configuration once and materializes tracked settings; performs no acquisition or scientific work |
 | `RNASEQ_METADATA` | native metadata module | Replaces the metadata wrapper and `RNASEQ_QC_PLAN`; validates a supplied samplesheet/local FASTQs and preserves established QC filenames |
 | `REFERENCE_BUNDLE` | native reference module | Replaces `RNASEQ_REFERENCE_STEP`; validates supplied transcriptome/annotation/genome files and records SHA-256 checksums without downloading or indexing |
-| Data acquisition | outside scientific DAG | `download_final.sh` is retained only as an optional external/legacy utility and is never scheduled by `RNASEQ` |
+| Data acquisition | outside scientific DAG | No downloader is scheduled by `RNASEQ`; users provide validated local FASTQs |
 | `FASTQC_RAW` | native per-FASTQ process | Replaces `fastqc_raw_plan.sh`; invokes the same FastQC command and writes to `fastqc_raw` |
 | `TRIM_GALORE` | native per-run process | Executes the same `trim_galore --paired --quality --length --cores --output_dir` command previously in `trim_runs_plan.sh` |
 | `FASTQC_TRIMMED` | native per-FASTQ process | Replaces `fastqc_trimmed_runs_plan.sh` and writes to `fastqc_trimmed_runs` |
@@ -19,10 +19,10 @@ level orchestrator with one `--step` and forces local execution.
 | `FASTQC_MERGED` | native per-FASTQ process | Replaces `fastqc_merged_plan.sh` and writes to `fastqc_merged` |
 | `MULTIQC` | native reusable process | Replaces `multiqc_plan.sh`; consumes generic compatible artifacts and writes the same named report under `multiqc_030` |
 | `RNASEQ_QC_STEP` | retired | No longer reachable; false native-QC flags fail explicitly |
-| `RNASEQ_ALIGNMENT_PLAN` | compatibility adapter | Sources the legacy config and invokes unchanged `generate_star_plan.py`; no scientific command is copied into Nextflow |
+| `RNASEQ_ALIGNMENT_PLAN` | compatibility adapter | Sources the transitional shell config and invokes its module-owned `generate_star_plan.py`; no scientific command is copied into Nextflow |
 | `REFERENCE_INDEX` / `STAR_INDEX` | native index API/provider | Replaces STAR `genomeGenerate` in `star_index_gtf.sh` with the same parameters and resources |
 | `ALIGNMENT` / `STAR_ALIGN` | native alignment API/provider | Replaces `run_star_quant_project.sh` / `star_quant_array_task.sh` with one task per sample and preserves every STAR filename |
-| `RNASEQ_QUANTIFICATION_PLAN` | compatibility adapter | Sources the legacy config and invokes unchanged `generate_salmon_plan.py`; emits generic Quantification API inputs |
+| `RNASEQ_QUANTIFICATION_PLAN` | compatibility adapter | Sources the transitional shell config and invokes its module-owned `generate_salmon_plan.py`; emits generic Quantification API inputs |
 | `TRANSCRIPTOME_INDEX` / `SALMON_INDEX` | native index API/provider | Replaces scientific execution in `salmon_index.sh` with the same transcriptome, k-mer, threads, resources, and filenames |
 | `QUANTIFICATION` / `SALMON_QUANT` | native quantification API/provider | Replaces `run_alignment_project.sh` / `salmon_quant_plan.sh` with one task per sample and preserves the complete Salmon directory |
 | Native provider guard | alignment/quantification boundary | The provider selected by `QUANT_METHOD` must emit a native manifest; legacy STAR/Salmon fallbacks are no longer scheduled in an Import API run |
@@ -32,15 +32,14 @@ level orchestrator with one `--step` and forces local execution.
 | `TX2GENE_BUILD` | native annotation module | Separates the unchanged GTF transcript/gene normalization previously embedded in `txtimport_quant.R` |
 | `TXIMPORT` / `SALMON_IMPORT` | native Salmon import provider | Replaces `quantification_job.sh`, `run_quantification.sh`, and `txtimport_quant.R`; preserves all tximport scientific arguments and legacy filenames |
 | `STAR_IMPORT` | native STAR import provider | Replaces `import_star_counts.py`; preserves count-column selection, gene normalization, outer join, integer counts, CPM, and legacy filenames |
-| `RNASEQ_BATCH_STEP` | retired from the scientific DAG | Batch assessment/correction scripts remain manual exploratory utilities; their matrices are never routed into DESeq2 by HelixForge |
-| `RNASEQ_DEG_STEP` | `deg` | `run_deg_analysis_slurm.sh` in local mode, `generate_deg_plan.py`, `deseq2_plan_job.sh`, `deseq2_analysis.R` |
+| Batch correction | retired from the scientific DAG | Historical utilities are archived in `rnaseq-legacy-v1.0.0`; batch is represented in the explicit DESeq2 design |
+| `RNASEQ_DEG_STEP` | retired | The native Differential Expression API is mandatory; tagged source remains available only for regression |
 | `RNASEQ_REPORT_CONTEXT` | native Report API context | Replaces path/glob discovery with explicit Import/DE manifests, sample-aligned abundance, annotation and candidate-gene validation |
 | `RNASEQ_GENE_REPORT` / `candidate_genes_v1` | native report provider | Replaces `gene_report_job.sh`; executes the module-owned, reviewed `gene_set_report.R` with tracked arguments, preserves `results/`, and adds manifest/provenance |
 | `RNASEQ_REPORT_STEP` | retired | No longer reachable; `report` mode or `rnaseq_report_enabled=true` invokes the native API |
 
-`validate_config.sh` is invoked by `rnaseq_pipeline.sh`. Rename helpers and
-batch-assessment utilities remain available as manual legacy utilities because
-the current top-level workflow does not invoke them in its standard graph.
+The former RNA-seq orchestrator and utilities are archived in
+`rnaseq-legacy-v1.0.0` and are not part of the current source tree.
 
 ## ChIP-seq
 

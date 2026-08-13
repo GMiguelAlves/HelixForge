@@ -1,4 +1,3 @@
-include { LEGACY_STEP as RNASEQ_DEG_STEP }    from '../../../modules/local/legacy_step/main'
 include { RNASEQ_DE_CONTEXT }                  from '../../../modules/local/rnaseq_de_context/main'
 include { DIFFERENTIAL_EXPRESSION }            from '../differential_expression/differential_expression'
 include { RNASEQ_REPORT }                      from './report'
@@ -6,7 +5,7 @@ include { RNASEQ_REPORT }                      from './report'
 workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
     take:
     config_file
-    legacy_root
+    pipeline_root
     quantification_status
     import_manifest
     imported_counts
@@ -15,8 +14,6 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
     reference_annotation
 
     main:
-    no_dep = channel.value('none')
-
     native_de_enabled = params.rnaseq_native_de instanceof Boolean \
         ? params.rnaseq_native_de \
         : params.rnaseq_native_de.toString().toBoolean()
@@ -26,12 +23,15 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
     run_mode = params.rnaseq_run_mode.toString().toLowerCase()
     run_report = run_mode == 'report' || (run_mode == 'full' && report_enabled)
     native_logs = channel.empty()
+    if (!native_de_enabled) {
+        error 'rnaseq_native_de=false is no longer supported; the RNA-seq legacy pipeline was retired in rnaseq-legacy-v1.0.0.'
+    }
     if (native_de_enabled) {
         if (!params.rnaseq_de_spec) {
             error 'Native differential expression requires --rnaseq_de_spec with an explicit design and contrasts.'
         }
         de_spec_file = file(params.rnaseq_de_spec, checkIfExists: true)
-        RNASEQ_DE_CONTEXT(config_file, legacy_root, de_spec_file)
+        RNASEQ_DE_CONTEXT(config_file, pipeline_root, de_spec_file)
         counts_by_id = imported_counts.map { meta, counts -> tuple(meta.id, meta, counts) }
         manifests_by_id = import_manifest.map { meta, manifest -> tuple(meta.id, manifest) }
         metadata_by_id = imported_metadata.map { meta, metadata -> tuple(meta.id, metadata) }
@@ -100,17 +100,6 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
         } else {
             final_status = deg_status
         }
-    } else {
-        if (run_report) {
-            error 'RNA-seq Report API requires rnaseq_native_de=true; the legacy report wrapper has been removed.'
-        }
-        RNASEQ_DEG_STEP(
-            'rnaseq', 'deg', 'high_cpu', config_file, legacy_root,
-            quantification_status, no_dep, no_dep
-        )
-        deg_status = RNASEQ_DEG_STEP.out.status
-        native_logs = RNASEQ_DEG_STEP.out.log
-        final_status = deg_status
     }
 
     emit:
