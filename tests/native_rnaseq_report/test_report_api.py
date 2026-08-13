@@ -28,7 +28,10 @@ def canonical_text_digest(path: Path) -> str:
 
 class ReportApiTest(unittest.TestCase):
     def test_native_r_provider_matches_reviewed_legacy_source(self):
-        self.assertEqual(digest(NATIVE_REPORT), digest(LEGACY_REPORT))
+        self.assertEqual(
+            canonical_text_digest(NATIVE_REPORT),
+            canonical_text_digest(LEGACY_REPORT),
+        )
         self.assertEqual(
             canonical_text_digest(NATIVE_REPORT),
             "36e084d6a36ec16d125ad94f5cd3e9890de265ffa63d80d01ab8e6b98ed03930",

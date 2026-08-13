@@ -65,6 +65,10 @@ def test_workflow_composition_guards() -> None:
     production_fixture = (ROOT / "tests/slurm/generate_rnaseq_fixture.py").read_text(encoding="utf-8")
     assert '"covariates": ["batch"]' in production_fixture
     assert '"formula": "~ batch + condition"' in production_fixture
+    production_harness = (ROOT / "tests/slurm/run_rnaseq_production_real.sh").read_text(encoding="utf-8")
+    assert '"baseline-driver"' in production_harness
+    assert "--rnaseq_report_enabled true" in production_harness
+    assert "--rnaseq_report_genes" in production_harness
 
 
 def test_manifest_identity_and_lineage_guards() -> None:

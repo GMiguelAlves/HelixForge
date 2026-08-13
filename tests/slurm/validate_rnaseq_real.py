@@ -93,6 +93,36 @@ def main() -> None:
         raise AssertionError(f"no DESeq2 contrast result below {de_root}")
     require(deg_results[0])
 
+    report_root = pipeline / "090-search-gene/results"
+    require(report_root / "gene_set_report.html")
+    require(report_root / "manifest.json")
+    require(report_root / "context.json")
+    require(report_root / "sessionInfo.txt")
+    require(report_root / "tables/gene_catalog.tsv")
+    require(report_root / "tables/expression_long.tsv")
+    report_manifest = json.loads(
+        (report_root / "manifest.json").read_text(encoding="utf-8")
+    )
+    if report_manifest.get("status") != "complete":
+        raise AssertionError(f"RNA-seq report is not complete: {report_manifest}")
+    if report_manifest.get("provider") != "candidate_genes_v1":
+        raise AssertionError("unexpected RNA-seq report provider")
+    if report_manifest.get("sample_count") != 4 or report_manifest.get("query_count") != 2:
+        raise AssertionError("RNA-seq report dimensions do not match the fixture")
+    with (report_root / "tables/gene_catalog.tsv").open(
+        newline="", encoding="utf-8"
+    ) as handle:
+        catalog = list(csv.DictReader(handle, delimiter="\t"))
+    matched = {row.get("matched_gene_id") for row in catalog}
+    if not {"gene001", "gene002"}.issubset(matched):
+        raise AssertionError(f"candidate genes were not preserved: {matched}")
+    report_plots = [
+        path for path in (report_root / "plots").glob("*.png")
+        if path.stat().st_size > 100
+    ]
+    if not report_plots:
+        raise AssertionError("RNA-seq report produced no non-empty scientific plots")
+
     report = {
         "status": "pass",
         "samples": expected_samples,
@@ -100,6 +130,12 @@ def main() -> None:
         "genes": len(next(iter(expected.values()))),
         "sample_metrics": sample_metrics,
         "deseq2_results": [str(path.relative_to(args.case_root)) for path in deg_results],
+        "report": {
+            "provider": report_manifest["provider"],
+            "queries": report_manifest["query_count"],
+            "plots": len(report_plots),
+            "html": str((report_root / "gene_set_report.html").relative_to(args.case_root)),
+        },
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")

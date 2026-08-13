@@ -10,7 +10,7 @@
 The `RNASEQ_REPORT` subworkflow joins those processes. It replaces
 `RNASEQ_REPORT_STEP` and `gene_report_job.sh`; no process submits a nested Slurm
 job. The module owns its `gene_set_report.R` resource. The initial native copy
-is byte-identical to the reviewed historical implementation; the legacy copy
+is text-identical after LF normalization to the reviewed historical implementation; the legacy copy
 is retained only so the not-yet-retired legacy pipeline remains executable.
 
 ## Validation status
