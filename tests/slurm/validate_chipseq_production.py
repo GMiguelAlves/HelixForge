@@ -66,7 +66,7 @@ def main():
     fastqc_zips = find_exact(result, "030-qc-fastq/raw/*/*_fastqc.zip", 10)
     checks["qc"] = {"fastqc_archives": len(fastqc_zips), "multiqc": True, "status": "pass"}
 
-    bam_manifests = find_exact(result, "pipeline_info/native_chipseq/bam_final/*.manifest.json", 5)
+    bam_manifests = find_exact(result, "pipeline_info/native_chipseq/bam_final/*.bam_final.manifest.json", 5)
     bam_reads = {}
     for manifest in bam_manifests:
         document = load(manifest)
