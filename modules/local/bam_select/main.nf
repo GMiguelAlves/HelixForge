@@ -26,7 +26,7 @@ process BAM_SELECT {
     tuple val(meta), path("${meta.id}.bam_select_reports"), emit: reports
     tuple val(meta), path("${meta.id}.versions.yml"), emit: versions
     tuple val(meta), path("${meta.id}.execution.json"), emit: execution_metadata
-    tuple val(meta), path("${meta.id}.manifest.json"), emit: manifest
+    tuple val(meta), path("${meta.id}.bam_select.manifest.json"), emit: manifest
     tuple val(meta), path("${meta.id}.bam_select.done"), emit: status
 
     script:
@@ -109,7 +109,7 @@ process BAM_SELECT {
         "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" > '${meta.id}.execution.json'
     printf '{"schema_version":"1.0","type":"bam_selection","id":"%s","status":"complete","artifact":"%s","sha256":"%s","reference_sha256":"%s","parameters":{"min_mapq":%s,"include_flags":%s,"exclude_flags":%s,"region":"%s"},"upstream_manifests":[{"sha256":"%s"}]}\n' \
         '${meta.id}' "\$output" "\$output_sha" "\$reference_sha" '${min_mapq}' '${include_flags}' '${exclude_flags}' '${region}' "\$upstream_sha" \
-        > '${meta.id}.manifest.json'
+        > '${meta.id}.bam_select.manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' '${meta.id}' '${task.process}' > '${meta.id}.bam_select.done'
     """
 
@@ -132,7 +132,7 @@ process BAM_SELECT {
     printf '"BAM_SELECT":\n    samtools: stub\n' > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"BAM_SELECT","status":"stub"}\n' '${meta.id}' > '${meta.id}.execution.json'
     upstream_sha=\$(sha256sum '${upstream_manifest}' | awk '{print \$1}')
-    printf '{"schema_version":"1.0","type":"bam_selection","id":"%s","status":"stub","upstream_manifests":[{"sha256":"%s"}]}\n' '${meta.id}' "\$upstream_sha" > '${meta.id}.manifest.json'
+    printf '{"schema_version":"1.0","type":"bam_selection","id":"%s","status":"stub","upstream_manifests":[{"sha256":"%s"}]}\n' '${meta.id}' "\$upstream_sha" > '${meta.id}.bam_select.manifest.json'
     printf '{"id":"%s","process":"BAM_SELECT","status":"stub"}\n' '${meta.id}' > '${meta.id}.bam_select.done'
     """
 }
