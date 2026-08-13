@@ -26,6 +26,8 @@ design, such as `~ batch + condition`. The preserved batch utilities are manual
 exploratory tools only. Existing scientific filenames and the report `results/`
 hierarchy are preserved. The native gene-report image is pinned by certified
 OCI digest and its real reduced R execution is enforced by CI.
+The complete production path was also revalidated on Slurm with the synthetic
+release fixture; see the [RNA-seq final validation](docs/rnaseq-final-validation.md).
 
 The ChIP-seq native foundation validates flexible metadata, controls and
 biological/technical replicate identity, reuses FastQC/MultiQC, and implements

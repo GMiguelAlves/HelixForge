@@ -19,9 +19,9 @@
   `ghcr.io/gmiguelalves/helixforge-rnaseq-report:1.0.0` image are certified on a
   reduced real R execution. The module-owned `gene_set_report.R` is
   text-identical after LF normalization to the reviewed legacy implementation.
-  A broad biological
-  benchmark remains a release gate; the duplicate legacy copy remains only for
-  backward execution compatibility until legacy retirement.
+  The complete synthetic production path also passed on Slurm. A broad
+  biological benchmark remains a post-release validation milestone; the
+  duplicate legacy copy is preserved by tag before retirement.
 - Docker runs must bind the configured external `SCRATCH_ROOT` at the same path
   inside the container because compatibility outputs retain their absolute
   legacy paths. Shared HPC filesystems are normally visible to Apptainer.

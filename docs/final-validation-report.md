@@ -64,10 +64,10 @@ packages. At most five scientific jobs were queued concurrently.
 | Tracks | Yes on Slurm | Semantic invariants | CONDITIONAL | Three individual and one aggregate BigWig passed |
 | Report | Yes on Slurm | Contract and content checks | CONDITIONAL | HTML passed and correctly discloses IDR as incomplete |
 | Integrative | Manifest contract only | Legacy implementation retained | CONDITIONAL | No new analytic implementation was in scope |
-| Top-level RNA-seq | Yes on Slurm | Scientific invariants | CONDITIONAL | QC -> Salmon -> Import -> DESeq2 passed; `-resume` remains blocked by the cache runtime |
+| Top-level RNA-seq | Yes on Slurm | Scientific invariants | READY_TO_RETIRE | QC -> Salmon -> Import -> DESeq2 -> Gene Report passed; runtime cache remains an external operational issue |
 
-`READY_TO_RETIRE` applies to the named component, not to the complete RNA-seq
-or ChIP-seq legacy pipeline.
+`READY_TO_RETIRE` now applies to the supported complete RNA-seq production path.
+It does not apply to ChIP-seq or Integrative legacy pipelines.
 
 ## Real scientific results
 
@@ -199,6 +199,14 @@ Per-sample count correlations ranged from 0.9999999999999998 to
 1.0000000000000002. Salmon mapped more than 98% of processed fragments for
 every sample, the Import API emitted all three matrices plus a
 `SummarizedExperiment`, and DESeq2 emitted the requested contrast table.
+
+The final release fixture, case `rnaseq-final-synthetic-20260813-02`, extended
+that path through the native Gene Report. All 58 processes completed with zero
+failures and peak concurrency of five. It retained the same four samples and
+30 genes, used design `~ batch + condition`, preserved count correlations and
+totals effectively equal to 1.0, and produced a complete report manifest,
+HTML, 12 non-empty scientific PNGs and 24 report files. See
+`docs/rnaseq-final-validation.md`.
 
 ### ChIP-seq BAM processing
 
@@ -462,10 +470,11 @@ documents and the downloaded OCI digest is not propagated into every manifest.
 
 ## Retirement decision
 
-The complete legacy pipelines must remain available. Component retirement can
-start only for Trim Galore and Salmon after review of this report.
-Import is close but needs an explicit decision on workflow-level identifier and
-`countsFromAbundance` policy. Global retirement is blocked by:
+The RNA-seq legacy path is ready for retirement after the production Import
+policy, native foundation, certified MultiQC, DESeq2 batch design and native
+Gene Report were completed. The annotated `rnaseq-legacy-v1.0.0` tag preserves
+its final executable snapshot. ChIP-seq and Integrative legacy pipelines must
+remain available. Their global retirement is blocked by:
 
 1. the Bowtie2 production image missing samtools, despite the passing conditional Slurm regression;
 2. IDR remaining explicitly not implemented;
