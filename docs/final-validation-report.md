@@ -1,5 +1,8 @@
 # Controlled real validation report
 
+The later native RNA-seq input-foundation pass is recorded in
+[RNA-seq native foundation validation](rnaseq-foundation-validation.md).
+
 Date: 2026-08-13
 Branch: `contrib/final-validation`  
 Overall decision: **BLOCKED for global legacy retirement**
