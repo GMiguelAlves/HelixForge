@@ -124,6 +124,7 @@ class FullCoordinatorTopologyTest(unittest.TestCase):
         self.assertNotIn("submit_helper hf-chip-prepare", harness)
         self.assertIn("HELIXFORGE_CHIPSEQ_CONSENSUS_METHOD", harness)
         self.assertIn("HELIXFORGE_IDR_PREFIX", harness)
+        self.assertIn('git -C "$repo_root" rev-parse --git-dir', harness)
         self.assertIn('--chipseq_consensus_method "$consensus_method"', harness)
 
 

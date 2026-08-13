@@ -40,7 +40,8 @@ case "$validation_root" in
     /scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-validation-*) ;;
     *) echo "Refusing unexpected validation root: $validation_root" >&2; exit 2 ;;
 esac
-test -d "$repo_root/.git"
+test -e "$repo_root/.git"
+git -C "$repo_root" rev-parse --git-dir >/dev/null
 test -x "$conda_bin"
 test -s "$nextflow_jar"
 if [[ -z "${SLURM_JOB_ID:-}" ]]; then
