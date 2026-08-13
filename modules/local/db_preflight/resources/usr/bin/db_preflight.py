@@ -74,10 +74,16 @@ def consensus_inputs(directories, manifests):
     for path in manifests:
         document = load_json(path, "Consensus manifest")
         identifier = str(document.get("id", ""))
-        if document.get("type") != "consensus" or document.get("strategy") not in {"union", "intersection", "replicate_support"}:
-            raise ValueError(f"{path}: Differential Binding requires a completed consensus manifest")
+        provider_type = document.get("type")
+        strategy = document.get("strategy")
+        valid_provider = (
+            (provider_type == "consensus" and strategy in {"union", "intersection", "replicate_support"})
+            or (provider_type == "idr" and strategy == "idr")
+        )
+        if not valid_provider:
+            raise ValueError(f"{path}: Differential Binding requires a completed Consensus/IDR manifest")
         if document.get("status") not in {"complete", "complete_empty"}:
-            raise ValueError(f"{identifier}: Consensus result is unavailable ({document.get('status')})")
+            raise ValueError(f"{identifier}: Consensus/IDR result is unavailable ({document.get('status')})")
         if identifier in seen or identifier not in dirs_by_id:
             raise ValueError(f"duplicate or unmatched Consensus manifest id: {identifier!r}")
         seen.add(identifier)

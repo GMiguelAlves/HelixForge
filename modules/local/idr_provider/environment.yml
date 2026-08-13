@@ -1,5 +1,7 @@
-name: helixforge-idr-provider-abstraction
+name: helixforge-idr-provider
 channels:
   - conda-forge
+  - bioconda
 dependencies:
-  - python=3.12.4
+  - python=3.9
+  - idr=2.0.4.2=py39h031d066_12
