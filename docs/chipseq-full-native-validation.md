@@ -10,7 +10,7 @@ científica ou biológica.
 
 ## Runtime e limites
 
-- commit científico validado: `5fec75d`;
+- commit validado: `539ddb3`;
 - Nextflow: `25.10.7` (JAR explícito);
 - Java: Temurin/OpenJDK 21;
 - executor: Slurm, fila `general`;
@@ -44,22 +44,26 @@ de arquivos publicados nem invocação recursiva do Nextflow.
 
 ## Resultado
 
-- 59 tarefas registradas no trace;
-- 59 tarefas com status `COMPLETED` e saída zero;
+- 68 tarefas registradas no trace;
+- 68 tarefas com status `COMPLETED` e saída zero;
+- quatro Track contexts, providers e coletores de estatísticas executados: três
+  trilhas individuais e uma trilha agregada;
 - `Execution complete` registrado no log;
 - relatório final HTML/JSON e manifest produzidos;
 - fila do usuário vazia após o término.
 
-Duas falhas de integração foram encontradas e corrigidas antes da execução
-final: aridade opcional da blacklist e achatamento da identidade
-dataset/genoma/organismo por `collect()`. Nenhuma ferramenta científica foi
-executada nesse stub-run.
+Quatro falhas de integração foram encontradas e corrigidas antes da execução
+final: aridade opcional da blacklist, achatamento da identidade
+dataset/genoma/organismo por `collect()`, fan-out incorreto do Reference Bundle
+e ordenação mutável de um intervalo imutável no agrupamento de tracks. Nenhuma
+ferramenta científica foi executada nesse stub-run.
 
 ## Evidência
 
-A evidência leve de auditoria foi preservada na home institucional em um ZIP
-com README em português. Workdirs e resultados temporários do scratch não são
-evidência permanente e podem ser removidos depois da conferência do arquivo.
+A evidência leve de auditoria foi preservada na home institucional em
+`helixforge-validation-audits/chipseq-full-native-stub-final-20260813.zip`, com
+README em português. Workdirs e resultados temporários do scratch não são
+evidência permanente.
 
 ## Pendências
 
