@@ -118,14 +118,18 @@ def main():
     blacklist = reference_dir / "blacklist.bed"
     blacklist.write_text("chrSynthetic\t7000\t7100\n", encoding="utf-8")
 
-    centers = (700, 1250, 1800, 2350, 2900, 3450, 4000, 4550, 5100, 5650, 6200, 6750, 7300, 7850)
+    centers = tuple(range(400, 8401, 320))
     background = background_positions(160, centers)
+    control_rep1 = tuple(55 + ((index * 37) % 85) for index in range(len(centers)))
+    control_rep2 = tuple(50 + ((index * 53 + 20) % 90) for index in range(len(centers)))
+    treated_rep1 = tuple(45 + ((index * 61 + 35) % 95) for index in range(len(centers)))
+    treated_rep2 = tuple(40 + ((index * 47 + 65) % 100) for index in range(len(centers)))
     records = [
         ("input_rep1", "input", "input", "1", True, "", background),
-        ("control_rep1", "control", "H3K27ac", "1", False, "input_rep1", profiled_positions(zip(centers, (110, 75, 125, 45, 95, 35, 85, 55, 105, 40, 90, 65, 115, 50)), 1, background[:20])),
-        ("control_rep2", "control", "H3K27ac", "2", False, "input_rep1", profiled_positions(zip(centers, (55, 80, 35, 115, 90, 95, 45, 75, 50, 105, 60, 110, 70, 85)), 5, background[20:45])),
-        ("treated_rep1", "treated", "H3K27ac", "1", False, "input_rep1", profiled_positions(zip(centers, (35, 45, 105, 80, 40, 115, 55, 100, 65, 95, 50, 120, 75, 110)), 3, background[45:65])),
-        ("treated_rep2", "treated", "H3K27ac", "2", False, "input_rep1", profiled_positions(zip(centers, (70, 30, 85, 110, 75, 60, 100, 45, 115, 55, 95, 65, 125, 40)), 9, background[65:90])),
+        ("control_rep1", "control", "H3K27ac", "1", False, "input_rep1", profiled_positions(zip(centers, control_rep1), 1, background[:20])),
+        ("control_rep2", "control", "H3K27ac", "2", False, "input_rep1", profiled_positions(zip(centers, control_rep2), 5, background[20:45])),
+        ("treated_rep1", "treated", "H3K27ac", "1", False, "input_rep1", profiled_positions(zip(centers, treated_rep1), 3, background[45:65])),
+        ("treated_rep2", "treated", "H3K27ac", "2", False, "input_rep1", profiled_positions(zip(centers, treated_rep2), 9, background[65:90])),
     ]
 
     metadata_rows = []
