@@ -148,7 +148,9 @@ def report(case_root):
     peak_manifests = exactly(results.glob("080-peak-calling/*.peak_calling/manifest.json"), "peak manifests", 4)
     peak_qc_manifest = exactly(results.glob("pipeline_info/native_chipseq/peak_qc/aggregate/peak_qc_manifest.json"), "peak-QC manifest", 1)[0]
     consensus_manifests = exactly(results.glob("chipseq/consensus/*/*.consensus_result/manifest.json"), "consensus manifests", 2)
-    db_manifest = exactly(results.glob("120-differential-binding/manifest.json"), "DB manifest", 1)[0]
+    db_manifest = exactly(
+        results.glob("120-differential-binding/differential_binding_results/manifest.json"), "DB manifest", 1
+    )[0]
     annotation_manifest = exactly(results.glob("chipseq/peak_annotation/peak_annotation_aggregate/manifest.json"), "annotation manifest", 1)[0]
     tracks_manifest = exactly(results.glob("chipseq/tracks/track_aggregate/manifest.json"), "track manifest", 1)[0]
 

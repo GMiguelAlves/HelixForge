@@ -107,7 +107,7 @@ def main():
     assert set(consensus) == {"control", "treated"}
     checks["consensus"] = {"groups": consensus, "status": "pass"}
 
-    db_root = result / "120-differential-binding"
+    db_root = result / "120-differential-binding/differential_binding_results"
     db_manifest = load(require(db_root / "manifest.json"))
     assert db_manifest["status"] == "complete"
     assert db_manifest["contrasts"] == 1
