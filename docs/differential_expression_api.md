@@ -137,8 +137,15 @@ downstream consumers.
 The native provider retains default `DESeq()` Wald fitting and the established
 result/plot layout, but it no longer copies unsafe implicit behavior. Legacy
 scripts remain executable through `rnaseq_native_de=false`. That fallback may
-still derive pairwise comparisons, filter at `rowSums > 10`, and run its batch
-step; those behaviors are historical baseline, not native API defaults.
+still derive pairwise comparisons and filter at `rowSums > 10`, but the
+top-level workflow now feeds it directly from quantification and never schedules
+the legacy batch-correction step. The batch utilities remain available only for
+manual exploratory comparison and their matrices are not inferential inputs.
+
+Batch is retained in the model when declared by the analysis specification.
+For example, `covariates=["batch"]` requires the exact ordered formula
+`~ batch + condition`. The same preflight rejects missing values, complete
+confounding, and rank-deficient model matrices.
 
 ## Cache boundary
 

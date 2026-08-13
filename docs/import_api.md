@@ -9,7 +9,7 @@ listed in that policy.
 Import API version: `1.0`
 
 The Import API converts provider-specific quantification artifacts into a
-stable gene-level representation. Downstream batch correction, differential
+stable gene-level representation. Downstream batch assessment, differential
 expression, and reporting consume only this representation and never inspect
 Salmon or STAR files directly.
 
