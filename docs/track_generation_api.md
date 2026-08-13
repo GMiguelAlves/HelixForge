@@ -92,7 +92,8 @@ cannot invalidate upstream tasks because `--chipseq_run_mode tracks` consumes
 only external native manifests.
 
 `--chipseq_native_tracks false` invokes the unchanged legacy `tracks` step.
-`full` remains the complete legacy graph.
+This fallback is limited to dedicated `tracks` mode. Native `full` supplies the
+final-BAM and Reference Bundle channels directly to the same Track API.
 
 This stage establishes architecture and executable contracts. It does not
 claim BigWig equivalence or scientific validation.

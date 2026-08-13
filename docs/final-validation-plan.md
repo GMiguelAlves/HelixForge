@@ -76,8 +76,8 @@ contracts only; it does **not** constitute scientific validation.
 
 - Implement a statistical IDR provider; current status remains
   `not_implemented` by design.
-- Replace the ChIP-seq `full` legacy coordinator with native composition only
-  after the staged native APIs pass section A.
+- Validate the new ChIP-seq native `full` coordinator as one top-level Slurm run;
+  the preceding staged API chain remains retained as audit evidence.
 - Migrate remaining reference/download/metadata and final-report wrappers.
 - Replace historical compatibility environment variables after the immutable
   legacy RNA scripts are retired.
