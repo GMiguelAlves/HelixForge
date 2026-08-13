@@ -86,6 +86,12 @@ def missing_contrasts(_counts, _samples, spec):
     spec.write_text(json.dumps(document))
 
 
+def corrected_matrix(_counts, _samples, spec):
+    document = json.loads(spec.read_text())
+    document["correction"] = "batch_corrected"
+    spec.write_text(json.dumps(document))
+
+
 def missing_factor_value(_counts, samples, _spec):
     rows = list(csv.reader(samples.read_text().splitlines(), delimiter="\t"))
     condition = rows[0].index("condition")
@@ -109,6 +115,7 @@ run_case("invalid-level", invalid_level, False, "unavailable levels")
 run_case("unsupported-lrt", lrt, False, "provider=deseq2 and test=wald only")
 run_case("missing-design", missing_design, False, "design fields missing")
 run_case("missing-contrasts", missing_contrasts, False, "at least one explicit contrast")
+run_case("corrected-matrix", corrected_matrix, False, "only uncorrected Import API counts")
 run_case("missing-factor-value", missing_factor_value, False, "missing design values")
 run_case("negative-count", negative_count, False, "negative count")
 run_case("invalid-salmon-mode", no_change, False, "requires full_length", original_full_length_counts)

@@ -16,6 +16,18 @@
       "default": true,
       "description": "Required. The retired legacy RNA-seq QC fallback is no longer scheduled."
     },
+    "rnaseq_trim_quality": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "default": null,
+      "description": "Optional explicit override for the trim quality sourced from pipeline_config.sh."
+    },
+    "rnaseq_trim_length": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "default": null,
+      "description": "Optional explicit override for the minimum trim length sourced from pipeline_config.sh."
+    },
     "rnaseq_native_alignment": {
       "type": "boolean",
       "default": true,
