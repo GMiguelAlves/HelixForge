@@ -38,8 +38,9 @@ Every supported role has exactly one of these report states:
 - `incomplete`: supplied results are partial, stubbed, or internally mixed.
 
 An absent required component is an error. `not_implemented`, `failed`, and
-`incomplete` are never converted to zero. In particular, current IDR requests
-are represented as `not_implemented` and do not contribute a region count.
+`incomplete` are never converted to zero. Completed IDR manifests contribute
+their declared region count; historical unavailable IDR manifests remain
+truthfully represented and do not contribute a zero.
 
 ## Identity and compatibility
 

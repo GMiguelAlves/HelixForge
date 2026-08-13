@@ -1,5 +1,11 @@
 # Controlled real validation report
 
+> Update (2026-08-13): IDR 2.0.4.2 is now implemented as an optional provider
+> with a dedicated immutable-OCI certification. Statements below that IDR was
+> `not_implemented` describe the earlier recorded pass and are retained as
+> historical evidence. The full IDR Slurm pass remains pending because the
+> cluster currently exposes no IDR/container runtime.
+
 The later native RNA-seq input-foundation pass is recorded in
 [RNA-seq native foundation validation](rnaseq-foundation-validation.md).
 

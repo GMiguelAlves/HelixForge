@@ -74,8 +74,9 @@ contracts only; it does **not** constitute scientific validation.
 
 ## C. Non-blocking follow-up
 
-- Implement a statistical IDR provider; current status remains
-  `not_implemented` by design.
+- Execute the implemented IDR 2.0.4.2 provider in the complete Slurm DAG when
+  a supported Conda or Apptainer runtime is available; immutable OCI
+  certification is handled independently in CI.
 - Validate the new ChIP-seq native `full` coordinator as one top-level Slurm run;
   the preceding staged API chain remains retained as audit evidence.
 - Migrate remaining reference/download/metadata and final-report wrappers.

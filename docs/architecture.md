@@ -112,8 +112,9 @@ Native staged modes are `qc`, `alignment`, `post_alignment`, `peaks`,
 `peak_qc`, `consensus`, `idr`, `differential_binding`, `annotation`, `tracks`,
 and `report`. ChIP-seq `full` composes those native APIs in one Nextflow session,
 passing typed channels and manifests from QC through the final report. It has no
-legacy fallback. IDR validates its request but honestly reports
-`not_implemented`; it does not fabricate a result.
+legacy fallback. IDR is optional and selected explicitly; its completed
+provider-neutral artifacts flow through Differential Binding, Annotation and
+Report without special filename discovery.
 
 ## Contracts and provenance
 

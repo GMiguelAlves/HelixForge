@@ -47,7 +47,9 @@ scientific equivalence is claimed.
   wrappers are unchanged.
 - `rnaseq_native_import=false` is rejected where Import is required; there is no
   longer a supported tximport wrapper to fall back to.
-- IDR has no scientific provider yet and must report `not_implemented`.
+- Historical finding: IDR had no scientific provider at audit time. This was
+  superseded by the optional pinned IDR 2.0.4.2 provider; historical unavailable
+  manifests remain supported by the fail-honest report contract.
 - The historical uppercase environment-variable prefix appears only at the
   legacy adapter boundary because immutable legacy scripts read those exact names. This is a
   compatibility token, not product branding.
