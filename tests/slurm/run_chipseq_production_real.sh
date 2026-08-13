@@ -50,7 +50,7 @@ if [[ "$mode" == "preflight-job" ]]; then
     fastqc --version
     multiqc --version
     Rscript -e 'stopifnot(requireNamespace("DESeq2", quietly=TRUE)); cat("DESeq2 ", as.character(packageVersion("DESeq2")), "\n", sep="")'
-    python3 -c 'import pyBigWig; print("pyBigWig", pyBigWig.__version__)'
+    "${conda_root}/envs/${python_env}/bin/python3" -c 'import pyBigWig; print("pyBigWig", pyBigWig.__version__)'
     ps --version | head -n 1
     exit 0
 fi
