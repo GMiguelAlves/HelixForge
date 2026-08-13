@@ -59,7 +59,7 @@ peaks, manifests, QC evidence or strategy invalidate the deep-cache boundary.
 - a complete reduced Slurm execution from FASTQ through the final ChIP-seq
   report using IDR for both condition-level consensus groups.
 
-The immutable OCI provider passed GitHub Actions run `31749739141`.
+The immutable OCI provider passed GitHub Actions run `31751053286`.
 
 The complete Slurm case `chipseq-production-idr-real-07` passed with Nextflow
 25.10.7 and at most five queued jobs. Its 105-process trace produced 12 control
