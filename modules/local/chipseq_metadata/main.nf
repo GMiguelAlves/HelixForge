@@ -22,6 +22,7 @@ process CHIPSEQ_METADATA {
     output:
     tuple val(meta), path('chipseq_plan.tsv'), emit: artifacts
     tuple val(meta), path('validated_metadata.tsv'), path('control_map.tsv'), path('metadata_validation.json'), path('chipseq.metadata.log'), emit: reports
+    tuple val(meta), path('chipseq_metadata.manifest.json'), emit: manifest
     tuple val(meta), path('chipseq.metadata.versions.yml'), emit: versions
     tuple val(meta), path('chipseq.metadata.done'), emit: status
 
@@ -35,6 +36,11 @@ process CHIPSEQ_METADATA {
         --controls control_map.tsv \
         --report metadata_validation.json \
         2>&1 | tee chipseq.metadata.log
+
+    python '${moduleDir}/build_chipseq_metadata_manifest.py' \
+        --metadata validated_metadata.tsv \
+        --validation metadata_validation.json \
+        --manifest chipseq_metadata.manifest.json
 
     printf '"%s":\n    python: %s\n' '${task.process}' "\$(python --version 2>&1 | awk '{print \$2}')" \
         > chipseq.metadata.versions.yml
@@ -56,6 +62,7 @@ process CHIPSEQ_METADATA {
     cp '${context_dir}/source_metadata.tsv' validated_metadata.tsv
     printf 'record_id\tsample_id\tcontrol_id\tcandidate_records\nchip_rep1\tchip_rep1\tinput_rep1\tinput_rep1\nchip_rep2\tchip_rep2\tinput_rep1\tinput_rep1\n' > control_map.tsv
     printf '{"status":"stub","records":3,"controls":1,"ip_records":2}\n' > metadata_validation.json
+    printf '{"schema_version":"1.0","type":"chipseq_metadata","id":"chipseq.metadata","dataset":"STUB","genome_id":"stub_v1","build":"stub_v1","rows":[],"status":"stub"}\n' > chipseq_metadata.manifest.json
     printf '[STUB] ChIP-seq metadata\n' > chipseq.metadata.log
     printf '"CHIPSEQ_METADATA":\n    python: stub\n' > chipseq.metadata.versions.yml
     printf '{"id":"%s","process":"CHIPSEQ_METADATA","status":"stub"}\n' '${meta.id}' > chipseq.metadata.done

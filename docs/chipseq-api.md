@@ -154,10 +154,11 @@ See `docs/consensus_idr_api.md`.
 | `annotation` | external Peak/Consensus manifest + native annotation provider/statistics/aggregate; no upstream rerun |
 | `tracks` | external FINAL_BAM inventory + native deepTools provider/statistics/aggregate; no upstream rerun |
 | `report` | external semantic manifest inventory + native context/aggregate/HTML+JSON provider; no upstream rerun |
-| `full` | legacy fallback |
+| `full` | native single-session QC → Bowtie2 → BAM → MACS3 → Peak QC → Consensus → Differential Binding → Annotation/Tracks → Report |
 
-The fallback remains the complete legacy graph. Native and legacy outputs must
-not be mixed within one analysis without an explicit manifest boundary.
+`full` requires every native provider flag and rejects legacy fallback. Dedicated
+stage modes may retain explicit compatibility fallbacks; native and legacy
+outputs must not be mixed without an explicit manifest boundary.
 
 ## Differential Binding API v1
 

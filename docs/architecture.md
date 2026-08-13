@@ -110,9 +110,10 @@ manifests and do not search result directories.
 
 Native staged modes are `qc`, `alignment`, `post_alignment`, `peaks`,
 `peak_qc`, `consensus`, `idr`, `differential_binding`, `annotation`, `tracks`,
-and `report`. The ChIP-seq `full` mode deliberately retains the unchanged legacy
-coordinator until end-to-end equivalence is run on real data. IDR validates its
-request but honestly reports `not_implemented`; it does not fabricate a result.
+and `report`. ChIP-seq `full` composes those native APIs in one Nextflow session,
+passing typed channels and manifests from QC through the final report. It has no
+legacy fallback. IDR validates its request but honestly reports
+`not_implemented`; it does not fabricate a result.
 
 ## Contracts and provenance
 
@@ -132,7 +133,7 @@ pipeline configuration until their controlled migration.
 - Optional exploratory Batch Effect Assessment API, tracked in the
   [scientific roadmap](roadmap.md). The current inferential DAG never consumes
   a batch-corrected matrix.
-- ChIP-seq `full` compatibility execution.
+- ChIP-seq legacy per-stage compatibility execution outside native `full`.
 - Integrative execution and its configured input discovery.
 - RNA Pathway Enrichment API and any analysis not yet represented by a native
   provider, tracked in the [scientific roadmap](roadmap.md).

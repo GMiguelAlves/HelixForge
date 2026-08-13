@@ -42,11 +42,30 @@ workflow CHIPSEQ {
         error "Unknown chipseq_run_mode '${params.chipseq_run_mode}'. Use qc, alignment, post_alignment, peaks, peak_qc, consensus, idr, differential_binding, annotation, tracks, report, or full."
     }
 
-    native_mode = params.chipseq_native_foundation && (
+    full_native_flags = [
+        chipseq_native_foundation          : params.chipseq_native_foundation.toString().toBoolean(),
+        chipseq_native_bam_processing      : params.chipseq_native_bam_processing.toString().toBoolean(),
+        chipseq_native_peak_calling        : native_peak_calling,
+        chipseq_native_peak_qc             : native_peak_qc,
+        chipseq_native_consensus           : native_consensus,
+        chipseq_native_differential_binding: native_differential,
+        chipseq_native_peak_annotation     : native_annotation,
+        chipseq_native_tracks              : native_tracks,
+        chipseq_native_report              : native_report,
+    ]
+    if (run_mode == 'full') {
+        missing_native_flags = full_native_flags.findAll { _name, enabled -> !enabled }.keySet()
+        if (missing_native_flags) {
+            error "chipseq_run_mode=full is exclusively native and requires: ${missing_native_flags.sort().join(', ')}"
+        }
+    }
+
+    native_mode = params.chipseq_native_foundation.toString().toBoolean() && (
         run_mode in ['qc', 'alignment', 'post_alignment'] ||
         (run_mode in ['peaks', 'peak_qc'] && native_peak_calling) ||
         (run_mode in ['consensus', 'idr'] && native_peak_calling && native_peak_qc && native_consensus) ||
-        (run_mode == 'differential_binding' && native_peak_calling && native_peak_qc && native_consensus && native_differential)
+        (run_mode == 'differential_binding' && native_peak_calling && native_peak_qc && native_consensus && native_differential) ||
+        (run_mode == 'full' && full_native_flags.values().every { enabled -> enabled })
     )
 
     if (run_mode == 'report' && native_report) {

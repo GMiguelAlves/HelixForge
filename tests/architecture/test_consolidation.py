@@ -56,6 +56,11 @@ def test_workflow_composition_guards() -> None:
     chip = (ROOT / "subworkflows/local/chipseq/native_foundation.nf").read_text(encoding="utf-8")
     assert ".combine(indexes_by_key, by: 0)" in chip
     assert "index_key" in chip
+    assert "CHIPSEQ_REPORT(report_records)" in chip
+    assert "mode == 'full'" in chip
+
+    chip_workflow = (ROOT / "workflows/chipseq.nf").read_text(encoding="utf-8")
+    assert "chipseq_run_mode=full is exclusively native" in chip_workflow
 
     de = (ROOT / "subworkflows/local/rnaseq/differential_expression.nf").read_text(encoding="utf-8")
     assert "RNASEQ_BATCH_STEP" not in de
