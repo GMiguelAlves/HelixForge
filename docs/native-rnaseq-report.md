@@ -10,7 +10,7 @@
 The `RNASEQ_REPORT` subworkflow joins those processes. It replaces
 `RNASEQ_REPORT_STEP` and `gene_report_job.sh`; no process submits a nested Slurm
 job. The module owns its `gene_set_report.R` resource. The initial native copy
-is byte-identical to the reviewed historical implementation; the legacy copy
+is text-identical after LF normalization to the reviewed historical implementation; the legacy copy
 is retained only so the not-yet-retired legacy pipeline remains executable.
 
 ## Validation status
@@ -49,6 +49,7 @@ metrics. Apptainer retains its standard host-user mapping.
 
 The current migration preserves table, figure and HTML names. It does not add
 batch correction, enrichment databases or new biological interpretations.
-Certification proves the reduced provider contract and runtime. A reviewed
-biological benchmark and broad legacy-result comparison remain release-level
-validation, as planned; they are not inferred from the synthetic fixture.
+Certification proves the reduced provider contract and runtime. The full
+synthetic production path also passed on Slurm with 12 non-empty figures. A
+reviewed biological benchmark and broad result assessment remain a post-release
+validation milestone, as planned; they are not inferred from synthetic data.
