@@ -463,7 +463,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                         tuple(consensus_meta.genome_id, consensus_meta, directory, manifest)
                                     }
                                 annotation_inputs = annotation_sources
-                                    .join(annotation_references)
+                                    .combine(annotation_references, by: 0)
                                     .map { _genome_id, consensus_meta, directory, consensus_manifest, reference, annotation, reference_manifest ->
                                         def annotation_meta = consensus_meta + [
                                             id       : "${consensus_meta.id}.annotation".replaceAll(/[^A-Za-z0-9._-]+/, '_'),
@@ -503,7 +503,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                     .map { record_meta, bam, bai -> tuple(record_meta.id, record_meta, bam, bai) }
                                     .join(CHIPSEQ_BAM_PROCESSING.out.final_manifest.map { record_meta, manifest -> tuple(record_meta.id, manifest) })
                                     .map { _id, record_meta, bam, bai, manifest -> tuple(record_meta.genome_id, record_meta, bam, bai, manifest) }
-                                    .join(track_references)
+                                    .combine(track_references, by: 0)
                                     .map { _genome_id, record_meta, bam, bai, manifest, reference, reference_manifest ->
                                         tuple(record_meta, bam, bai, manifest, reference, reference_manifest)
                                     }
