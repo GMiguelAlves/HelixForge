@@ -17,9 +17,11 @@ the production RNA-seq Quantification API. Salmon is the default path; STAR is
 an optional, experimental provider that must be selected explicitly. A native
 Import API converts Salmon or STAR artifacts into provider-neutral matrices. A Differential Expression
 API validates explicit designs and runs DESeq2 Wald models and contrasts
-natively. Final reports remain compatibility wrappers; legacy batch correction
-is reachable only through the legacy DE fallback. Existing filenames and result
-directories are preserved.
+natively. The RNA-seq Report API now validates explicit Import/DE manifests and
+generates the established candidate-gene tables, figures and HTML through a
+native provider. Legacy batch correction is reachable only through the legacy
+DE fallback. Existing scientific filenames and the report `results/` hierarchy
+are preserved.
 
 The ChIP-seq native foundation validates flexible metadata, controls and
 biological/technical replicate identity, reuses FastQC/MultiQC, and implements
@@ -83,7 +85,9 @@ nextflow run . -profile local --workflow rnaseq \
   --rnaseq_import_policy production_v1 \
   --rnaseq_library_protocol full_length \
   --rnaseq_counts_from_abundance lengthScaledTPM \
-  --rnaseq_de_spec /path/to/rnaseq_de_spec.json
+  --rnaseq_de_spec /path/to/rnaseq_de_spec.json \
+  --rnaseq_report_enabled true \
+  --rnaseq_report_genes /path/to/genes.txt
 ```
 
 Use `--rnaseq_trim_quality` or `--rnaseq_trim_length` only when intentionally
@@ -170,6 +174,8 @@ See [docs/nextflow.md](docs/nextflow.md),
 [docs/native-rnaseq-import.md](docs/native-rnaseq-import.md),
 [docs/differential_expression_api.md](docs/differential_expression_api.md),
 [docs/native-rnaseq-de.md](docs/native-rnaseq-de.md),
+[docs/rnaseq_report_api.md](docs/rnaseq_report_api.md),
+[docs/native-rnaseq-report.md](docs/native-rnaseq-report.md),
 [docs/rnaseq-scientific-review.md](docs/rnaseq-scientific-review.md),
 [docs/chipseq-legacy-analysis.md](docs/chipseq-legacy-analysis.md),
 [docs/chipseq-architecture.md](docs/chipseq-architecture.md),

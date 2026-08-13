@@ -54,6 +54,10 @@ flowchart LR
     PRE --> MODEL["DESEQ2_MODEL"]
     MODEL --> CONTRAST["DESEQ2_CONTRAST"]
     CONTRAST --> AGG["DE_AGGREGATE"]
+    AGG --> RCTX["RNASEQ_REPORT_CONTEXT"]
+    TXI --> RCTX
+    STARIMP --> RCTX
+    RCTX --> RPT["RNASEQ_GENE_REPORT"]
 ```
 
 The default production path executes Salmon. `rnaseq_run_mode=alignment`
@@ -66,6 +70,9 @@ channels. Metadata validation and Reference Bundle construction are native;
 the small context adapter only translates the existing shell configuration.
 Data acquisition is outside the scientific DAG. `rnaseq_native_import=false` has no supported fallback
 because the former tximport wrapper was intentionally removed.
+The terminal report is optional in `full` and explicit in `report` mode. It
+joins Import and DE artifacts through channels and manifest checksums; it does
+not search published result directories or alter the DESeq2 inference path.
 
 ## ChIP-seq native DAG
 
@@ -120,10 +127,11 @@ pipeline configuration until their controlled migration.
 
 ## Deliberate legacy boundaries
 
-- RNA final report and optional exploratory batch-effect assessment.
+- Optional exploratory Batch Effect Assessment API.
 - ChIP-seq `full` compatibility execution.
 - Integrative execution and its configured input discovery.
-- Final RNA reporting and any analysis not yet represented by a native API.
+- RNA pathway/enrichment reporting and any analysis not yet represented by a
+  native provider.
 
 These boundaries are not described as scientifically validated native paths.
 Their replacement requires the mandatory comparisons in
