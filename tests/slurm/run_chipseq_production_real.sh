@@ -27,7 +27,9 @@ conda_root=$(cd "$(dirname "$conda_bin")/.." && pwd)
 runtime_path="${compat_bin}:${conda_root}/envs/${r_env}/bin:${conda_root}/envs/${chip_env}/bin:${conda_root}/envs/${rna_env}/bin:${conda_root}/envs/${python_env}/bin:/usr/bin:/bin"
 if [[ "$consensus_method" == "idr" ]]; then
     idr_env=${HELIXFORGE_IDR_ENV:-idr}
-    runtime_path="${conda_root}/envs/${idr_env}/bin:${runtime_path}"
+    idr_prefix=${HELIXFORGE_IDR_PREFIX:-${conda_root}/envs/${idr_env}}
+    test -x "${idr_prefix}/bin/idr"
+    runtime_path="${idr_prefix}/bin:${runtime_path}"
 elif [[ "$consensus_method" != "union" ]]; then
     echo "Production validation supports consensus method union or idr, observed: $consensus_method" >&2
     exit 2
