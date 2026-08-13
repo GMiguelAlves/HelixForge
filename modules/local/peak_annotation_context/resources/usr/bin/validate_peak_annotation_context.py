@@ -154,7 +154,7 @@ def main():
         peak_doc = load_json(args.peak_manifest, "peak manifest")
         ref_doc = load_json(args.reference_manifest, "reference manifest")
         source_type = peak_doc.get("type")
-        if source_type not in {"peak_calling", "consensus"}:
+        if source_type not in {"peak_calling", "consensus", "idr"}:
             raise ValueError(f"unsupported peak manifest type {source_type!r}")
         source_id = safe_id(peak_doc.get("id"), "peak manifest id")
         request_id = safe_id(meta.get("id"), "annotation id")
