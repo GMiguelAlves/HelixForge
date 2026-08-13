@@ -87,7 +87,8 @@ The default publish root is `<outdir>/rnaseq/090-search-gene`; override it with
 
 ## Future providers
 
-KEGG, GO, Reactome and organism-specific pathway enrichment belong in future
-providers that consume the same manifests and gene universe. They must not be
+KEGG, GO, Reactome and organism-specific pathway enrichment belong in the
+planned [Pathway Enrichment API](roadmap.md#pathway-enrichment-api), whose
+providers consume the same manifests and gene universe. They must not be
 silently embedded in `candidate_genes_v1`, and database version, identifier
 mapping, background universe and multiple-testing policy must be explicit.

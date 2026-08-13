@@ -175,7 +175,7 @@ def write_configuration(repo_root: Path, case_root: Path, conda_base: Path) -> N
         "provider": "deseq2",
         "test": "wald",
         "target_dir": str(pipeline_root / "060-deg-analysis/native"),
-        "design": {"variable": "condition", "covariates": [], "formula": "~ condition"},
+        "design": {"variable": "condition", "covariates": ["batch"], "formula": "~ batch + condition"},
         "contrasts": [
             {
                 "id": "condition__control_vs_treated",
