@@ -103,9 +103,10 @@ nextflow run . --workflow chipseq --chipseq_run_mode post_alignment
 ```
 
 This BAM-layer release introduced native `qc`, `alignment`, and
-`post_alignment`; foundation 0.3 additionally provides native `peaks`. The full
-legacy fallback remains available with `full` or
-`--chipseq_native_foundation false`.
+`post_alignment`; foundation 0.3 additionally provides native `peaks`. Native
+`full` now consumes this layer directly. Setting
+`--chipseq_native_foundation false` remains a compatibility choice only for
+supported dedicated modes.
 
 To use only legacy peak calling after native BAM processing:
 

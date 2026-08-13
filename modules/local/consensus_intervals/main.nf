@@ -59,7 +59,8 @@ process CONSENSUS_INTERVALS {
     printf 'chrStub\t4\t12\t%s.%s.000001\n' '${meta.id}' '${strategy}' > '${meta.id}.${strategy}.consensus_result/consolidated_peaks.bed'
     printf 'replicate_id\tpeak_id\toriginal_peak_name\tchrom\tstart\tend\tscore\tstrand\tsignal_value\tp_value\tq_value\tsummit\n1\tp1\tp1\tchrStub\t4\t12\t100\t.\t5\t10\t8\t4\n' > '${meta.id}.${strategy}.consensus_result/replicate_evidence.tsv'
     printf '{"schema_version":"1.0","id":"%s","strategy":"%s","consolidated_peaks":1,"status":"stub"}\n' '${meta.id}' '${strategy}' > '${meta.id}.${strategy}.consensus_result/statistics.json'
-    printf '{"schema_version":"1.0","type":"consensus","id":"%s","strategy":"%s","status":"stub"}\n' '${meta.id}' '${strategy}' > '${meta.id}.${strategy}.manifest.json'
+    printf '{"schema_version":"1.0","type":"consensus","id":"%s","dataset":"%s","condition":"%s","target":"%s","genome_id":"%s","build":"%s","strategy":"%s","artifacts":{"consolidated_bed":{"available":true,"path":"consolidated_peaks.bed"}},"status":"stub"}\n' \
+        '${meta.id}' '${meta.dataset}' '${meta.condition}' '${meta.target}' '${meta.genome_id}' '${meta.genome_id}' '${strategy}' > '${meta.id}.${strategy}.manifest.json'
     cp '${meta.id}.${strategy}.manifest.json' '${meta.id}.${strategy}.consensus_result/manifest.json'
     printf '{"schema_version":"1.0","id":"%s","process":"CONSENSUS_INTERVALS","strategy":"%s","status":"stub"}\n' '${meta.id}' '${strategy}' > '${meta.id}.${strategy}.execution.json'
     printf '"CONSENSUS_INTERVALS":\n    bedtools: stub\n    python: stub\n' > '${meta.id}.${strategy}.versions.yml'

@@ -10,6 +10,11 @@ include { PEAK_CALLING } from './peak_calling'
 include { PEAK_QC } from './peak_qc'
 include { CONSENSUS_IDR } from './consensus'
 include { DIFFERENTIAL_BINDING } from './differential_binding'
+include { CHIPSEQ_REFERENCE_BUNDLE } from '../../../modules/local/chipseq_reference_bundle/main'
+include { PEAK_ANNOTATION } from './peak_annotation'
+include { TRACK_GENERATION } from './tracks'
+include { CHIPSEQ_REPORT } from './report'
+include { CHIPSEQ_FULL_REPORT_INPUT } from '../../../modules/local/chipseq_full_report_input/main'
 
 workflow CHIPSEQ_NATIVE_FOUNDATION {
     take:
@@ -24,7 +29,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     CHIPSEQ_METADATA(CHIPSEQ_CONTEXT.out.artifacts)
 
     peak_context_artifacts_ch = channel.empty()
-    if (mode in ['peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding']) {
+    if (mode in ['peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'full']) {
         def peak_spec = [
             caller                : params.chipseq_peak_caller,
             caller_version        : '3.0.4',
@@ -48,6 +53,41 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
 
     plan_rows = active_plan
         .splitCsv(header: true, sep: '\t')
+
+    reference_bundle_artifacts_ch = channel.empty()
+    reference_bundle_reports_ch = channel.empty()
+    if (mode == 'full') {
+        reference_bundle_inputs = plan_rows
+            .map { row ->
+                if (!row.annotation_file) {
+                    error 'chipseq_run_mode=full requires an annotation file for every reference.'
+                }
+                def selected_blacklist = params.chipseq_blacklist != null \
+                    ? params.chipseq_blacklist.toString() \
+                    : row.blacklist_bed
+                def blacklist_path = selected_blacklist && !(selected_blacklist.toLowerCase() in ['none', 'false']) \
+                    ? file(selected_blacklist, checkIfExists: true) \
+                    : []
+                def reference_meta = [
+                    id       : "${row.genome_id}.reference",
+                    genome_id: row.genome_id,
+                    build    : row.genome_id,
+                    organism : row.organism,
+                ]
+                tuple(
+                    reference_meta,
+                    file(row.genome_fasta, checkIfExists: true),
+                    file(row.annotation_file, checkIfExists: true),
+                    blacklist_path
+                )
+            }
+            .unique { meta, reference, annotation, blacklist ->
+                "${meta.genome_id}|${reference}|${annotation}|${blacklist}"
+            }
+        CHIPSEQ_REFERENCE_BUNDLE(reference_bundle_inputs)
+        reference_bundle_artifacts_ch = CHIPSEQ_REFERENCE_BUNDLE.out.artifacts
+        reference_bundle_reports_ch = CHIPSEQ_REFERENCE_BUNDLE.out.reports
+    }
 
     records = plan_rows.map { row ->
         def single_end = row.single_end.toBoolean()
@@ -187,7 +227,14 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     differential_binding_artifacts_ch = channel.empty()
     differential_binding_manifest_ch = channel.empty()
     differential_binding_reports_ch = channel.empty()
-    if (mode in ['alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding']) {
+    full_status_ch = channel.empty()
+    full_reports_ch = channel.empty()
+    full_annotation_artifacts_ch = channel.empty()
+    full_annotation_manifest_ch = channel.empty()
+    full_track_artifacts_ch = channel.empty()
+    full_track_manifest_ch = channel.empty()
+    full_report_artifacts_ch = channel.empty()
+    if (mode in ['alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'full']) {
         reference_inputs = plan_rows
             .map { row ->
                 def prefix = file(row.index_prefix)
@@ -238,7 +285,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
         alignment_manifest_ch = ALIGNMENT.out.manifest
         alignment_reports_ch = ALIGNMENT.out.reports
 
-        if (mode in ['post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding']) {
+        if (mode in ['post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'full']) {
             if (!params.chipseq_native_bam_processing) {
                 error 'chipseq_run_mode=post_alignment requires chipseq_native_bam_processing=true'
             }
@@ -270,7 +317,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             bam_reports_ch = CHIPSEQ_BAM_PROCESSING.out.reports
             bam_artifacts_ch = CHIPSEQ_BAM_PROCESSING.out.artifacts
 
-            if (mode in ['peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding']) {
+            if (mode in ['peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'full']) {
                 if (!params.chipseq_native_peak_calling.toString().toBoolean()) {
                     error "chipseq_run_mode=${mode} requires chipseq_native_peak_calling=true in the native path"
                 }
@@ -284,7 +331,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                 peak_manifests_ch = PEAK_CALLING.out.manifests
                 peak_reports_ch = PEAK_CALLING.out.reports
 
-                if (mode in ['peak_qc', 'consensus', 'idr', 'differential_binding'] && params.chipseq_native_peak_qc.toString().toBoolean()) {
+                if (mode in ['peak_qc', 'consensus', 'idr', 'differential_binding', 'full'] && params.chipseq_native_peak_qc.toString().toBoolean()) {
                     def peak_qc_spec = [
                         unit                     : params.chipseq_frip_unit,
                         min_mapq                 : params.chipseq_frip_min_mapq,
@@ -314,7 +361,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                     peak_qc_replicate_manifests_ch = PEAK_QC.out.replicate_manifests
                     peak_qc_reports_ch = PEAK_QC.out.reports
 
-                    if (mode in ['consensus', 'idr', 'differential_binding']) {
+                    if (mode in ['consensus', 'idr', 'differential_binding', 'full']) {
                         if (!params.chipseq_native_consensus.toString().toBoolean()) {
                             error "chipseq_run_mode=${mode} requires chipseq_native_consensus=true in the native path"
                         }
@@ -346,7 +393,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                         consolidation_manifest_ch = CONSENSUS_IDR.out.manifest
                         consolidation_reports_ch = CONSENSUS_IDR.out.reports
 
-                        if (mode == 'differential_binding') {
+                        if (mode in ['differential_binding', 'full']) {
                             if (!params.chipseq_native_differential_binding.toString().toBoolean()) {
                                 error 'chipseq_run_mode=differential_binding requires chipseq_native_differential_binding=true in the native path'
                             }
@@ -363,6 +410,217 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                             differential_binding_artifacts_ch = DIFFERENTIAL_BINDING.out.artifacts
                             differential_binding_manifest_ch = DIFFERENTIAL_BINDING.out.manifest
                             differential_binding_reports_ch = DIFFERENTIAL_BINDING.out.reports
+
+                            if (mode == 'full') {
+                                if (!params.chipseq_native_peak_annotation.toString().toBoolean() ||
+                                    !params.chipseq_native_tracks.toString().toBoolean() ||
+                                    !params.chipseq_native_report.toString().toBoolean()) {
+                                    error 'chipseq_run_mode=full requires native peak annotation, tracks, and report providers'
+                                }
+
+                                full_project_meta_ch = plan_rows
+                                    .map { row ->
+                                        tuple(row.dataset, row.genome_id, row.organism)
+                                    }
+                                    .unique()
+                                    .toList()
+                                    .map { projects ->
+                                        if (projects.size() != 1) {
+                                            error "chipseq_run_mode=full currently requires one dataset/genome; observed ${projects}"
+                                        }
+                                        def project = projects[0]
+                                        def report_id = "${project[0]}.chipseq_report".replaceAll(/[^A-Za-z0-9._-]+/, '_')
+                                        [
+                                            id        : report_id,
+                                            project_id: project[0],
+                                            dataset   : project[0],
+                                            genome_id : project[1],
+                                            build     : project[1],
+                                            organism  : project[2],
+                                        ]
+                                    }
+
+                                def annotation_spec = [
+                                    provider            : params.chipseq_annotation_provider,
+                                    mode                : params.chipseq_annotation_mode,
+                                    overlap_mode        : params.chipseq_annotation_overlap_mode,
+                                    promoter_upstream   : params.chipseq_annotation_promoter_upstream as Integer,
+                                    promoter_downstream : params.chipseq_annotation_promoter_downstream as Integer,
+                                    max_tss_distance    : params.chipseq_annotation_max_tss_distance,
+                                    feature_priority    : params.chipseq_annotation_feature_priority.toString().split(',').collect { value -> value.trim() },
+                                    gene_assignment     : params.chipseq_annotation_gene_assignment,
+                                    strand_aware        : params.chipseq_annotation_strand_aware.toString().toBoolean(),
+                                    intergenic_policy   : params.chipseq_annotation_intergenic_policy,
+                                ]
+                                def annotation_spec_base64 = groovy.json.JsonOutput.toJson(annotation_spec).getBytes('UTF-8').encodeBase64().toString()
+                                annotation_references = reference_bundle_artifacts_ch.map { reference_meta, reference, annotation, manifest ->
+                                    tuple(reference_meta.genome_id, reference, annotation, manifest)
+                                }
+                                annotation_sources = CONSENSUS_IDR.out.artifacts
+                                    .map { consensus_meta, directory -> tuple(consensus_meta.id, consensus_meta, directory) }
+                                    .join(CONSENSUS_IDR.out.provider_manifests.map { consensus_meta, manifest -> tuple(consensus_meta.id, manifest) })
+                                    .map { _id, consensus_meta, directory, manifest ->
+                                        tuple(consensus_meta.genome_id, consensus_meta, directory, manifest)
+                                    }
+                                annotation_inputs = annotation_sources
+                                    .combine(annotation_references, by: 0)
+                                    .map { _genome_id, consensus_meta, directory, consensus_manifest, reference, annotation, reference_manifest ->
+                                        def annotation_meta = consensus_meta + [
+                                            id       : "${consensus_meta.id}.annotation".replaceAll(/[^A-Za-z0-9._-]+/, '_'),
+                                            source_id: consensus_meta.id,
+                                        ]
+                                        tuple(
+                                            annotation_meta,
+                                            file("${directory}/consolidated_peaks.bed", checkIfExists: true),
+                                            consensus_manifest,
+                                            reference,
+                                            reference_manifest,
+                                            annotation,
+                                            annotation_spec_base64
+                                        )
+                                    }
+                                PEAK_ANNOTATION(annotation_inputs)
+                                full_annotation_artifacts_ch = PEAK_ANNOTATION.out.artifacts
+                                full_annotation_manifest_ch = PEAK_ANNOTATION.out.manifest
+
+                                def track_spec = [
+                                    provider             : params.chipseq_track_provider,
+                                    track_format         : params.chipseq_track_format,
+                                    bin_size             : params.chipseq_track_bin_size as Integer,
+                                    normalization        : params.chipseq_track_normalization,
+                                    effective_genome_size: params.chipseq_track_effective_genome_size != null ? params.chipseq_track_effective_genome_size as Integer : null,
+                                    scale_factor         : params.chipseq_track_scale_factor as Double,
+                                    extend_reads         : params.chipseq_track_extend_reads.toString().toBoolean(),
+                                    fragment_mode        : params.chipseq_track_fragment_mode,
+                                    strand               : params.chipseq_track_strand,
+                                    additional_filters   : params.chipseq_track_additional_filters,
+                                ]
+                                def track_spec_base64 = groovy.json.JsonOutput.toJson(track_spec).getBytes('UTF-8').encodeBase64().toString()
+                                track_references = reference_bundle_artifacts_ch.map { reference_meta, reference, _annotation, manifest ->
+                                    tuple(reference_meta.genome_id, reference, manifest)
+                                }
+                                track_sources = CHIPSEQ_BAM_PROCESSING.out.artifacts
+                                    .map { record_meta, bam, bai -> tuple(record_meta.id, record_meta, bam, bai) }
+                                    .join(CHIPSEQ_BAM_PROCESSING.out.final_manifest.map { record_meta, manifest -> tuple(record_meta.id, manifest) })
+                                    .map { _id, record_meta, bam, bai, manifest -> tuple(record_meta.genome_id, record_meta, bam, bai, manifest) }
+                                    .combine(track_references, by: 0)
+                                    .map { _genome_id, record_meta, bam, bai, manifest, reference, reference_manifest ->
+                                        tuple(record_meta, bam, bai, manifest, reference, reference_manifest)
+                                    }
+                                individual_track_inputs = track_sources.map { record_meta, bam, bai, manifest, reference, reference_manifest ->
+                                    def track_meta = [
+                                        id                    : "${record_meta.id}.bigwig".replaceAll(/[^A-Za-z0-9._-]+/, '_'),
+                                        track_role            : 'individual',
+                                        record_id             : record_meta.id,
+                                        record_ids            : [record_meta.id],
+                                        sample_ids            : [record_meta.sample_id],
+                                        dataset               : record_meta.dataset,
+                                        condition             : record_meta.condition,
+                                        target                : record_meta.target,
+                                        is_control            : record_meta.is_control,
+                                        biological_replicates : [record_meta.biological_replicate],
+                                        technical_replicates  : [record_meta.technical_replicate],
+                                        genome_id             : record_meta.genome_id,
+                                        build                 : record_meta.genome_id,
+                                    ]
+                                    tuple(track_meta, [bam], [bai], [manifest], reference, reference_manifest, track_spec_base64)
+                                }
+                                aggregate_track_inputs = channel.empty()
+                                if (params.chipseq_track_aggregate.toString().toBoolean()) {
+                                    if (params.chipseq_track_aggregate_scope != 'condition_target') {
+                                        error 'Native Track Generation v1 supports only chipseq_track_aggregate_scope=condition_target'
+                                    }
+                                    aggregate_track_inputs = track_sources
+                                        .filter { record_meta, _bam, _bai, _manifest, _reference, _reference_manifest -> !record_meta.is_control }
+                                        .map { record_meta, bam, bai, manifest, reference, reference_manifest ->
+                                            def group_key = [record_meta.dataset, record_meta.condition, record_meta.target, record_meta.genome_id].join('\u001f')
+                                            tuple(group_key, record_meta, bam, bai, manifest, reference, reference_manifest)
+                                        }
+                                        .groupTuple(by: 0)
+                                        .map { _group_key, record_metas, bams, bais, manifests, references, reference_manifests ->
+                                            def ordered = (0..<record_metas.size()).toList().sort { left, right -> record_metas[left].id <=> record_metas[right].id }
+                                            def metas = ordered.collect { index -> record_metas[index] }
+                                            def first = metas[0]
+                                            if (references.collect { it.toString() }.toSet().size() != 1 || reference_manifests.collect { it.toString() }.toSet().size() != 1) {
+                                                error "Aggregate track group ${first.dataset}/${first.condition}/${first.target} resolved to multiple references"
+                                            }
+                                            def group_id = ['aggregate', first.dataset, first.condition, first.target, first.genome_id, 'bigwig']
+                                                .collect { value -> value.toString().replaceAll(/[^A-Za-z0-9._-]+/, '_') }.join('.')
+                                            def track_meta = [
+                                                id                    : group_id,
+                                                track_role            : 'aggregate',
+                                                record_id             : null,
+                                                record_ids            : metas.collect { it.id },
+                                                sample_ids            : metas.collect { it.sample_id },
+                                                dataset               : first.dataset,
+                                                condition             : first.condition,
+                                                target                : first.target,
+                                                is_control            : false,
+                                                biological_replicates : metas.collect { it.biological_replicate },
+                                                technical_replicates  : metas.collect { it.technical_replicate },
+                                                genome_id             : first.genome_id,
+                                                build                 : first.genome_id,
+                                            ]
+                                            tuple(
+                                                track_meta,
+                                                ordered.collect { index -> bams[index] },
+                                                ordered.collect { index -> bais[index] },
+                                                ordered.collect { index -> manifests[index] },
+                                                references[0],
+                                                reference_manifests[0],
+                                                track_spec_base64
+                                            )
+                                        }
+                                }
+                                TRACK_GENERATION(individual_track_inputs.mix(aggregate_track_inputs))
+                                full_track_artifacts_ch = TRACK_GENERATION.out.artifacts
+                                full_track_manifest_ch = TRACK_GENERATION.out.manifest
+
+                                full_manifest_files_ch = CHIPSEQ_METADATA.out.manifest.map { _meta, manifest -> manifest }
+                                    .mix(reference_bundle_artifacts_ch.map { _meta, _reference, _annotation, manifest -> manifest })
+                                    .mix(ALIGNMENT.out.manifest.map { _meta, manifest -> manifest })
+                                    .mix(CHIPSEQ_BAM_PROCESSING.out.final_manifest.map { _meta, manifest -> manifest })
+                                    .mix(PEAK_CALLING.out.manifests.map { _meta, manifest -> manifest })
+                                    .mix(PEAK_QC.out.manifest.map { _meta, manifest -> manifest })
+                                    .mix(CONSENSUS_IDR.out.manifest.map { _meta, manifest -> manifest })
+                                    .mix(DIFFERENTIAL_BINDING.out.manifest.map { _meta, manifest -> manifest })
+                                    .mix(PEAK_ANNOTATION.out.manifest.map { _meta, manifest -> manifest })
+                                    .mix(TRACK_GENERATION.out.manifest.map { _meta, manifest -> manifest })
+                                full_semantic_artifacts_ch = PEAK_QC.out.summary.map { _meta, summary_json, _summary_tsv -> summary_json }
+                                    .mix(CONSENSUS_IDR.out.summary.map { _meta, summary_json, _summary_tsv -> summary_json })
+                                    .mix(DIFFERENTIAL_BINDING.out.artifacts.map { _meta, directory -> file("${directory}/differential_binding_summary.tsv", checkIfExists: true) })
+                                    .mix(PEAK_ANNOTATION.out.artifacts.map { _meta, directory -> file("${directory}/statistics.tsv", checkIfExists: true) })
+                                    .mix(TRACK_GENERATION.out.artifacts.map { _meta, directory -> file("${directory}/tracks.tsv", checkIfExists: true) })
+                                full_report_materials_ch = full_manifest_files_ch
+                                    .collect()
+                                    .map { paths -> tuple('full_report', paths.sort { left, right -> left.name <=> right.name }) }
+                                    .join(full_semantic_artifacts_ch.collect().map { paths -> tuple('full_report', paths.sort { left, right -> left.name <=> right.name }) })
+                                full_report_input_ch = full_project_meta_ch
+                                    .map { meta -> tuple('full_report', meta) }
+                                    .join(full_report_materials_ch)
+                                    .map { _key, meta, manifests, artifacts -> tuple(meta, manifests, artifacts) }
+                                CHIPSEQ_FULL_REPORT_INPUT(full_report_input_ch)
+
+                                def presentation = [
+                                    provider: params.chipseq_report_provider,
+                                    title   : params.chipseq_report_title,
+                                    language: params.chipseq_report_language,
+                                ]
+                                def presentation_base64 = groovy.json.JsonOutput.toJson(presentation).getBytes('UTF-8').encodeBase64().toString()
+                                report_records = CHIPSEQ_FULL_REPORT_INPUT.out.artifacts
+                                    .map { meta, inventory -> tuple('full_report', meta, inventory) }
+                                    .join(full_report_materials_ch)
+                                    .map { _key, meta, inventory, manifests, artifacts ->
+                                        tuple(meta, inventory, manifests, artifacts, presentation_base64)
+                                    }
+                                CHIPSEQ_REPORT(report_records)
+                                full_status_ch = CHIPSEQ_REPORT.out.status
+                                full_report_artifacts_ch = CHIPSEQ_REPORT.out.artifacts
+                                full_reports_ch = PEAK_ANNOTATION.out.reports
+                                    .mix(TRACK_GENERATION.out.reports)
+                                    .mix(CHIPSEQ_FULL_REPORT_INPUT.out.reports)
+                                    .mix(CHIPSEQ_REPORT.out.reports)
+                            }
                         }
                     }
                 }
@@ -370,7 +628,9 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
         }
     }
 
-    completed_ch = mode == 'qc' \
+    completed_ch = mode == 'full' \
+        ? full_status_ch \
+        : (mode == 'qc' \
         ? MULTIQC.out.status \
         : (mode == 'differential_binding' \
             ? differential_binding_status_ch \
@@ -378,7 +638,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             ? consolidation_status_ch \
             : (mode == 'peak_qc' \
             ? (params.chipseq_native_peak_qc.toString().toBoolean() ? peak_qc_status_ch : peak_status_ch) \
-            : (mode == 'peaks' ? peak_status_ch : (mode == 'post_alignment' ? bam_status_ch : alignment_status_ch)))))
+            : (mode == 'peaks' ? peak_status_ch : (mode == 'post_alignment' ? bam_status_ch : alignment_status_ch))))))
 
     emit:
     completed           = completed_ch
@@ -402,8 +662,16 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     differential_binding = differential_binding_artifacts_ch
     differential_binding_manifest = differential_binding_manifest_ch
     differential_binding_reports = differential_binding_reports_ch
+    reference_bundles   = reference_bundle_artifacts_ch
+    peak_annotations    = full_annotation_artifacts_ch
+    peak_annotation_manifest = full_annotation_manifest_ch
+    tracks              = full_track_artifacts_ch
+    track_manifest      = full_track_manifest_ch
+    report              = full_report_artifacts_ch
     logs                = CHIPSEQ_CONTEXT.out.reports
         .mix(CHIPSEQ_METADATA.out.reports.map { metadata_meta, _normalized, _controls, _report, log -> tuple(metadata_meta, log) })
         .mix(FASTQC.out.reports.map { fastqc_meta, _html, log -> tuple(fastqc_meta, log) })
         .mix(MULTIQC.out.reports.map { multiqc_meta, _html, log -> tuple(multiqc_meta, log) })
+        .mix(reference_bundle_reports_ch)
+        .mix(full_reports_ch)
 }

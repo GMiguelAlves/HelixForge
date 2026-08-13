@@ -89,12 +89,13 @@ The native Alignment provider stops before MAPQ/flag selection. The
 `post_alignment` mode applies those later policies through independent native
 contracts.
 
-Legacy fallback (`chipseq_run_mode=full`, `chipseq_native_foundation=false`, or
-`chipseq_native_peak_calling=false` for the `peaks`/`peak_qc` peak step, or
-native consensus disabled for `consensus`):
+Legacy fallback remains available only through supported dedicated modes, such
+as `chipseq_native_foundation=false`, `chipseq_native_peak_calling=false` for
+the `peaks`/`peak_qc` peak step, or native consensus disabled for `consensus`.
+`chipseq_run_mode=full` is exclusively native.
 
 Dedicated `annotation` mode uses this fallback when
-`chipseq_native_peak_annotation=false`; `full` remains unchanged.
+`chipseq_native_peak_annotation=false`.
 Dedicated `tracks` mode uses this fallback when `chipseq_native_tracks=false`;
 native tracks consume an external final-BAM inventory and do not rerun upstream
 stages.

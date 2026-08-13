@@ -72,7 +72,8 @@ flowchart TD
     RCTX --> RAGG["REPORT_AGGREGATE"]
     RAGG --> RGEN["REPORT_GENERATOR / HTML + JSON"]
 
-    LEG["Legacy compatibility"] --> FULL["full and explicit per-stage fallbacks"]
+    FULL["chipseq_run_mode=full"] --> CFG
+    LEG["Legacy compatibility"] --> FALLBACK["explicit dedicated-mode fallbacks only"]
 ```
 
 ## Boundaries
@@ -103,8 +104,9 @@ flowchart TD
   manifest plus reference/annotation identity. Provider execution, annotation
   statistics, and provider-neutral aggregation are separate boundaries and
   never trigger peak calling or differential binding.
-- `TRACK_CONTEXT` consumes only an external final-BAM inventory and reference
-  manifest. It validates identity and explicit coverage semantics before a
+- In standalone `tracks` mode, `TRACK_CONTEXT` consumes an external final-BAM
+  inventory and reference manifest. In `full`, the same contract receives the
+  live final-BAM and reference channels. It validates identity and explicit coverage semantics before a
   provider creates individual and optional non-control aggregate BigWigs.
   Statistics and aggregation are independent cache boundaries; tracks mode
   never triggers alignment or BAM processing.
@@ -113,17 +115,23 @@ flowchart TD
   dataset, build, record/sample identity, and version compatibility.
   `REPORT_AGGREGATE` owns scientific structure; `REPORT_GENERATOR` owns only
   presentation and cannot schedule an upstream producer.
+- `CHIPSEQ_FULL_REPORT_INPUT` constructs the report inventory only from native
+  manifests and checksum-declared semantic artifacts in the current execution.
 - Large data remain Nextflow outputs. Lightweight reports and provenance are
   published under `pipeline_info` and optional legacy-compatible target paths.
-- `annotation`, `tracks`, and `report` are standalone manifest-inventory modes;
-  the arrows above describe semantic dependencies, not implicit reruns.
-- `full` deliberately remains the unchanged legacy graph until real-data
-  equivalence is complete. The staged native graph must not be described as
-  scientifically validated by lint or stub success.
+- `annotation`, `tracks`, and `report` remain standalone manifest-inventory
+  re-entry modes. Under `full`, they are composed directly by channels and do
+  not discover published result directories.
+- Native `full` is an architectural composition. Its scientific status remains
+  limited to the reduced controlled Slurm validation until the planned reviewed
+  biological regression is complete.
 
 The Nextflow executor owns all scheduling. Modules contain no Slurm submission,
 partition, account or host-specific path logic. Profiles select local, Slurm,
 Docker, Conda, Singularity or Apptainer execution.
+
+The native top-level stub evidence is recorded in
+[chipseq-full-native-validation.md](chipseq-full-native-validation.md).
 
 ## Incremental migration order
 

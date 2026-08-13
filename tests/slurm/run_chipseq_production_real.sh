@@ -162,15 +162,18 @@ if [[ "$mode" == "driver" ]]; then
     submit_helper hf-chip-fixture fixture-job
 fi
 
-if [[ ! -s "$case_root/traces/differential_binding.tsv" ]]; then
-    run_stage differential_binding \
-        --chipseq_run_mode differential_binding \
+if [[ ! -s "$case_root/traces/full.tsv" ]]; then
+    run_stage full \
+        --chipseq_run_mode full \
         --chipseq_native_foundation true \
         --chipseq_native_bam_processing true \
         --chipseq_native_peak_calling true \
         --chipseq_native_peak_qc true \
         --chipseq_native_consensus true \
         --chipseq_native_differential_binding true \
+        --chipseq_native_peak_annotation true \
+        --chipseq_native_tracks true \
+        --chipseq_native_report true \
         --chipseq_min_mapq 0 \
         --chipseq_duplicate_mode none \
         --chipseq_peak_caller macs3 \
@@ -184,6 +187,10 @@ if [[ ! -s "$case_root/traces/differential_binding.tsv" ]]; then
         --chipseq_min_replicates 2 \
         --chipseq_db_spec "$case_root/db_spec.json" \
         --chipseq_db_target_dir "$result_root/120-differential-binding" \
+        --chipseq_track_bin_size 25 \
+        --chipseq_track_normalization CPM \
+        --chipseq_track_aggregate true \
+        --chipseq_report_title "HelixForge reduced ChIP-seq validation" \
         --bowtie2_index_queue "$queue" --bowtie2_align_queue "$queue" \
         --bam_select_queue "$queue" --bam_duplicates_queue "$queue" \
         --bam_blacklist_queue "$queue" --bam_index_qc_queue "$queue" \
@@ -191,35 +198,5 @@ if [[ ! -s "$case_root/traces/differential_binding.tsv" ]]; then
         --db_count_queue "$queue" --db_model_queue "$queue" --db_contrast_queue "$queue"
 fi
 
-if [[ ! -s "$case_root/traces/annotation.tsv" ]]; then
-    submit_helper hf-chip-prepare-ann prepare-job annotation
-    # shellcheck source=/dev/null
-    source "$case_root/inputs/annotation.env"
-    run_stage annotation \
-        --chipseq_run_mode annotation --chipseq_native_peak_annotation true \
-        --chipseq_annotation_peaks "$ANNOTATION_PEAKS" \
-        --chipseq_annotation_peak_manifest "$ANNOTATION_PEAK_MANIFEST" \
-        --chipseq_annotation_reference "$ANNOTATION_REFERENCE" \
-        --chipseq_annotation_reference_manifest "$ANNOTATION_REFERENCE_MANIFEST" \
-        --chipseq_annotation_gtf "$ANNOTATION_GTF"
-fi
-
-if [[ ! -s "$case_root/traces/tracks.tsv" ]]; then
-    submit_helper hf-chip-prepare-track prepare-job tracks
-    run_stage tracks \
-        --chipseq_run_mode tracks --chipseq_native_tracks true \
-        --chipseq_tracks_input_manifest "$case_root/inputs/tracks_input.json" \
-        --chipseq_track_bin_size 25 --chipseq_track_normalization CPM \
-        --chipseq_track_aggregate true
-fi
-
-if [[ ! -s "$case_root/traces/report.tsv" ]]; then
-    submit_helper hf-chip-prepare-report prepare-job report
-    run_stage report \
-        --chipseq_run_mode report --chipseq_native_report true \
-        --chipseq_report_input_manifest "$case_root/inputs/report_input.json" \
-        --chipseq_report_title "HelixForge reduced ChIP-seq validation"
-fi
-
 submit_helper hf-chip-validate validate-job
-printf '[OK] Complete reduced ChIP-seq Slurm validation passed.\n[OK] Case root: %s\n' "$case_root"
+printf '[OK] Native full ChIP-seq Slurm validation passed.\n[OK] Case root: %s\n' "$case_root"

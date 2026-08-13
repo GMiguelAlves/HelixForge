@@ -142,7 +142,7 @@ def main():
     checks["report"] = {"bytes": report_html.stat().st_size, "status": "pass"}
 
     stage_metrics = {}
-    for stage in ("differential_binding", "annotation", "tracks", "report"):
+    for stage in ("full",):
         count, duration = trace_metrics(case_root / "traces" / f"{stage}.tsv")
         stage_metrics[stage] = {"processes": count, "reported_duration_ms": duration}
     checks["execution"] = {"stages": stage_metrics, "status": "pass"}

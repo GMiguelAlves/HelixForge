@@ -37,8 +37,10 @@ scientific equivalence is claimed.
 
 ## Deliberate compatibility boundaries
 
-- ChIP `full` remains the legacy graph. Replacing it before controlled
-  end-to-end equivalence would be a new scientific migration.
+- Historical status at the time of this audit: ChIP `full` remained the legacy
+  graph. This item was superseded by the native coordinator documented in
+  [chipseq-full-native-validation.md](chipseq-full-native-validation.md); the
+  legacy sources themselves remain available as the rollback boundary.
 - Integrative remains legacy and currently consumes paths from its configuration;
   `all` provides a completion barrier, not semantic RNA/ChIP artifacts.
 - RNA download, metadata/reference preparation and remaining final reporting
