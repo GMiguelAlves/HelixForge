@@ -44,12 +44,22 @@ def main() -> None:
 
     with fastqc_table.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle, delimiter="\t"))
-    serialized = json.dumps(rows, sort_keys=True)
-    for sample in ("sample_a", "sample_b"):
-        if sample not in serialized:
-            raise AssertionError(f"MultiQC FastQC table is missing {sample}")
     if len(rows) != 2:
         raise AssertionError(f"expected two FastQC records, observed {len(rows)}")
+    observed = {row["Sample"]: row for row in rows}
+    expected = {
+        "sample_a_R1": {"Total Sequences": 12.0, "%GC": 45.0},
+        "sample_b_R1": {"Total Sequences": 18.0, "%GC": 52.0},
+    }
+    for sample, metrics in expected.items():
+        if sample not in observed:
+            raise AssertionError(f"MultiQC FastQC table is missing {sample}")
+        for metric, value in metrics.items():
+            actual = float(observed[sample][metric])
+            if actual != value:
+                raise AssertionError(
+                    f"unexpected {sample} {metric}: {actual}; expected {value}"
+                )
 
     version_text = versions.read_text(encoding="utf-8")
     if "1.17" not in version_text:
@@ -64,6 +74,7 @@ def main() -> None:
         "multiqc_version": "1.17",
         "container_digest": image_digest,
         "fastqc_records": len(rows),
+        "validated_metrics": expected,
         "artifacts": {
             "html": str(report),
             "data": str(data_dir),
