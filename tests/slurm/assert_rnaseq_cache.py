@@ -23,7 +23,10 @@ def assert_all(values: list[str], expected: str, label: str) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("trace", type=Path)
-    parser.add_argument("scenario", choices=("identical", "fastq", "transcriptome", "parameters"))
+    parser.add_argument(
+        "scenario",
+        choices=("identical", "fastq", "transcriptome", "parameters", "contrast", "qc", "module_script"),
+    )
     args = parser.parse_args()
     with args.trace.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle, delimiter="\t"))
@@ -46,11 +49,27 @@ def main() -> None:
         assert_all(statuses(rows, "SALMON_QUANT"), "COMPLETED", "Salmon quantification after transcriptome change")
         for process in ("TRIM_GALORE", "MERGE_FASTQ", "MULTIQC"):
             assert_all(statuses(rows, process), "CACHED", f"{process} after transcriptome change")
-    else:
+    elif args.scenario == "parameters":
         assert_all(statuses(rows, "SALMON_INDEX"), "CACHED", "Salmon index after quantification parameter change")
         assert_all(statuses(rows, "SALMON_QUANT"), "COMPLETED", "Salmon quantification after parameter change")
         for process in ("TRIM_GALORE", "MERGE_FASTQ", "MULTIQC"):
             assert_all(statuses(rows, process), "CACHED", f"{process} after parameter change")
+    elif args.scenario == "contrast":
+        assert_all(statuses(rows, "SALMON_IMPORT"), "CACHED", "Import after contrast change")
+        assert_all(statuses(rows, "DESEQ2_MODEL"), "CACHED", "DESeq2 model after contrast change")
+        for process in ("DE_PREFLIGHT", "DESEQ2_CONTRAST", "DE_AGGREGATE"):
+            assert_all(statuses(rows, process), "COMPLETED", f"{process} after contrast change")
+    elif args.scenario == "qc":
+        assert_all(statuses(rows, "SALMON_INDEX"), "CACHED", "Salmon index after QC parameter change")
+        assert_all(statuses(rows, "FASTQC_RAW"), "CACHED", "raw FastQC after QC parameter change")
+        assert_all(statuses(rows, "RNASEQ_QC_PLAN"), "COMPLETED", "QC plan after QC parameter change")
+        assert_all(statuses(rows, "TRIM_GALORE"), "COMPLETED", "Trim Galore after QC parameter change")
+    else:
+        assert_all(statuses(rows, "SALMON_INDEX"), "CACHED", "Salmon index after module script change")
+        for process in ("RNASEQ_QC_PLAN", "TRIM_GALORE", "MULTIQC"):
+            assert_all(statuses(rows, process), "CACHED", f"{process} after module script change")
+        for process in ("SALMON_QUANT", "IMPORT_SOURCE", "SALMON_IMPORT", "DESEQ2_MODEL", "DESEQ2_CONTRAST", "DE_AGGREGATE"):
+            assert_all(statuses(rows, process), "COMPLETED", f"{process} after module script change")
 
     print(f"[OK] Cache scenario {args.scenario}: {len(rows)} traced processes")
 

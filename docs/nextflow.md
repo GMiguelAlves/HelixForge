@@ -1,5 +1,11 @@
 # Running with Nextflow
 
+The runtime certified for complete scientific execution is Nextflow `25.10.7`,
+enforced by the project manifest. This is a temporary exact pin while the
+demonstrated task-cache persistence failure is investigated. Java 21 and Java
+23 both resumed a one-task probe with 25.10.7, but the identical top-level RNA
+workflow did not persist task records; production `-resume` is not certified.
+
 ## Available workflows
 
 Select one workflow with `--workflow rnaseq`, `chipseq`, `integrative`, or

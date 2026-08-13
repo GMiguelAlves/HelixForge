@@ -39,6 +39,17 @@ validation permits at most five concurrent tasks.
   QC -> Salmon -> Import -> DESeq2 path, then attempts identical and selective
   invalidation scenarios. `resume-driver` continues a completed baseline
   without overwriting its evidence.
+- `run_chipseq_production_real.sh` validates the complete supported ChIP-seq
+  path using a deterministic paired-end fixture and at most five concurrent
+  Slurm jobs. It chains `differential_binding`, `annotation`, `tracks`, and
+  `report` through their published manifests; `recovery-driver` skips stages
+  whose archived trace already exists.
+- `generate_chipseq_production_fixture.py`,
+  `prepare_chipseq_downstream.py`, and
+  `validate_chipseq_production.py` generate the reduced dataset, construct
+  manifest-backed inputs between top-level modes, and validate scientific and
+  operational outputs. The validated 2026-08-13 case completed 100 scientific
+  tasks with Nextflow 25.10.7.
 - `cache_probe.nf` and `cache-probe.config` provide a one-process diagnostic
   for task-cache persistence independently of the scientific DAG.
 
@@ -49,9 +60,13 @@ The 2026-08-11 runtime matrix for that probe found:
 - earlier 26.04.4/26.04.6 probes also failed with Java 25 and with both syntax
   parsers.
 
-This makes Nextflow 25.10.7 the candidate runtime for the next full production
-resume/invalidation pass. It does not by itself certify selective invalidation
-for the top-level RNA workflow.
+The subsequent full RNA baseline completed with Nextflow 25.10.7, but its
+identical resume resubmitted tasks even with an explicit persistent
+`NXF_CACHE_DIR`. The same session UUID was retained while the LevelDB task
+store remained empty. The driver stopped before the FASTQ, transcriptome,
+contrast, QC-parameter and module-script mutations because unchanged resume is
+a prerequisite for interpreting them. `recovery-driver` can continue an
+interrupted baseline, and the task cache is isolated per validation case.
 
 The scripts do not install software or remove data. Cluster paths, the Conda
 executable, environment, and Slurm partition are explicit arguments.

@@ -210,12 +210,32 @@ def write_manifest(case_root: Path, variant: str) -> None:
     )
 
 
+def change_contrast(case_root: Path) -> None:
+    path = case_root / "analysis_spec.json"
+    document = json.loads(path.read_text(encoding="utf-8"))
+    contrast = document["contrasts"][0]
+    contrast.update(
+        {
+            "id": "condition__treated_vs_control",
+            "numerator": "treated",
+            "denominator": "control",
+            "description": "treated versus control",
+            "direction": "treated/control",
+        }
+    )
+    path.write_text(
+        json.dumps(document, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8"
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", required=True, type=Path)
     parser.add_argument("--case-root", required=True, type=Path)
     parser.add_argument("--conda-base", required=True, type=Path)
-    parser.add_argument("--variant", choices=("baseline", "fastq", "transcriptome"), default="baseline")
+    parser.add_argument(
+        "--variant", choices=("baseline", "fastq", "transcriptome", "contrast"), default="baseline"
+    )
     args = parser.parse_args()
 
     counts_path = args.repo_root / "tests/fixtures/native_de/counts_matrix.tsv"
@@ -229,6 +249,8 @@ def main() -> None:
         write_reference(args.case_root / "reference", genes, mutate=args.variant == "transcriptome")
     if args.variant == "baseline":
         write_configuration(args.repo_root, args.case_root, args.conda_base)
+    if args.variant == "contrast":
+        change_contrast(args.case_root)
     write_manifest(args.case_root, args.variant)
 
 
