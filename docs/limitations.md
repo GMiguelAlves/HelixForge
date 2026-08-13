@@ -63,9 +63,11 @@
   therefore defaults to null rather than an unverified image reference.
 - Native interval consensus uses a pinned Conda BEDTools version, but no
   verified joint OCI/Apptainer image is published yet. IDR has a separately
-  pinned Biocontainer/Conda provider and dedicated reduced OCI certification;
-  the institutional Slurm does not currently expose a container runtime or an
-  IDR environment, so its complete top-level Slurm execution remains pending.
+  pinned Biocontainer/Conda provider and dedicated reduced OCI certification.
+  Its complete reduced top-level Slurm execution passed with an isolated exact
+  Conda environment because the cluster does not expose a container runtime.
+  A reviewed biological regression and administrator-supported OCI/Apptainer
+  execution remain pending.
 - Differential Binding has not run real featureCounts or DESeq2 in this stage.
   The Subread and DESeq2 Conda environments are pinned, but featureCounts OCI/
   Apptainer parameters intentionally remain null until final validation. No real

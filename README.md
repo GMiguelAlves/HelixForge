@@ -65,6 +65,9 @@ Report/Integration API v1 closes the native ChIP-seq functional DAG. It joins
 existing semantic manifests, preserves optional and `not_implemented` states,
 and emits self-contained HTML, structured JSON, final manifest, versions,
 execution metadata, and provenance without rerunning upstream stages.
+The optional IDR full path was validated end-to-end on Slurm with the reduced
+synthetic fixture: 105 processes completed, both condition-level IDR groups
+produced non-empty results, and the final report passed all top-level checks.
 
 Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy

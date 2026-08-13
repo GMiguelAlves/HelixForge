@@ -1,10 +1,9 @@
 # Controlled real validation report
 
-> Update (2026-08-13): IDR 2.0.4.2 is now implemented as an optional provider
-> with a dedicated immutable-OCI certification. Statements below that IDR was
-> `not_implemented` describe the earlier recorded pass and are retained as
-> historical evidence. The full IDR Slurm pass remains pending because the
-> cluster currently exposes no IDR/container runtime.
+> Update (2026-08-13): IDR 2.0.4.2 is implemented as an optional provider and
+> passed both immutable-OCI certification and a complete reduced top-level
+> Slurm execution. Statements below that IDR was `not_implemented` describe an
+> earlier recorded union pass and are retained as historical evidence.
 
 The later native RNA-seq input-foundation pass is recorded in
 [RNA-seq native foundation validation](rnaseq-foundation-validation.md).
@@ -64,11 +63,11 @@ packages. At most five scientific jobs were queued concurrently.
 | Bowtie2 alignment | Yes on Slurm, cluster 2.5.5 | Yes, same cluster runtime | CONDITIONAL | BAM records, flagstat and idxstats passed; pinned 2.5.4 image remains uncertified |
 | MACS3 | Yes, 3.0.4, including top-level Slurm | No full legacy pair | CONDITIONAL | Four replicates and matched control passed |
 | FRiP | Yes on top-level Slurm | Semantic invariants | CONDITIONAL | Four real BAM/peak pairs passed; no full legacy regression |
-| Consensus | Yes, union on top-level Slurm | Semantic invariants | CONDITIONAL | Two conditions with two replicates each passed; IDR is still not implemented |
+| Consensus | Yes, union and IDR on top-level Slurm | Semantic invariants | CONDITIONAL | IDR 2.0.4.2 produced 12 control and 15 treated regions from two replicates per condition |
 | Differential binding | Yes on top-level Slurm | Semantic invariants | CONDITIONAL | featureCounts, DESeq2, one requested contrast and aggregate passed in the available runtime |
 | Annotation | Yes on Slurm | Semantic invariants | CONDITIONAL | Coordinates, configured promoter window and aggregate passed |
 | Tracks | Yes on Slurm | Semantic invariants | CONDITIONAL | Three individual and one aggregate BigWig passed |
-| Report | Yes on Slurm | Contract and content checks | CONDITIONAL | HTML passed and correctly discloses IDR as incomplete |
+| Report | Yes on Slurm | Contract and content checks | CONDITIONAL | Full IDR path produced and validated a 37,472-byte HTML report |
 | Integrative | Manifest contract only | Legacy implementation retained | CONDITIONAL | No new analytic implementation was in scope |
 | Top-level RNA-seq | Yes on Slurm | Scientific invariants | READY_TO_RETIRE | QC -> Salmon -> Import -> DESeq2 -> Gene Report passed; runtime cache remains an external operational issue |
 
