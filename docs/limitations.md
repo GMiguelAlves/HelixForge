@@ -18,8 +18,9 @@
 - RNA-seq Report API orchestration, contracts and stubs are implemented, but
   `ghcr.io/gmiguelalves/helixforge-rnaseq-report:1.0.0` is not certified until
   its clean environment is built and a real reduced report is compared. The
-  unchanged `gene_set_report.R` remains in the legacy source tree as a tracked
-  provider resource during this transition.
+  module-owned `gene_set_report.R` is byte-identical to the reviewed legacy
+  implementation. The duplicate legacy copy remains only for backward
+  execution compatibility until legacy retirement.
 - Docker runs must bind the configured external `SCRATCH_ROOT` at the same path
   inside the container because compatibility outputs retain their absolute
   legacy paths. Shared HPC filesystems are normally visible to Apptainer.

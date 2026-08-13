@@ -66,10 +66,6 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
                 error "Unsupported rnaseq_report_provider '${params.rnaseq_report_provider}'."
             }
             genes_file = file(params.rnaseq_report_genes, checkIfExists: true)
-            report_script = file(
-                "${projectDir}/pipelines/rnaseq/legacy/scripts/090-search-gene/gene_set_report.R",
-                checkIfExists: true
-            )
             report_target = params.rnaseq_report_outdir \
                 ? params.rnaseq_report_outdir.toString() \
                 : "${params.outdir}/rnaseq/090-search-gene"
@@ -100,7 +96,7 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
                     tuple(meta, upstream_import_manifest, abundance, samples, annotation,
                         de_results, upstream_de_manifest, genes_file, report_parameters_base64)
                 }
-            RNASEQ_REPORT(report_sources, report_script)
+            RNASEQ_REPORT(report_sources)
             final_status = RNASEQ_REPORT.out.status
             native_logs = native_logs.mix(RNASEQ_REPORT.out.reports)
         } else {
