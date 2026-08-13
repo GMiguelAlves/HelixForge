@@ -29,7 +29,6 @@ if [[ "$consensus_method" == "idr" ]]; then
     idr_env=${HELIXFORGE_IDR_ENV:-idr}
     idr_prefix=${HELIXFORGE_IDR_PREFIX:-${conda_root}/envs/${idr_env}}
     test -x "${idr_prefix}/bin/idr"
-    runtime_path="${idr_prefix}/bin:${runtime_path}"
 elif [[ "$consensus_method" != "union" ]]; then
     echo "Production validation supports consensus method union or idr, observed: $consensus_method" >&2
     exit 2
@@ -49,10 +48,16 @@ if [[ -z "${SLURM_JOB_ID:-}" ]]; then
     ln -sfn "${conda_root}/envs/${chip_env}/bin/bowtie2-build-s" "$compat_bin/bowtie2-build"
     ln -sfn "${conda_root}/envs/${chip_env}/bin/python3" "$compat_bin/python3"
     ln -sfn "${conda_root}/envs/${chip_env}/bin/python" "$compat_bin/python"
+    if [[ "$consensus_method" == "idr" ]]; then
+        ln -sfn "${idr_prefix}/bin/idr" "$compat_bin/idr"
+    fi
 fi
 test -x "$compat_bin/bowtie2"
 test -x "$compat_bin/bowtie2-build"
 test -x "$compat_bin/python3"
+if [[ "$consensus_method" == "idr" ]]; then
+    test -x "$compat_bin/idr"
+fi
 
 if [[ "$mode" == "preflight-job" ]]; then
     test -n "${SLURM_JOB_ID:-}"
