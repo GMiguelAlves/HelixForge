@@ -147,7 +147,11 @@ def report(case_root):
     bam_manifests = exactly(results.glob("pipeline_info/native_chipseq/bam_final/*.manifest.json"), "BAM manifests", 5)
     peak_manifests = exactly(results.glob("080-peak-calling/*.peak_calling/manifest.json"), "peak manifests", 4)
     peak_qc_manifest = exactly(results.glob("pipeline_info/native_chipseq/peak_qc/aggregate/peak_qc_manifest.json"), "peak-QC manifest", 1)[0]
-    consensus_manifests = exactly(results.glob("chipseq/consensus/*/*.consensus_result/manifest.json"), "consensus manifests", 2)
+    consensus_manifest = exactly(
+        results.glob("pipeline_info/native_chipseq/consensus/aggregate/consensus_manifest.json"),
+        "consensus aggregate manifest",
+        1,
+    )[0]
     db_manifest = exactly(
         results.glob("120-differential-binding/differential_binding_results/manifest.json"), "DB manifest", 1
     )[0]
@@ -163,7 +167,14 @@ def report(case_root):
 
     qc_artifact = results / "chipseq/peak_qc/peak_qc_summary.json"
     entries.append({"component": "peak_qc", "manifest": str(peak_qc_manifest), "artifacts": [str(qc_artifact.resolve())]})
-    entries.extend({"component": "consensus_idr", "manifest": str(path), "artifacts": []} for path in consensus_manifests)
+    consensus_artifact = declared_artifact(consensus_manifest, ("summary", "summary_json"))
+    entries.append(
+        {
+            "component": "consensus_idr",
+            "manifest": str(consensus_manifest),
+            "artifacts": [str(consensus_artifact)] if consensus_artifact else [],
+        }
+    )
 
     db_artifact = declared_artifact(db_manifest, ("summary",))
     annotation_artifact = declared_artifact(annotation_manifest, ("statistics",))
