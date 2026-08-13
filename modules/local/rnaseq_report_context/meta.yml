@@ -1,0 +1,19 @@
+name: rnaseq_report_context
+description: Validate and normalize the RNA-seq Report API request.
+keywords: [rnaseq, report, validation, manifest]
+input:
+  - meta: {type: map}
+  - import_manifest: {type: file}
+  - abundance: {type: file}
+  - samples: {type: file}
+  - annotation: {type: file}
+  - de_results: {type: file}
+  - de_manifest: {type: file}
+  - genes: {type: file}
+  - parameters: {type: value}
+output:
+  - context: {type: file}
+  - environment: {type: file}
+  - reports: {type: file}
+  - versions: {type: file}
+  - status: {type: file}
