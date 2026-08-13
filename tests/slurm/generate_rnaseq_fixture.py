@@ -101,7 +101,10 @@ def write_tables(case_root: Path, genes: list[str], counts: dict[str, dict[str, 
     with metadata.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(
             handle,
-            fieldnames=["dataset", "sample_id", "file_prefix", "run_accession", "condition", "batch"],
+            fieldnames=[
+                "dataset", "sample_id", "file_prefix", "run_accession",
+                "condition", "batch", "stage", "tissue", "sex",
+            ],
         )
         writer.writeheader()
         for sample in SAMPLES:
@@ -113,6 +116,9 @@ def write_tables(case_root: Path, genes: list[str], counts: dict[str, dict[str, 
                     "run_accession": f"RUN_{sample}",
                     "condition": sample.split("_", 1)[0],
                     "batch": "B1" if sample.endswith("1") else "B2",
+                    "stage": "adult",
+                    "tissue": "synthetic_tissue",
+                    "sex": "unknown",
                 }
             )
 
@@ -122,6 +128,11 @@ def write_tables(case_root: Path, genes: list[str], counts: dict[str, dict[str, 
         writer.writerow(["gene_id", *SAMPLES])
         for gene in genes:
             writer.writerow([gene, *(counts[sample][gene] for sample in SAMPLES)])
+
+    (case_root / "candidate_genes.txt").write_text(
+        f"Expected_induced: {genes[0]}\nExpected_repressed: {genes[1]}\n",
+        encoding="utf-8",
+    )
 
 
 def write_configuration(repo_root: Path, case_root: Path, conda_base: Path) -> None:
@@ -203,7 +214,12 @@ def sha256(path: Path) -> str:
 
 
 def write_manifest(case_root: Path, variant: str) -> None:
-    tracked = [case_root / "reference/transcriptome.fa", case_root / "metadata.csv", case_root / "expected_counts.tsv"]
+    tracked = [
+        case_root / "reference/transcriptome.fa",
+        case_root / "metadata.csv",
+        case_root / "expected_counts.tsv",
+        case_root / "candidate_genes.txt",
+    ]
     document = {"variant": variant, "files": {str(path.relative_to(case_root)): sha256(path) for path in tracked}}
     (case_root / "fixture_manifest.json").write_text(
         json.dumps(document, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8"

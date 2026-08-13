@@ -36,9 +36,10 @@ validation permits at most five concurrent tasks.
 - `run_deseq2_real.sh` compares the legacy DESeq2 script with the native
   model/contrast/aggregation API using the golden reduced dataset.
 - `run_rnaseq_production_real.sh` validates the official top-level
-  QC -> Salmon -> Import -> DESeq2 path, then attempts identical and selective
-  invalidation scenarios. `resume-driver` continues a completed baseline
-  without overwriting its evidence.
+  QC -> Salmon -> Import -> DESeq2 -> Gene Report path, then attempts identical
+  and selective invalidation scenarios. `baseline-driver` executes only the
+  complete synthetic scientific baseline, while `resume-driver` continues a
+  completed baseline without overwriting its evidence.
 - `run_chipseq_production_real.sh` validates the complete supported ChIP-seq
   path using a deterministic paired-end fixture and at most five concurrent
   Slurm jobs. It chains `differential_binding`, `annotation`, `tracks`, and

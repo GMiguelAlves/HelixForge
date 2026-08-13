@@ -18,7 +18,8 @@
 - RNA-seq Report API orchestration and the clean
   `ghcr.io/gmiguelalves/helixforge-rnaseq-report:1.0.0` image are certified on a
   reduced real R execution. The module-owned `gene_set_report.R` is
-  byte-identical to the reviewed legacy implementation. A broad biological
+  text-identical after LF normalization to the reviewed legacy implementation.
+  A broad biological
   benchmark remains a release gate; the duplicate legacy copy remains only for
   backward execution compatibility until legacy retirement.
 - Docker runs must bind the configured external `SCRATCH_ROOT` at the same path
