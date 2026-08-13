@@ -58,6 +58,9 @@ def test_workflow_composition_guards() -> None:
     assert "index_key" in chip
     assert "CHIPSEQ_REPORT(report_records)" in chip
     assert "mode == 'full'" in chip
+    idr = (ROOT / "modules/local/idr_provider/main.nf").read_text(encoding="utf-8")
+    assert "run_idr.py" in idr
+    assert "not_implemented" not in idr
 
     chip_workflow = (ROOT / "workflows/chipseq.nf").read_text(encoding="utf-8")
     assert "chipseq_run_mode=full is exclusively native" in chip_workflow

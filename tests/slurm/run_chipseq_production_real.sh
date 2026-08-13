@@ -11,6 +11,7 @@ python_env=${6:-python-list}
 queue=${7:-general}
 mode=${8:-driver}
 case_name=${9:-chipseq-production-real}
+consensus_method=${HELIXFORGE_CHIPSEQ_CONSENSUS_METHOD:-union}
 
 if [[ -n "${SLURM_JOB_ID:-}" ]]; then
     repo_root=${HELIXFORGE_REPO_ROOT:?HELIXFORGE_REPO_ROOT is required in Slurm helpers}
@@ -24,6 +25,13 @@ cache_root="${validation_root}/cache/${case_name}"
 compat_bin="${validation_root}/runtime/bowtie2-direct"
 conda_root=$(cd "$(dirname "$conda_bin")/.." && pwd)
 runtime_path="${compat_bin}:${conda_root}/envs/${r_env}/bin:${conda_root}/envs/${chip_env}/bin:${conda_root}/envs/${rna_env}/bin:${conda_root}/envs/${python_env}/bin:/usr/bin:/bin"
+if [[ "$consensus_method" == "idr" ]]; then
+    idr_env=${HELIXFORGE_IDR_ENV:-idr}
+    runtime_path="${conda_root}/envs/${idr_env}/bin:${runtime_path}"
+elif [[ "$consensus_method" != "union" ]]; then
+    echo "Production validation supports consensus method union or idr, observed: $consensus_method" >&2
+    exit 2
+fi
 nextflow_jar=${HELIXFORGE_NEXTFLOW_JAR:-/home/ra236875@bio.ib.unicamp.br/helixforge-validation-20260811/.validation-runtimes/nxf-home-25.10.7/framework/25.10.7/nextflow-25.10.7-one.jar}
 
 case "$validation_root" in
@@ -61,6 +69,9 @@ if [[ "$mode" == "preflight-job" ]]; then
     Rscript -e 'stopifnot(requireNamespace("DESeq2", quietly=TRUE), requireNamespace("jsonlite", quietly=TRUE)); cat("DESeq2 ", as.character(packageVersion("DESeq2")), "\njsonlite ", as.character(packageVersion("jsonlite")), "\n", sep="")'
     printf 'python3=%s\n' "$(command -v python3)"
     python3 -c 'import pyBigWig; print("pyBigWig", pyBigWig.__version__)'
+    if [[ "$consensus_method" == "idr" ]]; then
+        idr --version
+    fi
     ps --version | head -n 1
     exit 0
 fi
@@ -83,7 +94,8 @@ fi
 if [[ "$mode" == "validate-job" ]]; then
     test -n "${SLURM_JOB_ID:-}"
     env PATH="$runtime_path" python3 "$repo_root/tests/slurm/validate_chipseq_production.py" \
-        --case-root "$case_root" --output "$case_root/validation.json"
+        --case-root "$case_root" --output "$case_root/validation.json" \
+        --consensus-method "$consensus_method"
     exit 0
 fi
 
@@ -183,7 +195,8 @@ if [[ ! -s "$case_root/traces/full.tsv" ]]; then
         --chipseq_peak_format BAMPE \
         --chipseq_peak_duplicate_policy all \
         --chipseq_peak_output_dir "$result_root/080-peak-calling" \
-        --chipseq_consensus_method union \
+        --chipseq_consensus_method "$consensus_method" \
+        --chipseq_idr_rank_metric signal_value \
         --chipseq_min_replicates 2 \
         --chipseq_db_spec "$case_root/db_spec.json" \
         --chipseq_db_target_dir "$result_root/120-differential-binding" \
@@ -194,7 +207,7 @@ if [[ ! -s "$case_root/traces/full.tsv" ]]; then
         --bowtie2_index_queue "$queue" --bowtie2_align_queue "$queue" \
         --bam_select_queue "$queue" --bam_duplicates_queue "$queue" \
         --bam_blacklist_queue "$queue" --bam_index_qc_queue "$queue" \
-        --macs3_queue "$queue" --peak_qc_queue "$queue" --consensus_queue "$queue" \
+        --macs3_queue "$queue" --peak_qc_queue "$queue" --consensus_queue "$queue" --idr_queue "$queue" \
         --db_count_queue "$queue" --db_model_queue "$queue" --db_contrast_queue "$queue"
 fi
 

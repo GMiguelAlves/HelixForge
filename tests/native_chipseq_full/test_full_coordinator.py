@@ -115,10 +115,15 @@ class FullCoordinatorTopologyTest(unittest.TestCase):
         self.assertIn(".combine(annotation_references, by: 0)", foundation)
         self.assertIn(".combine(track_references, by: 0)", foundation)
         self.assertIn("CHIPSEQ_REPORT(report_records)", foundation)
+        self.assertIn("'union', 'intersection', 'replicate_support', 'idr'", foundation)
+        self.assertIn("DIFFERENTIAL_BINDING(\n                                CONSENSUS_IDR.out.artifacts", foundation)
+        self.assertIn("annotation_sources = CONSENSUS_IDR.out.artifacts", foundation)
         self.assertNotIn("nextflow run", foundation.lower())
         self.assertIn("run_stage full", harness)
         self.assertNotIn("run_stage differential_binding", harness)
         self.assertNotIn("submit_helper hf-chip-prepare", harness)
+        self.assertIn("HELIXFORGE_CHIPSEQ_CONSENSUS_METHOD", harness)
+        self.assertIn('--chipseq_consensus_method "$consensus_method"', harness)
 
 
 if __name__ == "__main__":
