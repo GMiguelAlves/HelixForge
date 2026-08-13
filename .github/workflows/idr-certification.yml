@@ -1,0 +1,62 @@
+name: IDR container certification
+
+on:
+  push:
+    branches: [master, contrib/chipseq-idr]
+    paths:
+      - 'modules/local/consensus_context/**'
+      - 'modules/local/idr_provider/**'
+      - 'modules/local/consensus_aggregate/**'
+      - 'subworkflows/local/chipseq/consensus.nf'
+      - 'tests/native_chipseq_consensus/**'
+      - 'nextflow.config'
+      - 'nextflow_schema.json'
+      - '.github/workflows/idr-certification.yml'
+  pull_request:
+    paths:
+      - 'modules/local/consensus_context/**'
+      - 'modules/local/idr_provider/**'
+      - 'modules/local/consensus_aggregate/**'
+      - 'subworkflows/local/chipseq/consensus.nf'
+      - 'tests/native_chipseq_consensus/**'
+      - 'nextflow.config'
+      - 'nextflow_schema.json'
+      - '.github/workflows/idr-certification.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    env:
+      IDR_TEST_IMAGE: quay.io/biocontainers/idr:2.0.4.2--py39h031d066_12@sha256:d6fb2a7eb69bb236278562d08fcd0b62bfbe2e887d330111c6aea1e42cb26caa
+      IDR_TEST_ROOT: /tmp/helixforge-idr-certification
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install certified Nextflow
+        run: curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
+      - name: Pull and identify image
+        run: |
+          docker pull "$IDR_TEST_IMAGE"
+          digest=$(docker image inspect --format='{{index .RepoDigests 0}}' "$IDR_TEST_IMAGE")
+          test -n "$digest"
+          printf '### IDR OCI\n\n- Image: `%s`\n- Digest: `%s`\n' \
+            "$IDR_TEST_IMAGE" "$digest" >> "$GITHUB_STEP_SUMMARY"
+          docker run --rm "$IDR_TEST_IMAGE" idr --version | grep -E '2\.0\.4(\.2)?'
+      - name: Run real reduced IDR provider
+        env:
+          NEXTFLOW: ${{ github.workspace }}/nextflow
+        run: tests/native_chipseq_consensus/run_real.sh
+      - name: Run IDR contract tests
+        run: python3 -m unittest tests.native_chipseq_consensus.test_consensus_api
+      - uses: actions/upload-artifact@v4
+        with:
+          name: idr-2.0.4.2-certification
+          path: /tmp/helixforge-idr-certification
+          if-no-files-found: error

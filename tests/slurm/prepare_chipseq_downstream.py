@@ -52,7 +52,11 @@ def build_metadata_manifest(case_root, rows):
 
 def annotation(case_root):
     results = case_root / "results"
-    manifests = exactly(results.glob("chipseq/consensus/*/*.consensus_result/manifest.json"), "consensus manifests", 2)
+    manifests = exactly(
+        list(results.glob("chipseq/consensus/*/*.consensus_result/manifest.json"))
+        + list(results.glob("chipseq/consensus/*/*.idr_result/manifest.json")),
+        "Consensus/IDR manifests", 2,
+    )
     selected = None
     for manifest in manifests:
         document = load(manifest)
