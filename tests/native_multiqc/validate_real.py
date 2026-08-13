@@ -32,6 +32,11 @@ def main() -> None:
         / "out/pipeline_info/native_qc/multiqc/certification.multiqc.multiqc.done"
     )
     trace = require(args.root / "out/execution_trace.tsv")
+    image_digest = require(args.root / "image_digest.txt").read_text(
+        encoding="utf-8"
+    ).strip()
+    if "@sha256:" not in image_digest:
+        raise AssertionError(f"invalid OCI repository digest: {image_digest!r}")
 
     html = report.read_text(encoding="utf-8", errors="replace")
     if "MultiQC" not in html:
@@ -57,6 +62,7 @@ def main() -> None:
         "schema_version": "1.0",
         "status": "pass",
         "multiqc_version": "1.17",
+        "container_digest": image_digest,
         "fastqc_records": len(rows),
         "artifacts": {
             "html": str(report),

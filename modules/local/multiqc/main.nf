@@ -15,6 +15,12 @@ process MULTIQC {
     publishDir "${params.outdir}/pipeline_info/native_qc/multiqc",
         mode: 'copy', overwrite: true,
         pattern: '*.{html,log,yml,done}'
+    publishDir { meta.target_dir ?: "${params.outdir}/pipeline_info/native_qc/multiqc/results" },
+        mode: 'copy', overwrite: true,
+        saveAs: { name ->
+            def dataName = meta.report_name.replaceFirst(/\.html$/, '') + '_data'
+            name == meta.report_name || name == dataName ? name : null
+        }
 
     input:
     tuple val(meta), path(qc_inputs)
@@ -29,7 +35,6 @@ process MULTIQC {
     report_data_dir = meta.report_name.replaceFirst(/\.html$/, '') + '_data'
     def inputs = qc_inputs instanceof List ? qc_inputs : [qc_inputs]
     def input_args = inputs.collect { artifact -> "'${artifact}'" }.join(' ')
-    def target_dir = meta.target_dir ?: ''
     """
     multiqc ${input_args} \
         -o . \
@@ -37,21 +42,6 @@ process MULTIQC {
         2>&1 | tee '${meta.id}.multiqc.log'
 
     [[ -s '${meta.report_name}' && -d '${report_data_dir}' ]]
-
-    if [[ -n '${target_dir}' ]]; then
-        mkdir -p '${target_dir}'
-        rm -rf '${target_dir}/${report_data_dir}.nextflow.tmp' \
-            '${target_dir}/${report_data_dir}.nextflow.previous'
-        cp '${meta.report_name}' '${target_dir}/${meta.report_name}.nextflow.tmp'
-        cp -a '${report_data_dir}' '${target_dir}/${report_data_dir}.nextflow.tmp'
-        mv '${target_dir}/${meta.report_name}.nextflow.tmp' '${target_dir}/${meta.report_name}'
-        if [[ -d '${target_dir}/${report_data_dir}' ]]; then
-            mv '${target_dir}/${report_data_dir}' \
-                '${target_dir}/${report_data_dir}.nextflow.previous'
-        fi
-        mv '${target_dir}/${report_data_dir}.nextflow.tmp' '${target_dir}/${report_data_dir}'
-        rm -rf '${target_dir}/${report_data_dir}.nextflow.previous'
-    fi
 
     printf '"%s":\n    multiqc: %s\n' \
         '${task.process}' \
