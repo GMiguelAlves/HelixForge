@@ -8,10 +8,11 @@ RNA-seq, ChIP-seq, and IntegrateSeq pipelines. The scientific Bash, Python, and
 R implementations are preserved under `pipelines/*/legacy` and remain directly
 executable.
 
-The RNA-seq QC layer is native: FastQC before trimming, Trim Galore, FastQC
-after trimming, per-sample FASTQ merge, merged-read FastQC, and MultiQC are
-separate DSL2 processes. Download and metadata preparation remain wrappers,
-STAR alignment is native behind a generic Alignment API, and Salmon implements
+The RNA-seq input boundary and QC layer are native: validated local FASTQs and
+metadata feed a checksummed Reference Bundle, FastQC, Trim Galore, per-sample
+FASTQ merge, and MultiQC as separate DSL2 processes. Data acquisition is no
+longer part of the scientific workflow. STAR alignment is native behind a
+generic Alignment API, and Salmon implements
 the production RNA-seq Quantification API. Salmon is the default path; STAR is
 an optional, experimental provider that must be selected explicitly. A native
 Import API converts Salmon or STAR artifacts into provider-neutral matrices. A Differential Expression
@@ -57,9 +58,9 @@ Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy
 `assets/rnaseq_de_spec.example.json` and adapt it to the study metadata.
 Salmon users must declare `--rnaseq_library_protocol full_length` with
-`scaledTPM`/`lengthScaledTPM`, or `three_prime` with
-`--rnaseq_counts_from_abundance no`. Original full-length counts are rejected
-by the current matrix-based provider until offset-aware tximport input exists.
+`--rnaseq_counts_from_abundance lengthScaledTPM`, or `three_prime` with
+`--rnaseq_counts_from_abundance no`. See the versioned
+[RNA-seq Import policy](docs/rnaseq_import_policy.md).
 
 HelixForge currently pins **Nextflow 25.10.7** as the runtime certified for
 complete scientific execution. The exact pin holds the runtime stable while a
@@ -79,6 +80,7 @@ certified.
 ```bash
 nextflow run . -profile local --workflow rnaseq \
   --rnaseq_config /path/to/rnaseq/pipeline_config.sh \
+  --rnaseq_import_policy production_v1 \
   --rnaseq_library_protocol full_length \
   --rnaseq_counts_from_abundance lengthScaledTPM \
   --rnaseq_de_spec /path/to/rnaseq_de_spec.json
@@ -87,6 +89,10 @@ nextflow run . -profile local --workflow rnaseq \
 Use `--rnaseq_trim_quality` or `--rnaseq_trim_length` only when intentionally
 overriding the corresponding legacy QC setting. Their defaults remain the
 values sourced from `config/pipeline_config.sh`.
+
+FASTQs and references must already exist at the locations declared by the
+samplesheet/configuration. HelixForge validates and tracks them but does not
+download data during a scientific run.
 
 This command follows the official path `QC -> Salmon -> Import/tximport ->
 DESeq2`. Use `--rnaseq_analysis_mode config`, `alignment`, or `both` only when

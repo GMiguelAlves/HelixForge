@@ -8,17 +8,17 @@ level orchestrator with one `--step` and forces local execution.
 
 | Nextflow alias | Legacy coarse step | Scripts reached by the existing orchestrator |
 |---|---|---|
-| `RNASEQ_REFERENCE_STEP` | `reference` | Prepares unchanged FASTA/GTF/transcriptome inputs. Native STAR and Salmon compatibility flags stop the scripts before index construction |
-| `RNASEQ_DOWNLOAD_STEP` | `download` | `download_final.sh` per project |
-| `RNASEQ_METADATA_STEP` | `metadata` | `run_metaqc.sh`, `run_parse.sh`, `run_merge.sh` |
-| `RNASEQ_QC_PLAN` | compatibility adapter | Calls unchanged `generate_qc_plan.py` and annotates its Nextflow-owned copy with `TRIM_QUALITY`/`TRIM_LENGTH` from the legacy config |
+| `RNASEQ_CONTEXT` | compatibility adapter | Reads the existing shell configuration once and materializes tracked settings; performs no acquisition or scientific work |
+| `RNASEQ_METADATA` | native metadata module | Replaces the metadata wrapper and `RNASEQ_QC_PLAN`; validates a supplied samplesheet/local FASTQs and preserves established QC filenames |
+| `REFERENCE_BUNDLE` | native reference module | Replaces `RNASEQ_REFERENCE_STEP`; validates supplied transcriptome/annotation/genome files and records SHA-256 checksums without downloading or indexing |
+| Data acquisition | outside scientific DAG | `download_final.sh` is retained only as an optional external/legacy utility and is never scheduled by `RNASEQ` |
 | `FASTQC_RAW` | native per-FASTQ process | Replaces `fastqc_raw_plan.sh`; invokes the same FastQC command and writes to `fastqc_raw` |
 | `TRIM_GALORE` | native per-run process | Executes the same `trim_galore --paired --quality --length --cores --output_dir` command previously in `trim_runs_plan.sh` |
 | `FASTQC_TRIMMED` | native per-FASTQ process | Replaces `fastqc_trimmed_runs_plan.sh` and writes to `fastqc_trimmed_runs` |
 | `MERGE_FASTQ` | native per-sample process | Replaces `merge_samples_plan.sh` / `merge_sample_from_plan.py`; concatenates ordered gzip members without recompression |
 | `FASTQC_MERGED` | native per-FASTQ process | Replaces `fastqc_merged_plan.sh` and writes to `fastqc_merged` |
 | `MULTIQC` | native reusable process | Replaces `multiqc_plan.sh`; consumes generic compatible artifacts and writes the same named report under `multiqc_030` |
-| `RNASEQ_QC_STEP` | legacy fallback only | Runs the unchanged complete `qc` step when `rnaseq_native_qc=false` |
+| `RNASEQ_QC_STEP` | retired | No longer reachable; false native-QC flags fail explicitly |
 | `RNASEQ_ALIGNMENT_PLAN` | compatibility adapter | Sources the legacy config and invokes unchanged `generate_star_plan.py`; no scientific command is copied into Nextflow |
 | `REFERENCE_INDEX` / `STAR_INDEX` | native index API/provider | Replaces STAR `genomeGenerate` in `star_index_gtf.sh` with the same parameters and resources |
 | `ALIGNMENT` / `STAR_ALIGN` | native alignment API/provider | Replaces `run_star_quant_project.sh` / `star_quant_array_task.sh` with one task per sample and preserves every STAR filename |
@@ -26,7 +26,7 @@ level orchestrator with one `--step` and forces local execution.
 | `TRANSCRIPTOME_INDEX` / `SALMON_INDEX` | native index API/provider | Replaces scientific execution in `salmon_index.sh` with the same transcriptome, k-mer, threads, resources, and filenames |
 | `QUANTIFICATION` / `SALMON_QUANT` | native quantification API/provider | Replaces `run_alignment_project.sh` / `salmon_quant_plan.sh` with one task per sample and preserves the complete Salmon directory |
 | Native provider guard | alignment/quantification boundary | The provider selected by `QUANT_METHOD` must emit a native manifest; legacy STAR/Salmon fallbacks are no longer scheduled in an Import API run |
-| `RNASEQ_IMPORT_CONTEXT` | compatibility adapter | Reads metadata, GTF, target directory, provider, and STAR count-column settings from the unchanged config; it performs no scientific import |
+| `RNASEQ_IMPORT_CONTEXT` | compatibility adapter | Receives native metadata and Reference Bundle annotation as tracked inputs; reads only remaining target/provider settings from the shell config |
 | `IMPORT_SOURCE` | native manifest adapter | Validates provider, semantic role, sample identity, compatibility path, and SHA-256 before staging each upstream artifact |
 | `IMPORT_SAMPLE_TABLE` | native metadata adapter | Replaces the inline legacy sample-table assembly with deterministic, manifest-backed sample mapping |
 | `TX2GENE_BUILD` | native annotation module | Separates the unchanged GTF transcript/gene normalization previously embedded in `txtimport_quant.R` |

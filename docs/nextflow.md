@@ -118,19 +118,14 @@ Every run enables timeline, trace, execution report, and DAG under
 
 ## Native RNA-seq QC
 
-The complete native QC layer is enabled by default. Disable it to reproduce the
-fully legacy QC orchestration path:
-
-```bash
-nextflow run . -profile local --workflow rnaseq \
-  --rnaseq_native_qc false
-```
+The complete native input/QC layer is enabled by default. The legacy download,
+metadata, and QC fallback processes are no longer part of the RNA workflow.
 
 `TRIM_QUALITY`, `TRIM_LENGTH`, projects, metadata, scratch paths, and output
 names continue to come from the selected RNA-seq `pipeline_config.sh`.
 
-`--rnaseq_native_trim_galore false` remains a backward-compatible alias that
-also selects the legacy QC path. Partial native QC is intentionally unsupported.
+Both native QC flags must remain true; false values fail rather than silently
+selecting a legacy path. Input acquisition happens before `nextflow run`.
 
 ## Native RNA-seq alignment
 
@@ -194,7 +189,8 @@ Outputs retain the legacy names under `QUANTIFICATION_DIR`: counts, TPM/CPM,
 sample metadata, and `tx2gene.tsv`. Salmon additionally emits effective length
 and a `SummarizedExperiment`. See
 [native-rnaseq-import.md](native-rnaseq-import.md) and
-[import_api.md](import_api.md).
+[import_api.md](import_api.md). Production combinations are fixed by
+[RNA-seq Import policy](rnaseq_import_policy.md).
 
 ## RNA-seq stage modes
 
