@@ -1,0 +1,5 @@
+name: helixforge-reference-bundle
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12

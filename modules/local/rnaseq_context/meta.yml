@@ -1,0 +1,12 @@
+name: RNASEQ_CONTEXT
+description: Translate the compatibility shell configuration into tracked RNA-seq inputs.
+keywords: [rnaseq, metadata, context]
+input:
+  - config_file: Existing pipeline_config.sh.
+  - legacy_root: Compatibility root used while the shell configuration remains supported.
+  - meta: Context identity.
+output:
+  - artifacts: Source metadata and normalized settings directory.
+  - reports: Context log.
+  - versions: Bash version.
+  - status: Completion record.

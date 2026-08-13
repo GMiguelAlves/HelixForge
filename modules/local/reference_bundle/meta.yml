@@ -1,0 +1,13 @@
+name: REFERENCE_BUNDLE
+description: Validate and checksum a tracked collection of reference inputs.
+keywords: [reference, fasta, gtf, gff, provenance]
+input:
+  - meta: Reference identity and organism.
+  - transcriptome: Transcript FASTA.
+  - annotation: GTF or GFF annotation.
+  - genome: Optional genome FASTA for alignment providers.
+output:
+  - artifacts: Original tracked inputs plus the reference manifest.
+  - reports: Validation report and log.
+  - versions: Python version.
+  - status: Completion record.

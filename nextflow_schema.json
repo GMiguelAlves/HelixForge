@@ -14,7 +14,7 @@
     "rnaseq_native_qc": {
       "type": "boolean",
       "default": true,
-      "description": "Run the RNA-seq quality-control layer as native Nextflow processes."
+      "description": "Required. The retired legacy RNA-seq QC fallback is no longer scheduled."
     },
     "rnaseq_native_alignment": {
       "type": "boolean",
@@ -29,13 +29,19 @@
     "rnaseq_analysis_mode": {
       "type": "string",
       "enum": ["config", "alignment", "quantification", "both"],
-      "default": "config",
+      "default": "quantification",
       "description": "Run the configured provider, STAR only, Salmon only, or both independent layers."
     },
     "rnaseq_native_trim_galore": {
       "type": "boolean",
       "default": true,
-      "description": "Run RNA-seq run-level trimming as a native Nextflow process."
+      "description": "Required. Run RNA-seq run-level trimming as a native Nextflow process."
+    },
+    "rnaseq_import_policy": {
+      "type": "string",
+      "enum": ["production_v1", "legacy_compatibility_v1"],
+      "default": "production_v1",
+      "description": "Versioned policy for Salmon import parameters and ID normalization."
     },
     "trim_galore_container": {
       "type": "string",
@@ -270,6 +276,9 @@
     "salmon_validate_mappings": { "type": "boolean", "default": true },
     "rnaseq_counts_from_abundance": { "type": ["string", "null"], "enum": ["no", "scaledTPM", "lengthScaledTPM", "dtuScaledTPM", null], "default": null },
     "rnaseq_library_protocol": { "type": ["string", "null"], "enum": ["full_length", "three_prime", null], "default": null },
+    "rnaseq_context_container": { "type": "string" },
+    "rnaseq_metadata_container": { "type": "string" },
+    "reference_bundle_container": { "type": "string" },
     "import_source_container": { "type": "string" },
     "tx2gene_container": { "type": "string" },
     "tx2gene_apptainer_container": { "type": "string" },

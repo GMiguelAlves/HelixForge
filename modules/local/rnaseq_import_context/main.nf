@@ -18,6 +18,8 @@ process RNASEQ_IMPORT_CONTEXT {
     val import_method
     val native_alignment_enabled
     val native_quantification_enabled
+    path metadata_table
+    path reference_annotation
 
     output:
     path 'import_context.tsv', emit: settings
@@ -40,15 +42,14 @@ process RNASEQ_IMPORT_CONTEXT {
         exit 2
     fi
 
-    metadata=\$(metadata_default)
-    [[ -s "\$metadata" ]] || { echo "[ERRO] Metadata ausente: \$metadata"; exit 1; }
-    [[ -s "\$REF_GTF" ]] || { echo "[ERRO] GTF ausente: \$REF_GTF"; exit 1; }
-    cp "\$metadata" metadata_input.csv
-    cp "\$REF_GTF" annotation_input.gtf
+    [[ -s '${metadata_table}' ]] || { echo '[ERRO] Metadata nativo ausente.'; exit 1; }
+    [[ -s '${reference_annotation}' ]] || { echo '[ERRO] Anotacao do Reference Bundle ausente.'; exit 1; }
+    cp '${metadata_table}' metadata_input.csv
+    cp '${reference_annotation}' annotation_input.gtf
     printf 'provider\ttarget_dir\tstar_count_column\n%s\t%s\t%s\n' \
         '${import_method}' "\$QUANTIFICATION_DIR" "\$STAR_GENECOUNT_COLUMN" > import_context.tsv
     printf '[OK] provider=%s metadata=%s annotation=%s target=%s\n' \
-        '${import_method}' "\$metadata" "\$REF_GTF" "\$QUANTIFICATION_DIR" > rnaseq.import_context.log
+        '${import_method}' '${metadata_table}' '${reference_annotation}' "\$QUANTIFICATION_DIR" > rnaseq.import_context.log
     """
 
     stub:
