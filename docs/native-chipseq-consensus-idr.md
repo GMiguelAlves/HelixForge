@@ -57,5 +57,7 @@ peaks, manifests, QC evidence or strategy invalidate the deep-cache boundary.
 - a dedicated GitHub Actions certification that pulls the immutable IDR OCI
   image and executes the provider on two deterministic ranked peak lists.
 
+The immutable OCI provider passed GitHub Actions run `31749739141`.
+
 The reduced fixture validates runtime and contracts, not biological equivalence.
 A reviewed biological regression remains scheduled after legacy retirement.
