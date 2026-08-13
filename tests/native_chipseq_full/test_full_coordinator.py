@@ -104,6 +104,13 @@ class FullCoordinatorManifestTest(unittest.TestCase):
 
 
 class FullCoordinatorTopologyTest(unittest.TestCase):
+    def test_full_report_staging_preserves_alignment_and_final_bam_manifests(self):
+        bam_index_qc = (ROOT / "modules/local/bam_index_qc/main.nf").read_text(encoding="utf-8")
+        report_input = (ROOT / "modules/local/chipseq_full_report_input/main.nf").read_text(encoding="utf-8")
+        self.assertIn('path("${meta.id}.bam_final.manifest.json")', bam_index_qc)
+        self.assertNotIn(" > '${meta.id}.manifest.json'", bam_index_qc)
+        self.assertIn("set -o pipefail", report_input)
+
     def test_full_mode_is_native_and_single_session(self):
         workflow = (ROOT / "workflows/chipseq.nf").read_text(encoding="utf-8")
         foundation = (ROOT / "subworkflows/local/chipseq/native_foundation.nf").read_text(encoding="utf-8")
