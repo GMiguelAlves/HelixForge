@@ -1,0 +1,5 @@
+name: helixforge-rnaseq-context
+channels:
+  - conda-forge
+dependencies:
+  - bash=5.2

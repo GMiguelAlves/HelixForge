@@ -14,6 +14,8 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
     reference_status
     qc_status
     qc_plans
+    metadata_table
+    reference_annotation
 
     main:
     run_mode = params.rnaseq_run_mode.toString().toLowerCase()
@@ -296,7 +298,9 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
             legacy_root,
             import_method,
             native_alignment_enabled,
-            native_quantification_enabled
+            native_quantification_enabled,
+            metadata_table,
+            reference_annotation
         )
         import_context = RNASEQ_IMPORT_CONTEXT.out.settings
             .splitCsv(header: true, sep: '\t')
@@ -306,12 +310,27 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
         salmon_context = import_context
             .filter { row, _metadata, _annotation -> row.provider == 'salmon' }
             .map { row, metadata, annotation ->
+                def import_policy = params.rnaseq_import_policy.toString()
+                if (!(import_policy in ['production_v1', 'legacy_compatibility_v1'])) {
+                    error "Unsupported rnaseq_import_policy '${import_policy}'. Use production_v1 or legacy_compatibility_v1."
+                }
                 if (!params.rnaseq_counts_from_abundance) {
-                    error 'Salmon import requires --rnaseq_counts_from_abundance (scaledTPM or lengthScaledTPM for the current matrix-based DE provider; no is import-only).'
+                    error 'Salmon import requires an explicit --rnaseq_counts_from_abundance.'
                 }
                 if (!(params.rnaseq_library_protocol in ['full_length', 'three_prime'])) {
                     error 'Salmon import requires --rnaseq_library_protocol full_length or three_prime.'
                 }
+                if (import_policy == 'production_v1') {
+                    if (params.rnaseq_library_protocol == 'full_length' && params.rnaseq_counts_from_abundance != 'lengthScaledTPM') {
+                        error 'Import policy production_v1 requires full_length libraries to use countsFromAbundance=lengthScaledTPM.'
+                    }
+                    if (params.rnaseq_library_protocol == 'three_prime' && params.rnaseq_counts_from_abundance != 'no') {
+                        error 'Import policy production_v1 requires three_prime libraries to use countsFromAbundance=no.'
+                    }
+                } else if (params.rnaseq_counts_from_abundance != 'no') {
+                    error 'Import policy legacy_compatibility_v1 requires countsFromAbundance=no.'
+                }
+                def legacy_policy = import_policy == 'legacy_compatibility_v1'
                 def meta = [
                     id        : 'rnaseq.import',
                     provider  : 'salmon',
@@ -323,11 +342,12 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
                     star_count_column: row.star_count_column,
                     countsFromAbundance: params.rnaseq_counts_from_abundance,
                     libraryProtocol    : params.rnaseq_library_protocol,
-                    ignoreTxVersion  : false,
-                    ignoreAfterBar   : false,
-                    stripGeneVersion : false,
-                    stripTranscriptPrefix: false,
-                    stripGenePrefix  : false,
+                    importPolicy      : import_policy,
+                    ignoreTxVersion  : legacy_policy,
+                    ignoreAfterBar   : legacy_policy,
+                    stripGeneVersion : legacy_policy,
+                    stripTranscriptPrefix: legacy_policy,
+                    stripGenePrefix  : legacy_policy,
                     unmappedTranscripts: 'error'
                 ]
                 tuple(meta, metadata, annotation, import_params)
@@ -344,6 +364,7 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
                     project          : '',
                     allow_missing    : false,
                     star_count_column: row.star_count_column,
+                    importPolicy      : params.rnaseq_import_policy.toString(),
                     gene_id_normalization: 'preserve'
                 ]
                 tuple(meta, metadata, import_params)

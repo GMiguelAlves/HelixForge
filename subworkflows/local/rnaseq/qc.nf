@@ -1,7 +1,3 @@
-include { LEGACY_STEP as RNASEQ_DOWNLOAD_STEP } from '../../../modules/local/legacy_step/main'
-include { LEGACY_STEP as RNASEQ_METADATA_STEP } from '../../../modules/local/legacy_step/main'
-include { LEGACY_STEP as RNASEQ_QC_STEP }       from '../../../modules/local/legacy_step/main'
-include { RNASEQ_QC_PLAN }                      from '../../../modules/local/rnaseq_qc_plan/main'
 include { FASTQC as FASTQC_RAW }                from '../../../modules/local/fastqc/main'
 include { TRIM_GALORE }                         from '../../../modules/local/trim_galore/main'
 include { FASTQC as FASTQC_TRIMMED }            from '../../../modules/local/fastqc/main'
@@ -11,12 +7,9 @@ include { MULTIQC }                             from '../../../modules/local/mul
 
 workflow RNASEQ_QC {
     take:
-    config_file
-    legacy_root
-    seed
+    qc_plans
 
     main:
-    no_dep = channel.value('none')
     requested_native_qc = params.rnaseq_native_qc instanceof Boolean \
         ? params.rnaseq_native_qc \
         : params.rnaseq_native_qc.toString().toBoolean()
@@ -24,37 +17,14 @@ workflow RNASEQ_QC {
         ? params.rnaseq_native_trim_galore \
         : params.rnaseq_native_trim_galore.toString().toBoolean()
     native_qc_enabled = requested_native_qc && native_trim_enabled
-    trim_quality_override = params.rnaseq_trim_quality == null \
-        ? '' \
-        : params.rnaseq_trim_quality.toString()
-    trim_length_override = params.rnaseq_trim_length == null \
-        ? '' \
-        : params.rnaseq_trim_length.toString()
+    if (!native_qc_enabled) {
+        error 'rnaseq_native_qc=false and rnaseq_native_trim_galore=false are no longer supported; the RNA-seq QC wrapper has been retired.'
+    }
 
-    RNASEQ_DOWNLOAD_STEP(
-        'rnaseq', 'download', 'medium', config_file, legacy_root,
-        seed, no_dep, no_dep
-    )
-    RNASEQ_METADATA_STEP(
-        'rnaseq', 'metadata', 'medium', config_file, legacy_root,
-        seed, no_dep, no_dep
-    )
+    qc_rows = qc_plans
+        .splitCsv(header: true)
 
-    if (native_qc_enabled) {
-        RNASEQ_QC_PLAN(
-            config_file,
-            file("${projectDir}/bin/annotate_qc_plan.py", checkIfExists: true),
-            legacy_root,
-            RNASEQ_DOWNLOAD_STEP.out.status,
-            RNASEQ_METADATA_STEP.out.status,
-            trim_quality_override,
-            trim_length_override
-        )
-
-        qc_rows = RNASEQ_QC_PLAN.out.plans
-            .splitCsv(header: true)
-
-        raw_fastqc_inputs = qc_rows.flatMap { row ->
+    raw_fastqc_inputs = qc_rows.flatMap { row ->
             def project_scratch = file(row.trimmed_run_r1).parent.parent.toString()
             def target_dir = "${project_scratch}/fastqc_raw"
             def safe_dataset = row.dataset.replaceAll(/[^A-Za-z0-9_.-]/, '_')
@@ -88,7 +58,7 @@ workflow RNASEQ_QC {
             ]
         }
 
-        trim_inputs = qc_rows.map { row ->
+    trim_inputs = qc_rows.map { row ->
             def safe_dataset = row.dataset.replaceAll(/[^A-Za-z0-9_.-]/, '_')
             def safe_sample = row.sample_id.replaceAll(/[^A-Za-z0-9_.-]/, '_')
             def safe_run = row.run_accession.replaceAll(/[^A-Za-z0-9_.-]/, '_')
@@ -124,10 +94,10 @@ workflow RNASEQ_QC {
             )
         }
 
-        FASTQC_RAW(raw_fastqc_inputs)
-        TRIM_GALORE(trim_inputs)
+    FASTQC_RAW(raw_fastqc_inputs)
+    TRIM_GALORE(trim_inputs)
 
-        trimmed_fastqc_inputs = TRIM_GALORE.out.artifacts.flatMap { meta, trimmed_r1, trimmed_r2 ->
+    trimmed_fastqc_inputs = TRIM_GALORE.out.artifacts.flatMap { meta, trimmed_r1, trimmed_r2 ->
             def target_dir = "${meta.project_scratch}/fastqc_trimmed_runs"
             [
                 tuple(meta + [id: "${meta.safe_dataset}.${meta.safe_sample}.${meta.safe_run}.trimmed.R1", phase: 'trimmed', target_dir: target_dir], trimmed_r1),
@@ -135,7 +105,7 @@ workflow RNASEQ_QC {
             ]
         }
 
-        merge_inputs = TRIM_GALORE.out.artifacts
+    merge_inputs = TRIM_GALORE.out.artifacts
             .map { meta, trimmed_r1, trimmed_r2 ->
                 tuple(meta.dataset, meta.sample_id, tuple(meta, trimmed_r1, trimmed_r2))
             }
@@ -165,10 +135,10 @@ workflow RNASEQ_QC {
                 )
             }
 
-        FASTQC_TRIMMED(trimmed_fastqc_inputs)
-        MERGE_FASTQ(merge_inputs)
+    FASTQC_TRIMMED(trimmed_fastqc_inputs)
+    MERGE_FASTQ(merge_inputs)
 
-        merged_fastqc_inputs = MERGE_FASTQ.out.artifacts.flatMap { meta, merged_r1, merged_r2 ->
+    merged_fastqc_inputs = MERGE_FASTQ.out.artifacts.flatMap { meta, merged_r1, merged_r2 ->
             def target_dir = "${meta.project_scratch}/fastqc_merged"
             [
                 tuple(meta + [id: "${meta.safe_dataset}.${meta.safe_sample}.merged.R1", phase: 'merged', target_dir: target_dir], merged_r1),
@@ -176,9 +146,9 @@ workflow RNASEQ_QC {
             ]
         }
 
-        FASTQC_MERGED(merged_fastqc_inputs)
+    FASTQC_MERGED(merged_fastqc_inputs)
 
-        multiqc_inputs = FASTQC_RAW.out.artifacts
+    multiqc_inputs = FASTQC_RAW.out.artifacts
             .mix(FASTQC_TRIMMED.out.artifacts)
             .mix(FASTQC_MERGED.out.artifacts)
             .map { meta, fastqc_zip ->
@@ -198,45 +168,15 @@ workflow RNASEQ_QC {
                 )
             }
 
-        MULTIQC(multiqc_inputs)
+    MULTIQC(multiqc_inputs)
 
-        qc_status = MULTIQC.out.status
-        qc_plans = RNASEQ_QC_PLAN.out.plans
-        qc_logs = RNASEQ_DOWNLOAD_STEP.out.log
-            .mix(RNASEQ_METADATA_STEP.out.log)
-            .mix(RNASEQ_QC_PLAN.out.log)
-            .mix(FASTQC_RAW.out.reports)
-            .mix(TRIM_GALORE.out.reports)
-            .mix(FASTQC_TRIMMED.out.reports)
-            .mix(MERGE_FASTQ.out.reports)
-            .mix(FASTQC_MERGED.out.reports)
-            .mix(MULTIQC.out.reports)
-    } else {
-        RNASEQ_QC_STEP(
-            'rnaseq', 'qc', 'high_cpu', config_file, legacy_root,
-            RNASEQ_DOWNLOAD_STEP.out.status,
-            RNASEQ_METADATA_STEP.out.status,
-            no_dep
-        )
-
-        RNASEQ_QC_PLAN(
-            config_file,
-            file("${projectDir}/bin/annotate_qc_plan.py", checkIfExists: true),
-            legacy_root,
-            RNASEQ_QC_STEP.out.status,
-            RNASEQ_METADATA_STEP.out.status,
-            trim_quality_override,
-            trim_length_override
-        )
-
-        qc_status = RNASEQ_QC_STEP.out.status
-        qc_plans = RNASEQ_QC_PLAN.out.plans
-        qc_logs = RNASEQ_DOWNLOAD_STEP.out.log
-            .mix(RNASEQ_METADATA_STEP.out.log)
-            .mix(RNASEQ_QC_STEP.out.log)
-            .mix(RNASEQ_QC_PLAN.out.log)
-    }
-
+    qc_status = MULTIQC.out.status
+    qc_logs = FASTQC_RAW.out.reports
+        .mix(TRIM_GALORE.out.reports)
+        .mix(FASTQC_TRIMMED.out.reports)
+        .mix(MERGE_FASTQ.out.reports)
+        .mix(FASTQC_MERGED.out.reports)
+        .mix(MULTIQC.out.reports)
     emit:
     status = qc_status
     logs   = qc_logs

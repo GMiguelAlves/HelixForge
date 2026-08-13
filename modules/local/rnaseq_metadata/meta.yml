@@ -1,0 +1,12 @@
+name: RNASEQ_METADATA
+description: Validate RNA-seq sample metadata and create deterministic native QC plans.
+keywords: [rnaseq, metadata, samplesheet, validation]
+input:
+  - meta: Context identity.
+  - context_dir: Source metadata and settings from RNASEQ_CONTEXT.
+output:
+  - artifacts: One QC plan per dataset.
+  - references: Reference inputs selected for the run.
+  - reports: Normalized metadata, validation JSON, and log.
+  - versions: Python version.
+  - status: Completion record.
