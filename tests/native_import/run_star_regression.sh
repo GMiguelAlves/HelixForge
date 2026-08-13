@@ -3,6 +3,7 @@
 set -euo pipefail
 
 project_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+source "${project_root}/tests/lib/materialize_rnaseq_legacy.sh"
 nextflow_bin=${NEXTFLOW_BIN:-nextflow}
 nextflow_jar=${NEXTFLOW_JAR:-}
 fixture_root="${project_root}/tests/fixtures/native_import"
@@ -27,13 +28,16 @@ case "$case_root" in
 esac
 rm -rf "$case_root"
 mkdir -p "$legacy_root/SYNTHETIC/sample_a" "$legacy_root/SYNTHETIC/sample_b" "$legacy_out" "$native_out" "$nextflow_out"
+materialize_rnaseq_legacy "$project_root" \
+    'scripts/050-quantification/import_star_counts.py' \
+    "$case_root/legacy_source/import_star_counts.py"
 cp "$fixture_root/star/sample_a/ReadsPerGene.out.tab" "$legacy_root/SYNTHETIC/sample_a/"
 cp "$fixture_root/star/sample_b/ReadsPerGene.out.tab" "$legacy_root/SYNTHETIC/sample_b/"
 
 start_legacy=$(date +%s%N)
 if [[ "$legacy_runtime" == 'host' ]]; then
     python3 -c 'import pandas; assert pandas.__version__.startswith("2.1.4")'
-    python3 "${project_root}/pipelines/rnaseq/legacy/scripts/050-quantification/import_star_counts.py" \
+    python3 "${case_root}/legacy_source/import_star_counts.py" \
         --metadata "${fixture_root}/metadata.csv" \
         --quant-root "$legacy_root" \
         --output-dir "$legacy_out" \
@@ -44,7 +48,7 @@ elif [[ "$legacy_runtime" == 'container' ]]; then
         -v "${case_root}:/case" \
         -v "${fixture_root}:/fixtures:ro" \
         python:3.11.9-slim-bookworm \
-        sh -c 'pip install --disable-pip-version-check --no-cache-dir pandas==2.1.4 >/case/pip.log && python /project/pipelines/rnaseq/legacy/scripts/050-quantification/import_star_counts.py --metadata /fixtures/metadata.csv --quant-root /case/legacy_root --output-dir /case/legacy --count-column unstranded' \
+        sh -c 'pip install --disable-pip-version-check --no-cache-dir pandas==2.1.4 >/case/pip.log && python /case/legacy_source/import_star_counts.py --metadata /fixtures/metadata.csv --quant-root /case/legacy_root --output-dir /case/legacy --count-column unstranded' \
         > "${case_root}/legacy.log" 2>&1
 else
     echo "HELIXFORGE_STAR_LEGACY_RUNTIME must be host or container" >&2

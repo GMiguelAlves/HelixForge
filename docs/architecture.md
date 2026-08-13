@@ -3,6 +3,8 @@
 HelixForge is a compatibility-first Nextflow DSL2 platform. Native APIs exchange
 typed channels and versioned manifests; unchanged pipeline coordinators remain
 behind `LEGACY_STEP` only where migration or scientific validation is pending.
+RNA-seq has crossed that boundary: its active DAG is fully native and the former
+implementation is archived in `rnaseq-legacy-v1.0.0`.
 
 ## Top-level composition
 

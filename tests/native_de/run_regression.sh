@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "${ROOT}/tests/lib/materialize_rnaseq_legacy.sh"
 IMAGE="${DESEQ2_TEST_IMAGE:-ghcr.io/gmiguelalves/helixforge-deseq2:1.0.1}"
 ADAPTER_IMAGE="${DE_ADAPTER_TEST_IMAGE:-ghcr.io/gmiguelalves/helixforge-import-python:1.0.0}"
 NXF_BIN="${NEXTFLOW:-nextflow}"
@@ -21,10 +22,13 @@ if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
 fi
 cd "$ROOT"
 mkdir -p tests/results/native_de/legacy tests/results/native_de/native
+materialize_rnaseq_legacy "$ROOT" \
+  'scripts/060-deg-analysis/deseq2_analysis.R' \
+  tests/results/native_de/legacy_source/deseq2_analysis.R
 docker run --rm \
   --user "$(id -u):$(id -g)" \
   -v "$ROOT:/workspace" -w /workspace "$IMAGE" \
-  Rscript pipelines/rnaseq/legacy/scripts/060-deg-analysis/deseq2_analysis.R \
+  Rscript tests/results/native_de/legacy_source/deseq2_analysis.R \
   --counts tests/fixtures/native_de/counts_matrix.tsv \
   --samples tests/fixtures/native_de/quant_samples.tsv \
   --gff tests/fixtures/native_de/annotation.gff \

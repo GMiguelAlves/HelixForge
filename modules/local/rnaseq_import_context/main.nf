@@ -14,7 +14,7 @@ process RNASEQ_IMPORT_CONTEXT {
 
     input:
     path config_file
-    val legacy_root
+    val pipeline_root
     val import_method
     val native_alignment_enabled
     val native_quantification_enabled
@@ -29,7 +29,7 @@ process RNASEQ_IMPORT_CONTEXT {
 
     script:
     """
-    export PROJECT_DIR='${legacy_root}'
+    export PROJECT_DIR='${pipeline_root}'
     export PIPELINE_CONFIG="\$PWD/${config_file}"
     source "\$PIPELINE_CONFIG"
 

@@ -3,7 +3,7 @@ description: Adapt the preserved RNA-seq shell configuration to a versioned Diff
 keywords: [rnaseq, differential-expression, adapter, compatibility]
 input:
   - config_file: {type: file}
-  - legacy_root: {type: string}
+  - pipeline_root: {type: string}
 output:
   - analysis_spec: {type: file, pattern: analysis_spec.json}
   - annotation: {type: file, pattern: annotation_input.gff}

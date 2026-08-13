@@ -10,7 +10,7 @@ include { IMPORT }                                      from '../import/import'
 workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
     take:
     config_file
-    legacy_root
+    pipeline_root
     reference_status
     qc_status
     qc_plans
@@ -50,14 +50,14 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
 
     RNASEQ_ALIGNMENT_PLAN(
         config_file,
-        legacy_root,
+        pipeline_root,
         qc_plans,
         reference_status,
         qc_status
     )
     RNASEQ_QUANTIFICATION_PLAN(
         config_file,
-        legacy_root,
+        pipeline_root,
         qc_plans,
         reference_status,
         qc_status
@@ -295,7 +295,7 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
 
         RNASEQ_IMPORT_CONTEXT(
             config_file,
-            legacy_root,
+            pipeline_root,
             import_method,
             native_alignment_enabled,
             native_quantification_enabled,

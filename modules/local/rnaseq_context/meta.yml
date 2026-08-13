@@ -3,7 +3,7 @@ description: Translate the compatibility shell configuration into tracked RNA-se
 keywords: [rnaseq, metadata, context]
 input:
   - config_file: Existing pipeline_config.sh.
-  - legacy_root: Compatibility root used while the shell configuration remains supported.
+  - pipeline_root: RNA-seq root used while the shell configuration contract remains supported.
   - meta: Context identity.
 output:
   - artifacts: Source metadata and normalized settings directory.

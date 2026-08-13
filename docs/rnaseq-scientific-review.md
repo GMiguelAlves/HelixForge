@@ -99,9 +99,10 @@ inferencial top-level. Para
 reproduzir uma regra antiga de IDs ou filtro, ela deve ser solicitada
 explicitamente e aparecer na provenance.
 
-O fallback `rnaseq_native_de=false` continua disponível como baseline
-histórico, mas também recebe counts não corrigidos. Matrizes exploratórias de
-batch não são entradas reconhecidas pela Differential Expression API.
+O baseline histórico está arquivado na tag `rnaseq-legacy-v1.0.0` e pode ser
+materializado pelos testes de regressão. `rnaseq_native_de=false` não é mais um
+provider executável. Matrizes exploratórias de batch não são entradas
+reconhecidas pela Differential Expression API.
 
 ## 7. Decisões científicas
 

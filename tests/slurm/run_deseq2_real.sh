@@ -10,6 +10,7 @@ queue=${5:-general}
 mode=${6:-driver}
 case_name=${7:-deseq2-real}
 repo_root="${validation_root}/repo"
+source "${repo_root}/tests/lib/materialize_rnaseq_legacy.sh"
 case_root="${validation_root}/results/${case_name}"
 fixture_root="${repo_root}/tests/fixtures/native_de"
 legacy_out="${case_root}/legacy"
@@ -36,7 +37,7 @@ if [[ "$mode" == "legacy-job" ]]; then
     mkdir -p "$legacy_out"
     cd "$case_root"
     env PATH="$runtime_path" Rscript \
-        "$repo_root/pipelines/rnaseq/legacy/scripts/060-deg-analysis/deseq2_analysis.R" \
+        "$case_root/legacy_source/deseq2_analysis.R" \
         --counts "$fixture_root/counts_matrix.tsv" \
         --samples "$fixture_root/quant_samples.tsv" \
         --gff "$fixture_root/annotation.gff" \
@@ -88,6 +89,9 @@ if [[ -e "$legacy_out" || -e "$native_out" || -e "$nextflow_out" ]]; then
 fi
 
 mkdir -p "$case_root"
+materialize_rnaseq_legacy "$repo_root" \
+    'scripts/060-deg-analysis/deseq2_analysis.R' \
+    "$case_root/legacy_source/deseq2_analysis.R"
 python3 - "$fixture_root/analysis_spec.json" "$analysis_spec" "$native_out" <<'PY'
 import json
 import sys

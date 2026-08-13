@@ -41,8 +41,9 @@ while compatibility tables retain DESeq2's `stat`.
 | concatenation and summary writes | `DE_AGGREGATE` |
 | Slurm array submission | Nextflow executor and `de_*` labels |
 
-The original scripts are unchanged and remain available with
-`--rnaseq_native_de false`.
+The original scripts are archived in `rnaseq-legacy-v1.0.0`. The current
+workflow rejects `--rnaseq_native_de false` rather than silently selecting an
+uncertified fallback.
 
 ## Validation record
 

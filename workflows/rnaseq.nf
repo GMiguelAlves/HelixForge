@@ -9,13 +9,13 @@ workflow RNASEQ {
 
     main:
     config_file = file(params.rnaseq_config, checkIfExists: true)
-    legacy_root = "${projectDir}/pipelines/rnaseq/legacy"
+    pipeline_root = "${projectDir}/pipelines/rnaseq"
     run_mode = params.rnaseq_run_mode.toString().toLowerCase()
     if (!(run_mode in ['qc', 'alignment', 'quant', 'quantification', 'import', 'de', 'differential_expression', 'report', 'full'])) {
         error "Invalid rnaseq_run_mode '${params.rnaseq_run_mode}'. Use qc, alignment, quantification, import, de, report, or full."
     }
 
-    RNASEQ_NATIVE_FOUNDATION(config_file, legacy_root, seed)
+    RNASEQ_NATIVE_FOUNDATION(config_file, pipeline_root, seed)
     RNASEQ_QC(RNASEQ_NATIVE_FOUNDATION.out.qc_plans)
     if (run_mode == 'qc') {
         completed_status = RNASEQ_QC.out.status
@@ -24,7 +24,7 @@ workflow RNASEQ {
     } else {
         RNASEQ_ALIGNMENT_QUANTIFICATION(
             config_file,
-            legacy_root,
+            pipeline_root,
             RNASEQ_NATIVE_FOUNDATION.out.reference_status,
             RNASEQ_QC.out.status,
             RNASEQ_QC.out.plans,
@@ -38,7 +38,7 @@ workflow RNASEQ {
         } else {
             RNASEQ_DIFFERENTIAL_EXPRESSION(
                 config_file,
-                legacy_root,
+                pipeline_root,
                 RNASEQ_ALIGNMENT_QUANTIFICATION.out.status,
                 RNASEQ_ALIGNMENT_QUANTIFICATION.out.import_manifest,
                 RNASEQ_ALIGNMENT_QUANTIFICATION.out.imported_counts,
