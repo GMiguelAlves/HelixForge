@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helixforge.dev/schemas/integration/definitions/reference.schema.json",
+  "title": "HelixForge Integration API reference v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["reference_id", "organism", "assembly", "genome_id", "resources", "source"],
+  "properties": {
+    "reference_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "display_name": {"type": ["string", "null"]},
+    "organism": {"type": "string", "minLength": 1},
+    "species": {"type": ["string", "null"]},
+    "assembly": {"type": ["string", "null"]},
+    "genome_id": {"type": "string", "minLength": 1},
+    "annotation_id": {"type": ["string", "null"]},
+    "resources": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/referenceResource"},
+      "propertyNames": {"enum": ["fasta", "annotation", "transcriptome", "blacklist", "chrom_sizes"]}
+    },
+    "source": {"$ref": "artifact.schema.json#/$defs/source"},
+    "metadata": {"type": "object"}
+  },
+  "$defs": {
+    "referenceResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["location"],
+      "properties": {
+        "location": {"$ref": "artifact.schema.json#/$defs/location"},
+        "checksum": {"oneOf": [{"$ref": "artifact.schema.json#/$defs/checksum"}, {"type": "null"}]},
+        "version": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

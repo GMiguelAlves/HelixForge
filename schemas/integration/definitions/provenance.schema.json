@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helixforge.dev/schemas/integration/definitions/provenance.schema.json",
+  "title": "HelixForge Integration API provenance v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["producer_workflow", "producer_process", "source_manifest_ids", "source_artifact_ids"],
+  "properties": {
+    "producer_workflow": {"type": "string", "minLength": 1},
+    "producer_process": {"type": "string", "minLength": 1},
+    "software": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["name"],
+        "properties": {"name": {"type": "string", "minLength": 1}, "version": {"type": ["string", "null"]}, "container": {"type": ["string", "null"]}}
+      }
+    },
+    "parameters": {"type": "object"},
+    "source_manifest_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "source_artifact_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "execution_metadata": {"type": ["object", "null"]}
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "integration_api_version": "1.0",
+  "type": "rnaseq_run_manifest",
+  "id": "fixture.rnaseq.run",
+  "status": "complete",
+  "run": {
+    "workflow": "rnaseq",
+    "run_id": "fixture-rna-001",
+    "run_name": "Fixture RNA-seq",
+    "created_at": null,
+    "helixforge_version": "0.1.0-dev",
+    "git_commit": "example",
+    "nextflow_version": "25.10.7",
+    "profile": "test",
+    "source": {"type": "helixforge", "name": "HelixForge", "version": "0.1.0-dev"}
+  },
+  "reference": {
+    "reference_id": "sm_fixture_v1",
+    "display_name": "S. mansoni fixture",
+    "organism": "Schistosoma mansoni",
+    "species": "Schistosoma mansoni",
+    "assembly": "fixture_v1",
+    "genome_id": "sm_fixture_v1",
+    "annotation_id": "fixture_annotation_v1",
+    "resources": {},
+    "source": {"type": "external", "name": "deterministic fixture", "version": "1"},
+    "metadata": {}
+  },
+  "samples": [
+    {"sample_id": "adult_1", "dataset": "fixture", "condition": "adult", "stage": "adult", "batch": "B1", "biological_replicate": "1", "technical_runs": ["adult_run_1"]},
+    {"sample_id": "cercaria_1", "dataset": "fixture", "condition": "cercaria", "stage": "cercaria", "batch": "B1", "biological_replicate": "1", "technical_runs": ["cercaria_run_1"]}
+  ],
+  "conditions": ["adult", "cercaria"],
+  "stages": ["adult", "cercaria"],
+  "batches": ["B1"],
+  "quantification_method": "salmon",
+  "contrasts": [
+    {"contrast_id": "adult_vs_cercaria", "factor": "condition", "numerator": "adult", "denominator": "cercaria", "label": "Adult versus cercaria", "formula": "~ condition", "covariates": [], "assay": ["rnaseq"], "metadata": {}}
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "fixture.rna.de", "artifact_type": "differential_expression", "assay": "rnaseq", "format": "tsv", "entity_level": "gene", "reference_id": "sm_fixture_v1", "contrast_id": "adult_vs_cercaria", "sample_ids": ["adult_1", "cercaria_1"], "condition": null, "stage": null, "mark_or_factor": null, "peak_type": null, "role": "results",
+      "location": {"kind": "producer_relative", "path": "differential_expression_results.tsv", "base_path": null, "producer_manifest_id": "fixture.rna.de.aggregate"},
+      "checksum": null, "source": {"type": "helixforge", "name": "DESeq2", "version": null},
+      "provenance": {"producer_workflow": "rnaseq", "producer_process": "DE_AGGREGATE", "software": [], "parameters": {}, "source_manifest_ids": ["fixture.rna.de.aggregate"], "source_artifact_ids": [], "execution_metadata": null},
+      "metadata": {}
+    }
+  ],
+  "provenance": {"producer_workflow": "rnaseq", "producer_process": "RUN_MANIFEST", "software": [{"name": "HelixForge", "version": "0.1.0-dev", "container": null}], "parameters": {}, "source_manifest_ids": ["fixture.rna.de.aggregate"], "source_artifact_ids": ["fixture.rna.de"], "execution_metadata": null}
+}
