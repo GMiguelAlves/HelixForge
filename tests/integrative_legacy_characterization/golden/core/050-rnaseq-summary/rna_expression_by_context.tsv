@@ -1,0 +1,17 @@
+gene_id	stage_or_condition	mean_TPM	mean_log2TPM	fraction_expressed	n_samples
+geneA	adult	5.5	2.7004397	1	2
+geneA	cercariae	52.5	5.741467	1	2
+geneB	adult	46.5	5.5698556	1	2
+geneB	cercariae	2.5	1.8073549	1	2
+geneC	adult	8.5	3.2479275	1	2
+geneC	cercariae	29	4.9068906	1	2
+geneD	adult	5.5	2.7004397	1	2
+geneD	cercariae	21	4.4594316	1	2
+geneE	adult	4.5	2.4594316	1	2
+geneE	cercariae	26	4.7548875	1	2
+geneF	adult	11.5	3.6438562	1	2
+geneF	cercariae	12.5	3.7548875	1	2
+geneG	adult	1	1	1	2
+geneG	cercariae	1	1	1	2
+geneH	adult	2	1.5849625	1	2
+geneH	cercariae	2	1.5849625	1	2

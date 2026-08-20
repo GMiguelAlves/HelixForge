@@ -1,0 +1,7 @@
+gene_id	total_associated_peaks	promoter_peaks	gene_body_peaks	distal_peaks	marks_or_factors	conditions_with_peak	n_differential_peaks	max_abs_chip_log2FC	min_chip_padj	binding_statuses
+geneA	2	1	0	1	H3K27ac	adult;cercariae	1	2.2	0.01	gained
+geneB	2	2	0	0	H3K27me3	adult;cercariae	0	0.5	0.2	not_significant
+geneC	1	0	1	0	H3K27ac	cercariae	0	0	1	not_tested
+geneD	1	0	0	1	H3K27me3	adult	0	0	1	not_tested
+geneF	2	1	1	0	SmHP1	adult;cercariae	0	0	1	not_tested
+geneG	1	1	0	0	H3K27ac	adult	0	0.3	0.8	not_significant
