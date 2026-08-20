@@ -1,0 +1,10 @@
+peak_id	chrom	start	end	mark_or_factor	condition	nearest_gene_id	nearest_gene_name	distance_to_tss	genomic_annotation
+peakA1	chr1	800	950	H3K27ac	cercariae	geneA	Alpha	-125	promoter
+peakA2	chr1	2200	2300	H3K27ac	adult	geneA	Alpha	250	distal_intergenic
+peakB1	chr1	3900	4100	H3K27me3	adult	geneB	Beta	50	promoter
+peakB2	chr1	2850	3000	H3K27me3	cercariae	geneB	Beta	-75	promoter
+peakC1	chr1	5200	5350	H3K27ac	cercariae	geneC	Gamma	250	exon
+peakD1	chr1	8200	8300	H3K27me3	adult	geneD	Delta	250	distal
+peakF1	chr1	8850	9000	SmHP1	cercariae	geneF	Phi	-75	promoter
+peakF2	chr1	9300	9450	CBX	adult	geneF	Phi	375	gene_body
+peakG1	chr1	10800	10950	H3K27ac	adult	geneG	Gamma2	-125	promoter

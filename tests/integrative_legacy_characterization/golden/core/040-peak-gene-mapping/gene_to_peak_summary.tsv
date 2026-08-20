@@ -1,0 +1,7 @@
+gene_id	total_associated_peaks	promoter_peaks	gene_body_peaks	distal_peaks	marks_or_factors	conditions
+geneA	2	1	0	1	H3K27ac	adult;cercariae
+geneB	2	2	0	0	H3K27me3	adult;cercariae
+geneC	1	0	1	0	H3K27ac	cercariae
+geneD	1	0	0	1	H3K27me3	adult
+geneF	2	1	1	0	SmHP1	adult;cercariae
+geneG	1	1	0	0	H3K27ac	adult

@@ -1,0 +1,9 @@
+gene_id	mean_expression	median_expression	max_expression	min_expression	context_with_highest_expression	expression_specificity	n_deg_records	n_significant_contrasts	n_up	n_down	max_abs_log2FC	min_padj	transcriptional_dynamism_score
+geneA	29	28	55	5	cercariae	0.47413793	2	2	1	1	2.5	0.001	14.518387
+geneB	24.5	24	48	2	adult	0.48979592	2	1	0	1	2	0.004	11.22942
+geneC	18.75	18.5	30	8	cercariae	0.4	2	1	0	1	1.5	0.02	7.4312945
+geneD	13.25	13	22	5	cercariae	0.41509434	2	1	1	0	1.2	0.04	5.4282743
+geneE	15.25	15	27	4	cercariae	0.44262295	2	2	1	1	1.4	0.02	6.7302969
+geneF	12	12	13	11	cercariae	0.27083333	2	0	0	0	0.2	0.9	0.76147098
+geneG	1	1	1	1	cercariae	0.25	2	0	0	0	0.1	0.8	0.1
+geneH	2	2	2	2	cercariae	0.25	2	0	0	0	0.2	0.6	0.3169925

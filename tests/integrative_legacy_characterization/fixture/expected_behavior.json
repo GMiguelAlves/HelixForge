@@ -1,0 +1,12 @@
+{
+  "classes": {
+    "geneA": "DEG_with_differential_peak",
+    "geneB": "DEG_with_promoter_peak",
+    "geneC": "DEG_with_gene_body_peak",
+    "geneD": "DEG_with_distal_peak",
+    "geneE": "DEG_only",
+    "geneF": "ChIP_only",
+    "geneG": "ChIP_only",
+    "geneH": "unchanged"
+  }
+}

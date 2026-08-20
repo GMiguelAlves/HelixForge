@@ -1,0 +1,5 @@
+sample_id	stage_or_condition	mapping_status	matched_metadata_key
+C1	cercariae	metadata	C1
+C2	cercariae	metadata	C2
+A1	adult	metadata	A1
+A2	adult	metadata	A2

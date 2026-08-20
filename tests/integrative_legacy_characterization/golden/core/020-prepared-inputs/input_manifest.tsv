@@ -1,0 +1,13 @@
+input_key	path	exists	matches
+RNA_COUNTS_MATRIX	<FIXTURE_ROOT>/inputs/counts_matrix.tsv	True	
+RNA_NORMALIZED_MATRIX	<FIXTURE_ROOT>/inputs/tpm_matrix.tsv	True	
+RNA_DEG_RESULTS	<FIXTURE_ROOT>/inputs/deg_results.tsv	True	
+RNA_METADATA_FILE	<FIXTURE_ROOT>/inputs/rna_metadata.tsv	True	
+CHIP_METADATA_FILE	<FIXTURE_ROOT>/inputs/chip_metadata.tsv	True	
+CHIP_DIFF_BINDING_FILE	<FIXTURE_ROOT>/inputs/differential_binding.tsv	True	
+ANNOTATION_FILE	<FIXTURE_ROOT>/inputs/annotation.gtf	True	
+FUNCTIONAL_ANNOTATION	<FIXTURE_ROOT>/inputs/functional_annotation.tsv	True	
+GENES_OF_INTEREST_FILE	<FIXTURE_ROOT>/inputs/genes_of_interest.txt	True	
+CHIP_ANNOTATED_PEAKS_GLOB	<FIXTURE_ROOT>/inputs/annotated_peaks*.tsv	True	<FIXTURE_ROOT>/inputs/annotated_peaks_fixture.tsv
+CHIP_PEAK_BED_GLOB	<FIXTURE_ROOT>/inputs/unused/*.bed	False	
+CHIP_PEAK_COUNT_GLOB	<FIXTURE_ROOT>/inputs/unused/*.counts.tsv	False	
