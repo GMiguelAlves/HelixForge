@@ -10,7 +10,7 @@ process TRACK_PROVIDER {
     errorStrategy { task.exitStatus in [137, 143] ? 'retry' : 'terminate' }
     maxRetries 2
 
-    container params.chipseq_track_container
+    container { workflow.containerEngine in ['singularity', 'apptainer'] ? params.chipseq_track_apptainer_container : params.chipseq_track_container }
     conda "${moduleDir}/environment.yml"
 
     publishDir "${params.outdir}/pipeline_info/native_chipseq/tracks/provider",
