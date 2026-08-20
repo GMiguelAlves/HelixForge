@@ -1,3 +1,4 @@
+* text=auto
 *.sh text eol=lf
 *.nf text eol=lf
 *.config text eol=lf
@@ -13,3 +14,15 @@
 *.fastq text eol=lf
 tests/fixtures/trim_galore/bin/* text eol=lf
 tests/fixtures/native_qc/bin/* text eol=lf
+*.gz -text
+*.zip -text
+*.bam -text
+*.bai -text
+*.cram -text
+*.crai -text
+*.bw -text
+*.bigWig -text
+*.png -text
+*.jpg -text
+*.jpeg -text
+*.pdf -text

@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+set -uo pipefail
+
+require_container=false
+if [[ "${1:-}" == "--require-container" ]]; then
+    require_container=true
+elif [[ $# -gt 0 ]]; then
+    echo "Usage: bin/helixforge-doctor [--require-container]" >&2
+    exit 2
+fi
+
+failures=0
+warnings=0
+
+ok() { printf '[OK] %s\n' "$*"; }
+warn() { printf '[WARN] %s\n' "$*" >&2; warnings=$((warnings + 1)); }
+fail() { printf '[FAIL] %s\n' "$*" >&2; failures=$((failures + 1)); }
+
+if [[ "$(uname -s 2>/dev/null || true)" == "Linux" ]]; then
+    if grep -qi microsoft /proc/version 2>/dev/null; then
+        ok "platform=WSL2/Linux"
+    else
+        ok "platform=Linux"
+    fi
+else
+    fail "HelixForge requires Linux or WSL2"
+fi
+
+if git --version >/dev/null 2>&1; then
+    ok "$(git --version)"
+else
+    fail "Git is not available"
+fi
+
+if java_output=$(java -version 2>&1); then
+    java_version=$(sed -n '1s/.*version "\([^"]*\)".*/\1/p' <<<"$java_output")
+    java_major=${java_version%%.*}
+    if [[ "$java_major" == "1" ]]; then
+        java_major=$(cut -d. -f2 <<<"$java_version")
+    fi
+    if [[ "$java_major" == "21" ]]; then
+        ok "Java $java_version (recommended)"
+    elif [[ "$java_major" =~ ^[0-9]+$ && "$java_major" -gt 21 ]]; then
+        warn "Java $java_version is newer than the certified Java 21 baseline"
+    else
+        fail "Java 21 is required for the RC support baseline; observed '$java_version'"
+    fi
+else
+    fail "Java is not available"
+fi
+
+nextflow_command=${NEXTFLOW:-nextflow}
+if [[ -x "$nextflow_command" ]] || command -v "$nextflow_command" >/dev/null 2>&1; then
+    nextflow_output=$("$nextflow_command" -version 2>&1 || true)
+    nextflow_version=$(sed -n 's/.*version \([0-9][0-9.]*\).*/\1/p' <<<"$nextflow_output" | head -n 1)
+    if [[ "$nextflow_version" == "25.10.7" ]]; then
+        ok "Nextflow $nextflow_version (certified)"
+    else
+        fail "Nextflow 25.10.7 is required; observed '${nextflow_version:-unknown}'"
+    fi
+else
+    fail "Nextflow is not available (set NEXTFLOW=/path/to/nextflow if needed)"
+fi
+
+runtime=""
+for candidate in docker apptainer singularity; do
+    if command -v "$candidate" >/dev/null 2>&1; then
+        runtime=$candidate
+        break
+    fi
+done
+if [[ -n "$runtime" ]]; then
+    ok "container_runtime=$runtime"
+elif [[ "$require_container" == true ]]; then
+    fail "No Docker, Apptainer, or Singularity runtime is available"
+else
+    warn "No container runtime found; stub tests remain available"
+fi
+
+if [[ -r . && -w . ]]; then
+    ok "workspace is readable and writable"
+else
+    fail "workspace is not readable and writable"
+fi
+
+printf 'doctor: failures=%d warnings=%d\n' "$failures" "$warnings"
+[[ "$failures" -eq 0 ]]

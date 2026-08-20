@@ -16,3 +16,12 @@ benchmark/reports/*
 !benchmark/reports/.gitkeep
 __pycache__/
 *.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.Rhistory
+.RData
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
