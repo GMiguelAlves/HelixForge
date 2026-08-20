@@ -1,0 +1,42 @@
+name: Scientific discrepancy
+description: Report unexpected scientific values, semantics or interpretation.
+title: "[Science]: "
+labels: [science]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: HelixForge commit or version
+    validations:
+      required: true
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Workflow
+      options: [RNA-seq, ChIP-seq, Integrative]
+    validations:
+      required: true
+  - type: textarea
+    id: design
+    attributes:
+      label: Experimental design and policy versions
+    validations:
+      required: true
+  - type: textarea
+    id: discrepancy
+    attributes:
+      label: Observed scientific discrepancy
+    validations:
+      required: true
+  - type: textarea
+    id: reference
+    attributes:
+      label: Expected result and supporting reference
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction with redistributable or synthetic data
+    validations:
+      required: true

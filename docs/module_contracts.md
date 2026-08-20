@@ -22,12 +22,12 @@ inputs. `EVIDENCE_HARMONIZATION` additionally receives an explicit policy file;
 Both reject incompatible references and may not scan a published results tree,
 infer identity from filenames, or silently normalize biological IDs.
 
-Interpretation modules receive only staged Integration/Stage 5 bundles and
+Interpretation modules receive only staged Integration API bundles and
 versioned policy/catalog inputs. Regulatory observations, interpretations and
 prioritization components remain separate datasets. A candidate score must
 state that it is non-inferential and expose every additive component.
 
-Stage 6 modules continue the same envelope. Functional analysis must distinguish
+Downstream Integrative modules continue the same envelope. Functional analysis must distinguish
 descriptive legacy-compatible summaries from inferential tests; visualization
 and report modules may only render declared structured products; the terminal
 manifest module must checksum every exported artifact and preserve all upstream

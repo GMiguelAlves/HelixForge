@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use HelixForge, please cite the software release and its archived DOI when available."
+title: "HelixForge"
+type: software
+authors:
+  - family-names: "Alves"
+    given-names: "Gustavo Miguel Caxias"
+repository-code: "https://github.com/GMiguelAlves/HelixForge"
+url: "https://github.com/GMiguelAlves/HelixForge"
+version: "1.0.0-rc.1"
+keywords:
+  - bioinformatics
+  - nextflow
+  - RNA-seq
+  - ChIP-seq
+  - multi-omics
+abstract: >-
+  HelixForge is a reproducible Nextflow DSL2 framework for RNA-seq, ChIP-seq,
+  and cross-assay molecular evidence integration.
