@@ -29,8 +29,8 @@ release gate.
 - the implicit `chipseq_duplicate_mode=legacy` policy.
 
 The versioned configuration engine and templates moved unchanged to
-`pipelines/chipseq/config`. The shared `LEGACY_STEP` module remains temporarily
-because the Integrative workflow still consumes it.
+`pipelines/chipseq/config`. The shared `LEGACY_STEP` module was subsequently
+removed when Integrative retired; no active workflow imports it.
 
 ## Historical recovery
 

@@ -10,7 +10,6 @@
       "default": "all"
     },
     "outdir": { "type": "string" },
-    "legacy_dry_run": { "type": "boolean", "default": false },
     "rnaseq_native_qc": {
       "type": "boolean",
       "default": true,
@@ -283,7 +282,10 @@
     "integrative_candidate_panels": { "type": "integer", "minimum": 0, "default": 5 },
     "integrative_report_title": { "type": "string", "default": "HelixForge Integrative Report" },
     "integrative_container": { "type": "string" },
-    "integration_manifest_container": { "type": "string", "default": "python:3.12.10-slim" },
+    "integration_manifest_container": { "type": "string", "default": "python:3.12.10-slim@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db" },
+    "evidence_provider_container": { "type": "string", "default": "python:3.12.10-slim@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db" },
+    "molecular_integration_container": { "type": "string", "default": "python:3.12.10-slim@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db" },
+    "interpretation_container": { "type": "string", "default": "python:3.12.10-slim@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db" },
     "chipseq_context_container": { "type": "string", "default": "debian:12.5-slim" },
     "chipseq_metadata_container": { "type": "string", "default": "python:3.12.4-slim-bookworm" },
     "bowtie2_container": { "type": "string", "default": "ghcr.io/gmiguelalves/helixforge-chipseq-alignment:1.0.0@sha256:9c4e4169e498f72e9c9f123f2f5eb05a18bc2fabd5a3446beeac10df1514928e" },
@@ -337,8 +339,7 @@
     "deseq2_model_queue": { "type": ["string", "null"], "default": null },
     "deseq2_contrast_queue": { "type": ["string", "null"], "default": null },
     "rnaseq_config": { "type": "string" },
-    "chipseq_config": { "type": "string" },
-    "integrative_config": { "type": "string" }
+    "chipseq_config": { "type": "string" }
   },
   "required": ["workflow"]
 }

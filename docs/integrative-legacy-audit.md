@@ -1,6 +1,7 @@
 # Integrative legacy scientific audit
 
-Status: characterization baseline for Integration migration stage 1  
+Status: **historical characterization; executable source archived in
+`integrative-legacy-v1.0.0`**
 Legacy source: `pipelines/integrative/legacy` at commit
 `d24f14588252c1184d78b865965d9f95e7754d01`
 
