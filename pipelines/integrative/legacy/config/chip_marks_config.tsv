@@ -1,9 +1,0 @@
-mark_or_factor	regulatory_class	expected_effect	peak_type	notes
-H3K27ac	activating_mark	activation	promoter_or_enhancer	Common active chromatin mark
-H3K4me3	activating_mark	activation	promoter	Common active promoter mark
-H3K27me3	repressive_mark	repression	broad	Common Polycomb-associated repressive mark
-H3K9me3	repressive_mark	repression	broad	Common heterochromatin mark
-H3K9ac	activating_mark	activation	promoter_or_enhancer	Active acetylation mark
-SmHP1	chromatin_reader	context_dependent	broad	Schistosoma mansoni HP1/CBX factor occupancy; PRJNA1090249 ChIPmentation should be interpreted as protein binding rather than histone modification
-ATAC	chromatin_accessibility	activation	open_chromatin	Accessibility signal
-unknown	unknown	unknown	unknown	Default fallback
