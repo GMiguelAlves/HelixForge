@@ -7,6 +7,7 @@ the versioned source of truth.
 ## User guide
 
 - [Installation and support matrix](installation.md)
+- [Runtime and container inventory](runtime-inventory.md)
 - [Quick Start](quickstart.md)
 - [Workflows and required inputs](workflows.md)
 - [Outputs and terminal manifests](outputs.md)
