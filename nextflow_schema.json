@@ -272,6 +272,7 @@
     "chipseq_report_provider": { "type": "string", "enum": ["html_v1"], "default": "html_v1" },
     "chipseq_report_title": { "type": "string", "default": "ChIP-seq final report" },
     "chipseq_report_language": { "type": "string", "enum": ["en", "pt-BR"], "default": "en" },
+    "integration_manifest_container": { "type": "string", "default": "python:3.12.10-slim" },
     "chipseq_context_container": { "type": "string", "default": "debian:12.5-slim" },
     "chipseq_metadata_container": { "type": "string", "default": "python:3.12.4-slim-bookworm" },
     "bowtie2_container": { "type": "string", "default": "ghcr.io/gmiguelalves/helixforge-chipseq-alignment:1.0.0@sha256:9c4e4169e498f72e9c9f123f2f5eb05a18bc2fabd5a3446beeac10df1514928e" },

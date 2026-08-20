@@ -23,6 +23,15 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
     run_mode = params.rnaseq_run_mode.toString().toLowerCase()
     run_report = run_mode == 'report' || (run_mode == 'full' && report_enabled)
     native_logs = channel.empty()
+    de_results = channel.empty()
+    de_common_results = channel.empty()
+    de_manifest = channel.empty()
+    de_normalized_counts = channel.empty()
+    de_model_manifest = channel.empty()
+    de_contrast_results = channel.empty()
+    de_contrast_manifest = channel.empty()
+    report_artifacts = channel.empty()
+    report_manifest = channel.empty()
     if (!native_de_enabled) {
         error 'rnaseq_native_de=false is no longer supported; the RNA-seq legacy pipeline was retired in rnaseq-legacy-v1.0.0.'
     }
@@ -54,6 +63,13 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
             }
         DIFFERENTIAL_EXPRESSION(native_requests)
         deg_status = DIFFERENTIAL_EXPRESSION.out.status
+        de_results = DIFFERENTIAL_EXPRESSION.out.results
+        de_common_results = DIFFERENTIAL_EXPRESSION.out.common_results
+        de_manifest = DIFFERENTIAL_EXPRESSION.out.manifest
+        de_normalized_counts = DIFFERENTIAL_EXPRESSION.out.normalized_counts
+        de_model_manifest = DIFFERENTIAL_EXPRESSION.out.model_manifest
+        de_contrast_results = DIFFERENTIAL_EXPRESSION.out.contrast_results
+        de_contrast_manifest = DIFFERENTIAL_EXPRESSION.out.contrast_manifest
         native_logs = RNASEQ_DE_CONTEXT.out.log.mix(DIFFERENTIAL_EXPRESSION.out.reports)
 
         if (run_report) {
@@ -83,7 +99,7 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
                 .combine(DIFFERENTIAL_EXPRESSION.out.manifest)
                 .combine(reference_annotation)
                 .map { import_meta_a, abundance, _import_meta_s, samples, _import_meta_m, upstream_import_manifest,
-                       de_meta_r, de_results, _de_meta_m, upstream_de_manifest, annotation ->
+                       de_meta_r, de_results_file, _de_meta_m, upstream_de_manifest, annotation ->
                     def meta = [
                         id        : 'rnaseq.report.candidate_genes',
                         provider  : 'candidate_genes_v1',
@@ -92,10 +108,12 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
                         analysis_id: de_meta_r.analysis_id
                     ]
                     tuple(meta, upstream_import_manifest, abundance, samples, annotation,
-                        de_results, upstream_de_manifest, genes_file, report_parameters_base64)
+                        de_results_file, upstream_de_manifest, genes_file, report_parameters_base64)
                 }
             RNASEQ_REPORT(report_sources)
             final_status = RNASEQ_REPORT.out.status
+            report_artifacts = RNASEQ_REPORT.out.artifacts
+            report_manifest = RNASEQ_REPORT.out.manifest
             native_logs = native_logs.mix(RNASEQ_REPORT.out.reports)
         } else {
             final_status = deg_status
@@ -105,4 +123,13 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
     emit:
     status = final_status
     logs   = native_logs
+    results = de_results
+    common_results = de_common_results
+    manifest = de_manifest
+    normalized_counts = de_normalized_counts
+    model_manifest = de_model_manifest
+    contrast_results = de_contrast_results
+    contrast_manifest = de_contrast_manifest
+    report_artifacts = report_artifacts
+    report_manifest = report_manifest
 }
