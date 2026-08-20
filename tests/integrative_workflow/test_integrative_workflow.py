@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import shutil
 import sys
 import tempfile
@@ -145,6 +146,13 @@ class TerminalAndIsolationTest(unittest.TestCase):
         self.assertNotIn("LEGACY_STEP", active)
         self.assertNotIn("pipelines/integrative/legacy", active)
         self.assertNotIn(".done", active)
+
+    def test_archived_scientific_golden_checksums_are_intact(self):
+        archive = ROOT / "tests" / "integrative_legacy_characterization"
+        for line in (archive / "checksums.sha256").read_text(encoding="utf-8").splitlines():
+            expected, relative = line.split(maxsplit=1)
+            payload = (archive / "golden" / relative).read_bytes().replace(b"\r\n", b"\n")
+            self.assertEqual(expected, hashlib.sha256(payload).hexdigest(), relative)
 
     def test_all_wires_terminal_bundles_not_completion_tokens(self):
         active = (ROOT / "workflows" / "all.nf").read_text(encoding="utf-8")
