@@ -147,6 +147,23 @@ class TerminalAndIsolationTest(unittest.TestCase):
         self.assertNotIn("pipelines/integrative/legacy", active)
         self.assertNotIn(".done", active)
 
+        retired = (
+            "pipelines/integrative/legacy",
+            "subworkflows/local/integrative/integration.nf",
+            "modules/local/legacy_step",
+            "bin/run_legacy_step.sh",
+            "bin/check_legacy_scripts.sh",
+        )
+        for relative in retired:
+            path = ROOT / relative
+            self.assertFalse(path.is_file(), relative)
+            self.assertFalse(path.is_dir() and any(item.is_file() for item in path.rglob("*")), relative)
+
+        public_config = (ROOT / "nextflow.config").read_text(encoding="utf-8")
+        public_schema = (ROOT / "nextflow_schema.json").read_text(encoding="utf-8")
+        self.assertNotIn("legacy_dry_run", public_config + public_schema)
+        self.assertNotIn("integrative_config", public_config + public_schema)
+
     def test_archived_scientific_golden_checksums_are_intact(self):
         archive = ROOT / "tests" / "integrative_legacy_characterization"
         for line in (archive / "checksums.sha256").read_text(encoding="utf-8").splitlines():
