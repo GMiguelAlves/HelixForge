@@ -1,0 +1,14 @@
+name: chipseq_evidence_provider
+description: Converts explicitly bound ChIP terminal artifacts into Standardized Evidence Model v1.
+keywords: [chipseq, evidence, integration, manifest]
+input:
+  - meta: Stable provider identity.
+  - run_manifest: Integration API v1 ChIP terminal manifest.
+  - bindings: Explicit artifact_id to declared_index mapping.
+  - declared_artifacts: Files or directories staged as Nextflow path inputs.
+output:
+  - artifacts: Evidence directory with only available datasets.
+  - manifest: Evidence Manifest v1.
+  - reports: Validation report and execution log.
+  - versions: Runtime and contract versions.
+  - status: Completion record.

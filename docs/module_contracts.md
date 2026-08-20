@@ -4,7 +4,7 @@ This document defines the interface required for every new native Nextflow DSL2
 module in HelixForge. The contract standardizes orchestration and provenance; it
 does not force unrelated scientific tools to produce the same file types.
 
-Contract version: `2.6`
+Contract version: `2.7`
 
 This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
 later native module.
@@ -374,3 +374,10 @@ scan published result trees or infer assay, sample, contrast, condition, stage,
 mark, peak type or scientific role from a filename. Locations must declare
 their resolution kind, and schema, semantic and filesystem validation remain
 separate operations.
+
+Contract 2.7 adds Evidence Provider modules. Their input is a terminal run
+manifest, an explicit `artifact_id` binding document and the corresponding
+tracked `path` inputs. A provider may open only bound staged files, must omit
+unavailable optional datasets, and must emit an Evidence Manifest plus typed
+datasets, validation, versions and status. BAMs and visualization tracks are
+not staged merely because they occur in the terminal catalog.

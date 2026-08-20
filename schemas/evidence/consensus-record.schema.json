@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://helixforge.dev/schemas/evidence/consensus-record.schema.json",
+  "title": "Consensus peak evidence record v1", "type": "object",
+  "required": ["evidence_id", "peak_id", "mark_or_factor", "chromosome", "start", "end", "source_artifact_id"],
+  "properties": {"evidence_id": {"type": "string"}, "peak_id": {"type": "string", "minLength": 1}, "mark_or_factor": {"type": "string", "minLength": 1}, "condition": {"type": "string"}, "stage": {"type": "string"}, "chromosome": {"type": "string"}, "start": {"type": "integer", "minimum": 0}, "end": {"type": "integer", "minimum": 1}, "peak_type": {"enum": ["narrow", "broad"]}, "support": {}, "support_replicates": {"type": "string"}, "strategy": {"type": "string"}, "source_artifact_id": {"type": "string"}}
+}

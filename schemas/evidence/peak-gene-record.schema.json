@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://helixforge.dev/schemas/evidence/peak-gene-record.schema.json",
+  "title": "Peak-gene evidence record v1", "type": "object",
+  "required": ["evidence_id", "peak_id", "source_entity_id", "relationship", "source_artifact_id"],
+  "properties": {"evidence_id": {"type": "string"}, "peak_id": {"type": "string", "minLength": 1}, "source_entity_id": {"type": "string", "minLength": 1}, "normalized_entity_id": {"type": "string"}, "normalization_rule": {"const": "none"}, "relationship": {"type": "string"}, "distance_to_tss": {"type": ["number", "null"]}, "position_class": {"type": "string"}, "mark_or_factor": {"type": "string"}, "condition": {"type": "string"}, "stage": {"type": "string"}, "source_artifact_id": {"type": "string"}}
+}
