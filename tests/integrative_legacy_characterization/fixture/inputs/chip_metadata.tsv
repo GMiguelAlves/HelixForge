@@ -1,0 +1,7 @@
+sample_id	mark_or_factor	condition	replicate	batch
+ac_cerc_1	H3K27ac	cercariae	1	chip_batch1
+ac_adult_1	H3K27ac	adult	1	chip_batch1
+me3_cerc_1	H3K27me3	cercariae	1	chip_batch2
+me3_adult_1	H3K27me3	adult	1	chip_batch2
+hp1_cerc_1	HP1	cercariae	1	chip_batch1
+hp1_adult_1	Smp_179650	adult	1	chip_batch1

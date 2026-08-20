@@ -1,0 +1,9 @@
+gene_id	term	description
+geneA	chromatin;development	Chromatin regulator
+geneB	chromatin	Repressive chromatin target
+geneC	metabolism	Metabolic enzyme
+geneD	signaling;development	Signaling regulator
+geneE	development	Developmental effector
+geneF	chromatin	Chromatin reader
+geneG	stress	Stress response
+geneH	uncharacterized	Uncharacterized protein
