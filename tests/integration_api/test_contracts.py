@@ -44,7 +44,7 @@ class SchemaExamplesTest(unittest.TestCase):
 
     def test_all_schema_documents_are_json_objects_with_identifiers(self):
         paths = sorted((ROOT / "schemas" / "integration").rglob("*.json"))
-        self.assertEqual(7, len(paths))
+        self.assertEqual(8, len(paths))
         for path in paths:
             document = json.loads(path.read_text(encoding="utf-8"))
             self.assertIsInstance(document, dict)
