@@ -83,3 +83,8 @@ e o relatório HTML final de 37.472 bytes.
 Os runtimes OCI restantes foram construídos/fixados por digest e passaram
 testes funcionais reduzidos no GitHub Actions `32368534261`. A referência
 Apptainer usa as mesmas imagens OCI, mas não foi executada no cluster.
+
+Uma tentativa posterior em Debian 13 confirmou, pelos jobs Slurm `14748` e
+`14749`, que nenhum runtime de containers está instalado nos nós. O kernel
+oferece FUSE e user namespaces, mas não foi feita instalação ad hoc de
+Apptainer no ambiente compartilhado.
