@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helixforge.dev/schemas/integration/integrative-run-manifest.schema.json",
+  "title": "HelixForge Integrative terminal run manifest v1",
+  "type": "object",
+  "required": ["schema_version", "integration_api_version", "type", "id", "status", "run", "reference", "input_manifests", "compatibility", "models", "policies", "artifacts", "component_manifests", "record_counts", "provenance"],
+  "properties": {
+    "schema_version": {"const": "1.0"}, "integration_api_version": {"const": "1.0"}, "type": {"const": "integrative_run_manifest"},
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"}, "status": {"enum": ["complete", "stub"]},
+    "run": {"type": "object"}, "reference": {"type": "object"}, "input_manifests": {"type": "array", "minItems": 2, "maxItems": 2},
+    "compatibility": {"type": "object"}, "models": {"type": "object"}, "policies": {"type": "object"},
+    "artifacts": {"type": "array", "items": {"$ref": "#/$defs/artifact"}}, "component_manifests": {"type": "array"},
+    "record_counts": {"type": "object"}, "provenance": {"type": "object"}
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object", "required": ["artifact_id", "artifact_type", "format", "location", "checksum", "source_manifest_id"],
+      "properties": {
+        "artifact_id": {"type": "string"}, "artifact_type": {"type": "string"}, "format": {"type": "string"}, "records": {"type": ["integer", "null"]},
+        "location": {"type": "object", "required": ["kind", "path"], "properties": {"kind": {"const": "run_relative"}, "path": {"type": "string"}}},
+        "checksum": {"type": "object", "required": ["algorithm", "value"], "properties": {"algorithm": {"const": "sha256"}, "value": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}},
+        "source_manifest_id": {"type": "string"}
+      }
+    }
+  }
+}

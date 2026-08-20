@@ -1,0 +1,3 @@
+name: helixforge-functional-analysis-1.0
+channels: [conda-forge]
+dependencies: [python=3.12.4]

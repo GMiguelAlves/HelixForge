@@ -1,0 +1,8 @@
+name: integrative_report
+description: Self-contained scientific HTML report over structured Integrative outputs
+keywords: [report, html, provenance]
+input:
+  - scientific_products: {type: directory}
+output:
+  - report: {type: directory}
+  - html: {type: file}

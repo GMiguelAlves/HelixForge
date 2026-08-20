@@ -1,0 +1,8 @@
+name: integrative_run_manifest
+description: Terminal manifest for a native Integrative execution
+keywords: [manifest, integration-api, provenance]
+input:
+  - component_manifests: {type: file}
+  - datasets: {type: directory}
+output:
+  - manifest: {type: file}

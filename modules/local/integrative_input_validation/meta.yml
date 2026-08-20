@@ -1,0 +1,11 @@
+name: integrative_input_validation
+description: Validate and materialize portable RNA-seq and ChIP-seq terminal manifests
+keywords: [integration, validation, provenance]
+tools:
+  - python: {description: Python standard library}
+input:
+  - manifests: {type: file, description: RNA-seq and ChIP-seq terminal manifests}
+  - integration_artifacts: {type: directory, description: Portable manifest-relative evidence artifacts}
+output:
+  - bundle: {type: directory, description: Validated semantic input bundle}
+  - versions: {type: file, description: Software versions}

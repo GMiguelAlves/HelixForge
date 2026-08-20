@@ -4,6 +4,7 @@
   "title": "HelixForge Integration API v1 terminal manifest",
   "oneOf": [
     {"$ref": "rnaseq-run-manifest.schema.json"},
-    {"$ref": "chipseq-run-manifest.schema.json"}
+    {"$ref": "chipseq-run-manifest.schema.json"},
+    {"$ref": "integrative-run-manifest.schema.json"}
   ]
 }
