@@ -14,6 +14,8 @@ process RUN_MANIFEST {
 
     publishDir { "${params.outdir}/${meta.assay}" },
         mode: 'copy', overwrite: true, pattern: "${meta.assay}_run_manifest.json"
+    publishDir { "${params.outdir}/${meta.assay}" },
+        mode: 'copy', overwrite: true, pattern: 'integration_artifacts'
     publishDir "${params.outdir}/pipeline_info/integration_api",
         mode: 'copy', overwrite: true, pattern: '*.{json,yml,done,log}'
 
@@ -26,6 +28,7 @@ process RUN_MANIFEST {
 
     output:
     tuple val(meta), path("${meta.assay}_run_manifest.json"), emit: artifacts
+    tuple val(meta), path("${meta.assay}_run_manifest.json"), path('integration_artifacts'), emit: bundle
     tuple val(meta), path('run_manifest.validation.json'), path('run_manifest.log'), emit: reports
     tuple val(meta), path('run_manifest.versions.yml'), emit: versions
     tuple val(meta), path('run_manifest.done'), emit: status
@@ -45,6 +48,7 @@ process RUN_MANIFEST {
         ${sourceArgs} \
         ${artifactArgs} \
         --artifact-specs-base64 '${artifact_specs_base64}' \
+        --portable-integration-dir integration_artifacts \
         ${contrastArg} \
         --output '${meta.assay}_run_manifest.json' \
         --validation-report run_manifest.validation.json \
@@ -68,6 +72,7 @@ process RUN_MANIFEST {
         ${sourceArgsStub} \
         ${artifactArgsStub} \
         --artifact-specs-base64 '${artifact_specs_base64}' \
+        --portable-integration-dir integration_artifacts \
         ${contrastArgStub} \
         --status stub \
         --skip-json-schema \

@@ -44,11 +44,15 @@ def _rna(manifest: dict[str, Any], bindings: dict[str, Path], output: Path) -> l
     unit_by_type = {"gene_abundance": "TPM", "gene_counts": "counts", "normalized_counts": "normalized_counts"}
     de_artifacts = [item for item in manifest.get("artifacts", []) if item.get("artifact_type") in {"differential_expression", "differential_expression_summary"}]
     prefer_contrast_de = any(item.get("artifact_type") == "differential_expression" and item.get("contrast_id") for item in de_artifacts)
+    expression_types = {item.get("artifact_type") for item in manifest.get("artifacts", []) if item.get("artifact_id") in bindings}
+    preferred_expression_type = "gene_abundance" if "gene_abundance" in expression_types else "normalized_counts" if "normalized_counts" in expression_types else "gene_counts"
     for artifact in manifest.get("artifacts", []):
         kind, artifact_id = artifact["artifact_type"], artifact["artifact_id"]
         if kind not in RNA_TYPES:
             continue
         if prefer_contrast_de and kind == "differential_expression_summary":
+            continue
+        if kind in unit_by_type and kind != preferred_expression_type:
             continue
         if artifact_id not in bindings:
             raise ValueError(f"missing explicit binding for integration evidence artifact {artifact_id}")
