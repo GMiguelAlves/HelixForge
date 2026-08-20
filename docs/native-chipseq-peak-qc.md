@@ -64,9 +64,7 @@ nextflow run . -profile local --workflow chipseq \
 ```
 
 The numerical genome size above is only an example; no organism or assembly is
-selected automatically. Use `--chipseq_native_peak_qc false` to stop after
-native Peak Calling. There is no real legacy FRiP provider, so the fallback
-does not fabricate or run a second implementation.
+selected automatically. Use `--chipseq_run_mode peaks` to stop before Peak QC.
 
 The pinned Conda environment contains Python 3.12.4, SAMtools 1.20, and BEDTools
 2.31.1. `peak_qc_container` now points to the joint image published and tested

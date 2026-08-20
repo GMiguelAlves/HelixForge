@@ -38,16 +38,7 @@ artifact path, then run:
 ```bash
 nextflow run . -profile local --workflow chipseq \
   --chipseq_run_mode report \
-  --chipseq_native_report true \
   --chipseq_report_input_manifest /path/to/chipseq_report_input.json
-```
-
-The unchanged fallback is:
-
-```bash
-nextflow run . -profile local --workflow chipseq \
-  --chipseq_run_mode report \
-  --chipseq_native_report false
 ```
 
 The renderer supports `--chipseq_report_provider html_v1`,

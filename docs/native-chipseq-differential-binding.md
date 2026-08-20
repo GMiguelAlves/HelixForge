@@ -36,9 +36,8 @@ technical records as independent samples, inferred contrasts, count
 pre-normalization, ComBat, multimapping, fractional/multiple assignment and IDR
 results are rejected.
 
-Set `--chipseq_native_differential_binding false` to execute the unchanged
-legacy `differential` step in this dedicated mode. Native `full` requires this
-provider and does not permit fallback.
+Both the dedicated mode and `full` require this provider. The former legacy
+step is available only from `chipseq-legacy-v1.0.0`.
 
 ## Cache behavior
 

@@ -89,38 +89,11 @@ The native Alignment provider stops before MAPQ/flag selection. The
 `post_alignment` mode applies those later policies through independent native
 contracts.
 
-Legacy fallback remains available only through supported dedicated modes, such
-as `chipseq_native_foundation=false`, `chipseq_native_peak_calling=false` for
-the `peaks`/`peak_qc` peak step, or native consensus disabled for `consensus`.
-`chipseq_run_mode=full` is exclusively native.
-
-Dedicated `annotation` mode uses this fallback when
-`chipseq_native_peak_annotation=false`.
-Dedicated `tracks` mode uses this fallback when `chipseq_native_tracks=false`;
-native tracks consume an external final-BAM inventory and do not rerun upstream
-stages.
-Dedicated `report` mode uses this fallback when `chipseq_native_report=false`;
-native report mode consumes existing manifests only and never reruns upstream
-stages.
-
-| Nextflow alias | Legacy step | Direct legacy script |
-|---|---|---|
-| `CHIPSEQ_REFERENCE_STEP` | `reference` | `prepare_reference.sh`, which calls `create_annotation_beds.py` |
-| `CHIPSEQ_QC_STEP` | `qc` | `fastq_qc.sh` for samples and MultiQC targets |
-| `CHIPSEQ_TRIM_STEP` | `trim` | `trim.sh` |
-| `CHIPSEQ_ALIGNMENT_STEP` | `align` | `align.sh` |
-| `CHIPSEQ_FILTER_STEP` | `filter` | `filter.sh` |
-| `CHIPSEQ_BAM_QC_STEP` | `bam_qc` | `bam_qc.sh` for samples, fingerprint, and MultiQC |
-| `CHIPSEQ_PEAK_CALLING_STEP` | `peaks` | `call_peaks.sh` for IP samples |
-| `CHIPSEQ_CONSENSUS_STEP` | `consensus` | `consensus_peaks.sh` |
-| `CHIPSEQ_DIFFERENTIAL_BINDING_STEP` | `differential` | `differential_binding.sh` and `r/differential_binding.R` |
-| `CHIPSEQ_ANNOTATION_STEP` | `annotate` | `annotate_peaks.sh` and `r/annotate_peaks.R` |
-| `CHIPSEQ_TRACKS_STEP` | `tracks` | `tracks.sh` for samples and aggregate tracks |
-| `CHIPSEQ_REPORT_STEP` | `report` | `report.sh` and `r/render_report.R` |
-
-`chipseq_pipeline.sh` invokes config and metadata validators before the selected
-step. `cleanup_storage.sh` is intentionally not part of the Nextflow graph
-because deleting intermediates can invalidate future cache/provenance work.
+All ChIP-seq stage modes now resolve exclusively to the native modules above.
+The former aliases, coordinator and scripts were removed after the final
+snapshot `chipseq-legacy-v1.0.0`. That tag remains the authoritative mapping for
+historical regression. Destructive storage cleanup is intentionally absent from
+the Nextflow graph because it can invalidate future cache and provenance work.
 
 ## Integrative
 

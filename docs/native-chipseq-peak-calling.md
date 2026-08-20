@@ -37,7 +37,8 @@ The command is constructed as an argument vector by a small Python runner, never
 
 The legacy caller uses MACS2/MACS3 without a fixed version, derives genome size from chromosome lengths when configured as `auto`, infers broad marks from a regular expression, and leaves MACS duplicate behavior implicit. Native v1 deliberately rejects those implicit decisions. Both retain per-IP calling, optional matched input, BAM/BAMPE selection and q-value support.
 
-`--chipseq_run_mode peaks` uses the native API when `--chipseq_native_peak_calling true`. When false, only the legacy `peaks` step is invoked. Native `full` requires the native caller; native and legacy callers are never run simultaneously for one mode.
+`--chipseq_run_mode peaks` always uses the native API. The legacy caller is
+preserved only in the `chipseq-legacy-v1.0.0` tag.
 
 ## Validation status
 

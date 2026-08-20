@@ -68,11 +68,12 @@ packages. At most five scientific jobs were queued concurrently.
 | Annotation | Yes on Slurm | Semantic invariants | CONDITIONAL | Coordinates, configured promoter window and aggregate passed |
 | Tracks | Yes on Slurm | Semantic invariants | CONDITIONAL | Three individual and one aggregate BigWig passed |
 | Report | Yes on Slurm | Contract and content checks | CONDITIONAL | Full IDR path produced and validated a 37,472-byte HTML report |
+| Top-level ChIP-seq | Yes on Slurm | Scientific invariants | READY_TO_RETIRE | Native `full` passed through report; IDR also passed as an optional branch |
 | Integrative | Manifest contract only | Legacy implementation retained | CONDITIONAL | No new analytic implementation was in scope |
 | Top-level RNA-seq | Yes on Slurm | Scientific invariants | READY_TO_RETIRE | QC -> Salmon -> Import -> DESeq2 -> Gene Report passed; runtime cache remains an external operational issue |
 
-`READY_TO_RETIRE` now applies to the supported complete RNA-seq production path.
-It does not apply to ChIP-seq or Integrative legacy pipelines.
+`READY_TO_RETIRE` applies to the supported complete RNA-seq and ChIP-seq
+production paths. It does not apply to the Integrative legacy pipeline.
 
 ## Real scientific results
 
@@ -479,12 +480,10 @@ scientific execution document.
 
 ## Retirement decision
 
-The RNA-seq legacy path is ready for retirement after the production Import
-policy, native foundation, certified MultiQC, DESeq2 batch design and native
-Gene Report were completed. The annotated `rnaseq-legacy-v1.0.0` tag preserves
-its final executable snapshot. ChIP-seq and Integrative legacy pipelines remain
-available until their dedicated retirement passes. The remaining technical
-blocker recorded here is:
+The RNA-seq and ChIP-seq legacy paths completed their retirement gates. The
+annotated tags `rnaseq-legacy-v1.0.0` and `chipseq-legacy-v1.0.0` preserve their
+final executable snapshots. Integrative remains available until its dedicated
+retirement pass. The remaining technical blocker recorded here is:
 
 1. unresolved task-cache persistence in the available Nextflow runtime.
 
@@ -498,7 +497,7 @@ The detailed decisions and deviations are tracked in
 
 ## Next controlled pass
 
-1. Complete the dedicated retirement review for the remaining legacy paths.
+1. Complete the dedicated retirement review for Integrative.
 2. Reproduce the task-cache issue with an administrator-supported runtime and
    continue the upstream report.
 3. After release, run the top-level RNA-seq and ChIP-seq workflows on reviewed

@@ -1,9 +1,9 @@
 # ChIP-seq legacy analysis
 
-This audit is based on the commands executed by
-`pipelines/chipseq/legacy/chipseq_pipeline.sh` and the scripts it dispatches.
-The legacy implementation is evidence of current behaviour, not the scientific
-specification for the native workflow.
+This historical audit is based on the commands preserved in the
+`chipseq-legacy-v1.0.0` tag, formerly under
+`pipelines/chipseq/legacy/`. The legacy implementation is evidence of previous
+behaviour, not the scientific specification for the current native workflow.
 
 ## Real execution graph
 

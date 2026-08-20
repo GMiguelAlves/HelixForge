@@ -5,11 +5,6 @@ set -euo pipefail
 project_root="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
 required=(
-    "pipelines/chipseq/legacy/chipseq_pipeline.sh"
-    "pipelines/chipseq/legacy/config/pipeline_config.sh"
-    "pipelines/chipseq/legacy/scripts/010-reference/prepare_reference.sh"
-    "pipelines/chipseq/legacy/scripts/080-peak-calling/call_peaks.sh"
-    "pipelines/chipseq/legacy/scripts/120-differential-binding/differential_binding.sh"
     "pipelines/integrative/legacy/integrative_pipeline.sh"
     "pipelines/integrative/legacy/config/pipeline_config.sh"
     "pipelines/integrative/legacy/scripts/integrative_core.py"
