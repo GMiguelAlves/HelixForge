@@ -4,7 +4,7 @@ This document defines the interface required for every new native Nextflow DSL2
 module in HelixForge. The contract standardizes orchestration and provenance; it
 does not force unrelated scientific tools to produce the same file types.
 
-Contract version: `2.5`
+Contract version: `2.6`
 
 This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
 later native module.
@@ -366,3 +366,11 @@ versioned. Report outputs must include rendered content, machine-readable
 tables, figures, manifest, execution metadata, versions, session information
 and input lineage. Exploratory matrices or figures must never become implicit
 inputs to differential inference.
+
+Contract 2.6 adds Integration API terminal run manifests. Terminal assemblers
+receive normalized metadata, a Reference Bundle manifest, upstream manifests,
+tracked artifacts and semantic descriptors directly from the DAG. They may not
+scan published result trees or infer assay, sample, contrast, condition, stage,
+mark, peak type or scientific role from a filename. Locations must declare
+their resolution kind, and schema, semantic and filesystem validation remain
+separate operations.

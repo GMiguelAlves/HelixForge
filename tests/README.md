@@ -22,6 +22,12 @@ stub blocks. It does not run scientific tools.
 top-level stubs. It does not run featureCounts, DESeq2, containers, Slurm,
 biological regression or benchmarks.
 
+Integration API v1 contracts are covered by `tests/integration_api`. They
+validate the terminal RNA/ChIP examples, schema/semantic/filesystem failure
+layers and cross-assay reference compatibility. CI installs the pinned
+`jsonschema` runtime before discovery; local runs without it execute every
+semantic test and report only the Draft 2020-12 engine check as skipped.
+
 The `validation/` datasets will hold golden scientific outputs. They are kept
 separate from syntax/stub tests because byte-for-byte comparison is not valid
 for every bioinformatics format.

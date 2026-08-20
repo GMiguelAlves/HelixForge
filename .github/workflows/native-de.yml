@@ -23,7 +23,9 @@ jobs:
       - name: Install Nextflow
         run: curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
       - name: Run Python unit tests
-        run: python3 tests/run_unit_tests.py
+        run: |
+          python3 -m pip install --disable-pip-version-check jsonschema==4.23.0
+          python3 tests/run_unit_tests.py
       - name: Validate contracts
         run: |
           tests/native_de/run_invalid_inputs.sh
