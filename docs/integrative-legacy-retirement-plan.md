@@ -41,4 +41,3 @@ Retirement requires green Stage 2–6 contract/regression suites, the complete
 12-process reduced run, schema-valid terminal product, accepted documentation,
 and correct `workflow all` bundle wiring. Reviewed biological benchmarks are a
 post-retirement release activity and are not part of this gate.
-
