@@ -1,0 +1,36 @@
+name: Molecular interpretation
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  interpretation-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install certified Nextflow
+        run: curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
+      - name: Run interpretation tests
+        run: |
+          python3 -m pip install --disable-pip-version-check jsonschema==4.23.0
+          python3 -m unittest tests.interpretation.test_interpretation -v
+      - name: Prepare standardized evidence fixture
+        run: python3 tests/molecular_integration/prepare_fixture.py --output /tmp/helixforge-interpretation-fixture
+      - name: Lint Stage 5 DSL2
+        run: ./nextflow lint modules/local/regulatory_interpretation/main.nf modules/local/candidate_scoring/main.nf modules/local/cross_assay_statistics/main.nf tests/interpretation/main.nf
+      - name: Validate Stage 5 stubs
+        run: ./nextflow run tests/interpretation/main.nf -c tests/interpretation/nextflow.config --rna_evidence /tmp/helixforge-interpretation-fixture/rna --chip_evidence /tmp/helixforge-interpretation-fixture/chip --outdir /tmp/interpretation-stub -stub-run
+      - name: Run dependency-free Stage 5 fixture
+        run: |
+          ./nextflow run tests/interpretation/main.nf -c tests/interpretation/nextflow.config --rna_evidence /tmp/helixforge-interpretation-fixture/rna --chip_evidence /tmp/helixforge-interpretation-fixture/chip --outdir /tmp/interpretation-real
+          python3 bin/validate_interpretation.py /tmp/interpretation-real/integration/interpretation/final/interpretation/interpretation_manifest.json

@@ -1,0 +1,9 @@
+canonical_entity_id	gene_name	is_gene_of_interest	is_epigenetic_machinery	machinery_group	wgcna_hit	mfuzz_hit	dtu_hit	splicing_hit	functional_annotation
+geneA	Alpha	true	true	chromatin_remodeler	true	false	false	false	Chromatin regulator
+geneB	Beta	false	false		false	true	false	false	Repressive chromatin target
+geneC	Gamma	false	false		false	false	true	false	Metabolic enzyme
+geneD	Delta	false	false		false	false	false	true	Signaling regulator
+geneE	Epsilon	false	false		false	false	false	false	Developmental effector
+geneF	Phi	true	true	chromatin_reader	false	false	false	false	Chromatin reader
+geneG	Gamma2	false	false		false	false	false	false	Stress response
+geneH	Eta	false	false		false	false	false	false	Uncharacterized protein
