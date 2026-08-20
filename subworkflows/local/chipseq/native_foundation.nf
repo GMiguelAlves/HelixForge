@@ -19,13 +19,13 @@ include { CHIPSEQ_FULL_REPORT_INPUT } from '../../../modules/local/chipseq_full_
 workflow CHIPSEQ_NATIVE_FOUNDATION {
     take:
     config_file
-    legacy_root
+    pipeline_root
     _seed
 
     main:
     mode = params.chipseq_run_mode.toString().toLowerCase()
     context_meta = channel.value([id: 'chipseq.context'])
-    CHIPSEQ_CONTEXT(config_file, legacy_root, context_meta)
+    CHIPSEQ_CONTEXT(config_file, pipeline_root, context_meta)
     CHIPSEQ_METADATA(CHIPSEQ_CONTEXT.out.artifacts)
 
     peak_context_artifacts_ch = channel.empty()
@@ -125,12 +125,6 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             ? file(selected_blacklist, checkIfExists: true) \
             : []
         def duplicate_mode = params.chipseq_duplicate_mode.toString().toLowerCase()
-        if (duplicate_mode == 'legacy') {
-            if (row.remove_duplicates.toBoolean() && row.dedup_tool.toLowerCase() != 'samtools') {
-                error "Native duplicate compatibility currently supports samtools only; legacy DEDUP_TOOL is '${row.dedup_tool}'"
-            }
-            duplicate_mode = row.remove_duplicates.toBoolean() ? 'remove' : 'none'
-        }
         record_meta = record_meta + [
             bam_duplicate_policy: duplicate_mode,
             bam_min_mapq         : params.chipseq_min_mapq != null ? params.chipseq_min_mapq as Integer : row.min_mapq as Integer,
@@ -286,9 +280,6 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
         alignment_reports_ch = ALIGNMENT.out.reports
 
         if (mode in ['post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'full']) {
-            if (!params.chipseq_native_bam_processing) {
-                error 'chipseq_run_mode=post_alignment requires chipseq_native_bam_processing=true'
-            }
             processing_context = records.map {
                 record_meta, _record_reads, reference_text, _annotation_path, _alignment_params, bam_params ->
                 tuple(record_meta.id, file(reference_text, checkIfExists: true), bam_params)
@@ -318,9 +309,6 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             bam_artifacts_ch = CHIPSEQ_BAM_PROCESSING.out.artifacts
 
             if (mode in ['peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'full']) {
-                if (!params.chipseq_native_peak_calling.toString().toBoolean()) {
-                    error "chipseq_run_mode=${mode} requires chipseq_native_peak_calling=true in the native path"
-                }
                 PEAK_CALLING(
                     CHIPSEQ_BAM_PROCESSING.out.artifacts,
                     CHIPSEQ_BAM_PROCESSING.out.final_manifest,
@@ -331,7 +319,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                 peak_manifests_ch = PEAK_CALLING.out.manifests
                 peak_reports_ch = PEAK_CALLING.out.reports
 
-                if (mode in ['peak_qc', 'consensus', 'idr', 'differential_binding', 'full'] && params.chipseq_native_peak_qc.toString().toBoolean()) {
+                if (mode in ['peak_qc', 'consensus', 'idr', 'differential_binding', 'full']) {
                     def peak_qc_spec = [
                         unit                     : params.chipseq_frip_unit,
                         min_mapq                 : params.chipseq_frip_min_mapq,
@@ -362,9 +350,6 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                     peak_qc_reports_ch = PEAK_QC.out.reports
 
                     if (mode in ['consensus', 'idr', 'differential_binding', 'full']) {
-                        if (!params.chipseq_native_consensus.toString().toBoolean()) {
-                            error "chipseq_run_mode=${mode} requires chipseq_native_consensus=true in the native path"
-                        }
                         def strategy = mode == 'idr' ? 'idr' : params.chipseq_consensus_method?.toString()?.toLowerCase()
                         if (!(strategy in ['union', 'intersection', 'replicate_support', 'idr'])) {
                             error 'Consensus mode requires explicit --chipseq_consensus_method union|intersection|replicate_support|idr'
@@ -394,9 +379,6 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                         consolidation_reports_ch = CONSENSUS_IDR.out.reports
 
                         if (mode in ['differential_binding', 'full']) {
-                            if (!params.chipseq_native_differential_binding.toString().toBoolean()) {
-                                error 'chipseq_run_mode=differential_binding requires chipseq_native_differential_binding=true in the native path'
-                            }
                             def db_spec_file = file(params.chipseq_db_spec, checkIfExists: true)
                             DIFFERENTIAL_BINDING(
                                 CONSENSUS_IDR.out.artifacts,
@@ -412,12 +394,6 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                             differential_binding_reports_ch = DIFFERENTIAL_BINDING.out.reports
 
                             if (mode == 'full') {
-                                if (!params.chipseq_native_peak_annotation.toString().toBoolean() ||
-                                    !params.chipseq_native_tracks.toString().toBoolean() ||
-                                    !params.chipseq_native_report.toString().toBoolean()) {
-                                    error 'chipseq_run_mode=full requires native peak annotation, tracks, and report providers'
-                                }
-
                                 full_project_meta_ch = plan_rows
                                     .map { row ->
                                         tuple(row.dataset, row.genome_id, row.organism)
@@ -637,7 +613,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             : (mode in ['consensus', 'idr'] \
             ? consolidation_status_ch \
             : (mode == 'peak_qc' \
-            ? (params.chipseq_native_peak_qc.toString().toBoolean() ? peak_qc_status_ch : peak_status_ch) \
+            ? peak_qc_status_ch \
             : (mode == 'peaks' ? peak_status_ch : (mode == 'post_alignment' ? bam_status_ch : alignment_status_ch))))))
 
     emit:

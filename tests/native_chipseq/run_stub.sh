@@ -8,7 +8,5 @@ nextflow_bin=${NEXTFLOW_BIN:-nextflow}
     -stub-run \
     -ansi-log false \
     --workflow chipseq \
-    --chipseq_native_foundation true \
     --chipseq_run_mode alignment \
     --outdir tests/results/native_chipseq/stub
-

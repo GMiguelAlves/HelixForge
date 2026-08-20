@@ -13,7 +13,8 @@ config/metadata.tsv
 Create them with:
 
 ```bash
-bash scripts/init_project.sh
+cp pipelines/chipseq/config/user_settings_template.sh pipelines/chipseq/config/user_settings.sh
+cp pipelines/chipseq/config/metadata_template.tsv pipelines/chipseq/config/metadata.tsv
 ```
 
 `config/pipeline_config.sh` is the advanced configuration engine. It loads
@@ -22,8 +23,6 @@ defaults used by the scripts.
 
 Useful settings in `config/user_settings.sh`:
 
-- `PIPELINE_EXECUTOR`: use `slurm` or `local`
-- `CONDA_BASE`: path to Conda on the HPC server
 - `OUTPUT_DIR`: light project outputs such as logs, copied configs, and reports
 - `WORK_ROOT`: heavy outputs on scratch, including indexes, trimmed FASTQs,
   BAMs, peaks, tracks, and count matrices
@@ -32,8 +31,9 @@ Useful settings in `config/user_settings.sh`:
 - `DIFF_PEAK_SET_SCOPE`: use `mark_all` to run differential binding only on
   `MARK__all` consensus peak sets, stratified by `mark_or_factor`; use `all`
   only when condition-specific peak sets should also be tested
-- `PIPELINE_STORAGE_MODE`: use `full`, `balanced`, or `minimal` to control
-  cleanup after the final report
+- `THREADS`, `MEMORY`, and `SLURM_TIME`: configuration-adapter resource defaults
+  consumed by the native configuration adapter when a module has no explicit
+  override
 
 Gzipped reference files are supported:
 
@@ -42,8 +42,5 @@ export GENOME_FASTA="/path/to/genome.fa.gz"
 export ANNOTATION_FILE="/path/to/annotation.gtf.gz"
 ```
 
-They are decompressed into `010-reference/data/` before indexing.
-
-`config/pipeline_config.local.example.sh` is kept only for backward
-compatibility with an earlier ChIP-seq layout. Prefer
-`config/user_settings_template.sh`.
+The workflow resolves these paths through the native ChIP-seq context and
+submits every scientific process through Nextflow.

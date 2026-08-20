@@ -18,7 +18,7 @@ process CHIPSEQ_CONTEXT {
 
     input:
     path config_file
-    val legacy_root
+    val pipeline_root
     val meta
 
     output:
@@ -29,7 +29,7 @@ process CHIPSEQ_CONTEXT {
 
     script:
     """
-    export PROJECT_DIR='${legacy_root}'
+    export PROJECT_DIR='${pipeline_root}'
     export PIPELINE_CONFIG="\$PWD/${config_file}"
     source "\$PIPELINE_CONFIG"
 

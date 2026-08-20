@@ -5,7 +5,7 @@
 #
 #   cp config/user_settings_template.sh config/user_settings.sh
 #   edit config/user_settings.sh
-#   bash chipseq_pipeline.sh --all --dry-run
+#   nextflow run . --workflow chipseq --chipseq_run_mode full
 
 set -o pipefail
 
@@ -85,12 +85,6 @@ if [[ -f "$USER_SETTINGS_FILE" ]]; then
   source_optional_settings "$USER_SETTINGS_FILE"
 fi
 
-# Backward-compatible local config name from earlier versions.
-export LOCAL_CONFIG="${LOCAL_CONFIG:-${PROJECT_DIR}/config/pipeline_config.local.sh}"
-if [[ ! -f "$USER_SETTINGS_FILE" && -f "$LOCAL_CONFIG" ]]; then
-  source_optional_settings "$LOCAL_CONFIG"
-fi
-
 if [[ -n "${CONDA_BASE:-}" ]]; then
   export CONDA_BASE="$(resolve_path_from_dir "$USER_SETTINGS_DIR" "$CONDA_BASE")"
 fi
@@ -144,21 +138,6 @@ for path_var in LOG_DIR REF_DIR METADATA_DIR QC_DIR TRIM_DIR ALIGN_DIR FILTER_DI
   normalize_project_path_var "$path_var"
 done
 unset path_var
-
-# Active executables live in scripts/. The numbered directories mirror the
-# user-facing work/result areas, following the RNA-seq pipeline layout.
-export REF_SCRIPTS_DIR="${REF_SCRIPTS_DIR:-${SCRIPTS_DIR}/010-reference}"
-export QC_SCRIPTS_DIR="${QC_SCRIPTS_DIR:-${SCRIPTS_DIR}/030-qc-fastq}"
-export TRIM_SCRIPTS_DIR="${TRIM_SCRIPTS_DIR:-${SCRIPTS_DIR}/040-trimming}"
-export ALIGN_SCRIPTS_DIR="${ALIGN_SCRIPTS_DIR:-${SCRIPTS_DIR}/050-alignment}"
-export FILTER_SCRIPTS_DIR="${FILTER_SCRIPTS_DIR:-${SCRIPTS_DIR}/060-filtering}"
-export BAM_QC_SCRIPTS_DIR="${BAM_QC_SCRIPTS_DIR:-${SCRIPTS_DIR}/070-qc-alignment}"
-export PEAK_SCRIPTS_DIR="${PEAK_SCRIPTS_DIR:-${SCRIPTS_DIR}/080-peak-calling}"
-export ANNOTATION_SCRIPTS_DIR="${ANNOTATION_SCRIPTS_DIR:-${SCRIPTS_DIR}/090-peak-annotation}"
-export TRACK_SCRIPTS_DIR="${TRACK_SCRIPTS_DIR:-${SCRIPTS_DIR}/100-tracks}"
-export CONSENSUS_SCRIPTS_DIR="${CONSENSUS_SCRIPTS_DIR:-${SCRIPTS_DIR}/110-consensus-peaks}"
-export DIFF_SCRIPTS_DIR="${DIFF_SCRIPTS_DIR:-${SCRIPTS_DIR}/120-differential-binding}"
-export REPORT_SCRIPTS_DIR="${REPORT_SCRIPTS_DIR:-${SCRIPTS_DIR}/130-reports}"
 
 # Organism-dependent reference files. These must be supplied by the user.
 export GENOME_FASTA="${GENOME_FASTA:-${REFERENCE_DIR}/genome.fa}"
@@ -239,20 +218,6 @@ export DIFF_CONTRASTS="${DIFF_CONTRASTS:-}"        # Example: treated:control,dr
 export MIN_REPLICATES_DIFF="${MIN_REPLICATES_DIFF:-2}"
 export REQUIRE_DIFF_REPLICATES="${REQUIRE_DIFF_REPLICATES:-false}"
 export DIFF_PEAK_SET_SCOPE="${DIFF_PEAK_SET_SCOPE:-mark_all}" # mark_all or all
-
-# Slurm submission mode for sample-level steps.
-# array: submit one Slurm array per step, using --array=1-N%CONCURRENCY.
-# individual: submit one sbatch job per sample, with dependency throttling.
-export SLURM_SAMPLE_SUBMISSION_MODE="${SLURM_SAMPLE_SUBMISSION_MODE:-array}"
-
-# Slurm concurrency for sample-level steps.
-export QC_CONCURRENCY="${QC_CONCURRENCY:-8}"
-export TRIM_CONCURRENCY="${TRIM_CONCURRENCY:-4}"
-export ALIGN_CONCURRENCY="${ALIGN_CONCURRENCY:-2}"
-export FILTER_CONCURRENCY="${FILTER_CONCURRENCY:-2}"
-export BAM_QC_CONCURRENCY="${BAM_QC_CONCURRENCY:-4}"
-export PEAKS_CONCURRENCY="${PEAKS_CONCURRENCY:-4}"
-export TRACKS_CONCURRENCY="${TRACKS_CONCURRENCY:-4}"
 
 # Storage policy for generated intermediates.
 #
