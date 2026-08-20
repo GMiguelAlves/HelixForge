@@ -57,3 +57,28 @@ Esta rodada certifica a composição e a funcionalidade de cada imagem. O DAG
 ChIP-seq completo já passou no Slurm com runtimes Conda controlados, mas ainda
 não foi repetido de ponta a ponta com o perfil Docker ou Apptainer. A regressão
 biológica revisada permanece planejada para depois da aposentadoria do legado.
+
+## Tentativa de validação no Slurm após Debian 13
+
+Em 20 de agosto de 2026, dois probes mínimos foram submetidos ao Slurm após a
+atualização do cluster para Debian 13. Nenhum comando científico foi executado
+no head node.
+
+| Job | Nó | Resultado |
+|---|---|---|
+| `14748` | `srv-slurm-node-04` | Docker, Apptainer, Singularity, Podman, Enroot, Charliecloud e Shifter indisponíveis; sistema de módulos ausente. |
+| `14749` | `srv-slurm-node-04` | `/dev/fuse` acessível e `unshare --user --map-root-user` funcional; `curl` e `cpio` disponíveis, mas `rpm2cpio` ausente. |
+
+O caminho `full` não foi iniciado porque não existe runtime capaz de executar
+as imagens OCI nos nós. A instalação relocável não privilegiada do Apptainer é
+tecnicamente plausível, mas exigiria introduzir e manter dependências próprias
+fora da infraestrutura certificada pelos administradores. Essa instalação não
+foi realizada em um cluster compartilhado.
+
+Estado da etapa: **concluída com limitação operacional externa**, sem falha
+científica do HelixForge. A ausência de um Apptainer administrado no head/nós,
+com acesso aos registries GHCR/Quay e aos mounts `/home` e `/scratch`, não é um
+release gate. Se essa infraestrutura for disponibilizada futuramente, repetir
+o probe versionado em `tests/slurm/probe_container_runtimes.sh`, testar um pull
+por digest e executar o fixture completo com `-profile slurm,apptainer` e
+`executor.queueSize=5` como certificação operacional adicional.
