@@ -77,6 +77,13 @@ from DAG channels; consumers do not inspect the `results/` layout or infer
 meaning from filenames. See the [Integration API](docs/integration_api.md) and
 [terminal manifest guide](docs/terminal_manifests.md).
 
+Independent RNA and ChIP Evidence Providers implement the next anti-corruption
+boundary. They convert explicitly staged terminal artifacts into typed molecular
+evidence without combining assays or knowing the `results/` layout. The
+[Standardized Evidence Model v1](docs/evidence_model.md) documents datasets,
+units, provenance, validation and the semantic regression against the frozen
+Integrative baseline.
+
 Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy
 `assets/rnaseq_de_spec.example.json` and adapt it to the study metadata.

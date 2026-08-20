@@ -22,15 +22,19 @@ flowchart TB
     RNA --> GATE["completion status barrier"]
     CHIP --> GATE
     GATE --> INT
-    RM -. "Integration API v1" .-> FUTURE["future Evidence Providers"]
-    CM -. "Integration API v1" .-> FUTURE
+    RM -. "Integration API v1" .-> REP["RNA Evidence Provider"]
+    CM -. "Integration API v1" .-> CEP["ChIP Evidence Provider"]
+    REP -. "Evidence Model v1" .-> FUTURE["future harmonization/integration"]
+    CEP -. "Evidence Model v1" .-> FUTURE
 ```
 
 `ALL` starts RNA-seq and ChIP-seq independently and exposes both Integration
 API v1 terminal manifests. It still waits for the completion channels before
 invoking the unchanged Integrative coordinator. That coordinator remains a
-legacy boundary and does not consume the new manifests yet; converting them to
-standardized molecular evidence belongs to the next migration stage.
+legacy boundary and does not consume the new manifests yet. Independent RNA
+and ChIP providers can now convert explicitly bound terminal artifacts to the
+[Standardized Evidence Model v1](evidence_model.md); connecting and harmonizing
+those datasets is deliberately deferred.
 
 ## RNA-seq native DAG
 
@@ -149,6 +153,10 @@ The terminal assay boundary is specified separately by
 Contrast and Provenance objects live under `schemas/integration/`; schema,
 semantic and filesystem validation are deliberately independent. These run
 manifests are semantic APIs, not directory inventories.
+
+The next boundary is the [Standardized Evidence Model v1](evidence_model.md).
+Its providers produce typed TSV evidence and a small JSON catalog without
+joining assays or scanning published result directories.
 
 Scientific parameters remain explicit in `nextflow.config` and are all exposed
 by `nextflow_schema.json`. Scheduler queues, resources and environment engines

@@ -106,9 +106,11 @@ Examples are in `assets/examples/rnaseq_run_manifest.example.json` and
 `assets/examples/chipseq_run_manifest.example.json`; both are exercised by the
 contract tests.
 
-## Deliberate v1 boundary
+## Evidence-provider boundary
 
-The terminal manifest describes products of an assay run. RNA/ChIP Evidence
-Providers, ID harmonization, stage/mark canonicalization, the Master Molecular
-Evidence Table, integration classes, candidate scoring and functional analysis
-belong to later stages and are not implemented here.
+The terminal manifest describes products of an assay run. Standardized RNA and
+ChIP Evidence Providers now consume that contract plus explicitly staged
+artifacts, as specified by the [Evidence Model v1](evidence_model.md). They do
+not yet perform cross-assay ID harmonization, stage/mark canonicalization, a
+Master Molecular Evidence Table, integration classes, candidate scoring or
+functional analysis.
