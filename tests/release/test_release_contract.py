@@ -48,6 +48,14 @@ class ReleaseContractTest(unittest.TestCase):
         self.assertNotIn("LEGACY_STEP", active)
         self.assertFalse((ROOT / "pipelines" / "integrative" / "legacy").is_file())
 
+    def test_doctor_and_repository_hygiene_are_versioned(self):
+        doctor = ROOT / "bin" / "helixforge-doctor"
+        self.assertTrue(doctor.is_file())
+        self.assertIn("Nextflow 25.10.7 is required", doctor.read_text(encoding="utf-8"))
+        attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+        self.assertIn("*.tsv text eol=lf", attributes)
+        self.assertIn("*.bam -text", attributes)
+
 
 if __name__ == "__main__":
     unittest.main()
