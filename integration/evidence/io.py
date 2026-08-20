@@ -72,7 +72,16 @@ def load_bindings(path: Path, declared: list[Path]) -> dict[str, Path]:
     bindings: dict[str, Path] = {}
     for entry in entries:
         artifact_id = entry.get("artifact_id", "")
-        if "declared_index" in entry:
+        if "declared_name" in entry:
+            declared_name = str(entry["declared_name"])
+            matches = [item for item in declared if item.name == declared_name]
+            if len(matches) != 1:
+                raise ValueError(
+                    f"binding {artifact_id} declared_name {declared_name!r} "
+                    f"matched {len(matches)} declared artifacts"
+                )
+            candidate = matches[0]
+        elif "declared_index" in entry:
             index = int(entry["declared_index"])
             if index < 0 or index >= len(declared):
                 raise ValueError(f"binding {artifact_id} has invalid declared_index {index}")

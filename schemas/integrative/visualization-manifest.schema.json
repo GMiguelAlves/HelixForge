@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helixforge.dev/schemas/integrative/visualization-manifest.schema.json",
+  "type": "object",
+  "required": ["schema_version", "visualization_model_version", "type", "id", "status", "renderer", "datasets", "record_counts", "provenance"],
+  "properties": {
+    "schema_version": {"const": "1.0"}, "visualization_model_version": {"const": "1.0"}, "type": {"const": "integrative_visualization"},
+    "id": {"type": "string"}, "status": {"enum": ["complete", "stub"]}, "reference": {"type": "object"},
+    "input_manifests": {"type": "array"}, "renderer": {"type": "object"}, "datasets": {"type": "array"}, "record_counts": {"type": "object"}, "provenance": {"type": "object"}
+  }
+}

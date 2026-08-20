@@ -5,9 +5,10 @@ overview of the current architecture, workflows, execution, and development.
 Planned scientific APIs are tracked in the [roadmap](docs/roadmap.md).
 
 HelixForge is a Nextflow DSL2 implementation for RNA-seq, ChIP-seq, and
-IntegrateSeq analyses. RNA-seq is fully native; its retired implementation is
-archived in the immutable `rnaseq-legacy-v1.0.0` tag. ChIP-seq and IntegrateSeq
-retain compatibility boundaries while their remaining providers are migrated.
+IntegrateSeq analyses. RNA-seq and ChIP-seq are fully native and their retired
+implementations are archived by immutable legacy tags. Integrative Stage 6 is
+fully native; its unchanged executable legacy path remains temporarily as a
+regression oracle until the dedicated retirement pull request.
 
 The RNA-seq input boundary and QC layer are native: validated local FASTQs and
 metadata feed a checksummed Reference Bundle, FastQC, Trim Galore, per-sample
@@ -88,9 +89,9 @@ Cross-Assay Harmonization v1 validates complete reference identity and
 reconciles genes, contexts, semantic contrasts and ChIP marks through explicit,
 auditable maps. Molecular Evidence Integration v1 preserves all RNA,
 gene-associated ChIP and region-only observations in a canonical long table and
-builds a full-outer gene summary plus peak counts by gene/mark/context. It does
-not yet classify regulation, score or rank candidates, perform enrichment or
-replace the top-level Integrative coordinator. See the
+builds a full-outer gene summary plus peak counts by gene/mark/context. Native
+downstream consumers now classify regulation, score/rank candidates, perform
+functional analysis and produce the terminal report. See the
 [Cross-Assay Integration contract](docs/cross_assay_integration.md).
 
 Regulatory Interpretation v1 now preserves the seven characterized legacy
@@ -98,9 +99,13 @@ evidence classes while exposing a separate directional RNA–ChIP pattern with a
 machine-readable reason. HelixForge Candidate Score v1 exposes all twelve
 historical components and uses deterministic tie-breaking. Cross-assay Fisher,
 BH and descriptive Pearson/Spearman outputs are packaged in a checksummed
-Interpretation Manifest. These components remain outside the unchanged
-top-level Integrative coordinator; see the
-[interpretation and prioritization contract](docs/regulatory_interpretation.md).
+Interpretation Manifest. Stage 6 composes those products with Functional
+Analysis, checksummed SVG visualization, a searchable HTML report and an
+Integrative terminal manifest. The top-level coordinator is fully native and
+accepts only RNA/ChIP terminal bundles; the executable legacy path is retained
+solely for the later isolated retirement PR. See the [native Integrative
+workflow](docs/integrative-native-workflow.md) and [interpretation and
+prioritization contract](docs/regulatory_interpretation.md).
 
 Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy
@@ -152,6 +157,14 @@ Inspect the complete graph without running scientific tools:
 
 ```bash
 nextflow run . -profile test -stub-run --workflow all
+```
+
+Re-enter the native Integrative workflow from portable terminal products:
+
+```bash
+nextflow run . -profile local --workflow integrative \
+  --rna_manifest /path/to/rna/rnaseq_run_manifest.json \
+  --chip_manifest /path/to/chip/chipseq_run_manifest.json
 ```
 
 Compile the native ChIP-seq foundation without scientific tools:

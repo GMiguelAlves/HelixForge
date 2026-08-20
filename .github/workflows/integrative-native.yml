@@ -1,0 +1,63 @@
+name: Native integrative workflow
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  integrative-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install certified Nextflow and schema runtime
+        run: |
+          curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
+          python3 -m pip install --disable-pip-version-check jsonschema==4.23.0
+      - name: Run Stage 6 contracts
+        run: python3 -m unittest discover -s tests/integrative_workflow -p 'test_*.py' -v
+      - name: Prepare portable terminal manifests
+        run: python3 tests/integrative_workflow/prepare_fixture.py --output /tmp/helixforge-integrative-fixture
+      - name: Validate terminal input schemas
+        run: |
+          python3 bin/validate_integration_manifest.py /tmp/helixforge-integrative-fixture/rna/rnaseq_run_manifest.json --layer schema
+          python3 bin/validate_integration_manifest.py /tmp/helixforge-integrative-fixture/chip/chipseq_run_manifest.json --layer schema
+      - name: Lint native Integrative DSL2
+        run: >-
+          ./nextflow lint workflows/integrative.nf workflows/all.nf
+          subworkflows/local/integrative/native_integration.nf
+          modules/local/integrative_input_validation/main.nf
+          modules/local/functional_analysis/main.nf
+          modules/local/integrative_visualization/main.nf
+          modules/local/integrative_report/main.nf
+          modules/local/integrative_run_manifest/main.nf
+          tests/integrative_workflow/main.nf
+      - name: Validate the 12-process stub DAG
+        run: >-
+          ./nextflow run tests/integrative_workflow/main.nf
+          -c tests/integrative_workflow/nextflow.config
+          --rna_manifest /tmp/helixforge-integrative-fixture/rna/rnaseq_run_manifest.json
+          --chip_manifest /tmp/helixforge-integrative-fixture/chip/chipseq_run_manifest.json
+          --outdir /tmp/integrative-stub -stub-run
+      - name: Validate workflow-all terminal-bundle wiring
+        run: ./nextflow run . -profile test -stub-run --workflow all --outdir /tmp/all-stub
+      - name: Run reduced native Integrative workflow
+        run: >-
+          ./nextflow run tests/integrative_workflow/main.nf
+          -c tests/integrative_workflow/nextflow.config
+          --rna_manifest /tmp/helixforge-integrative-fixture/rna/rnaseq_run_manifest.json
+          --chip_manifest /tmp/helixforge-integrative-fixture/chip/chipseq_run_manifest.json
+          --outdir /tmp/integrative-real
+      - name: Validate terminal product
+        run: |
+          test -s /tmp/integrative-real/integration/integrative_run_manifest.json
+          python3 bin/validate_integration_manifest.py /tmp/integrative-real/integration/integrative_run_manifest.json --layer schema
+          test -s /tmp/integrative-real/integration/100-report/integrative_report/integrative_report.html

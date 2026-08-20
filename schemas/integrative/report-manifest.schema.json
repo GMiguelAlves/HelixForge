@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helixforge.dev/schemas/integrative/report-manifest.schema.json",
+  "type": "object",
+  "required": ["schema_version", "report_model_version", "type", "id", "status", "science_recalculated", "sections", "datasets", "record_counts", "provenance"],
+  "properties": {
+    "schema_version": {"const": "1.0"}, "report_model_version": {"const": "1.0"}, "type": {"const": "integrative_report"},
+    "id": {"type": "string"}, "status": {"enum": ["complete", "stub"]}, "title": {"type": "string"}, "reference": {"type": "object"},
+    "science_recalculated": {"const": false}, "input_manifests": {"type": "array"}, "sections": {"type": "array"}, "datasets": {"type": "array"}, "record_counts": {"type": "object"}, "provenance": {"type": "object"}
+  }
+}

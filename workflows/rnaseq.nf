@@ -17,6 +17,7 @@ workflow RNASEQ {
     }
 
     terminal_manifest = channel.empty()
+    terminal_bundle = channel.empty()
     RNASEQ_NATIVE_FOUNDATION(config_file, pipeline_root, seed)
     RNASEQ_QC(RNASEQ_NATIVE_FOUNDATION.out.qc_plans)
     if (run_mode == 'qc') {
@@ -172,6 +173,7 @@ workflow RNASEQ {
                     }
                 RUN_MANIFEST(terminal_inputs)
                 terminal_manifest = RUN_MANIFEST.out.artifacts
+                terminal_bundle = RUN_MANIFEST.out.bundle
                 downstream_logs = downstream_logs.mix(RUN_MANIFEST.out.reports)
             }
         }
@@ -180,6 +182,7 @@ workflow RNASEQ {
     emit:
     completed = completed_status
     terminal_manifest = terminal_manifest
+    terminal_bundle = terminal_bundle
     logs      = RNASEQ_NATIVE_FOUNDATION.out.logs
         .mix(RNASEQ_QC.out.logs)
         .mix(analysis_logs)

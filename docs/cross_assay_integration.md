@@ -28,7 +28,7 @@ flowchart LR
     I --> MASTER[master_evidence.tsv]
     I --> PEAKS[peak_aggregation.tsv]
     I --> MANIFEST[integration_manifest.json]
-    MASTER -. future .-> STAGE5[Classification and candidate scoring]
+    MASTER --> STAGE5[Classification and candidate scoring]
 ```
 
 The long table is the lossless primary representation. The gene-level master

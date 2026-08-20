@@ -1,0 +1,8 @@
+name: integrative_visualization
+description: Dependency-light SVG renderer over structured Integrative outputs
+keywords: [visualization, svg, reporting]
+input:
+  - interpretation: {type: directory}
+  - functional: {type: directory}
+output:
+  - visualization: {type: directory}
