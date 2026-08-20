@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helixforge.dev/schemas/integrative/functional-test-record.schema.json",
+  "type": "object",
+  "required": ["test_id", "term", "tested_gene_set", "background_gene_set", "n11", "n10", "n01", "n00", "odds_ratio", "pvalue", "padj", "method", "alternative", "multiple_testing_family"],
+  "properties": {
+    "test_id": {"type": "string"}, "term": {"type": "string"}, "tested_gene_set": {"type": "string"}, "background_gene_set": {"type": "string"},
+    "n11": {"type": "integer", "minimum": 0}, "n10": {"type": "integer", "minimum": 0}, "n01": {"type": "integer", "minimum": 0}, "n00": {"type": "integer", "minimum": 0},
+    "odds_ratio": {"type": "number", "minimum": 0}, "pvalue": {"type": "number", "minimum": 0, "maximum": 1}, "padj": {"type": "number", "minimum": 0, "maximum": 1},
+    "method": {"const": "fisher_exact"}, "alternative": {"const": "greater"}, "multiple_testing_family": {"type": "string"}
+  }
+}

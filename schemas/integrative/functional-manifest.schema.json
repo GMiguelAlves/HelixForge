@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helixforge.dev/schemas/integrative/functional-manifest.schema.json",
+  "type": "object",
+  "required": ["schema_version", "functional_model_version", "type", "id", "status", "reference", "selection", "methods", "datasets", "record_counts", "provenance"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "functional_model_version": {"const": "1.0"},
+    "type": {"const": "functional_analysis"},
+    "id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["complete", "complete_empty", "stub"]},
+    "reference": {"type": "object"},
+    "input_interpretation_manifest": {"type": "object"},
+    "annotation": {"type": "object"},
+    "selection": {"type": "object"},
+    "methods": {"type": "object"},
+    "datasets": {"type": "array", "items": {"type": "object"}},
+    "record_counts": {"type": "object"},
+    "provenance": {"type": "object"}
+  }
+}

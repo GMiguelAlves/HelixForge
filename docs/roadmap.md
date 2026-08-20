@@ -80,7 +80,8 @@ ChIP-seq legacy retirement is complete and its final source is preserved by
 `chipseq-legacy-v1.0.0`. The only remaining executable legacy workflow is
 Integrative.
 
-1. Complete the native Integrative release and retire its approved legacy path.
+1. Review the completed native Integrative Stage 6 and retire its frozen legacy
+   path in a separate pull request/tag boundary.
 2. Validate RNA-seq and ChIP-seq with reviewed biological
    datasets.
 3. Implement Batch Effect Assessment as an optional exploratory subworkflow.
