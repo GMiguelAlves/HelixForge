@@ -69,7 +69,7 @@ class IntegrativeLegacyCharacterizationTest(unittest.TestCase):
         manifest = json.loads((BASE_DIR / "baseline_manifest.json").read_text(encoding="utf-8"))
         observed_inputs = {
             str(path.relative_to(FIXTURE_DIR)).replace("\\", "/"): sha256(path)
-            for path in sorted((FIXTURE_DIR / "inputs").rglob("*"))
+            for path in sorted(FIXTURE_DIR.rglob("*"))
             if path.is_file()
         }
         observed_golden = {

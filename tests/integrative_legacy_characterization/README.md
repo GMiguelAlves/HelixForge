@@ -22,6 +22,20 @@ fixture change:
 python tests/integrative_legacy_characterization/generate_golden.py
 ```
 
+The Bash wrappers can be characterized separately without visualization:
+
+```bash
+bash pipelines/integrative/legacy/integrative_pipeline.sh \
+  --config tests/integrative_legacy_characterization/fixture/pipeline_config.sh \
+  --mode local --force \
+  --step validate --step prepare --step harmonize --step map-peaks \
+  --step summarize-rna --step summarize-chip --step integrate --step score \
+  --step functional --step report
+```
+
+That check exercises `.done` behavior but does not store `.done` files as
+scientific golden outputs.
+
 The golden text is normalized only for line endings, absolute fixture paths and
 timestamps. Scientific values are not normalized. `baseline_manifest.json`
 records the source commit, commands, environment and input/output checksums.
@@ -31,4 +45,3 @@ dependency chain was installed for this characterization pass. Plot files are
 specified in `docs/integrative-legacy-audit.md` and classified as
 `VISUAL_NOT_REGRESSION_CRITICAL`; the Python-generated report is characterized
 without figures.
-
