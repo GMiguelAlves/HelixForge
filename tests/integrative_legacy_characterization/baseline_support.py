@@ -97,6 +97,11 @@ def normalized_text(path: Path, output_root: Path) -> str:
     text = text.replace("<FIXTURE_ROOT>\\", "<FIXTURE_ROOT>/")
     text = text.replace("<OUTPUT_ROOT>\\", "<OUTPUT_ROOT>/")
     text = re.sub(
+        r"(<(?:FIXTURE_ROOT|OUTPUT_ROOT)>[^\t\n<]*)",
+        lambda match: match.group(1).replace("\\", "/"),
+        text,
+    )
+    text = re.sub(
         r"Generated(?::| )\s*\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}",
         "Generated: <TIMESTAMP>",
         text,

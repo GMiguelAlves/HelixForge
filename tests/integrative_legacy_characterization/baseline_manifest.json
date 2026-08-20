@@ -3,7 +3,7 @@
   "type": "legacy_integrative_baseline",
   "id": "integrative.legacy.characterization.v1",
   "status": "complete",
-  "repository_commit": "e643f8d4018faf2a60e723b94dc065bf82e3023e",
+  "repository_commit": "3dea4bdd3327fbafa9eb0c898021c83c02e5b9b6",
   "legacy_source_commit": "c07db5c3e5a68e1d8fda595c6d5302c5c0e96701",
   "commands": [
     "validate",
@@ -39,6 +39,7 @@
     "TOP_CANDIDATES_N": 4
   },
   "input_checksums": {
+    "expected_behavior.json": "22469dd939fa6366b52c07d9b30acb61c76e36436787579972aa1c13e8aff9da",
     "inputs/annotated_peaks_fixture.tsv": "b7e6dd0251b0ebdf3504f96a1db23e97ce9d9fb8c959bd0cca119b639c66a4cd",
     "inputs/annotation.gtf": "19de06ccce1427c966917f9e460579168058868827a81e02ccb20a001de8354f",
     "inputs/chip_metadata.tsv": "0f4ac3ea62da5866895a88097f4fa2e95e8ad3f5172bd31dfec194fb752f2d60",
@@ -54,13 +55,14 @@
     "inputs/rna_metadata.tsv": "654439f4923d9b187b220f3ae3f52f8c9cc306746cfe0c3c2dcc5d582673aec6",
     "inputs/splicing_hits.tsv": "8d657249607b7878eeed93d8173d474471e6ec8ac7e2df878bea52d6a649ce01",
     "inputs/tpm_matrix.tsv": "9ade6068a0f181c1db1fbe4fe1578c4c76388f58ef5a5a6379f4ce8324fc4082",
-    "inputs/wgcna_hits.tsv": "9b91df18d2655e2eeaeda8be9fe748428dfb7b100efbfdd3950a58c21057e4bf"
+    "inputs/wgcna_hits.tsv": "9b91df18d2655e2eeaeda8be9fe748428dfb7b100efbfdd3950a58c21057e4bf",
+    "pipeline_config.sh": "14e269e6cd297ac023f57f7c5b26debfe4c2a4a8faa1d353507973b44c538079"
   },
   "golden_checksums": {
-    "core/020-prepared-inputs/input_manifest.tsv": "f3f5eddfa612a9241f261be3ca54d80757cdee7eb86ec1cc7f44d5285fc1ed41",
+    "core/020-prepared-inputs/input_manifest.tsv": "6b085a0522ee31796cf86e11b4953abccff25b421afe05938e265679ed12dea2",
     "core/020-prepared-inputs/metadata_combined.tsv": "6382160220a531275d085422eb34ec647e7269fd1ac1b126f6d82e5a992d6c5d",
     "core/020-prepared-inputs/rnaseq_deg_normalized.tsv": "2fb0a55e6d2fec797698db6a25c1f7fd727aee60fb652bc43fa2729229eb8eb1",
-    "core/030-id-harmonization/epigenetic_machinery_catalog.tsv": "4a4ea68d4fa1d6d7dd1e90fd987b45c0b29f5bf2c376e2b0eef2a04f8a294915",
+    "core/030-id-harmonization/epigenetic_machinery_catalog.tsv": "f27e71dbc00d457ffcc51ceb5870e4d9e8aca8177bf3f5e691f6f4c1842b43b4",
     "core/030-id-harmonization/gene_master_table.tsv": "abc1b2f369627b5c30c6f05f2dae879778f4778ed523174b8e4956c316ea39dd",
     "core/030-id-harmonization/unmapped_genes.tsv": "6b9c6e93d04c20bd621990c4373309dd21dff9e61b1ccba5eb748cb505ea12e6",
     "core/040-peak-gene-mapping/distal_peak_gene_links.tsv": "0b02b998ffff548fe5790d064f15a08b92c69af258b3d88bdb466faa836b2960",
@@ -82,8 +84,8 @@
     "core/070-integrated-tables/mark_to_gene_catalog.tsv": "e50de9b2a3c7bbb6fc4ecdb8828b8bd5eb8068dd353a2eb457fb70f1a246c185",
     "functional/100-functional-analysis/functional_enrichment.tsv": "295346148c400e525f33768924a5ad048be1968345bcd156373c2d65f0377c96",
     "reporting/010-input-validation/validation_report.md": "5ab0ea26db48a1225c1acfb1a4b8cf4c495d4c555ef85397dee739d5d8e96e00",
-    "reporting/010-input-validation/validation_report.tsv": "7dbc0470055e170998e7ec68d1ebdd24cc0a43d7ae1c88c73fa11146531c9fd0",
-    "reporting/110-reports/integrative_report.html": "6d7a31370f9cdbbca7881aa2ae046847b5e03da6ed3bb1fafcda9f65f847d3db",
+    "reporting/010-input-validation/validation_report.tsv": "cdd3a491534f29c212ce1edefb7ad78566eb300d2253e8f9ae20718ff847c350",
+    "reporting/110-reports/integrative_report.html": "bf18c99917208f0d73b5068c5f8729ba334a8e6cbe61261854f61b0986fb88b2",
     "reporting/110-reports/integrative_report.md": "dc81ea5a33492781337ee56c8f3a78116a44d019688b414cce225ca68e8f082f",
     "scoring/080-candidate-scoring/candidate_gene_scores.tsv": "758a3f74886d152898ef9e9b3cd311f2a5aad36ab187a2d12d38adf0d4a87efc",
     "scoring/080-candidate-scoring/candidate_regulators.tsv": "f2f0144465cdc5db4470dd2025d20e46cde2a0a5357542773e140f1a0d604c2b",
