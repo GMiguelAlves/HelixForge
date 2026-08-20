@@ -1,0 +1,38 @@
+name: Evidence providers
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  evidence-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install certified Nextflow
+        run: curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
+      - name: Validate Python contracts and legacy projections
+        run: |
+          python3 -m pip install --disable-pip-version-check jsonschema==4.23.0
+          python3 -m unittest tests.evidence_providers.test_evidence_providers -v
+      - name: Lint DSL2
+        run: ./nextflow lint .
+      - name: Validate provider stubs
+        run: |
+          ./nextflow run tests/evidence_providers/main.nf -c tests/evidence_providers/nextflow.config --assay rnaseq --outdir /tmp/evidence-stub-rna -stub-run
+          ./nextflow run tests/evidence_providers/main.nf -c tests/evidence_providers/nextflow.config --assay chipseq --outdir /tmp/evidence-stub-chip -stub-run
+      - name: Run dependency-free provider fixtures
+        run: |
+          ./nextflow run tests/evidence_providers/main.nf -c tests/evidence_providers/nextflow.config --assay rnaseq --outdir /tmp/evidence-rna
+          ./nextflow run tests/evidence_providers/main.nf -c tests/evidence_providers/nextflow.config --assay chipseq --outdir /tmp/evidence-chip
+          python3 bin/validate_evidence.py /tmp/evidence-rna/integration/evidence/rnaseq/rnaseq_evidence/evidence_manifest.json
+          python3 bin/validate_evidence.py /tmp/evidence-chip/integration/evidence/chipseq/chipseq_evidence/evidence_manifest.json
