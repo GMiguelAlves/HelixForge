@@ -93,6 +93,15 @@ not yet classify regulation, score or rank candidates, perform enrichment or
 replace the top-level Integrative coordinator. See the
 [Cross-Assay Integration contract](docs/cross_assay_integration.md).
 
+Regulatory Interpretation v1 now preserves the seven characterized legacy
+evidence classes while exposing a separate directional RNA–ChIP pattern with a
+machine-readable reason. HelixForge Candidate Score v1 exposes all twelve
+historical components and uses deterministic tie-breaking. Cross-assay Fisher,
+BH and descriptive Pearson/Spearman outputs are packaged in a checksummed
+Interpretation Manifest. These components remain outside the unchanged
+top-level Integrative coordinator; see the
+[interpretation and prioritization contract](docs/regulatory_interpretation.md).
+
 Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy
 `assets/rnaseq_de_spec.example.json` and adapt it to the study metadata.
