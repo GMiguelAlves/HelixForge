@@ -219,7 +219,7 @@
     "chipseq_db_target_dir": { "type": ["string", "null"], "default": null },
     "featurecounts_container": { "type": "string", "default": "ghcr.io/gmiguelalves/helixforge-chipseq-counts:1.0.0@sha256:082005876efa7167b8b3f6fb477c78c8d60aed787f83eb3b2ca76b37c761fbf7" },
     "featurecounts_apptainer_container": { "type": "string", "default": "docker://ghcr.io/gmiguelalves/helixforge-chipseq-counts:1.0.0@sha256:082005876efa7167b8b3f6fb477c78c8d60aed787f83eb3b2ca76b37c761fbf7" },
-    "db_adapter_container": { "type": "string", "default": "ghcr.io/gmiguelalves/helixforge-import-python:1.0.0" },
+    "db_adapter_container": { "type": "string", "default": "ghcr.io/gmiguelalves/helixforge-import-python:1.0.0@sha256:f09bbd79be8b6a14b3addebfad2134a692b2cb78d253b86d667fc423a34fe456" },
     "db_count_queue": { "type": ["string", "null"], "default": null },
     "db_model_queue": { "type": ["string", "null"], "default": null },
     "db_contrast_queue": { "type": ["string", "null"], "default": null },
