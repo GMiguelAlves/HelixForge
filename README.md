@@ -84,6 +84,15 @@ evidence without combining assays or knowing the `results/` layout. The
 units, provenance, validation and the semantic regression against the frozen
 Integrative baseline.
 
+Cross-Assay Harmonization v1 validates complete reference identity and
+reconciles genes, contexts, semantic contrasts and ChIP marks through explicit,
+auditable maps. Molecular Evidence Integration v1 preserves all RNA,
+gene-associated ChIP and region-only observations in a canonical long table and
+builds a full-outer gene summary plus peak counts by gene/mark/context. It does
+not yet classify regulation, score or rank candidates, perform enrichment or
+replace the top-level Integrative coordinator. See the
+[Cross-Assay Integration contract](docs/cross_assay_integration.md).
+
 Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy
 `assets/rnaseq_de_spec.example.json` and adapt it to the study metadata.
