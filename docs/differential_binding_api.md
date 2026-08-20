@@ -160,9 +160,10 @@ count matrix, model and every contrast. Downstream annotation, motif, enrichment
 tracks, reports and Integration APIs must consume this manifest instead of
 reconstructing paths.
 
-## Legacy fallback
+## Retired implementation
 
-`chipseq_native_differential_binding=false` routes the dedicated mode to the
-unchanged `differential` legacy step. Native results deliberately do not reproduce
-positional BAM columns, inferred pairwise contrasts, automatic rounding or the
-non-inferential log2-mean fallback described in the legacy review.
+The dedicated mode always uses this native API. Native results deliberately do
+not reproduce positional BAM columns, inferred pairwise contrasts, automatic
+rounding or the non-inferential log2-mean behavior described in the historical
+review. The previous implementation remains available from
+`chipseq-legacy-v1.0.0` for audit and regression only.

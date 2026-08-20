@@ -41,7 +41,6 @@ It uses no scheduler, wrapper, or scientific dependency beyond Python.
 ```bash
 nextflow run . -profile local --workflow chipseq \
   --chipseq_run_mode annotation \
-  --chipseq_native_peak_annotation true \
   --chipseq_annotation_peaks /results/peaks.bed \
   --chipseq_annotation_peak_manifest /results/peak_manifest.json \
   --chipseq_annotation_reference /reference/genome.fa \
@@ -50,9 +49,8 @@ nextflow run . -profile local --workflow chipseq \
 ```
 
 The dedicated mode consumes existing artifacts and never calls peaks again.
-Set `--chipseq_native_peak_annotation false` for the unchanged legacy
-`annotate` fallback. Native `full` passes Consensus and Reference Bundle outputs
-directly to this API and does not permit fallback.
+Native `full` passes Consensus and Reference Bundle outputs directly to this
+API.
 
 ## Validation and outputs
 

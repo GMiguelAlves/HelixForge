@@ -1,6 +1,8 @@
 # ChIP-seq scientific review
 
-This review classifies decisions before they become native defaults.
+This document records the decisions made during the native migration. Its
+foundation-era validation notes are historical; current retirement evidence is
+in `docs/chipseq-legacy-retirement.md`.
 
 ## Decisions retained for the first native foundation
 
@@ -22,16 +24,16 @@ legacy downstream policy scientifically optimal.
 | Trimming | always scheduled; raw fallback | optional, deferred; raw input is explicit in foundation 0.1 |
 | MAPQ | 30 | explicit `BAM_SELECT` input; config-compatible default, overrideable |
 | Secondary/supplementary | removed | explicit exclude mask 2308; never hidden in aligner |
-| Duplicates | removed by default | native default `none`; explicit `mark/remove/legacy`, always measure before removal |
+| Duplicates | removed by default | native default `none`; explicit `mark/remove`, always measure before removal |
 | Blacklist | optional alignment-level exclusion | optional tracked BED; fragment default preserves paired templates, alignment mode is compatibility policy |
 | Mitochondrial/alternative contigs | not filtered | unsupported until an organism-independent policy exists |
 | Peak type | inferred by target regex | must be explicit narrow/broad |
 | Genome size | sum of contig lengths | require an explicit declared policy/value |
 | Missing controls | normally rejected | retain early validation; future exceptions must be explicit |
-| Consensus | union of any overlapping peak | legacy fallback only; define reproducibility/support rule first |
-| IDR | absent | future optional provider, not added in this stage |
-| Differential binding | DESeq2 `~ condition`, silent fallback | not migrated; future separate API must fail if its method is unavailable |
-| Annotation | first overlap/custom precedence | not migrated; document semantics before selecting a provider |
+| Consensus | union of any overlapping peak | explicit union, intersection, replicate-support or IDR strategy |
+| IDR | absent | optional native IDR 2.0.4.2 provider |
+| Differential binding | DESeq2 `~ condition`, silent fallback | explicit featureCounts/DESeq2 provider and versioned design/contrasts |
+| Annotation | first overlap/custom precedence | explicit provider, priority and coordinate policies |
 
 ## Metadata interpretation
 
@@ -59,16 +61,15 @@ Differences must be classified as technical (format/order), expected (declared
 policy), methodological (changed scientific decision) or defect. No stage is
 scientifically validated merely because its stub succeeds.
 
-## Known limitations after foundation 0.3
+## Known limitations retained after retirement
 
 - Native ChIP-seq trimming remains unimplemented. BAM processing and
-  per-record MACS3 peak calling are native; consensus remains future work.
+  downstream analysis consume the declared FASTQs directly.
 - Technical replicate merging is not implemented; records align independently.
-- The first provider is Bowtie2 only. The legacy BWA option remains fallback.
-- Container parity and a real reduced Bowtie2 regression depend on availability
-  of the pinned execution environment.
-- No FRiP, cross-correlation, library-complexity estimate, IDR or motif analysis
-  is claimed.
+- The supported alignment provider is Bowtie2; BWA is not exposed as a fallback.
+- FRiP and IDR are implemented. Cross-correlation, library-complexity estimates
+  and motif analysis are not currently claimed.
+- Reviewed biological regression remains a post-release milestone.
 
 ## Development validation
 
@@ -77,9 +78,8 @@ scientifically validated merely because its stub succeeds.
 - Native alignment stub: passed with one input control and two IP biological
   replicates (six FastQC tasks, MultiQC, one Bowtie2 index and three aligns).
 - Resume probe: every native foundation task was reported as cached.
-- Legacy full fallback stub: passed through reference, QC, trim, alignment,
-  filtering, BAM QC, peaks, consensus, differential, annotation, tracks and
-  report wrappers.
+- The historical full fallback stub passed during migration; the coordinator
+  was subsequently removed and preserved in `chipseq-legacy-v1.0.0`.
 - Metadata unit tests: six passed, covering multiple samples, controls,
   biological/technical replicates and representative invalid inputs.
 - Real SAMtools BAM processing: passed with paired MAPQ/flag selection,

@@ -6,7 +6,7 @@ provider-neutral Peak Calling API.
 
 ```mermaid
 flowchart TD
-    CFG["Legacy-compatible configuration"] --> CTX["CHIPSEQ_CONTEXT adapter"]
+    CFG["Versioned ChIP-seq configuration"] --> CTX["CHIPSEQ_CONTEXT adapter"]
     CTX --> META["CHIPSEQ_METADATA validation"]
     META --> PLAN["Explicit record/control plan"]
     PLAN --> FQ["FASTQC (reused)"]
@@ -73,7 +73,6 @@ flowchart TD
     RAGG --> RGEN["REPORT_GENERATOR / HTML + JSON"]
 
     FULL["chipseq_run_mode=full"] --> CFG
-    LEG["Legacy compatibility"] --> FALLBACK["explicit dedicated-mode fallbacks only"]
 ```
 
 ## Boundaries
@@ -118,7 +117,7 @@ flowchart TD
 - `CHIPSEQ_FULL_REPORT_INPUT` constructs the report inventory only from native
   manifests and checksum-declared semantic artifacts in the current execution.
 - Large data remain Nextflow outputs. Lightweight reports and provenance are
-  published under `pipeline_info` and optional legacy-compatible target paths.
+  published under `pipeline_info` and configured target paths.
 - `annotation`, `tracks`, and `report` remain standalone manifest-inventory
   re-entry modes. Under `full`, they are composed directly by channels and do
   not discover published result directories.

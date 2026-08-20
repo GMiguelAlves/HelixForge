@@ -12,7 +12,8 @@ declaring it scientifically equivalent to the native API. Files audited:
   `config/user_settings_template.sh`;
 - `envs/chipseq.yml` and the downstream report reader.
 
-All paths above are under `pipelines/chipseq/legacy/`.
+All paths above refer to the immutable `chipseq-legacy-v1.0.0` tag and are no
+longer present in the current source tree.
 
 ## Execution and dependencies
 
@@ -126,9 +127,9 @@ execution metadata, checksums or manifest is emitted.
 
 ## Native compatibility boundary
 
-The legacy filenames remain available through fallback, but the native API will
-not preserve unsafe positional joins, implicit contrasts, automatic rounding or
-the exploratory fallback. It will use semantic Consensus manifests, explicit
+The historical filenames remain available from the retirement tag, but the
+native API does not preserve unsafe positional joins, implicit contrasts,
+automatic rounding or the exploratory behavior. It uses semantic Consensus manifests, explicit
 BAM/sample mappings, an explicit counting provider, explicit filtering/design/
 contrasts, DESeq2-internal normalization and separate model/contrast cache
 boundaries. These are intentional scientific-contract changes and require later

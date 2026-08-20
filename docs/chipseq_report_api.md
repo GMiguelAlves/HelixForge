@@ -97,9 +97,7 @@ enter only the generator task. Consequently, a layout change invalidates only
 `REPORT_GENERATOR`; a changed downstream manifest invalidates the report graph
 without scheduling scientific producers.
 
-`--chipseq_run_mode report --chipseq_native_report true` requires
-`--chipseq_report_input_manifest`. Setting `--chipseq_native_report false`
-invokes the unchanged legacy report step only in dedicated `report` mode. Native
+`--chipseq_run_mode report` requires `--chipseq_report_input_manifest`. Native
 `full` builds the same inventory from current-session manifests and checksum-
 declared semantic artifacts, then executes this Report API without filesystem
 discovery.
