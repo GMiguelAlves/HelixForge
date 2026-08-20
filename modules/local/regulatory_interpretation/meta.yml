@@ -1,0 +1,14 @@
+name: regulatory_interpretation
+description: Applies versioned regulatory rules to Master Molecular Evidence.
+keywords: [integration, interpretation, regulatory, provenance]
+input:
+  - meta: Stable interpretation identity.
+  - integration: Complete staged Molecular Evidence Integration bundle.
+  - policy: Versioned thresholds and interpretation policy.
+  - mark_roles: Versioned regulatory mark-role catalog.
+output:
+  - artifacts: Regulatory classifications and component manifest.
+  - manifest: Regulatory Interpretation component manifest.
+  - reports: Execution log.
+  - versions: Runtime and model versions.
+  - status: Completion record.

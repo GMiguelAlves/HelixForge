@@ -1,0 +1,5 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://helixforge.dev/schemas/interpretation/correlation-record.schema.json","title":"HelixForge Cross-Assay Correlation v1","type":"object",
+  "required":["analysis_id","analysis_family","canonical_entity_id","canonical_mark","rna_metric","chip_metric","method","n","correlation","pvalue","padj","inference_status","correlation_note"],
+  "properties":{"analysis_id":{"type":"string"},"analysis_family":{"type":"string"},"canonical_entity_id":{"type":"string"},"canonical_mark":{"type":"string"},"rna_metric":{"const":"mean_TPM"},"chip_metric":{"enum":["total_associated_peaks","promoter_peaks"]},"method":{"enum":["pearson","spearman"]},"n":{"type":["integer","string"]},"correlation":{"type":["number","string"]},"pvalue":{"type":"string"},"padj":{"type":"string"},"inference_status":{"const":"NOT_COMPUTED_LEGACY"},"correlation_note":{"type":"string"}}
+}

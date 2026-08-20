@@ -4,7 +4,7 @@ This document defines the interface required for every new native Nextflow DSL2
 module in HelixForge. The contract standardizes orchestration and provenance; it
 does not force unrelated scientific tools to produce the same file types.
 
-Contract version: `2.8`
+Contract version: `2.9`
 
 This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
 later native module.
@@ -21,6 +21,11 @@ inputs. `EVIDENCE_HARMONIZATION` additionally receives an explicit policy file;
 `MOLECULAR_EVIDENCE_INTEGRATION` receives the resulting harmonization bundle.
 Both reject incompatible references and may not scan a published results tree,
 infer identity from filenames, or silently normalize biological IDs.
+
+Interpretation modules receive only staged Integration/Stage 5 bundles and
+versioned policy/catalog inputs. Regulatory observations, interpretations and
+prioritization components remain separate datasets. A candidate score must
+state that it is non-inferential and expose every additive component.
 
 ## Module layout
 

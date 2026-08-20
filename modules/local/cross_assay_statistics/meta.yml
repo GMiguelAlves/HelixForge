@@ -1,0 +1,17 @@
+name: cross_assay_statistics
+description: Calculates legacy-compatible Fisher/BH and RNA-ChIP correlations and assembles Interpretation Manifest v1.
+keywords: [integration, fisher, bh, correlation, statistics]
+input:
+  - meta: Stable interpretation identity.
+  - integration: Complete staged Molecular Evidence Integration bundle.
+  - classification: Complete staged Regulatory Interpretation bundle.
+  - scoring: Complete staged Candidate Scoring bundle.
+  - policy: Versioned interpretation policy.
+  - mark_roles: Versioned mark-role catalog.
+  - context: Explicit prioritization annotations.
+output:
+  - artifacts: Complete interpretation package.
+  - manifest: Interpretation Manifest v1.
+  - reports: Execution and validation log.
+  - versions: Runtime and model versions.
+  - status: Completion record.

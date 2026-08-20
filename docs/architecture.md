@@ -27,7 +27,10 @@ flowchart TB
     REP --> HARM["Cross-Assay Harmonization v1"]
     CEP --> HARM
     HARM --> MEI["Molecular Evidence Integration v1"]
-    MEI -. "future" .-> FUTURE["classification / scoring / enrichment"]
+    MEI --> RINT["Regulatory Interpretation v1"]
+    RINT --> SCORE["Candidate Score v1"]
+    SCORE --> STATS["Cross-Assay Statistics v1"]
+    STATS -. "future" .-> FUTURE["functional analysis / final reporting"]
 ```
 
 `ALL` starts RNA-seq and ChIP-seq independently and exposes both Integration
@@ -164,6 +167,13 @@ TSV evidence and a small JSON catalog without joining assays or scanning
 published result directories. Cross-assay operations are isolated in
 `EVIDENCE_HARMONIZATION` and `MOLECULAR_EVIDENCE_INTEGRATION`, with versioned
 maps, manifests, checksums and explicit absence states.
+
+The next native boundary is [Regulatory Interpretation and Candidate
+Prioritization v1](regulatory_interpretation.md). It preserves the characterized
+legacy evidence classes, adds independently versioned directional patterns,
+decomposes Candidate Score v1 and produces Fisher/BH and descriptive
+correlations. These are isolated components; they do not yet replace the
+top-level Integrative coordinator.
 
 Scientific parameters remain explicit in `nextflow.config` and are all exposed
 by `nextflow_schema.json`. Scheduler queues, resources and environment engines
