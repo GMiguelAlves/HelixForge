@@ -1,0 +1,14 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://helixforge.dev/schemas/interpretation/regulatory-classification-record.schema.json",
+  "title":"HelixForge Regulatory Classification Record v1","type":"object","additionalProperties":false,
+  "required":["classification_id","canonical_entity_id","reference_id","canonical_contrast_id","source_rna_contrast_id","source_chip_contrast_id","canonical_mark","mark_regulatory_role","legacy_evidence_class","regulatory_pattern","classification_version","rna_evidence_state","rna_significance_state","chip_evidence_state","peak_presence_state","differential_binding_state","evidence_support","classification_reason"],
+  "properties":{
+    "classification_id":{"type":"string","minLength":1},"canonical_entity_id":{"type":"string","minLength":1},"reference_id":{"type":"string","minLength":1},"canonical_contrast_id":{"type":"string","minLength":1},"source_rna_contrast_id":{"type":"string"},"source_chip_contrast_id":{"type":"string"},"canonical_mark":{"type":"string","minLength":1},
+    "mark_regulatory_role":{"enum":["ACTIVATING","REPRESSIVE","CONTEXT_DEPENDENT","STRUCTURAL","UNKNOWN","NOT_APPLICABLE"]},
+    "legacy_evidence_class":{"enum":["DEG_with_differential_peak","DEG_with_promoter_peak","DEG_with_gene_body_peak","DEG_with_distal_peak","DEG_only","ChIP_only","unchanged"]},
+    "regulatory_pattern":{"enum":["CONCORDANT_ACTIVATION","CONCORDANT_REPRESSION","DISCORDANT","RNA_ONLY","CHIP_ONLY","INSUFFICIENT_CROSS_ASSAY_EVIDENCE","INSUFFICIENT_MARK_SEMANTICS","NO_REGULATORY_INTERPRETATION"]},
+    "classification_version":{"const":"1.0"},"rna_evidence_state":{"type":"string"},"rna_significance_state":{"enum":["SIGNIFICANT","MEASURED_NOT_SIGNIFICANT","NOT_MEASURED"]},"rna_direction":{"type":"string"},"rna_effect":{"type":["number","string"]},"rna_padj":{"type":["number","string"]},
+    "chip_evidence_state":{"type":"string"},"peak_presence_state":{"enum":["PRESENT","NO_PEAK","NOT_MEASURED"]},"promoter_peaks":{"type":["integer","string"]},"gene_body_peaks":{"type":["integer","string"]},"distal_peaks":{"type":["integer","string"]},"differential_binding_state":{"enum":["SIGNIFICANT","MEASURED_NOT_SIGNIFICANT","NOT_MEASURED"]},"chip_direction":{"type":"string"},"chip_effect":{"type":["number","string"]},"chip_padj":{"type":["number","string"]},"evidence_support":{"type":"string","minLength":2},"classification_reason":{"type":"string","minLength":1},"rna_evidence_ids":{"type":"string"},"chip_evidence_ids":{"type":"string"}
+  }
+}
