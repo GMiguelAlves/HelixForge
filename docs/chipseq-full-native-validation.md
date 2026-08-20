@@ -77,4 +77,9 @@ e o relatório HTML final de 37.472 bytes.
 ## Pendências
 
 - regressão com dataset biológico revisado após aposentadoria do legado;
-- certificação OCI/Apptainer dos runtimes ChIP-seq restantes.
+- execução top-level com o perfil Docker;
+- execução Apptainer em infraestrutura que disponibilize o runtime.
+
+Os runtimes OCI restantes foram construídos/fixados por digest e passaram
+testes funcionais reduzidos no GitHub Actions `32368534261`. A referência
+Apptainer usa as mesmas imagens OCI, mas não foi executada no cluster.

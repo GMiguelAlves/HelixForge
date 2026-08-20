@@ -60,6 +60,9 @@ peaks, manifests, QC evidence or strategy invalidate the deep-cache boundary.
   report using IDR for both condition-level consensus groups.
 
 The immutable OCI provider passed GitHub Actions run `31751053286`.
+The union/support interval runtime (Python 3.12.4, samtools 1.20 and BEDTools
+2.31.1) was subsequently published by digest and passed reduced Docker
+certification in run `32368534261`.
 
 The complete Slurm case `chipseq-production-idr-real-07` passed with Nextflow
 25.10.7 and at most five queued jobs. Its 105-process trace produced 12 control

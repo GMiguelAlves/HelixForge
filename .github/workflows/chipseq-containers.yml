@@ -1,0 +1,115 @@
+name: ChIP-seq container certification
+
+on:
+  push:
+    branches: [master, contrib/container-certification]
+    paths:
+      - 'containers/chipseq-*/**'
+      - 'modules/local/bowtie2_align/environment.yml'
+      - 'modules/local/frip/environment.yml'
+      - 'modules/local/featurecounts_peak/environment.yml'
+      - 'tests/containers/certify_chipseq_image.sh'
+      - 'tests/containers/certify_chipseq_upstream.sh'
+      - '.github/workflows/chipseq-containers.yml'
+  pull_request:
+    paths:
+      - 'containers/chipseq-*/**'
+      - 'modules/local/bowtie2_align/environment.yml'
+      - 'modules/local/frip/environment.yml'
+      - 'modules/local/featurecounts_peak/environment.yml'
+      - 'tests/containers/certify_chipseq_image.sh'
+      - 'tests/containers/certify_chipseq_upstream.sh'
+      - '.github/workflows/chipseq-containers.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-certify:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - role: alignment
+            image: helixforge-chipseq-alignment
+            dockerfile: containers/chipseq-alignment/Dockerfile
+          - role: intervals
+            image: helixforge-chipseq-intervals
+            dockerfile: containers/chipseq-intervals/Dockerfile
+          - role: counts
+            image: helixforge-chipseq-counts
+            dockerfile: containers/chipseq-counts/Dockerfile
+          - role: tracks
+            image: helixforge-chipseq-tracks
+            dockerfile: containers/chipseq-tracks/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          load: ${{ github.event_name == 'pull_request' }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ghcr.io/gmiguelalves/${{ matrix.image }}:1.0.0
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+          provenance: ${{ github.event_name != 'pull_request' }}
+          sbom: ${{ github.event_name != 'pull_request' }}
+      - name: Pull published image
+        if: github.event_name != 'pull_request'
+        run: docker pull ghcr.io/gmiguelalves/${{ matrix.image }}:1.0.0
+      - name: Run functional certification
+        run: |
+          case_root=/tmp/helixforge-chipseq-container-certification/${{ matrix.role }}
+          tests/containers/certify_chipseq_image.sh \
+            '${{ matrix.role }}' \
+            'ghcr.io/gmiguelalves/${{ matrix.image }}:1.0.0' \
+            "$case_root"
+          printf '### %s container\n\n- Build digest: `%s`\n- Functional test: PASS\n' \
+            '${{ matrix.role }}' '${{ steps.build.outputs.digest }}' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chipseq-${{ matrix.role }}-container-certification
+          path: /tmp/helixforge-chipseq-container-certification/${{ matrix.role }}
+          if-no-files-found: error
+
+  certify-upstream:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - role: macs3
+            image: quay.io/biocontainers/macs3:3.0.4--py312h71493bf_0@sha256:15596c03f7a52c8aa27dc5feb181a6a5a12d2ad7cbcff4980021446c6a9451cb
+          - role: annotation
+            image: python:3.12.10-slim@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db
+          - role: report
+            image: python:3.11.9-slim-bookworm@sha256:8fb099199b9f2d70342674bd9dbccd3ed03a258f26bbd1d556822c6dfc60c317
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull immutable image
+        run: docker pull '${{ matrix.image }}'
+      - name: Run provider certification
+        run: |
+          case_root=/tmp/helixforge-chipseq-upstream-certification/${{ matrix.role }}
+          tests/containers/certify_chipseq_upstream.sh \
+            '${{ matrix.role }}' '${{ matrix.image }}' "$case_root"
+          printf '### %s upstream runtime\n\n- Image: `%s`\n- Functional test: PASS\n' \
+            '${{ matrix.role }}' '${{ matrix.image }}' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chipseq-${{ matrix.role }}-upstream-certification
+          path: /tmp/helixforge-chipseq-upstream-certification/${{ matrix.role }}
+          if-no-files-found: error

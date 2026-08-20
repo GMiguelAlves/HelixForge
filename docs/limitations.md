@@ -9,11 +9,12 @@
   Binding, annotation, tracks and report are native and composed by `full`.
 - The generic compatibility process uses resource classes rather than exact
   per-tool requirements.
-- Container and native Conda profiles remain placeholders for legacy tools.
-  Native RNA QC, STAR, Salmon, Import, ChIP metadata and Bowtie2 modules have
-  pinned Conda environments. The combined Bowtie2/Samtools OCI execution path
-  still requires a real container validation; stub validation does not prove
-  that runtime composition.
+- Native ChIP scientific runtimes are now pinned by OCI digest. Dedicated clean
+  images cover Bowtie2/Samtools, FRiP/interval consensus, featureCounts and
+  tracks; immutable upstream images cover MACS3, annotation and report. All
+  seven passed reduced functional Docker certification in run `32368534261`.
+  A complete top-level Docker execution and an Apptainer execution remain
+  pending.
 - RNA-seq Report API orchestration and the clean
   `ghcr.io/gmiguelalves/helixforge-rnaseq-report:1.0.0` image are certified on a
   reduced real R execution. The module-owned `gene_set_report.R` is
@@ -54,25 +55,12 @@
   biological-library BAMs. MAPQ, duplicate and blacklist policies are native.
   Peak Calling API v1 preserves each execution record independently; a future
   library-level merge policy is still required before biological consensus.
-- MACS3 3.0.4 was not installed locally and no working container runtime was
-  available during foundation 0.3 validation. Functional and cache scripts are
-  present, but only unit/stub validation is claimed here. Peak QC and Consensus
-  architecture, pure functions, schema and DAG were validated in stub mode; no
-  real SAMtools/BEDTools FRiP or consensus value and no IDR result is claimed. The pinned
-  Conda environment is defined, while a joint OCI image remains unpublished and
-  therefore defaults to null rather than an unverified image reference.
-- Native interval consensus uses a pinned Conda BEDTools version, but no
-  verified joint OCI/Apptainer image is published yet. IDR has a separately
-  pinned Biocontainer/Conda provider and dedicated reduced OCI certification.
-  Its complete reduced top-level Slurm execution passed with an isolated exact
-  Conda environment because the cluster does not expose a container runtime.
-  A reviewed biological regression and administrator-supported OCI/Apptainer
-  execution remain pending.
-- Differential Binding has not run real featureCounts or DESeq2 in this stage.
-  The Subread and DESeq2 Conda environments are pinned, but featureCounts OCI/
-  Apptainer parameters intentionally remain null until final validation. No real
-  normalization, Wald statistic, p-value, legacy regression, biological
-  comparison or benchmark is claimed.
+- MACS3, FRiP, interval consensus, featureCounts and tracks now have functional
+  Docker evidence and immutable defaults. The complete reduced top-level Slurm
+  execution also passed with real tools, including optional IDR, Differential
+  Binding, annotation, tracks and report. Because the cluster exposes no
+  container runtime, a same-cluster Apptainer execution and the reviewed
+  biological regression remain pending.
 - The v1 comparison universe is the explicit union of compatible condition-level
   completed Consensus or IDR BEDs. Choosing IDR changes the per-condition peak
   evidence but does not silently change the cross-condition universe policy.
