@@ -7,12 +7,13 @@
   "required": ["schema_version", "evidence_model_version", "type", "id", "assay", "run_id", "reference_id", "source_run_manifest_id", "status", "contrasts", "datasets", "artifact_catalog", "provenance"],
   "properties": {
     "schema_version": {"const": "1.0"},
-    "evidence_model_version": {"const": "1.0"},
+    "evidence_model_version": {"enum": ["1.0", "1.1"]},
     "type": {"const": "evidence_manifest"},
     "id": {"type": "string", "minLength": 1},
     "assay": {"enum": ["rnaseq", "chipseq"]},
     "run_id": {"type": "string", "minLength": 1},
     "reference_id": {"type": "string", "minLength": 1},
+    "reference": {"type": "object"},
     "source_run_manifest_id": {"type": "string", "minLength": 1},
     "status": {"enum": ["complete", "complete_empty", "stub"]},
     "contrasts": {"type": "array", "items": {"type": "object"}},
@@ -36,5 +37,6 @@
     },
     "artifact_catalog": {"type": "array", "items": {"type": "object", "required": ["artifact_id", "artifact_type", "classification", "reference_id", "source", "provenance", "bound"]}},
     "provenance": {"type": "object", "required": ["provider", "provider_version", "source_run_manifest_id"]}
-  }
+  },
+  "allOf": [{"if": {"properties": {"evidence_model_version": {"const": "1.1"}}}, "then": {"required": ["reference"]}}]
 }

@@ -25,6 +25,8 @@ def schema_errors(document: dict) -> list[str]:
         errors.append("type must be evidence_manifest")
     if document.get("assay") not in {"rnaseq", "chipseq"}:
         errors.append("assay must be rnaseq or chipseq")
+    if document.get("evidence_model_version") == "1.1" and not document.get("reference"):
+        errors.append("Evidence Model 1.1 requires the full reference object")
     return errors
 
 
