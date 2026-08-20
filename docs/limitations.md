@@ -1,8 +1,9 @@
 # Limitations of the compatibility skeleton
 
-- Only the Integrative workflow still uses legacy-wrapper outputs as external
-  side effects. Native RNA-seq and ChIP-seq outputs are content-tracked Nextflow
-  artifacts; required compatibility copies are published at configured paths.
+- RNA-seq, ChIP-seq and Integrative active workflows are native and exchange
+  content-tracked artifacts/manifests. The Integrative executable legacy tree
+  remains only as a frozen regression oracle pending its isolated retirement
+  pull request; it is not imported by the active DAG.
 - ChIP raw QC, Bowtie2 alignment, BAM selection, duplicate policy, blacklist
   exclusion, final BAM QC, per-replicate MACS3 peak calling, Peak QC and
   interval consensus fan out natively. Optional IDR 2.0.4.2, Differential
@@ -49,10 +50,12 @@
   that recycles the first import ID for multi-sample metadata. Regression uses
   one sample to execute that script unchanged; the native two-sample fixture
   validates the intended unique-ID behavior used downstream.
-- `workflow all` waits for RNA and ChIP before integration, but the existing
-  IntegrateSeq config must point to the actual RNA/ChIP result directories.
-- The minimal output manifest and Reference Bundle are specified but not yet
-  generated automatically.
+- `workflow all` passes RNA and ChIP terminal bundles directly into integration;
+  it does not use an IntegrateSeq results-directory configuration. Independent
+  re-entry requires both portable manifests and their sibling
+  `integration_artifacts/` bundles.
+- Reference Bundles and RNA, ChIP and Integrative terminal manifests are
+  generated automatically by complete native DAGs.
 - Native ChIP-seq foundation 0.3 aligns technical sequencing records
   independently. It validates their identity but does not yet merge them into
   biological-library BAMs. MAPQ, duplicate and blacklist policies are native.
@@ -67,5 +70,5 @@
 - The v1 comparison universe is the explicit union of compatible condition-level
   completed Consensus or IDR BEDs. Choosing IDR changes the per-condition peak
   evidence but does not silently change the cross-condition universe policy.
-- Existing `.done` files remain active only inside the Integrative legacy
-  pipeline. Nextflow status markers are an additional orchestration layer there.
+- Existing `.done` files remain only inside the frozen Integrative legacy tree.
+  The active Integrative workflow does not consume them.

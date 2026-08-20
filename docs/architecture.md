@@ -19,9 +19,8 @@ flowchart TB
     ALL --> CHIP
     RNA --> RM["RNA terminal manifest"]
     CHIP --> CM["ChIP terminal manifest"]
-    RNA --> GATE["completion status barrier"]
-    CHIP --> GATE
-    GATE --> INT
+    RM --> INT
+    CM --> INT
     RM -. "Integration API v1" .-> REP["RNA Evidence Provider"]
     CM -. "Integration API v1" .-> CEP["ChIP Evidence Provider"]
     REP --> HARM["Cross-Assay Harmonization v1"]
@@ -30,19 +29,22 @@ flowchart TB
     MEI --> RINT["Regulatory Interpretation v1"]
     RINT --> SCORE["Candidate Score v1"]
     SCORE --> STATS["Cross-Assay Statistics v1"]
-    STATS -. "future" .-> FUTURE["functional analysis / final reporting"]
+    STATS --> FUNC["Functional Analysis v1"]
+    FUNC --> VIS["Visualization v1"]
+    VIS --> REPORT["Integrative Report v1"]
+    REPORT --> IM["Integrative terminal manifest"]
 ```
 
-`ALL` starts RNA-seq and ChIP-seq independently and exposes both Integration
-API v1 terminal manifests. It still waits for the completion channels before
-invoking the unchanged Integrative coordinator. That coordinator remains a
-legacy boundary and does not consume the new manifests yet. Independent RNA
-and ChIP providers convert explicitly bound terminal artifacts to the
+`ALL` starts RNA-seq and ChIP-seq independently and passes both real Integration
+API v1 terminal bundles directly to the native Integrative coordinator. It does
+not use completion tokens as data. Independent RNA and ChIP providers convert
+explicitly bound terminal artifacts to the
 [Standardized Evidence Model v1](evidence_model.md). The native
 [Cross-Assay Integration v1](cross_assay_integration.md) validates reference
 compatibility, harmonizes explicit identities and constructs lossless long-form
-and full-outer gene-level molecular evidence tables. The unchanged Integrative
-coordinator is not yet replaced by this testable Stage 4 boundary.
+and full-outer gene-level molecular evidence tables. Interpretation, functional
+analysis, visualization, report and the terminal Integrative contract are all
+part of the active Stage 6 DAG.
 
 ## RNA-seq native DAG
 
@@ -168,12 +170,13 @@ published result directories. Cross-assay operations are isolated in
 `EVIDENCE_HARMONIZATION` and `MOLECULAR_EVIDENCE_INTEGRATION`, with versioned
 maps, manifests, checksums and explicit absence states.
 
-The next native boundary is [Regulatory Interpretation and Candidate
+The interpretation boundary is [Regulatory Interpretation and Candidate
 Prioritization v1](regulatory_interpretation.md). It preserves the characterized
 legacy evidence classes, adds independently versioned directional patterns,
 decomposes Candidate Score v1 and produces Fisher/BH and descriptive
-correlations. These are isolated components; they do not yet replace the
-top-level Integrative coordinator.
+correlations. Stage 6 composes them with a legacy-compatible descriptive
+functional summary, separate Fisher/BH tests, deterministic SVGs, a searchable
+HTML report and `integrative_run_manifest.json`.
 
 Scientific parameters remain explicit in `nextflow.config` and are all exposed
 by `nextflow_schema.json`. Scheduler queues, resources and environment engines
@@ -185,7 +188,8 @@ pipeline configuration until their controlled migration.
 - Optional exploratory Batch Effect Assessment API, tracked in the
   [scientific roadmap](roadmap.md). The current inferential DAG never consumes
   a batch-corrected matrix.
-- Integrative execution and its configured input discovery.
+- Integrative legacy execution is retained only as a frozen regression oracle;
+  it is not imported by the active workflow.
 - RNA Pathway Enrichment API and any analysis not yet represented by a native
   provider, tracked in the [scientific roadmap](roadmap.md).
 
