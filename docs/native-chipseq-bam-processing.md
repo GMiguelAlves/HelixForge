@@ -141,8 +141,9 @@ runs rejected a reference length mismatch and a `1` versus `chr1` blacklist.
 - The real reduced fixture validates paired-end only; single-end has a stub and
   an implemented provider path but no real regression in this stage.
 - No production dataset benchmark or biological peak/FRiP validation was run.
-- The OCI/Apptainer image declarations are pinned, but only the host SAMtools
-  execution was tested here.
+- The joint Bowtie2/Samtools image passed reduced functional Docker
+  certification in run `32368534261`; Apptainer execution remains unavailable
+  on the institutional cluster.
 - Technical records are still processed independently; biological-library
   merging remains a future explicit stage.
 - Peak calling, replicate concordance, consensus and differential binding are

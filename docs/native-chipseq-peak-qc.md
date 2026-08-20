@@ -69,9 +69,9 @@ native Peak Calling. There is no real legacy FRiP provider, so the fallback
 does not fabricate or run a second implementation.
 
 The pinned Conda environment contains Python 3.12.4, SAMtools 1.20, and BEDTools
-2.31.1. `peak_qc_container` and `peak_qc_apptainer_container` intentionally
-default to null until a joint image is published and validated; host/Conda
-execution remains available. This avoids advertising an unverified image.
+2.31.1. `peak_qc_container` now points to the joint image published and tested
+by digest in GitHub Actions run `32368534261`; the Apptainer parameter consumes
+that same OCI artifact through `docker://`.
 
 ## Validation state
 
@@ -84,9 +84,7 @@ Validated in this stage:
 - exact isolated `-resume`, with all seven Peak QC processes cached;
 - top-level `chipseq --chipseq_run_mode peak_qc` stub through aggregation.
 
-Not run in this stage, by design:
-
-- real SAMtools/BEDTools FRiP calculation;
-- functional comparison with another FRiP implementation;
-- Docker, Apptainer, Slurm, large dataset, or benchmark;
-- MACS3 real, legacy regression, consensus, IDR, or differential binding.
+After this initial stage, real FRiP, MACS3, consensus/IDR and Differential
+Binding completed in the reduced top-level Slurm DAG. The joint
+SAMtools/BEDTools image also passed a reduced Docker functional test. Apptainer,
+a large dataset and a biological legacy regression remain pending.

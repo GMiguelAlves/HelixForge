@@ -96,10 +96,11 @@ These are architectural improvements, not a claim of legacy equivalence.
 - scheduler-token audit found no `sbatch`, `srun`, or `qsub` in new modules;
 - no legacy ChIP-seq file was modified.
 
-The top-level stub entered full-project compilation but was stopped after the
-WSL run exceeded the lightweight time budget. A biological dataset, legacy
-regression, benchmark, real container/Slurm execution, production reference
-bundle, and scientific comparison remain deferred.
+The later complete reduced Slurm DAG produced 27 annotated peaks. Docker
+certification run `32368534261` repeated the lightweight
+context/provider/statistics/aggregate chain inside the immutable Python image.
+A biological dataset, legacy regression, benchmark and scientific comparison
+remain deferred.
 
 ## Next step
 

@@ -60,7 +60,9 @@ tasks sharing one model.
 - exact isolated `-resume` with every process cached;
 - scheduler-token audit for new native code.
 
-No featureCounts or DESeq2 scientific execution, container build, Slurm run,
-legacy regression, biological dataset, statistical comparison or benchmark was
-performed. This stage establishes executable contracts, not biological
-validation or legacy equivalence.
+The later reduced top-level Slurm pass executed featureCounts and DESeq2 through
+one contrast and final aggregation. The featureCounts 2.0.6 production image
+subsequently returned the expected SAF count in Docker certification run
+`32368534261`; the clean DESeq2 1.0.1 image had already passed its dedicated
+regression. A reviewed biological dataset, legacy statistical comparison and
+production benchmark remain pending.
