@@ -1,13 +1,18 @@
 # Standardized Evidence Model v1
 
 Contract identifier: `helixforge.evidence_model`  
-Contract version: `1.0`
+Contract version: `1.1`
+
+Version 1.1 adds the complete Integration API `reference` object to the
+Evidence Manifest. Version 1.0 remains structurally readable, but cross-assay
+integration requires 1.1 because a bare `reference_id` cannot prove organism,
+assembly, genome and annotation compatibility.
 
 The Evidence Model is the anti-corruption boundary between terminal assay
-outputs and the future molecular evidence integration engine. RNA and ChIP
-providers translate artifacts independently; this version does not join assays,
-harmonize genes globally, classify regulation, score candidates or perform
-enrichment.
+outputs and the molecular evidence integration engine. RNA and ChIP providers
+translate artifacts independently; joining and harmonization are performed only
+by the downstream [Cross-Assay Integration v1](cross_assay_integration.md).
+Providers do not classify regulation, score candidates or perform enrichment.
 
 ## Physical contract
 
@@ -141,9 +146,10 @@ The legacy `prepare` path manifest disappears. Legacy threshold classes
 primary evidence. Absolute paths, glob matches, filename-derived identity and
 `.done` files are intentionally excluded.
 
-## Known limits before Stage 4
+## Provider limits
 
-- No cross-assay ID, condition, stage or mark harmonization.
+- Providers do not perform cross-assay ID, condition, stage or mark
+  harmonization; the downstream engine owns those operations.
 - A peak-gene dataset can be validated against bound peak datasets; if the
   terminal run exposes only aggregate annotation, referential validation is
   limited to non-empty peak identity.
