@@ -1,0 +1,5 @@
+sample_id	stage	condition	batch
+C1	cercariae	cercariae	batch1
+C2	cercaria	cercariae	batch2
+A1	adult	adult	batch1
+A2	adults	adult	batch2
