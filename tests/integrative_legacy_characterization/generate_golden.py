@@ -55,7 +55,7 @@ def main() -> int:
 
     input_checksums = {
         str(path.relative_to(FIXTURE_DIR)).replace("\\", "/"): sha256(path)
-        for path in sorted((FIXTURE_DIR / "inputs").rglob("*"))
+        for path in sorted(FIXTURE_DIR.rglob("*"))
         if path.is_file()
     }
     output_checksums = {

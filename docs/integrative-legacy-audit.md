@@ -73,6 +73,29 @@ associations. Simple text/file writers are listed separately as infrastructure.
 | `spearman_corr` | correlations | paired lists | Pearson over average ranks | preserve |
 | `safe_id` | labels/aliases | arbitrary string | non `[A-Za-z0-9_.-]` -> `_`; empty -> `unknown` | reporting/compatibility only |
 
+Infrastructure helpers are also part of the observed call graph:
+
+| Function | Classification | Observed behavior |
+|---|---|---|
+| `env` | COMPATIBILITY | reads global environment and supplies string defaults |
+| `outdir` | IO/ADAPTER | creates numbered directories under `INTEGRATION_OUTPUT_DIR` on read and write |
+| `norm_path` | COMPATIBILITY | converts backslashes and maps Windows drive paths to `/mnt/<drive>` on non-Windows hosts |
+| `path_exists` | IO/ADAPTER | accepts only non-empty regular files |
+| `open_text` | IO/ADAPTER | transparently opens `.gz` by filename suffix using UTF-8 with BOM handling |
+| `detect_delimiter` | COMPATIBILITY | chooses tab when the first line has at least as many tabs as commas |
+| `read_table` | IO/ADAPTER | returns empty tables for absent files; duplicate headers and malformed row widths are not validated |
+| `write_table` | IO/ADAPTER | writes TSV in supplied order and silently ignores extra dictionary fields |
+| `write_text` | REPORTING | writes UTF-8 text and creates parents |
+| `is_true` | COMPATIBILITY | accepts true/1/yes/y case-insensitively |
+| `log_choose` | SCIENTIFIC | log binomial coefficient used by Fisher right-tail |
+| `glob_existing` | COMPATIBILITY | sorted filesystem glob restricted to non-empty files |
+| `source_label` | COMPATIBILITY | repeatedly strips known file and result suffixes from basename |
+| `stage_sort_key` | REPORTING/SCIENTIFIC | orders canonical stages by the fixed parasite life-cycle list, then custom values alphabetically |
+| `known_marks` | SCIENTIFIC/COMPATIBILITY | caches built-ins plus the mark catalog for the entire Python process |
+| `load_gene_master` | IO/ADAPTER | reads the numbered harmonization output and keys exact gene IDs |
+| `mark_label` | COMPATIBILITY | canonical mark, otherwise original non-empty string, otherwise `unknown_ChIP` |
+| `assayed_mark_stages` | SCIENTIFIC | prefers ChIP metadata combinations; falls back to observed evidence only when metadata yields none |
+
 ### IDs, annotations, samples, stages and marks
 
 | Function | Responsibility | Inputs / expected columns | Rules and side effects | Decision |
@@ -235,6 +258,25 @@ These transformations affect visualization and the panel index, but do not
 feed Python integration, scoring or statistical tables. Images are therefore
 not golden byte artifacts. The panel index and manifest are semantic outputs.
 
+| R function/block | Input | Output or decision |
+|---|---|---|
+| `get_arg`, `read_tsv`, `safe_col`, `as_num` | CLI/fixed TSVs | permissive reporting adapters; unreadable tables become empty |
+| `clean_text`, `canonical_stage*`, `canonical_mark*`, `stage_factor` | display labels | independent R vocabulary and ordering |
+| `collapse_expression_by_stage` | RNA context rows | sample-count-weighted stage TPM for panels |
+| `save_plot` | a ggplot object | PNG/PDF/SVG plus one manifest row per format |
+| `save_gene_panel` | one ranked linked gene | four-panel RNA, mark, position and evidence figure; panel-index row |
+| class-count block | class counts | `barplot_integrative_classes.*` |
+| candidate block | candidate scores | top 30 `top_candidate_scores.*` |
+| machinery block | catalog | `epigenetic_catalog_groups.*` |
+| `plot_heatmap` calls | mark-stage and gene-mark-stage tables | `chip_mark_stage_matrix.*`, `gene_mark_stage_matrix.*` |
+| stage-mark block | stage comparison | display-only integrated-evidence heatmap |
+| enrichment block | Fisher/BH table | top 30 enrichment display; no test is recalculated |
+| correlation block | correlation table | top 30 valid gene-mark correlations; no correlation is recalculated |
+| position-map block | peak-level links and ranking | position class inference and top-gene map |
+| panel-selection block | explicit genes plus linked ranking | `gene_panel_index.tsv`; explicit IDs precede top-N IDs |
+| workflow block | constants only | explanatory `integrative_workflow_overview.*` |
+| final writer | accumulated figure rows | `visualization_manifest.tsv` |
+
 ## External-input map
 
 | Evidence | Current producer | Legacy path/config | Required or guessed columns | Scientific meaning / future source |
@@ -308,4 +350,3 @@ The next migration stage should define, without implementing here:
 8. optional Functional Evidence provider;
 9. Visualization and Integration Report providers;
 10. top-level Integration aggregate manifest.
-

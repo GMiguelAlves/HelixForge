@@ -84,15 +84,18 @@ def sha256(path: Path) -> str:
 
 def normalized_text(path: Path, output_root: Path) -> str:
     text = path.read_text(encoding="utf-8").replace("\r\n", "\n")
-    replacements = [
-        (str(FIXTURE_DIR.resolve()), "<FIXTURE_ROOT>"),
-        (FIXTURE_DIR.resolve().as_posix(), "<FIXTURE_ROOT>"),
-        (str(output_root.resolve()), "<OUTPUT_ROOT>"),
-        (output_root.resolve().as_posix(), "<OUTPUT_ROOT>"),
-    ]
+    replacements = []
+    for root, token in [(FIXTURE_DIR.resolve(), "<FIXTURE_ROOT>"), (output_root.resolve(), "<OUTPUT_ROOT>")]:
+        replacements.extend([(str(root), token), (root.as_posix(), token)])
+        if root.drive:
+            drive = root.drive.rstrip(":").lower()
+            tail = root.as_posix().split(":", 1)[1].lstrip("/")
+            replacements.append((f"/mnt/{drive}/{tail}", token))
     for raw, replacement in replacements:
         text = text.replace(raw, replacement)
         text = text.replace(raw.replace("\\", "/"), replacement)
+    text = text.replace("<FIXTURE_ROOT>\\", "<FIXTURE_ROOT>/")
+    text = text.replace("<OUTPUT_ROOT>\\", "<OUTPUT_ROOT>/")
     text = re.sub(
         r"Generated(?::| )\s*\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}",
         "Generated: <TIMESTAMP>",
@@ -105,4 +108,3 @@ def iter_expected_outputs():
     for group, paths in OUTPUT_GROUPS.items():
         for relative in paths:
             yield group, relative
-
