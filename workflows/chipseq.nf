@@ -1,16 +1,7 @@
-include { CHIPSEQ_REFERENCE }    from '../subworkflows/local/chipseq/reference'
-include { CHIPSEQ_QC_ALIGNMENT } from '../subworkflows/local/chipseq/qc_alignment'
-include { CHIPSEQ_PEAK_ANALYSIS } from '../subworkflows/local/chipseq/peak_analysis'
 include { CHIPSEQ_NATIVE_FOUNDATION } from '../subworkflows/local/chipseq/native_foundation'
 include { PEAK_ANNOTATION } from '../subworkflows/local/chipseq/peak_annotation'
 include { TRACK_GENERATION } from '../subworkflows/local/chipseq/tracks'
 include { CHIPSEQ_REPORT } from '../subworkflows/local/chipseq/report'
-include { LEGACY_STEP as CHIPSEQ_LEGACY_PEAKS } from '../modules/local/legacy_step/main'
-include { LEGACY_STEP as CHIPSEQ_LEGACY_CONSENSUS } from '../modules/local/legacy_step/main'
-include { LEGACY_STEP as CHIPSEQ_LEGACY_DIFFERENTIAL } from '../modules/local/legacy_step/main'
-include { LEGACY_STEP as CHIPSEQ_LEGACY_ANNOTATION } from '../modules/local/legacy_step/main'
-include { LEGACY_STEP as CHIPSEQ_LEGACY_TRACKS } from '../modules/local/legacy_step/main'
-include { LEGACY_STEP as CHIPSEQ_LEGACY_REPORT } from '../modules/local/legacy_step/main'
 
 
 def resolve_track_inventory_location(inventory_file, value) {
@@ -29,46 +20,13 @@ workflow CHIPSEQ {
 
     main:
     config_file = file(params.chipseq_config, checkIfExists: true)
-    legacy_root = "${projectDir}/pipelines/chipseq/legacy"
+    pipeline_root = "${projectDir}/pipelines/chipseq"
     run_mode = params.chipseq_run_mode.toString().toLowerCase()
-    native_peak_calling = params.chipseq_native_peak_calling.toString().toBoolean()
-    native_peak_qc = params.chipseq_native_peak_qc.toString().toBoolean()
-    native_consensus = params.chipseq_native_consensus.toString().toBoolean()
-    native_differential = params.chipseq_native_differential_binding.toString().toBoolean()
-    native_annotation = params.chipseq_native_peak_annotation.toString().toBoolean()
-    native_tracks = params.chipseq_native_tracks.toString().toBoolean()
-    native_report = params.chipseq_native_report.toString().toBoolean()
     if (!(run_mode in ['qc', 'alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'annotation', 'tracks', 'report', 'full'])) {
         error "Unknown chipseq_run_mode '${params.chipseq_run_mode}'. Use qc, alignment, post_alignment, peaks, peak_qc, consensus, idr, differential_binding, annotation, tracks, report, or full."
     }
 
-    full_native_flags = [
-        chipseq_native_foundation          : params.chipseq_native_foundation.toString().toBoolean(),
-        chipseq_native_bam_processing      : params.chipseq_native_bam_processing.toString().toBoolean(),
-        chipseq_native_peak_calling        : native_peak_calling,
-        chipseq_native_peak_qc             : native_peak_qc,
-        chipseq_native_consensus           : native_consensus,
-        chipseq_native_differential_binding: native_differential,
-        chipseq_native_peak_annotation     : native_annotation,
-        chipseq_native_tracks              : native_tracks,
-        chipseq_native_report              : native_report,
-    ]
-    if (run_mode == 'full') {
-        missing_native_flags = full_native_flags.findAll { _name, enabled -> !enabled }.keySet()
-        if (missing_native_flags) {
-            error "chipseq_run_mode=full is exclusively native and requires: ${missing_native_flags.sort().join(', ')}"
-        }
-    }
-
-    native_mode = params.chipseq_native_foundation.toString().toBoolean() && (
-        run_mode in ['qc', 'alignment', 'post_alignment'] ||
-        (run_mode in ['peaks', 'peak_qc'] && native_peak_calling) ||
-        (run_mode in ['consensus', 'idr'] && native_peak_calling && native_peak_qc && native_consensus) ||
-        (run_mode == 'differential_binding' && native_peak_calling && native_peak_qc && native_consensus && native_differential) ||
-        (run_mode == 'full' && full_native_flags.values().every { enabled -> enabled })
-    )
-
-    if (run_mode == 'report' && native_report) {
+    if (run_mode == 'report') {
         if (params.chipseq_report_input_manifest == null || params.chipseq_report_input_manifest.toString().trim() == '') {
             error 'Native report mode requires --chipseq_report_input_manifest'
         }
@@ -116,15 +74,7 @@ workflow CHIPSEQ {
         CHIPSEQ_REPORT(report_inputs)
         completed_ch = CHIPSEQ_REPORT.out.status
         logs_ch = CHIPSEQ_REPORT.out.reports
-    } else if (run_mode == 'report') {
-        no_dep = channel.value('none')
-        CHIPSEQ_LEGACY_REPORT(
-            'chipseq', 'report', 'medium', config_file, legacy_root,
-            seed, no_dep, no_dep
-        )
-        completed_ch = CHIPSEQ_LEGACY_REPORT.out.status
-        logs_ch = CHIPSEQ_LEGACY_REPORT.out.log
-    } else if (run_mode == 'tracks' && native_tracks) {
+    } else if (run_mode == 'tracks') {
         if (params.chipseq_tracks_input_manifest == null || params.chipseq_tracks_input_manifest.toString().trim() == '') {
             error 'Native tracks mode requires --chipseq_tracks_input_manifest'
         }
@@ -213,15 +163,7 @@ workflow CHIPSEQ {
         TRACK_GENERATION(channel.fromList(track_tuples))
         completed_ch = TRACK_GENERATION.out.status
         logs_ch = TRACK_GENERATION.out.reports
-    } else if (run_mode == 'tracks') {
-        no_dep = channel.value('none')
-        CHIPSEQ_LEGACY_TRACKS(
-            'chipseq', 'tracks', 'high_cpu', config_file, legacy_root,
-            seed, no_dep, no_dep
-        )
-        completed_ch = CHIPSEQ_LEGACY_TRACKS.out.status
-        logs_ch = CHIPSEQ_LEGACY_TRACKS.out.log
-    } else if (run_mode == 'annotation' && native_annotation) {
+    } else if (run_mode == 'annotation') {
         required_annotation_params = [
             chipseq_annotation_peaks            : params.chipseq_annotation_peaks,
             chipseq_annotation_peak_manifest    : params.chipseq_annotation_peak_manifest,
@@ -267,68 +209,10 @@ workflow CHIPSEQ {
         PEAK_ANNOTATION(annotation_inputs)
         completed_ch = PEAK_ANNOTATION.out.status
         logs_ch = PEAK_ANNOTATION.out.reports
-    } else if (run_mode == 'annotation') {
-        no_dep = channel.value('none')
-        CHIPSEQ_LEGACY_ANNOTATION(
-            'chipseq', 'annotate', 'medium', config_file, legacy_root,
-            seed, no_dep, no_dep
-        )
-        completed_ch = CHIPSEQ_LEGACY_ANNOTATION.out.status
-        logs_ch = CHIPSEQ_LEGACY_ANNOTATION.out.log
-    } else if (native_mode) {
-        CHIPSEQ_NATIVE_FOUNDATION(config_file, legacy_root, seed)
-        if (run_mode == 'post_alignment' && params.chipseq_continue_legacy_peaks) {
-            no_dep = channel.value('none')
-            CHIPSEQ_LEGACY_PEAKS(
-                'chipseq', 'peaks', 'high_cpu', config_file, legacy_root,
-                CHIPSEQ_NATIVE_FOUNDATION.out.completed.collect(), no_dep, no_dep
-            )
-            completed_ch = CHIPSEQ_LEGACY_PEAKS.out.status
-            logs_ch = CHIPSEQ_NATIVE_FOUNDATION.out.logs.mix(CHIPSEQ_LEGACY_PEAKS.out.log)
-        } else {
-            completed_ch = CHIPSEQ_NATIVE_FOUNDATION.out.completed
-            logs_ch = CHIPSEQ_NATIVE_FOUNDATION.out.logs
-        }
-    } else if (run_mode == 'consensus') {
-        no_dep = channel.value('none')
-        CHIPSEQ_LEGACY_CONSENSUS(
-            'chipseq', 'consensus', 'high_cpu', config_file, legacy_root,
-            seed, no_dep, no_dep
-        )
-        completed_ch = CHIPSEQ_LEGACY_CONSENSUS.out.status
-        logs_ch = CHIPSEQ_LEGACY_CONSENSUS.out.log
-    } else if (run_mode == 'idr') {
-        error 'No scientifically equivalent legacy IDR provider exists; enable the native foundation, peak calling, Peak QC, and Consensus/IDR context'
-    } else if (run_mode == 'differential_binding') {
-        no_dep = channel.value('none')
-        CHIPSEQ_LEGACY_DIFFERENTIAL(
-            'chipseq', 'differential', 'high_memory', config_file, legacy_root,
-            seed, no_dep, no_dep
-        )
-        completed_ch = CHIPSEQ_LEGACY_DIFFERENTIAL.out.status
-        logs_ch = CHIPSEQ_LEGACY_DIFFERENTIAL.out.log
-    } else if (run_mode in ['peaks', 'peak_qc'] && !native_peak_calling) {
-        no_dep = channel.value('none')
-        CHIPSEQ_LEGACY_PEAKS(
-            'chipseq', 'peaks', 'high_cpu', config_file, legacy_root,
-            seed, no_dep, no_dep
-        )
-        completed_ch = CHIPSEQ_LEGACY_PEAKS.out.status
-        logs_ch = CHIPSEQ_LEGACY_PEAKS.out.log
     } else {
-        CHIPSEQ_REFERENCE(config_file, legacy_root, seed)
-        CHIPSEQ_QC_ALIGNMENT(config_file, legacy_root, CHIPSEQ_REFERENCE.out.status, seed)
-        CHIPSEQ_PEAK_ANALYSIS(
-            config_file,
-            legacy_root,
-            CHIPSEQ_REFERENCE.out.status,
-            CHIPSEQ_QC_ALIGNMENT.out.filtered,
-            CHIPSEQ_QC_ALIGNMENT.out.status
-        )
-        completed_ch = CHIPSEQ_PEAK_ANALYSIS.out.status
-        logs_ch = CHIPSEQ_REFERENCE.out.logs
-            .mix(CHIPSEQ_QC_ALIGNMENT.out.logs)
-            .mix(CHIPSEQ_PEAK_ANALYSIS.out.logs)
+        CHIPSEQ_NATIVE_FOUNDATION(config_file, pipeline_root, seed)
+        completed_ch = CHIPSEQ_NATIVE_FOUNDATION.out.completed
+        logs_ch = CHIPSEQ_NATIVE_FOUNDATION.out.logs
     }
 
     emit:

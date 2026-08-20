@@ -190,15 +190,6 @@ fi
 if [[ ! -s "$case_root/traces/full.tsv" ]]; then
     run_stage full \
         --chipseq_run_mode full \
-        --chipseq_native_foundation true \
-        --chipseq_native_bam_processing true \
-        --chipseq_native_peak_calling true \
-        --chipseq_native_peak_qc true \
-        --chipseq_native_consensus true \
-        --chipseq_native_differential_binding true \
-        --chipseq_native_peak_annotation true \
-        --chipseq_native_tracks true \
-        --chipseq_native_report true \
         --chipseq_min_mapq 0 \
         --chipseq_duplicate_mode none \
         --chipseq_peak_caller macs3 \

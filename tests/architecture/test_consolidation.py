@@ -65,7 +65,11 @@ def test_workflow_composition_guards() -> None:
     assert "set -o pipefail" in consensus_context
 
     chip_workflow = (ROOT / "workflows/chipseq.nf").read_text(encoding="utf-8")
-    assert "chipseq_run_mode=full is exclusively native" in chip_workflow
+    assert "LEGACY_STEP" not in chip_workflow
+    assert "chipseq_native_" not in chip_workflow
+    assert "legacy_root" not in chip_workflow
+    assert not (ROOT / "pipelines/chipseq/legacy").exists()
+    assert (ROOT / "pipelines/chipseq/config/pipeline_config.sh").is_file()
 
     de = (ROOT / "subworkflows/local/rnaseq/differential_expression.nf").read_text(encoding="utf-8")
     assert "RNASEQ_BATCH_STEP" not in de
