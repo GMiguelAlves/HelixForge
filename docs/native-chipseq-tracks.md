@@ -28,16 +28,7 @@ then run:
 ```bash
 nextflow run . -profile local --workflow chipseq \
   --chipseq_run_mode tracks \
-  --chipseq_native_tracks true \
   --chipseq_tracks_input_manifest /path/to/tracks_input.json
-```
-
-The legacy fallback remains available without changing its scripts:
-
-```bash
-nextflow run . -profile local --workflow chipseq \
-  --chipseq_run_mode tracks \
-  --chipseq_native_tracks false
 ```
 
 RPGC must be explicit:
@@ -76,7 +67,7 @@ also published below `pipeline_info/native_chipseq/tracks`.
   exact contigs, manifest association, and order-independent aggregation;
 - isolated DSL2 stub execution completed for four requests;
 - a repeated `-resume` execution recovered all 13 processes from cache;
-- top-level native and legacy-fallback modes completed in `-stub-run`;
+- top-level native mode completed in `-stub-run`;
 - Nextflow lint completed without errors;
 - the input schema and example are valid JSON;
 - no scheduler command is present in native modules.

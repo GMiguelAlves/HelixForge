@@ -156,9 +156,9 @@ See `docs/consensus_idr_api.md`.
 | `report` | external semantic manifest inventory + native context/aggregate/HTML+JSON provider; no upstream rerun |
 | `full` | native single-session QC → Bowtie2 → BAM → MACS3 → Peak QC → Consensus → Differential Binding → Annotation/Tracks → Report |
 
-`full` requires every native provider flag and rejects legacy fallback. Dedicated
-stage modes may retain explicit compatibility fallbacks; native and legacy
-outputs must not be mixed without an explicit manifest boundary.
+`full` and every dedicated stage mode now resolve exclusively to native
+providers. The retired implementation is available only from the immutable
+`chipseq-legacy-v1.0.0` tag.
 
 ## Differential Binding API v1
 

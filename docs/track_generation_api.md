@@ -91,8 +91,7 @@ size, scaling, unit, and all parameters participate in the key. Track changes
 cannot invalidate upstream tasks because `--chipseq_run_mode tracks` consumes
 only external native manifests.
 
-`--chipseq_native_tracks false` invokes the unchanged legacy `tracks` step.
-This fallback is limited to dedicated `tracks` mode. Native `full` supplies the
+The dedicated `tracks` mode always invokes this API. Native `full` supplies the
 final-BAM and Reference Bundle channels directly to the same Track API.
 
 This stage establishes architecture and executable contracts. It does not

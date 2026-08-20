@@ -96,10 +96,9 @@ per-set manifest by ID and checksum.
 
 ## Workflow and cache semantics
 
-`--chipseq_run_mode annotation --chipseq_native_peak_annotation true` consumes
-external, tracked manifests and their referenced artifacts. It never invokes
-peak calling or Differential Binding. The legacy annotation step remains the
-fallback when the flag is false. `full` retains its current behavior.
+`--chipseq_run_mode annotation` consumes external, tracked manifests and their
+referenced artifacts. It never invokes Peak Calling or Differential Binding.
+`full` supplies the same API directly through channels.
 
 Peak/reference manifests, peaks, GTF/GFF, metadata identity, genome/build,
 provider version, and all annotation parameters are deep-cache inputs. A
