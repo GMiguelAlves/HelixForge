@@ -49,8 +49,8 @@ RPGC must be explicit:
 
 Unsupported scientific options fail during `TRACK_CONTEXT`; they are not
 silently ignored. The module Conda environment pins deepTools 3.5.5 and
-samtools 1.20. A container is intentionally not selected until a combined,
-digest-pinned image containing both tools has been validated.
+samtools 1.20. The production image additionally pins Python 3.11.9 and
+pyBigWig 0.3.23 and is selected by immutable OCI digest.
 
 ## Native graph and outputs
 
@@ -81,12 +81,11 @@ also published below `pipeline_info/native_chipseq/tracks`.
 - the input schema and example are valid JSON;
 - no scheduler command is present in native modules.
 
-The fixture contains placeholder BAM/BAI/FASTA data and stubs do not create a
-scientific BigWig. Consequently, this stage makes no claim of numerical or
-scientific equivalence. Real deepTools execution, legacy-vs-native BigWig
-comparison, IGV inspection, container/Conda/Slurm validation, and performance
-benchmarking remain deferred until a representative dataset and runtime are
-available.
+The later consolidated Slurm pass produced seven individual and two aggregate
+tracks in the complete real reduced DAG. Docker certification run
+`32368534261` independently created a BigWig with deepTools and reopened it with
+pyBigWig from the immutable production image. A legacy-vs-native biological
+BigWig comparison and IGV review remain deferred to the reviewed dataset.
 
 ## Next step
 

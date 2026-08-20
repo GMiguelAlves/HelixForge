@@ -398,8 +398,11 @@ upstream reproduction.
 
 ## Execution environments
 
-- Docker: real execution validated for Trim Galore, FastQC, STAR, Salmon,
-  current Salmon Import, Bowtie2 indexing, and MACS3.
+- Docker: real reduced execution is validated for Trim Galore, FastQC,
+  MultiQC, STAR, Salmon, current Salmon Import, Bowtie2/Samtools, interval
+  operations, featureCounts, MACS3, annotation, tracks and report. The four
+  dedicated ChIP images and three immutable upstream runtimes passed run
+  `32368534261`.
 - Slurm: real submission validated. Preflight job 12083 ran on a compute node;
   RNA-seq plus Bowtie2, BAM processing, MACS3, FRiP, consensus, Differential
   Binding, annotation, tracks, and report tasks completed under the Nextflow
@@ -470,8 +473,9 @@ was about six minutes including Slurm polling and report generation.
 The real runs emitted versions, command/execution metadata, manifests and
 checksums at the tested API boundaries. The Import checksum validation detected
 both line-ending changes before analysis, demonstrating fail-closed behavior.
-Container digest recording is not yet uniform: tags remain in several execution
-documents and the downloaded OCI digest is not propagated into every manifest.
+Production ChIP scientific runtimes are now pinned by OCI digest in config and
+schema. Runtime manifests do not yet propagate every resolved digest into each
+scientific execution document.
 
 ## Retirement decision
 
@@ -481,21 +485,18 @@ Gene Report were completed. The annotated `rnaseq-legacy-v1.0.0` tag preserves
 its final executable snapshot. ChIP-seq and Integrative legacy pipelines must
 remain available. Their global retirement is blocked by:
 
-1. the Bowtie2 production image missing samtools, despite the passing conditional Slurm regression;
-2. IDR remaining explicitly not implemented;
-3. unresolved task-cache persistence in the available Nextflow runtime;
-4. STAR 2.7.11b crashing during index generation in the available cluster runtime;
-5. no production-scale, top-level ChIP-seq regression against a reviewed biological dataset.
+1. unresolved task-cache persistence in the available Nextflow runtime;
+2. no top-level execution with the Docker/Apptainer profile yet;
+3. no production-scale ChIP-seq regression against a reviewed biological dataset.
 
 The detailed decisions and deviations are tracked in
 `docs/scientific-deviation-log.md`.
 
 ## Next controlled pass
 
-1. Reproduce the one-process cache probe with an administrator-supported
-   Nextflow installation and, if necessary, report the empty task DB upstream.
-2. Publish one declarative Bowtie2 2.5.4 + samtools 1.20 image and rerun alignment.
-3. Implement and validate IDR, or explicitly exclude it from the first release.
-4. Repeat Differential Binding with the certified DESeq2 1.0.1 image.
-5. Validate STAR with the pinned production image/runtime rather than the crashing cluster package.
-6. Run the top-level ChIP-seq workflow on one reviewed reduced biological dataset before reconsidering legacy removal.
+1. Repeat the complete deterministic ChIP fixture with the Docker profile and,
+   when available, the Apptainer profile.
+2. Reproduce the task-cache issue with an administrator-supported runtime and
+   continue the upstream report.
+3. Run the top-level ChIP-seq workflow on one reviewed biological dataset
+   before reconsidering legacy removal.
