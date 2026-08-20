@@ -105,7 +105,7 @@ def _materialize(document: dict[str, Any], manifest: Path, artifact_root: Path, 
         target = target_root / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
-        bindings.append({"artifact_id": artifact["artifact_id"], "declared_index": len(bindings)})
+        bindings.append({"artifact_id": artifact["artifact_id"], "declared_name": source.name})
     if not bindings:
         raise ValueError(f"{assay} manifest exposes no Integration Evidence artifacts")
     (output / f"{assay}_bindings.json").write_text(json.dumps({"bindings": bindings}, indent=2, sort_keys=True) + "\n", encoding="utf-8")

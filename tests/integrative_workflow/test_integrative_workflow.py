@@ -68,6 +68,11 @@ class IntegrativePreflightTest(unittest.TestCase):
             self.assertEqual("compatible", report["reference_compatibility"])
             self.assertGreater(report["inputs"][0]["bound_artifacts"], 0)
             self.assertTrue((root / "prepared" / "rnaseq_bindings.json").is_file())
+            bindings = load_bindings(
+                root / "prepared" / "chipseq_bindings.json",
+                list(reversed(sorted((root / "prepared" / "chipseq_artifacts").glob("*/*")))),
+            )
+            self.assertEqual({"chip.annotation", "chip.db"}, set(bindings))
 
     def test_incompatible_annotation_fails_early(self):
         with tempfile.TemporaryDirectory() as directory:
