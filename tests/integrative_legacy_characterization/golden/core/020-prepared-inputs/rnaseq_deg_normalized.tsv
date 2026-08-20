@@ -1,0 +1,17 @@
+contrast_id	gene_id	gene_name	baseMean	log2FoldChange	lfcSE	stat	pvalue	padj	deg_status
+cercariae_vs_adult	geneA	Alpha	61.25	2.5	0.3	8.3	0.0001	0.001	up
+cercariae_vs_adult	geneB	Beta	58	-2	0.4	-5	0.0005	0.004	down
+cercariae_vs_adult	geneC	Gamma	53.75	-1.5	0.4	-3.75	0.005	0.02	down
+cercariae_vs_adult	geneD	Delta	36.75	1.2	0.4	3	0.01	0.04	up
+cercariae_vs_adult	geneE	Epsilon	39.5	1.1	0.35	3.14	0.008	0.03	up
+cercariae_vs_adult	geneF	Phi	40.5	0.2	0.3	0.67	0.7	0.9	not_significant
+cercariae_vs_adult	geneG	Gamma2	5	0	0.2	0	1	1	not_significant
+cercariae_vs_adult	geneH	Eta	8	0.1	0.2	0.5	0.8	0.9	not_significant
+adult_vs_cercariae	geneA	Alpha	61.25	-1.2	0.3	-4	0.002	0.01	down
+adult_vs_cercariae	geneB	Beta	58	0.4	0.3	1.33	0.2	0.4	not_significant
+adult_vs_cercariae	geneC	Gamma	53.75	0.5	0.4	1.25	0.3	0.5	not_significant
+adult_vs_cercariae	geneD	Delta	36.75	0.2	0.4	0.5	0.7	0.8	not_significant
+adult_vs_cercariae	geneE	Epsilon	39.5	-1.4	0.4	-3.5	0.004	0.02	down
+adult_vs_cercariae	geneF	Phi	40.5	0	0.3	0	1	1	not_significant
+adult_vs_cercariae	geneG	Gamma2	5	0.1	0.2	0.5	0.7	0.8	not_significant
+adult_vs_cercariae	geneH	Eta	8	-0.2	0.2	-1	0.4	0.6	not_significant

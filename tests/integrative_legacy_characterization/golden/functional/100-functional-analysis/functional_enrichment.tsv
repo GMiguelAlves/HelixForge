@@ -1,0 +1,4 @@
+term	n_selected	n_background	selected_genes	note
+chromatin	3	3	geneA;geneB;geneF	descriptive_count_offline
+development	1	3	geneA	descriptive_count_offline
+metabolism	1	1	geneC	descriptive_count_offline

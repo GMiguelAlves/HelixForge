@@ -1,0 +1,35 @@
+target_set	feature_scope	mark_or_factor	stage_or_condition	universe_genes	target_genes	marked_genes	overlap_genes	expected_overlap	fold_enrichment	odds_ratio	p_value	q_value	top_overlap_genes	overlap_gene_ids
+epigenetic_machinery	promoter_peak	H3K27ac	cercariae	8	2	1	1	0.25	4	13	0.25	1	geneA(Alpha)	geneA
+epigenetic_machinery	any_peak	SmHP1	adult	8	2	1	1	0.25	4	13	0.25	1	geneF(Phi)	geneF
+epigenetic_machinery	any_peak	SmHP1	cercariae	8	2	1	1	0.25	4	13	0.25	1	geneF(Phi)	geneF
+epigenetic_machinery	any_peak	SmHP1	all_observed_stages	8	2	1	1	0.25	4	13	0.25	1	geneF(Phi)	geneF
+epigenetic_machinery	promoter_peak	SmHP1	cercariae	8	2	1	1	0.25	4	13	0.25	1	geneF(Phi)	geneF
+epigenetic_machinery	promoter_peak	SmHP1	all_observed_stages	8	2	1	1	0.25	4	13	0.25	1	geneF(Phi)	geneF
+DEG	any_peak	H3K27ac	cercariae	8	5	2	2	1.25	1.6	5	0.35714286	1	geneA(Alpha);geneC(Gamma)	geneA;geneC
+DEG	any_peak	H3K27me3	adult	8	5	2	2	1.25	1.6	5	0.35714286	1	geneB(Beta);geneD(Delta)	geneB;geneD
+DEG	any_peak	H3K27me3	all_observed_stages	8	5	2	2	1.25	1.6	5	0.35714286	1	geneB(Beta);geneD(Delta)	geneB;geneD
+epigenetic_machinery	any_peak	H3K27ac	adult	8	2	2	1	0.5	2	3.6666667	0.46428571	1	geneA(Alpha)	geneA
+epigenetic_machinery	any_peak	H3K27ac	cercariae	8	2	2	1	0.5	2	3.6666667	0.46428571	1	geneA(Alpha)	geneA
+epigenetic_machinery	promoter_peak	H3K27ac	all_observed_stages	8	2	2	1	0.5	2	3.6666667	0.46428571	1	geneA(Alpha)	geneA
+DEG	promoter_peak	H3K27ac	cercariae	8	5	1	1	0.625	1.6	2.3333333	0.625	1	geneA(Alpha)	geneA
+DEG	any_peak	H3K27me3	cercariae	8	5	1	1	0.625	1.6	2.3333333	0.625	1	geneB(Beta)	geneB
+DEG	promoter_peak	H3K27me3	adult	8	5	1	1	0.625	1.6	2.3333333	0.625	1	geneB(Beta)	geneB
+DEG	promoter_peak	H3K27me3	cercariae	8	5	1	1	0.625	1.6	2.3333333	0.625	1	geneB(Beta)	geneB
+DEG	promoter_peak	H3K27me3	all_observed_stages	8	5	1	1	0.625	1.6	2.3333333	0.625	1	geneB(Beta)	geneB
+epigenetic_machinery	any_peak	H3K27ac	all_observed_stages	8	2	3	1	0.75	1.3333333	1.8	0.64285714	1	geneA(Alpha)	geneA
+DEG	any_peak	H3K27ac	all_observed_stages	8	5	3	2	1.875	1.0666667	1.1904762	0.71428571	1	geneA(Alpha);geneC(Gamma)	geneA;geneC
+DEG	any_peak	H3K27ac	adult	8	5	2	1	1.25	0.8	0.55555556	0.89285714	1	geneA(Alpha)	geneA
+DEG	promoter_peak	H3K27ac	all_observed_stages	8	5	2	1	1.25	0.8	0.55555556	0.89285714	1	geneA(Alpha)	geneA
+DEG	promoter_peak	H3K27ac	adult	8	5	1	0	0.625	0	0.15151515	1	1		
+DEG	any_peak	SmHP1	adult	8	5	1	0	0.625	0	0.15151515	1	1		
+DEG	any_peak	SmHP1	cercariae	8	5	1	0	0.625	0	0.15151515	1	1		
+DEG	any_peak	SmHP1	all_observed_stages	8	5	1	0	0.625	0	0.15151515	1	1		
+DEG	promoter_peak	SmHP1	cercariae	8	5	1	0	0.625	0	0.15151515	1	1		
+DEG	promoter_peak	SmHP1	all_observed_stages	8	5	1	0	0.625	0	0.15151515	1	1		
+epigenetic_machinery	promoter_peak	H3K27ac	adult	8	2	1	0	0.25	0	0.73333333	1	1		
+epigenetic_machinery	any_peak	H3K27me3	adult	8	2	2	0	0.5	0	0.36	1	1		
+epigenetic_machinery	any_peak	H3K27me3	cercariae	8	2	1	0	0.25	0	0.73333333	1	1		
+epigenetic_machinery	any_peak	H3K27me3	all_observed_stages	8	2	2	0	0.5	0	0.36	1	1		
+epigenetic_machinery	promoter_peak	H3K27me3	adult	8	2	1	0	0.25	0	0.73333333	1	1		
+epigenetic_machinery	promoter_peak	H3K27me3	cercariae	8	2	1	0	0.25	0	0.73333333	1	1		
+epigenetic_machinery	promoter_peak	H3K27me3	all_observed_stages	8	2	1	0	0.25	0	0.73333333	1	1		

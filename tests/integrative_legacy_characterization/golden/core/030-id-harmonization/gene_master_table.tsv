@@ -1,0 +1,9 @@
+gene_id	gene_name	chromosome	start	end	strand	biotype	functional_annotation	is_gene_of_interest	is_epigenetic_machinery	machinery_group
+geneA	Alpha	chr1	1000	2000	+	protein_coding	Chromatin regulator	true	true	chromatin_remodeler
+geneB	Beta	chr1	3000	4000	-	protein_coding	Repressive chromatin target	false	false	
+geneC	Gamma	chr1	5000	6000	+	protein_coding	Metabolic enzyme	false	false	
+geneD	Delta	chr1	7000	8000	-	protein_coding	Signaling regulator	false	false	
+geneE	Epsilon	chr2	1000	2000	+	protein_coding	Developmental effector	false	false	
+geneF	Phi	chr1	9000	10000	+	protein_coding	Chromatin reader	true	true	chromatin_reader
+geneG	Gamma2	chr1	11000	12000	+	protein_coding	Stress response	false	false	
+geneH	geneH						Uncharacterized protein	false	false	

@@ -1,0 +1,7 @@
+stage_or_condition	mark_or_factor	n_linked_genes	n_peak_gene_links	n_promoter_linked_genes	n_deg_linked_genes	n_epigenetic_machinery_genes	n_wgcna_hits	n_mfuzz_hits	n_dtu_hits	n_splicing_hits	mean_candidate_score	top_candidate_genes
+adult	H3K27ac	2	2	1	1	1	1	0	0	0	9.34845	geneA;geneG
+adult	H3K27me3	2	2	1	2	0	0	1	0	1	6.7479	geneB;geneD
+adult	SmHP1	1	1	0	0	1	0	0	0	0	5.7458	geneF
+cercariae	H3K27ac	2	2	1	2	1	1	0	1	0	10.5995	geneA;geneC
+cercariae	H3K27me3	1	1	1	1	0	0	1	0	0	8.8979	geneB
+cercariae	SmHP1	1	1	1	0	1	0	0	0	0	5.7458	geneF
