@@ -482,21 +482,24 @@ scientific execution document.
 The RNA-seq legacy path is ready for retirement after the production Import
 policy, native foundation, certified MultiQC, DESeq2 batch design and native
 Gene Report were completed. The annotated `rnaseq-legacy-v1.0.0` tag preserves
-its final executable snapshot. ChIP-seq and Integrative legacy pipelines must
-remain available. Their global retirement is blocked by:
+its final executable snapshot. ChIP-seq and Integrative legacy pipelines remain
+available until their dedicated retirement passes. The remaining technical
+blocker recorded here is:
 
-1. unresolved task-cache persistence in the available Nextflow runtime;
-2. no top-level execution with the Docker/Apptainer profile yet;
-3. no production-scale ChIP-seq regression against a reviewed biological dataset.
+1. unresolved task-cache persistence in the available Nextflow runtime.
+
+The missing Slurm Apptainer runtime is recorded as an external site limitation,
+not a release gate. OCI providers have independent functional certification.
+The reviewed biological RNA-seq and ChIP-seq regressions are post-release
+validation milestones and do not block legacy retirement.
 
 The detailed decisions and deviations are tracked in
 `docs/scientific-deviation-log.md`.
 
 ## Next controlled pass
 
-1. Repeat the complete deterministic ChIP fixture with the Docker profile and,
-   when available, the Apptainer profile.
+1. Complete the dedicated retirement review for the remaining legacy paths.
 2. Reproduce the task-cache issue with an administrator-supported runtime and
    continue the upstream report.
-3. Run the top-level ChIP-seq workflow on one reviewed biological dataset
-   before reconsidering legacy removal.
+3. After release, run the top-level RNA-seq and ChIP-seq workflows on reviewed
+   biological datasets and record comparative benchmarks.

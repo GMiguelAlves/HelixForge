@@ -14,7 +14,10 @@
   tracks; immutable upstream images cover MACS3, annotation and report. All
   seven passed reduced functional Docker certification in run `32368534261`.
   A complete top-level Docker execution and an Apptainer execution remain
-  pending.
+  pending. Slurm probes `14748`/`14749` confirmed that the Debian 13 compute
+  node exposes no supported container runtime; no user-managed installation
+  was introduced. This is a documented site limitation, not a HelixForge
+  release gate.
 - RNA-seq Report API orchestration and the clean
   `ghcr.io/gmiguelalves/helixforge-rnaseq-report:1.0.0` image are certified on a
   reduced real R execution. The module-owned `gene_set_report.R` is
