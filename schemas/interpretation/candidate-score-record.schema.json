@@ -1,0 +1,5 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://helixforge.dev/schemas/interpretation/candidate-score-record.schema.json","title":"HelixForge Candidate Score v1","type":"object",
+  "required":["canonical_entity_id","reference_id","legacy_evidence_class","raw_score","final_score","statistical_support","score_version","score_is_inferential"],
+  "properties":{"canonical_entity_id":{"type":"string","minLength":1},"reference_id":{"type":"string","minLength":1},"legacy_evidence_class":{"type":"string"},"raw_score":{"type":["number","string"]},"final_score":{"type":["number","string"]},"statistical_support":{"type":["number","string"]},"score_version":{"const":"1.0"},"score_is_inferential":{"const":"false"}}
+}

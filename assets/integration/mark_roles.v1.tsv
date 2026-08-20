@@ -1,0 +1,9 @@
+mark	canonical_name	regulatory_role	context	evidence_source	notes
+H3K27ac	H3K27ac	ACTIVATING	promoter_or_enhancer	legacy_chip_marks_config	Common active chromatin mark
+H3K4me3	H3K4me3	ACTIVATING	promoter	legacy_chip_marks_config	Common active promoter mark
+H3K27me3	H3K27me3	REPRESSIVE	broad	legacy_chip_marks_config	Common Polycomb-associated repressive mark
+H3K9me3	H3K9me3	REPRESSIVE	broad	legacy_chip_marks_config	Common heterochromatin mark
+H3K9ac	H3K9ac	ACTIVATING	promoter_or_enhancer	legacy_chip_marks_config	Active acetylation mark
+SmHP1	SmHP1	CONTEXT_DEPENDENT	broad	legacy_chip_marks_config	Protein occupancy; not forced into activating or repressive interpretation
+ATAC	ATAC	ACTIVATING	open_chromatin	legacy_chip_marks_config	Accessibility signal
+unknown	unknown	UNKNOWN	unknown	legacy_chip_marks_config	Default fallback

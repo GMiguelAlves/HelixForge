@@ -1,0 +1,5 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://helixforge.dev/schemas/interpretation/fisher-test-record.schema.json","title":"HelixForge Cross-Assay Fisher Test v1","type":"object",
+  "required":["test_id","analysis_family","target_set","feature_scope","canonical_mark","canonical_context","universe_definition","universe_genes","n11","n10","n01","n00","odds_ratio","alternative","pvalue","padj"],
+  "properties":{"test_id":{"type":"string"},"analysis_family":{"type":"string"},"target_set":{"enum":["DEG","epigenetic_machinery"]},"feature_scope":{"enum":["any_peak","promoter_peak"]},"canonical_mark":{"type":"string"},"canonical_context":{"type":"string"},"universe_definition":{"const":"all_genes_in_master_evidence"},"universe_genes":{"type":["integer","string"]},"n11":{"type":["integer","string"]},"n10":{"type":["integer","string"]},"n01":{"type":["integer","string"]},"n00":{"type":["integer","string"]},"odds_ratio":{"type":["number","string"]},"alternative":{"const":"greater"},"pvalue":{"type":["number","string"]},"padj":{"type":["number","string"]}}
+}

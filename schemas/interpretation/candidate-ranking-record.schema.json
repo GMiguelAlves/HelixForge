@@ -1,0 +1,5 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://helixforge.dev/schemas/interpretation/candidate-ranking-record.schema.json","title":"HelixForge Candidate Ranking v1","type":"object",
+  "required":["rank","canonical_entity_id","final_score","statistical_support","score_version","tie_break_rule"],
+  "properties":{"rank":{"type":["integer","string"]},"canonical_entity_id":{"type":"string","minLength":1},"final_score":{"type":["number","string"]},"statistical_support":{"type":["number","string"]},"score_version":{"const":"1.0"},"tie_break_rule":{"const":"final_score_desc;statistical_support_desc;canonical_entity_id_asc"}}
+}
