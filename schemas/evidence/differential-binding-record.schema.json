@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://helixforge.dev/schemas/evidence/differential-binding-record.schema.json",
+  "title": "Differential binding evidence record v1", "type": "object",
+  "required": ["evidence_id", "peak_id", "contrast_id", "log2_fold_change", "source_artifact_id"],
+  "properties": {"evidence_id": {"type": "string"}, "peak_id": {"type": "string", "minLength": 1}, "source_entity_id": {"type": "string"}, "normalized_entity_id": {"type": "string"}, "normalization_rule": {"const": "none"}, "contrast_id": {"type": "string", "minLength": 1}, "numerator": {"type": "string"}, "denominator": {"type": "string"}, "mark_or_factor": {"type": "string"}, "base_mean": {"type": ["number", "null"]}, "log2_fold_change": {"type": ["number", "null"]}, "pvalue": {"type": ["number", "null"], "minimum": 0, "maximum": 1}, "padj": {"type": ["number", "null"], "minimum": 0, "maximum": 1}, "statistic": {"type": ["number", "null"]}, "standard_error": {"type": ["number", "null"]}, "statistical_method": {"type": "string"}, "source_artifact_id": {"type": "string"}}
+}

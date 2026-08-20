@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://helixforge.dev/schemas/evidence/expression-record.schema.json",
+  "title": "Expression evidence record v1", "type": "object",
+  "required": ["evidence_id", "source_entity_id", "sample_id", "measurement", "unit", "source_artifact_id"],
+  "properties": {"evidence_id": {"type": "string"}, "source_entity_id": {"type": "string", "minLength": 1}, "normalized_entity_id": {"type": "string"}, "normalization_rule": {"const": "none"}, "sample_id": {"type": "string", "minLength": 1}, "condition": {"type": "string"}, "stage": {"type": "string"}, "measurement": {"type": "number"}, "unit": {"enum": ["counts", "TPM", "normalized_counts"]}, "source_artifact_id": {"type": "string"}}
+}
