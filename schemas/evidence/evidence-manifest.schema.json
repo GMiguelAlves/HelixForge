@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helixforge.dev/schemas/evidence/evidence-manifest.schema.json",
+  "title": "HelixForge Standardized Evidence Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "evidence_model_version", "type", "id", "assay", "run_id", "reference_id", "source_run_manifest_id", "status", "contrasts", "datasets", "artifact_catalog", "provenance"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "evidence_model_version": {"const": "1.0"},
+    "type": {"const": "evidence_manifest"},
+    "id": {"type": "string", "minLength": 1},
+    "assay": {"enum": ["rnaseq", "chipseq"]},
+    "run_id": {"type": "string", "minLength": 1},
+    "reference_id": {"type": "string", "minLength": 1},
+    "source_run_manifest_id": {"type": "string", "minLength": 1},
+    "status": {"enum": ["complete", "complete_empty", "stub"]},
+    "contrasts": {"type": "array", "items": {"type": "object"}},
+    "datasets": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["dataset_id", "evidence_type", "entity_type", "format", "path", "schema", "unit", "records", "checksum"],
+        "properties": {
+          "dataset_id": {"type": "string", "minLength": 1},
+          "evidence_type": {"enum": ["expression", "differential_expression", "peak", "peak_gene", "consensus", "differential_binding"]},
+          "entity_type": {"enum": ["gene", "peak", "peak_gene"]},
+          "format": {"const": "tsv"},
+          "path": {"type": "string", "pattern": "^[^/\\\\]+\\.tsv$"},
+          "schema": {"type": "string", "pattern": "^[^/\\\\]+\\.schema\\.json$"},
+          "unit": {"type": ["string", "null"]},
+          "records": {"type": "integer", "minimum": 1},
+          "checksum": {"type": "object", "required": ["algorithm", "value"], "properties": {"algorithm": {"const": "sha256"}, "value": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}, "additionalProperties": false}
+        }
+      }
+    },
+    "artifact_catalog": {"type": "array", "items": {"type": "object", "required": ["artifact_id", "artifact_type", "classification", "reference_id", "source", "provenance", "bound"]}},
+    "provenance": {"type": "object", "required": ["provider", "provider_version", "source_run_manifest_id"]}
+  }
+}

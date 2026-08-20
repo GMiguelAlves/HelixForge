@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://helixforge.dev/schemas/evidence/peak-record.schema.json",
+  "title": "Peak evidence record v1", "type": "object",
+  "required": ["evidence_id", "peak_id", "mark_or_factor", "chromosome", "start", "end", "peak_type", "source_artifact_id"],
+  "properties": {"evidence_id": {"type": "string"}, "peak_id": {"type": "string", "minLength": 1}, "mark_or_factor": {"type": "string", "minLength": 1}, "condition": {"type": "string"}, "stage": {"type": "string"}, "sample_ids": {"type": "string"}, "chromosome": {"type": "string", "minLength": 1}, "start": {"type": "integer", "minimum": 0}, "end": {"type": "integer", "minimum": 1}, "peak_type": {"enum": ["narrow", "broad"]}, "score": {}, "strand": {"type": "string"}, "signal_value": {}, "pvalue_score": {}, "qvalue_score": {}, "summit": {}, "source_artifact_id": {"type": "string"}}
+}
