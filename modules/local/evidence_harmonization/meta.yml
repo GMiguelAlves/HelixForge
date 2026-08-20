@@ -1,0 +1,14 @@
+name: evidence_harmonization
+description: Builds explicit cross-assay entity, contrast, context, and mark mappings.
+keywords: [integration, harmonization, entities, contrasts, chipseq, rnaseq]
+input:
+  - meta: Stable integration identity.
+  - rna_evidence: Complete staged RNA Evidence bundle.
+  - chip_evidence: Complete staged ChIP Evidence bundle.
+  - policy: Versioned explicit alias and ID policy JSON.
+output:
+  - artifacts: Harmonization maps and manifest.
+  - manifest: Cross-Assay Harmonization v1 manifest.
+  - reports: Execution and validation log.
+  - versions: Runtime and model versions.
+  - status: Completion record.
