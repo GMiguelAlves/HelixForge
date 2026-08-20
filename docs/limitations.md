@@ -1,8 +1,8 @@
 # Limitations of the compatibility skeleton
 
-- Legacy-wrapper outputs remain external side effects. Native QC, STAR,
-  Salmon, and Import API outputs are content-tracked Nextflow artifacts and
-  compatibility copies are published at the existing paths.
+- Only the Integrative workflow still uses legacy-wrapper outputs as external
+  side effects. Native RNA-seq and ChIP-seq outputs are content-tracked Nextflow
+  artifacts; required compatibility copies are published at configured paths.
 - ChIP raw QC, Bowtie2 alignment, BAM selection, duplicate policy, blacklist
   exclusion, final BAM QC, per-replicate MACS3 peak calling, Peak QC and
   interval consensus fan out natively. Optional IDR 2.0.4.2, Differential
@@ -13,8 +13,8 @@
   images cover Bowtie2/Samtools, FRiP/interval consensus, featureCounts and
   tracks; immutable upstream images cover MACS3, annotation and report. All
   seven passed reduced functional Docker certification in run `32368534261`.
-  A complete top-level Docker execution and an Apptainer execution remain
-  pending. Slurm probes `14748`/`14749` confirmed that the Debian 13 compute
+  A complete top-level Apptainer execution could not be performed. Slurm probes
+  `14748`/`14749` confirmed that the Debian 13 compute
   node exposes no supported container runtime; no user-managed installation
   was introduced. This is a documented site limitation, not a HelixForge
   release gate.
@@ -24,7 +24,7 @@
   text-identical after LF normalization to the reviewed legacy implementation.
   The complete synthetic production path also passed on Slurm. A broad
   biological benchmark remains a post-release validation milestone; the
-  duplicate legacy copy is preserved by tag before retirement.
+  retired implementation is preserved by tag.
 - Docker runs must bind the configured external `SCRATCH_ROOT` at the same path
   inside the container because compatibility outputs retain their absolute
   legacy paths. Shared HPC filesystems are normally visible to Apptainer.
@@ -41,7 +41,7 @@
 - The deterministic QC mock validates orchestration and byte-preserving merge
   behavior. MultiQC 1.17 has a real reduced Docker certification with an OCI
   digest; STAR and Salmon have separate real-tool Docker regressions. A broad
-  reviewed biological QC regression is still a release gate.
+  reviewed biological QC regression is a post-release milestone.
 - STAR does not estimate transcript effective lengths, so Import API v1 marks
   length and `SummarizedExperiment` artifacts unavailable for that provider
   instead of inventing values.
@@ -67,5 +67,5 @@
 - The v1 comparison universe is the explicit union of compatible condition-level
   completed Consensus or IDR BEDs. Choosing IDR changes the per-condition peak
   evidence but does not silently change the cross-condition universe policy.
-- Existing `.done` files remain active inside legacy pipelines. Nextflow status
-  markers are an additional orchestration layer.
+- Existing `.done` files remain active only inside the Integrative legacy
+  pipeline. Nextflow status markers are an additional orchestration layer there.

@@ -121,13 +121,6 @@ Inspect the complete graph without running scientific tools:
 nextflow run . -profile test -stub-run --workflow all
 ```
 
-Ask the existing orchestrators to print their own dry-run commands:
-
-```bash
-nextflow run . -profile local --workflow chipseq --legacy_dry_run true \
-  --chipseq_config pipelines/chipseq/legacy/config/example_pipeline_config.sh
-```
-
 Compile the native ChIP-seq foundation without scientific tools:
 
 ```bash
@@ -141,11 +134,8 @@ For a real run, use `--chipseq_run_mode qc`, `alignment`, `post_alignment`,
 Native peaks require explicit `--chipseq_peak_type narrow|broad` and a numerical
 `--chipseq_effective_genome_size`. `full` is the native, single-session
 coordinator from QC through the final report; it also requires an explicit
-consensus method and `--chipseq_db_spec`. It rejects disabled native providers
-instead of falling back to the legacy coordinator.
-`--chipseq_native_peak_calling false` selects only the legacy peak step in its
-dedicated mode.
-`--chipseq_native_peak_qc false` stops `peak_qc` mode after native Peak Calling.
+consensus method and `--chipseq_db_spec`. ChIP-seq has no legacy coordinator or
+fallback in the current source tree.
 Native consensus additionally requires `--chipseq_consensus_method
 union|intersection|replicate_support|idr`; replicate support also requires
 `--chipseq_min_replicates`. IDR additionally requires exactly two premerged
@@ -156,31 +146,24 @@ signal_value|p_value|q_value`. Select it in `full` with
 Native differential binding additionally requires
 `--chipseq_run_mode differential_binding`, an explicit consensus method, and
 `--chipseq_db_spec /path/to/chipseq_db_spec.json`. Copy
-`assets/chipseq_db_spec.example.json` as a starting point. Set
-`--chipseq_native_differential_binding false` to retain the unchanged legacy
-`differential` step.
+`assets/chipseq_db_spec.example.json` as a starting point.
 
 Native peak annotation uses `--chipseq_run_mode annotation` with explicit
 `--chipseq_annotation_peaks`, `--chipseq_annotation_peak_manifest`,
 `--chipseq_annotation_reference`, `--chipseq_annotation_reference_manifest`,
-and `--chipseq_annotation_gtf`. Set `--chipseq_native_peak_annotation false`
-for the unchanged legacy annotation fallback.
+and `--chipseq_annotation_gtf`.
 
-Native tracks use `--chipseq_run_mode tracks`,
-`--chipseq_native_tracks true`, and
+Native tracks use `--chipseq_run_mode tracks` and
 `--chipseq_tracks_input_manifest /path/to/tracks_input.json`. Copy
-`assets/chipseq_tracks_input.example.json` as a starting point. Set
-`--chipseq_native_tracks false` for the unchanged legacy tracks fallback.
+`assets/chipseq_tracks_input.example.json` as a starting point.
 
-Native report generation uses `--chipseq_run_mode report`,
-`--chipseq_native_report true`, and
+Native report generation uses `--chipseq_run_mode report` and
 `--chipseq_report_input_manifest /path/to/chipseq_report_input.json`. Copy
-`assets/chipseq_report_input.example.json` as a starting point. Set
-`--chipseq_native_report false` for the unchanged legacy report fallback.
+`assets/chipseq_report_input.example.json` as a starting point.
 
-The default configs remain the versioned `config/pipeline_config.sh` files in
-each legacy pipeline. Create their existing untracked user configuration files
-before a real run.
+The current ChIP-seq configuration is
+`pipelines/chipseq/config/pipeline_config.sh`. The final executable legacy
+snapshot is preserved by the annotated tag `chipseq-legacy-v1.0.0`.
 
 See [docs/nextflow.md](docs/nextflow.md),
 [docs/native-trim-galore.md](docs/native-trim-galore.md),
@@ -197,6 +180,7 @@ See [docs/nextflow.md](docs/nextflow.md),
 [docs/native-rnaseq-report.md](docs/native-rnaseq-report.md),
 [docs/rnaseq-scientific-review.md](docs/rnaseq-scientific-review.md),
 [docs/chipseq-legacy-analysis.md](docs/chipseq-legacy-analysis.md),
+[docs/chipseq-legacy-retirement.md](docs/chipseq-legacy-retirement.md),
 [docs/chipseq-architecture.md](docs/chipseq-architecture.md),
 [docs/chipseq-scientific-review.md](docs/chipseq-scientific-review.md),
 [docs/chipseq-api.md](docs/chipseq-api.md),

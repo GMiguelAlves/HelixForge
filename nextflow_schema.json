@@ -117,22 +117,6 @@
       "enum": ["qc", "alignment", "post_alignment", "peaks", "peak_qc", "consensus", "idr", "differential_binding", "annotation", "tracks", "report", "full"],
       "default": "full"
     },
-    "chipseq_native_peak_calling": { "type": "boolean", "default": true },
-    "chipseq_native_peak_qc": {
-      "type": "boolean",
-      "default": true,
-      "description": "Run the native Peak QC API after native Peak Calling in peak_qc mode. When false, stop after Peak Calling."
-    },
-    "chipseq_native_consensus": {
-      "type": "boolean",
-      "default": true,
-      "description": "Use the native Consensus/IDR API after Peak QC. Consensus falls back to legacy when false; no legacy IDR equivalent exists."
-    },
-    "chipseq_native_differential_binding": {
-      "type": "boolean",
-      "default": true,
-      "description": "Use the native Differential Binding API in differential_binding mode; false selects the unchanged legacy differential step."
-    },
     "chipseq_peak_caller": { "type": ["string", "null"], "enum": ["macs3", null], "default": null },
     "chipseq_peak_type": { "type": ["string", "null"], "enum": ["narrow", "broad", null], "default": null },
     "chipseq_effective_genome_size": { "type": ["number", "integer", "null"], "exclusiveMinimum": 0, "default": null },
@@ -248,20 +232,14 @@
       "enum": ["qc", "alignment", "quant", "quantification", "import", "de", "differential_expression", "report", "full"],
       "default": "full"
     },
-    "chipseq_native_foundation": { "type": "boolean", "default": true },
-    "chipseq_native_bam_processing": { "type": "boolean", "default": true },
-    "chipseq_native_peak_annotation": { "type": "boolean", "default": true },
-    "chipseq_native_tracks": { "type": "boolean", "default": true },
-    "chipseq_native_report": { "type": "boolean", "default": true },
     "chipseq_min_mapq": { "type": ["integer", "null"], "minimum": 0, "maximum": 255, "default": null },
     "chipseq_include_flags": { "type": "integer", "minimum": 0, "maximum": 65535, "default": 0 },
     "chipseq_exclude_flags": { "type": ["integer", "null"], "minimum": 0, "maximum": 65535, "default": null },
     "chipseq_region": { "type": ["string", "null"], "default": null },
-    "chipseq_duplicate_mode": { "type": "string", "enum": ["legacy", "none", "mark", "remove"], "default": "none" },
+    "chipseq_duplicate_mode": { "type": "string", "enum": ["none", "mark", "remove"], "default": "none" },
     "chipseq_blacklist": { "type": ["string", "null"], "default": null },
     "chipseq_blacklist_overlap_mode": { "type": "string", "enum": ["alignment", "fragment"], "default": "fragment" },
     "chipseq_sort_final_if_needed": { "type": "boolean", "default": false },
-    "chipseq_continue_legacy_peaks": { "type": "boolean", "default": false },
     "chipseq_annotation_peaks": { "type": ["string", "null"], "default": null },
     "chipseq_annotation_peak_manifest": { "type": ["string", "null"], "default": null },
     "chipseq_annotation_reference": { "type": ["string", "null"], "default": null },

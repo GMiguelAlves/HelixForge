@@ -6,7 +6,7 @@ python3 "${TEST_ROOT}/generate_fixture.py" --outdir "${TEST_ROOT}/fixture_work"
 "${NEXTFLOW_BIN:-nextflow}" run "${TEST_ROOT}/main.nf" -c "${TEST_ROOT}/nextflow.config" -stub-run -ansi-log false
 "${NEXTFLOW_BIN:-nextflow}" run "${TEST_ROOT}/main.nf" -c "${TEST_ROOT}/nextflow.config" -stub-run -resume -ansi-log false
 "${NEXTFLOW_BIN:-nextflow}" run "${ROOT}" -profile test -stub-run -ansi-log false \
-  --workflow chipseq --chipseq_run_mode annotation --chipseq_native_peak_annotation true \
+  --workflow chipseq --chipseq_run_mode annotation \
   --chipseq_annotation_peaks "${TEST_ROOT}/fixture_work/fixture.peaks.bed" \
   --chipseq_annotation_peak_manifest "${TEST_ROOT}/fixture_work/peak_manifest.json" \
   --chipseq_annotation_reference "${TEST_ROOT}/fixture_work/reference.fa" \

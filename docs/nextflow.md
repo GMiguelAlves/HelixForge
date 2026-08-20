@@ -39,10 +39,8 @@ nextflow run . -profile local --workflow chipseq --chipseq_run_mode annotation \
   --chipseq_annotation_reference_manifest reference_manifest.json \
   --chipseq_annotation_gtf annotation.gtf
 nextflow run . -profile local --workflow chipseq --chipseq_run_mode tracks \
-  --chipseq_native_tracks true \
   --chipseq_tracks_input_manifest tracks_input.json
 nextflow run . -profile local --workflow chipseq --chipseq_run_mode report \
-  --chipseq_native_report true \
   --chipseq_report_input_manifest chipseq_report_input.json
 ```
 
@@ -51,27 +49,22 @@ Bowtie2 indexing and per-record alignment. `post_alignment` adds selection,
 duplicate, blacklist, integrity and final-QC providers. `peaks` adds validated
 per-replicate MACS3 3.0.4 calling and requires explicit peak type and numerical
 effective genome size. `full` is the native single-session coordinator and
-requires all native provider flags, an explicit Consensus strategy, and a
-Differential Binding spec. It never falls back to the legacy coordinator. Use
-`--chipseq_native_peak_calling false` only for the dedicated legacy peaks step.
+requires an explicit Consensus strategy and a Differential Binding spec. The
+current ChIP-seq workflow has no legacy coordinator or fallback.
 `differential_binding` advances through Peak QC and Consensus into explicit
-featureCounts/DESeq2 providers and requires a versioned DB specification. Use
-`--chipseq_native_differential_binding false` for the legacy differential step.
+featureCounts/DESeq2 providers and requires a versioned DB specification.
 `annotation` consumes an already produced Peak Calling or Consensus manifest
-and never reruns upstream analysis. Set `--chipseq_native_peak_annotation false`
-for the unchanged legacy annotation step.
+and never reruns upstream analysis.
 `tracks` consumes an external final-BAM/reference inventory, creates individual
 and optional non-control aggregate BigWigs, and never reruns upstream stages.
-Set `--chipseq_native_tracks false` for the unchanged legacy tracks step.
 `report` consumes a versioned inventory of existing semantic manifests and
-does not rerun upstream stages. Set `--chipseq_native_report false` for the
-unchanged legacy report step.
+does not rerun upstream stages.
 
 The existing configuration remains authoritative:
 
 ```text
 pipelines/rnaseq/config/pipeline_config.sh
-pipelines/chipseq/legacy/config/pipeline_config.sh
+pipelines/chipseq/config/pipeline_config.sh
 pipelines/integrative/legacy/config/pipeline_config.sh
 ```
 
@@ -85,14 +78,15 @@ nextflow run . --workflow rnaseq \
 ## Profiles
 
 - `local`: Nextflow local executor.
-- `slurm`: one Nextflow task per compatibility step; legacy scripts run locally
-  inside the allocation and never submit child jobs.
+- `slurm`: one Nextflow task per native scientific process. The remaining
+  Integrative compatibility scripts run inside allocations and never submit
+  child jobs.
 - `docker`: uses the pinned images declared by each native QC, alignment,
   quantification, and import module.
 - `singularity`: uses the same OCI images for native modules.
 - `apptainer`: uses pinned OCI/blob images for native modules.
-- `conda`: creates pinned native QC/alignment/quantification/import environments;
-  legacy scripts still activate their existing named environments.
+- `conda`: creates pinned native environments; the remaining Integrative
+  compatibility scripts still activate its existing named environment.
 - `test`: reduced local settings for stub tests.
 
 ## Dry-run modes
@@ -100,17 +94,13 @@ nextflow run . --workflow rnaseq \
 `-stub-run` compiles the complete graph and runs only module stub blocks. It is
 the safe validation mode for this repository.
 
-`--legacy_dry_run true` launches the wrappers but adds `--dry-run` to the
-existing orchestrators. Their normal config validation still applies.
-
-On systems where Python 3 is available only as `python3` (including the tested
-WSL installation), preserve the legacy configuration and override the command
-for the run:
+`--legacy_dry_run true` applies only to the remaining Integrative compatibility
+workflow and adds `--dry-run` to its orchestrator.
 
 ```bash
-PYTHON_BIN=python3 nextflow run . -profile test --workflow chipseq \
+PYTHON_BIN=python3 nextflow run . -profile test --workflow integrative \
   --legacy_dry_run true \
-  --chipseq_config pipelines/chipseq/legacy/config/example_pipeline_config.sh
+  --integrative_config pipelines/integrative/legacy/config/pipeline_config.sh
 ```
 
 ## Nextflow reports
