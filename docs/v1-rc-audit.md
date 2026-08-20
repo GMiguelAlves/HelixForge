@@ -52,5 +52,10 @@ Audit date: 2026-08-20. Branch: `contrib/v1-rc-consolidation`.
 2. **Final gate:** clean-clone and smoke/CI evidence must be completed after all
    RC consolidation commits are present.
 
+The first clean-clone attempt exposed an undeclared development dependency: an
+incomplete host `jsonschema` installation lacked `referencing`. The RC now pins
+the test dependency in `requirements-dev.txt`; the clean-clone gate must install
+that file in an isolated location before it can be considered complete.
+
 The final decision must be reported as `RC_READY` only when this list is empty;
 otherwise it is `RC_BLOCKED` with the unresolved items named explicitly.

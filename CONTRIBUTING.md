@@ -13,6 +13,7 @@ meaning, explicit contracts and reproducibility.
 ## Required checks
 
 ```bash
+python3 -m pip install -r requirements-dev.txt
 bin/helixforge-doctor
 python3 tests/run_unit_tests.py
 nextflow lint .

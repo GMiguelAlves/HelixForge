@@ -25,7 +25,7 @@ jobs:
       - name: Install certified runtime
         run: |
           curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
-          python3 -m pip install --disable-pip-version-check jsonschema==4.23.0
+          python3 -m pip install --disable-pip-version-check -r requirements-dev.txt
       - name: Verify environment
         env:
           NEXTFLOW: ${{ github.workspace }}/nextflow

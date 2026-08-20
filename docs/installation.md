@@ -19,6 +19,13 @@ The v1 release candidate certifies a deliberately narrow runtime baseline.
 Git is required. Python and R do not need to be installed on the host when the
 selected provider runs in its pinned container.
 
+Contributors running the repository test suite also need Python 3 and the small
+pinned development dependency set:
+
+```bash
+python3 -m pip install -r requirements-dev.txt
+```
+
 ## Install Nextflow
 
 ```bash

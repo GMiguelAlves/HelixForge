@@ -3,6 +3,7 @@
 ## Local checks
 
 ```bash
+python3 -m pip install -r requirements-dev.txt
 NEXTFLOW=/path/to/nextflow bin/helixforge-doctor
 python3 tests/run_unit_tests.py
 nextflow lint .
