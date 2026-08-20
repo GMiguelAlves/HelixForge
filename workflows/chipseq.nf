@@ -23,6 +23,7 @@ workflow CHIPSEQ {
     pipeline_root = "${projectDir}/pipelines/chipseq"
     run_mode = params.chipseq_run_mode.toString().toLowerCase()
     terminal_manifest_ch = channel.empty()
+    terminal_bundle_ch = channel.empty()
     if (!(run_mode in ['qc', 'alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'annotation', 'tracks', 'report', 'full'])) {
         error "Unknown chipseq_run_mode '${params.chipseq_run_mode}'. Use qc, alignment, post_alignment, peaks, peak_qc, consensus, idr, differential_binding, annotation, tracks, report, or full."
     }
@@ -215,10 +216,12 @@ workflow CHIPSEQ {
         completed_ch = CHIPSEQ_NATIVE_FOUNDATION.out.completed
         logs_ch = CHIPSEQ_NATIVE_FOUNDATION.out.logs
         terminal_manifest_ch = CHIPSEQ_NATIVE_FOUNDATION.out.terminal_manifest
+        terminal_bundle_ch = CHIPSEQ_NATIVE_FOUNDATION.out.terminal_bundle
     }
 
     emit:
     completed = completed_ch
     logs      = logs_ch
     terminal_manifest = terminal_manifest_ch
+    terminal_bundle = terminal_bundle_ch
 }

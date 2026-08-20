@@ -230,6 +230,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     full_track_manifest_ch = channel.empty()
     full_report_artifacts_ch = channel.empty()
     terminal_manifest_ch = channel.empty()
+    terminal_bundle_ch = channel.empty()
     if (mode in ['alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'full']) {
         reference_inputs = plan_rows
             .map { row ->
@@ -757,6 +758,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                     }
                                 RUN_MANIFEST(terminal_inputs)
                                 terminal_manifest_ch = RUN_MANIFEST.out.artifacts
+                                terminal_bundle_ch = RUN_MANIFEST.out.bundle
                                 full_reports_ch = full_reports_ch.mix(RUN_MANIFEST.out.reports)
                             }
                         }
@@ -807,6 +809,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     track_manifest      = full_track_manifest_ch
     report              = full_report_artifacts_ch
     terminal_manifest   = terminal_manifest_ch
+    terminal_bundle     = terminal_bundle_ch
     logs                = CHIPSEQ_CONTEXT.out.reports
         .mix(CHIPSEQ_METADATA.out.reports.map { metadata_meta, _normalized, _controls, _report, log -> tuple(metadata_meta, log) })
         .mix(FASTQC.out.reports.map { fastqc_meta, _html, log -> tuple(fastqc_meta, log) })
