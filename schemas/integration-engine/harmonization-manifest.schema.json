@@ -1,0 +1,14 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://helixforge.dev/schemas/integration-engine/harmonization-manifest.schema.json",
+  "title":"HelixForge Cross-Assay Harmonization v1",
+  "type":"object", "additionalProperties":false,
+  "required":["schema_version","harmonization_model_version","type","id","status","reference","input_evidence_manifests","policy","datasets","provenance"],
+  "properties":{
+    "schema_version":{"const":"1.0"}, "harmonization_model_version":{"const":"1.0"}, "type":{"const":"cross_assay_harmonization"},
+    "id":{"type":"string","minLength":1}, "status":{"enum":["complete","stub"]}, "reference":{"type":"object"},
+    "input_evidence_manifests":{"type":"array","minItems":2,"maxItems":2,"items":{"type":"object","required":["id","assay"]}},
+    "policy":{"type":"object"}, "datasets":{"type":"array","items":{"$ref":"#/$defs/dataset"}}, "provenance":{"type":"object"}
+  },
+  "$defs":{"dataset":{"type":"object","required":["dataset_type","path","records","checksum"],"properties":{"dataset_type":{"enum":["entity_map","contrast_map","mark_map"]},"path":{"type":"string"},"records":{"type":"integer","minimum":0},"checksum":{"type":"object","required":["algorithm","value"],"properties":{"algorithm":{"const":"sha256"},"value":{"type":"string","pattern":"^[a-f0-9]{64}$"}}}}}}
+}

@@ -39,7 +39,7 @@ process RNASEQ_EVIDENCE_PROVIDER {
         --output-dir rnaseq_evidence \
         --validation-report rnaseq_evidence.validation.json \
         2>&1 | tee rnaseq_evidence.log
-    printf '"RNASEQ_EVIDENCE_PROVIDER":\n    python: "%s"\n    evidence_model: "1.0"\n' \
+    printf '"RNASEQ_EVIDENCE_PROVIDER":\n    python: "%s"\n    evidence_model: "1.1"\n' \
         "\$(python --version 2>&1 | awk '{print \$2}')" > rnaseq_evidence.versions.yml
     printf '{"id":"%s","process":"RNASEQ_EVIDENCE_PROVIDER","status":"complete"}\n' '${meta.id}' > rnaseq_evidence.done
     """
@@ -47,10 +47,10 @@ process RNASEQ_EVIDENCE_PROVIDER {
     stub:
     """
     mkdir -p rnaseq_evidence
-    printf '{"schema_version":"1.0","evidence_model_version":"1.0","type":"evidence_manifest","id":"%s.evidence","assay":"rnaseq","run_id":"stub","reference_id":"stub","source_run_manifest_id":"stub","status":"stub","contrasts":[],"datasets":[],"artifact_catalog":[],"provenance":{"provider":"rnaseq_evidence_provider","provider_version":"1.0","source_run_manifest_id":"stub"}}\n' '${meta.id}' > rnaseq_evidence/evidence_manifest.json
+    printf '{"schema_version":"1.0","evidence_model_version":"1.1","type":"evidence_manifest","id":"%s.evidence","assay":"rnaseq","run_id":"stub","reference_id":"stub","reference":{"reference_id":"stub","genome_id":"stub","organism":"stub","assembly":"stub","annotation_id":"stub"},"source_run_manifest_id":"stub","status":"stub","contrasts":[],"datasets":[],"artifact_catalog":[],"provenance":{"provider":"rnaseq_evidence_provider","provider_version":"1.1","source_run_manifest_id":"stub"}}\n' '${meta.id}' > rnaseq_evidence/evidence_manifest.json
     printf '{"schema_version":"1.0","type":"evidence_validation","schema":"skipped_stub","semantic":"valid","filesystem":"tracked_inputs","status":"stub"}\n' > rnaseq_evidence.validation.json
     printf '[STUB] RNA Evidence Provider\n' > rnaseq_evidence.log
-    printf '"RNASEQ_EVIDENCE_PROVIDER":\n    python: stub\n    evidence_model: "1.0"\n' > rnaseq_evidence.versions.yml
+    printf '"RNASEQ_EVIDENCE_PROVIDER":\n    python: stub\n    evidence_model: "1.1"\n' > rnaseq_evidence.versions.yml
     printf '{"id":"%s","process":"RNASEQ_EVIDENCE_PROVIDER","status":"stub"}\n' '${meta.id}' > rnaseq_evidence.done
     """
 }

@@ -39,7 +39,7 @@ process CHIPSEQ_EVIDENCE_PROVIDER {
         --output-dir chipseq_evidence \
         --validation-report chipseq_evidence.validation.json \
         2>&1 | tee chipseq_evidence.log
-    printf '"CHIPSEQ_EVIDENCE_PROVIDER":\n    python: "%s"\n    evidence_model: "1.0"\n' \
+    printf '"CHIPSEQ_EVIDENCE_PROVIDER":\n    python: "%s"\n    evidence_model: "1.1"\n' \
         "\$(python --version 2>&1 | awk '{print \$2}')" > chipseq_evidence.versions.yml
     printf '{"id":"%s","process":"CHIPSEQ_EVIDENCE_PROVIDER","status":"complete"}\n' '${meta.id}' > chipseq_evidence.done
     """
@@ -47,10 +47,10 @@ process CHIPSEQ_EVIDENCE_PROVIDER {
     stub:
     """
     mkdir -p chipseq_evidence
-    printf '{"schema_version":"1.0","evidence_model_version":"1.0","type":"evidence_manifest","id":"%s.evidence","assay":"chipseq","run_id":"stub","reference_id":"stub","source_run_manifest_id":"stub","status":"stub","contrasts":[],"datasets":[],"artifact_catalog":[],"provenance":{"provider":"chipseq_evidence_provider","provider_version":"1.0","source_run_manifest_id":"stub"}}\n' '${meta.id}' > chipseq_evidence/evidence_manifest.json
+    printf '{"schema_version":"1.0","evidence_model_version":"1.1","type":"evidence_manifest","id":"%s.evidence","assay":"chipseq","run_id":"stub","reference_id":"stub","reference":{"reference_id":"stub","genome_id":"stub","organism":"stub","assembly":"stub","annotation_id":"stub"},"source_run_manifest_id":"stub","status":"stub","contrasts":[],"datasets":[],"artifact_catalog":[],"provenance":{"provider":"chipseq_evidence_provider","provider_version":"1.1","source_run_manifest_id":"stub"}}\n' '${meta.id}' > chipseq_evidence/evidence_manifest.json
     printf '{"schema_version":"1.0","type":"evidence_validation","schema":"skipped_stub","semantic":"valid","filesystem":"tracked_inputs","status":"stub"}\n' > chipseq_evidence.validation.json
     printf '[STUB] ChIP Evidence Provider\n' > chipseq_evidence.log
-    printf '"CHIPSEQ_EVIDENCE_PROVIDER":\n    python: stub\n    evidence_model: "1.0"\n' > chipseq_evidence.versions.yml
+    printf '"CHIPSEQ_EVIDENCE_PROVIDER":\n    python: stub\n    evidence_model: "1.1"\n' > chipseq_evidence.versions.yml
     printf '{"id":"%s","process":"CHIPSEQ_EVIDENCE_PROVIDER","status":"stub"}\n' '${meta.id}' > chipseq_evidence.done
     """
 }
