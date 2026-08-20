@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helixforge.dev/schemas/integration/definitions/contrast.schema.json",
+  "title": "HelixForge Integration API contrast v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contrast_id", "factor", "numerator", "denominator"],
+  "properties": {
+    "contrast_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "factor": {"type": "string", "minLength": 1},
+    "numerator": {"type": "string", "minLength": 1},
+    "denominator": {"type": "string", "minLength": 1},
+    "label": {"type": ["string", "null"]},
+    "formula": {"type": ["string", "null"]},
+    "covariates": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "assay": {"type": "array", "uniqueItems": true, "items": {"enum": ["rnaseq", "chipseq"]}},
+    "metadata": {"type": "object"}
+  }
+}

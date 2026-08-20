@@ -80,6 +80,8 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
     imported_abundance = channel.empty()
     import_manifest = channel.empty()
     imported_metadata = channel.empty()
+    imported_lengths = channel.empty()
+    import_method = channel.empty()
 
     if (run_alignment && native_alignment_enabled) {
         star_settings = alignment_settings_rows
@@ -379,6 +381,7 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
         imported_abundance = IMPORT.out.abundance
         import_manifest = IMPORT.out.manifest
         imported_metadata = IMPORT.out.metadata
+        imported_lengths = IMPORT.out.lengths
     }
 
     emit:
@@ -387,8 +390,11 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
     aligned_bam             = alignment_bam
     quantification          = quantification_table
     quantification_manifest = quantification_manifest
+    alignment_manifest      = alignment_manifest
     imported_counts         = imported_counts
     imported_abundance      = imported_abundance
+    imported_lengths        = imported_lengths
     import_manifest         = import_manifest
     imported_metadata       = imported_metadata
+    quantification_method   = import_method
 }
