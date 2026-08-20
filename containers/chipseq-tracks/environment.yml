@@ -1,0 +1,9 @@
+name: helixforge-chipseq-tracks
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11.9
+  - deeptools=3.5.5
+  - samtools=1.20
+  - pybigwig=0.3.23
