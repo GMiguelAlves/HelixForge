@@ -23,6 +23,7 @@ process REPORT_GENERATOR {
 
     output:
     tuple val(meta), path('report_result'), emit: artifacts
+    tuple val(meta), path('report_result/manifest.json'), emit: manifest
     tuple val(meta), path("${meta.id}.report_generator.execution.json"), path("${meta.id}.report_generator.log"), emit: reports
     tuple val(meta), path("${meta.id}.report_generator.versions.yml"), emit: versions
     tuple val(meta), path("${meta.id}.report_generator.done"), emit: status

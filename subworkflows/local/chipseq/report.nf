@@ -31,6 +31,7 @@ workflow CHIPSEQ_REPORT {
 
     emit:
     artifacts = REPORT_GENERATOR.out.artifacts
+    manifest  = REPORT_GENERATOR.out.manifest
     reports   = REPORT_CONTEXT.out.reports.mix(REPORT_AGGREGATE.out.reports).mix(REPORT_GENERATOR.out.reports)
     versions  = REPORT_CONTEXT.out.versions.mix(REPORT_AGGREGATE.out.versions).mix(REPORT_GENERATOR.out.versions)
     status    = REPORT_GENERATOR.out.status

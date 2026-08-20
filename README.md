@@ -69,6 +69,14 @@ The optional IDR full path was validated end-to-end on Slurm with the reduced
 synthetic fixture: 105 processes completed, both condition-level IDR groups
 produced non-empty results, and the final report passed all top-level checks.
 
+Complete native RNA-seq and ChIP-seq runs now also emit Integration API v1
+terminal contracts: `rnaseq_run_manifest.json` and
+`chipseq_run_manifest.json`. These manifests describe terminal scientific
+artifacts, references, samples, contrasts, conditions and ChIP marks directly
+from DAG channels; consumers do not inspect the `results/` layout or infer
+meaning from filenames. See the [Integration API](docs/integration_api.md) and
+[terminal manifest guide](docs/terminal_manifests.md).
+
 Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy
 `assets/rnaseq_de_spec.example.json` and adapt it to the study metadata.
@@ -178,6 +186,8 @@ See [docs/nextflow.md](docs/nextflow.md),
 [docs/native-rnaseq-de.md](docs/native-rnaseq-de.md),
 [docs/rnaseq_report_api.md](docs/rnaseq_report_api.md),
 [docs/native-rnaseq-report.md](docs/native-rnaseq-report.md),
+[docs/integration_api.md](docs/integration_api.md),
+[docs/terminal_manifests.md](docs/terminal_manifests.md),
 [docs/rnaseq-scientific-review.md](docs/rnaseq-scientific-review.md),
 [docs/chipseq-legacy-analysis.md](docs/chipseq-legacy-analysis.md),
 [docs/chipseq-legacy-retirement.md](docs/chipseq-legacy-retirement.md),

@@ -15,6 +15,7 @@ include { PEAK_ANNOTATION } from './peak_annotation'
 include { TRACK_GENERATION } from './tracks'
 include { CHIPSEQ_REPORT } from './report'
 include { CHIPSEQ_FULL_REPORT_INPUT } from '../../../modules/local/chipseq_full_report_input/main'
+include { RUN_MANIFEST } from '../../../modules/local/run_manifest/main'
 
 workflow CHIPSEQ_NATIVE_FOUNDATION {
     take:
@@ -228,6 +229,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     full_track_artifacts_ch = channel.empty()
     full_track_manifest_ch = channel.empty()
     full_report_artifacts_ch = channel.empty()
+    terminal_manifest_ch = channel.empty()
     if (mode in ['alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'full']) {
         reference_inputs = plan_rows
             .map { row ->
@@ -560,6 +562,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                     .mix(PEAK_QC.out.manifest.map { _meta, manifest -> manifest })
                                     .mix(CONSENSUS_IDR.out.manifest.map { _meta, manifest -> manifest })
                                     .mix(DIFFERENTIAL_BINDING.out.manifest.map { _meta, manifest -> manifest })
+                                    .mix(DIFFERENTIAL_BINDING.out.contrast_manifest.map { _meta, manifest -> manifest })
                                     .mix(PEAK_ANNOTATION.out.manifest.map { _meta, manifest -> manifest })
                                     .mix(TRACK_GENERATION.out.manifest.map { _meta, manifest -> manifest })
                                 full_semantic_artifacts_ch = PEAK_QC.out.summary.map { _meta, summary_json, _summary_tsv -> summary_json }
@@ -596,6 +599,165 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                     .mix(TRACK_GENERATION.out.reports)
                                     .mix(CHIPSEQ_FULL_REPORT_INPUT.out.reports)
                                     .mix(CHIPSEQ_REPORT.out.reports)
+
+                                full_marks_ch = plan_rows
+                                    .filter { row -> !row.is_control.toBoolean() }
+                                    .map { row -> row.target }
+                                    .unique()
+                                    .toList()
+                                full_marks_bundle_ch = full_marks_ch.map { marks -> [values: marks] }
+                                bam_terminal_records = CHIPSEQ_BAM_PROCESSING.out.artifacts.map { record_meta, bam, _bai ->
+                                    tuple([
+                                        artifact_id: "${record_meta.id}.final_bam", artifact_type: 'aligned_bam', assay: 'chipseq',
+                                        format: 'bam', entity_level: 'sample', contrast_id: null, sample_ids: [record_meta.sample_id],
+                                        condition: record_meta.condition, stage: null, mark_or_factor: record_meta.target,
+                                        marks_or_factors: [], peak_type: null, role: 'final_bam',
+                                        producer_manifest_id: record_meta.id, producer_process: 'BAM_INDEX_QC',
+                                        location: [kind: 'producer_relative', path: bam.name, base_path: null, producer_manifest_id: record_meta.id],
+                                        source: [type: 'helixforge', name: 'samtools', version: null],
+                                        metadata: [record_id: record_meta.id, is_control: record_meta.is_control]
+                                    ], bam)
+                                }
+                                peak_terminal_records = PEAK_CALLING.out.artifacts.map { peak_meta, directory ->
+                                    def extension = peak_meta.peak_type == 'narrow' ? 'narrowPeak' : 'broadPeak'
+                                    tuple([
+                                        artifact_id: "${peak_meta.id}.peak_set", artifact_type: 'peak_set', assay: 'chipseq',
+                                        format: extension, entity_level: 'peak', contrast_id: null, sample_ids: [peak_meta.sample_id],
+                                        condition: peak_meta.condition, stage: null, mark_or_factor: peak_meta.target,
+                                        marks_or_factors: [], peak_type: peak_meta.peak_type, role: 'replicate_peaks',
+                                        producer_manifest_id: peak_meta.id, producer_process: 'PEAK_CALLING_AGGREGATE',
+                                        location: [kind: 'producer_relative', path: "peaks.${extension}", base_path: null, producer_manifest_id: peak_meta.id],
+                                        source: [type: 'helixforge', name: peak_meta.caller, version: peak_meta.caller_version], metadata: [record_id: peak_meta.record_id]
+                                    ], file("${directory}/peaks.${extension}", checkIfExists: true))
+                                }
+                                peak_qc_terminal_records = PEAK_QC.out.summary
+                                    .combine(full_marks_bundle_ch)
+                                    .map { qc_meta, _summary_json, summary_tsv, mark_bundle ->
+                                    def marks = mark_bundle.values
+                                    tuple([
+                                        artifact_id: "${qc_meta.id}.summary", artifact_type: 'peak_qc', assay: 'chipseq',
+                                        format: 'tsv', entity_level: 'peak', contrast_id: null, sample_ids: [],
+                                        condition: null, stage: null, mark_or_factor: null, marks_or_factors: marks,
+                                        peak_type: null, role: 'quality_control', producer_manifest_id: qc_meta.id, producer_process: 'PEAK_QC_AGGREGATE',
+                                        location: [kind: 'producer_relative', path: summary_tsv.name, base_path: null, producer_manifest_id: qc_meta.id],
+                                        source: [type: 'helixforge', name: 'Peak QC API', version: '1.0'], metadata: [:]
+                                    ], summary_tsv)
+                                }
+                                consensus_terminal_records = CONSENSUS_IDR.out.artifacts.map { consensus_meta, directory ->
+                                    def artifact_type = strategy == 'idr' ? 'idr_peaks' : 'consensus_peaks'
+                                    tuple([
+                                        artifact_id: "${consensus_meta.id}.${artifact_type}", artifact_type: artifact_type, assay: 'chipseq',
+                                        format: 'bed', entity_level: 'peak', contrast_id: null, sample_ids: [],
+                                        condition: consensus_meta.condition, stage: null, mark_or_factor: consensus_meta.target,
+                                        marks_or_factors: [], peak_type: consensus_meta.peak_type, role: 'consolidated_peaks',
+                                        producer_manifest_id: consensus_meta.id, producer_process: strategy == 'idr' ? 'IDR_PROVIDER' : 'CONSENSUS_INTERVALS',
+                                        location: [kind: 'producer_relative', path: 'consolidated_peaks.bed', base_path: null, producer_manifest_id: consensus_meta.id],
+                                        source: [type: 'helixforge', name: strategy, version: '1.0'], metadata: [strategy: strategy]
+                                    ], file("${directory}/consolidated_peaks.bed", checkIfExists: true))
+                                }
+                                db_terminal_records = DIFFERENTIAL_BINDING.out.results
+                                    .combine(full_marks_bundle_ch)
+                                    .map { db_meta, results, mark_bundle ->
+                                    def marks = mark_bundle.values
+                                    tuple([
+                                        artifact_id: "${db_meta.id}.results", artifact_type: 'differential_binding', assay: 'chipseq',
+                                        format: 'tsv', entity_level: 'peak', contrast_id: null, sample_ids: [],
+                                        condition: null, stage: null, mark_or_factor: null, marks_or_factors: marks,
+                                        peak_type: null, role: 'results', producer_manifest_id: db_meta.id, producer_process: 'DB_AGGREGATE',
+                                        location: [kind: 'producer_relative', path: results.name, base_path: null, producer_manifest_id: db_meta.id],
+                                        source: [type: 'helixforge', name: 'DESeq2', version: null], metadata: [:]
+                                    ], results)
+                                }
+                                db_contrast_terminal_records = DIFFERENTIAL_BINDING.out.contrast_results
+                                    .combine(full_marks_bundle_ch)
+                                    .map { db_meta, results, mark_bundle ->
+                                    def marks = mark_bundle.values
+                                    tuple([
+                                        artifact_id: "${db_meta.id}.differential_binding", artifact_type: 'differential_binding', assay: 'chipseq',
+                                        format: 'tsv', entity_level: 'peak', contrast_id: db_meta.contrast_id, sample_ids: [],
+                                        condition: null, stage: null, mark_or_factor: null, marks_or_factors: marks,
+                                        peak_type: null, role: 'contrast_results', producer_manifest_id: db_meta.id, producer_process: 'DESEQ2_DB_CONTRAST',
+                                        location: [kind: 'producer_relative', path: results.name, base_path: null, producer_manifest_id: db_meta.id],
+                                        source: [type: 'helixforge', name: 'DESeq2', version: null], metadata: [analysis_id: db_meta.analysis_id, model_id: db_meta.model_id]
+                                    ], results)
+                                }
+                                annotation_terminal_records = PEAK_ANNOTATION.out.artifacts
+                                    .combine(full_marks_bundle_ch)
+                                    .map { annotation_meta, directory, mark_bundle ->
+                                    def marks = mark_bundle.values
+                                    tuple([
+                                        artifact_id: "${annotation_meta.id}.peak_gene_associations", artifact_type: 'peak_gene_annotation', assay: 'chipseq',
+                                        format: 'tsv', entity_level: 'peak', contrast_id: null, sample_ids: [], condition: null,
+                                        stage: null, mark_or_factor: null, marks_or_factors: marks, peak_type: null,
+                                        role: 'peak_gene_associations', producer_manifest_id: annotation_meta.id, producer_process: 'PEAK_ANNOTATION_AGGREGATE',
+                                        location: [kind: 'producer_relative', path: 'peak_gene_associations.tsv', base_path: null, producer_manifest_id: annotation_meta.id],
+                                        source: [type: 'helixforge', name: params.chipseq_annotation_provider, version: '1.0'], metadata: [:]
+                                    ], file("${directory}/peak_gene_associations.tsv", checkIfExists: true))
+                                }
+                                track_terminal_records = TRACK_GENERATION.out.artifacts
+                                    .combine(full_marks_bundle_ch)
+                                    .map { track_meta, directory, mark_bundle ->
+                                    def marks = mark_bundle.values
+                                    tuple([
+                                        artifact_id: "${track_meta.id}.signal_tracks", artifact_type: 'signal_track', assay: 'chipseq',
+                                        format: 'directory', entity_level: 'sample', contrast_id: null, sample_ids: [], condition: null,
+                                        stage: null, mark_or_factor: null, marks_or_factors: marks, peak_type: null,
+                                        role: 'visualization', producer_manifest_id: track_meta.id, producer_process: 'TRACK_AGGREGATE',
+                                        location: [kind: 'producer_relative', path: 'tracks', base_path: null, producer_manifest_id: track_meta.id],
+                                        source: [type: 'helixforge', name: params.chipseq_track_provider, version: '1.0'], metadata: [integration_role: 'visualization']
+                                    ], file("${directory}/tracks", checkIfExists: true))
+                                }
+                                report_terminal_records = CHIPSEQ_REPORT.out.artifacts.map { report_meta, directory ->
+                                    tuple([
+                                        artifact_id: "${report_meta.id}.report", artifact_type: 'chipseq_report', assay: 'chipseq',
+                                        format: 'directory', entity_level: 'report', contrast_id: null, sample_ids: [], condition: null,
+                                        stage: null, mark_or_factor: null, marks_or_factors: [], peak_type: null,
+                                        role: 'report', producer_manifest_id: report_meta.id, producer_process: 'REPORT_GENERATOR',
+                                        location: [kind: 'producer_relative', path: '.', base_path: null, producer_manifest_id: report_meta.id],
+                                        source: [type: 'helixforge', name: params.chipseq_report_provider, version: '1.0'], metadata: [:]
+                                    ], directory)
+                                }
+                                terminal_records = bam_terminal_records
+                                    .mix(peak_terminal_records)
+                                    .mix(peak_qc_terminal_records)
+                                    .mix(consensus_terminal_records)
+                                    .mix(db_terminal_records)
+                                    .mix(db_contrast_terminal_records)
+                                    .mix(annotation_terminal_records)
+                                    .mix(track_terminal_records)
+                                    .mix(report_terminal_records)
+                                terminal_record_bundle = terminal_records.toList().map { collected_records ->
+                                    def ordered = collected_records.sort { left, right -> left[0]['artifact_id'] <=> right[0]['artifact_id'] }
+                                    tuple(
+                                        'terminal_manifest',
+                                        ordered.collect { value -> value[1] },
+                                        groovy.json.JsonOutput.toJson(ordered.collect { value -> value[0] }).bytes.encodeBase64().toString()
+                                    )
+                                }
+                                terminal_source_manifests_ch = full_manifest_files_ch.toList().map { manifests -> tuple('terminal_manifest', manifests) }
+                                terminal_metadata_ch = active_plan.map { plan -> tuple('terminal_manifest', plan) }
+                                terminal_reference_manifest_ch = reference_bundle_artifacts_ch.map { _meta, _reference, _annotation, manifest -> tuple('terminal_manifest', manifest) }
+                                terminal_inputs = terminal_record_bundle
+                                    .join(terminal_source_manifests_ch)
+                                    .join(terminal_metadata_ch)
+                                    .join(terminal_reference_manifest_ch)
+                                    .map { _key, artifacts, descriptors, manifests, metadata, reference_manifest ->
+                                        def safe_run = workflow.runName.replaceAll(/[^A-Za-z0-9._-]+/, '_')
+                                        def manifest_meta = [id: "${safe_run}.chipseq", assay: 'chipseq']
+                                        def run = [
+                                            id: manifest_meta.id, run_id: workflow.sessionId.toString(), run_name: workflow.runName,
+                                            helixforge_version: workflow.manifest.version ?: 'unknown', git_commit: workflow.commitId ?: 'unknown',
+                                            nextflow_version: workflow.nextflow.version.toString(), profile: workflow.profile ?: '',
+                                            source: [type: 'helixforge', name: 'HelixForge', version: workflow.manifest.version ?: 'unknown']
+                                        ]
+                                        def run_base64 = groovy.json.JsonOutput.toJson(run).bytes.encodeBase64().toString()
+                                        tuple(manifest_meta, metadata, reference_manifest,
+                                            file("${projectDir}/schemas/integration", checkIfExists: true), manifests, artifacts,
+                                            db_spec_file, run_base64, descriptors)
+                                    }
+                                RUN_MANIFEST(terminal_inputs)
+                                terminal_manifest_ch = RUN_MANIFEST.out.artifacts
+                                full_reports_ch = full_reports_ch.mix(RUN_MANIFEST.out.reports)
                             }
                         }
                     }
@@ -644,6 +806,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     tracks              = full_track_artifacts_ch
     track_manifest      = full_track_manifest_ch
     report              = full_report_artifacts_ch
+    terminal_manifest   = terminal_manifest_ch
     logs                = CHIPSEQ_CONTEXT.out.reports
         .mix(CHIPSEQ_METADATA.out.reports.map { metadata_meta, _normalized, _controls, _report, log -> tuple(metadata_meta, log) })
         .mix(FASTQC.out.reports.map { fastqc_meta, _html, log -> tuple(fastqc_meta, log) })
