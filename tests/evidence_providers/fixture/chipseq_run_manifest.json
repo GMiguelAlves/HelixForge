@@ -1,0 +1,9 @@
+{
+  "schema_version":"1.0", "integration_api_version":"1.0", "type":"chipseq_run_manifest", "id":"fixture.chipseq", "status":"complete",
+  "run":{"run_id":"fixture-chip"}, "reference":{"reference_id":"fixture_ref"}, "samples":[],
+  "contrasts":[{"contrast_id":"cercariae_vs_adult","factor":"condition","numerator":"cercariae","denominator":"adult"}],
+  "artifacts":[
+    {"artifact_id":"chip.annotation","artifact_type":"peak_gene_annotation","reference_id":"fixture_ref","marks_or_factors":["H3K27ac","H3K27me3","SmHP1"],"source":{"type":"helixforge","name":"Peak Annotation API","version":"1"},"provenance":{"producer_workflow":"chipseq","producer_process":"PEAK_ANNOTATION_AGGREGATE"}},
+    {"artifact_id":"chip.db","artifact_type":"differential_binding","reference_id":"fixture_ref","contrast_id":"cercariae_vs_adult","marks_or_factors":["H3K27ac","H3K27me3"],"source":{"type":"helixforge","name":"DESeq2","version":"1"},"provenance":{"producer_workflow":"chipseq","producer_process":"DB_AGGREGATE"}}
+  ]
+}

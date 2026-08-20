@@ -1,0 +1,16 @@
+{
+  "schema_version":"1.0", "integration_api_version":"1.0", "type":"rnaseq_run_manifest", "id":"fixture.rnaseq", "status":"complete",
+  "run":{"run_id":"fixture-rna"}, "reference":{"reference_id":"fixture_ref"},
+  "samples":[
+    {"sample_id":"C1","condition":"cercariae","stage":"cercariae"}, {"sample_id":"C2","condition":"cercariae","stage":"cercariae"},
+    {"sample_id":"A1","condition":"adult","stage":"adult"}, {"sample_id":"A2","condition":"adult","stage":"adult"}
+  ],
+  "contrasts":[
+    {"contrast_id":"cercariae_vs_adult","factor":"condition","numerator":"cercariae","denominator":"adult"},
+    {"contrast_id":"adult_vs_cercariae","factor":"condition","numerator":"adult","denominator":"cercariae"}
+  ],
+  "artifacts":[
+    {"artifact_id":"rna.tpm","artifact_type":"gene_abundance","reference_id":"fixture_ref","source":{"type":"helixforge","name":"tximport","version":"1"},"provenance":{"producer_workflow":"rnaseq","producer_process":"TXIMPORT"}},
+    {"artifact_id":"rna.de","artifact_type":"differential_expression_summary","reference_id":"fixture_ref","source":{"type":"helixforge","name":"DESeq2","version":"1"},"provenance":{"producer_workflow":"rnaseq","producer_process":"DE_AGGREGATE"}}
+  ]
+}
