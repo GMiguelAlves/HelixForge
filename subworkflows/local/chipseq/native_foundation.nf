@@ -520,7 +520,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                             def ordered = (0..<record_metas.size()).toList().sort { left, right -> record_metas[left].id <=> record_metas[right].id }
                                             def metas = ordered.collect { index -> record_metas[index] }
                                             def first = metas[0]
-                                            if (references.collect { it.toString() }.toSet().size() != 1 || reference_manifests.collect { it.toString() }.toSet().size() != 1) {
+                                            if (references.collect { reference -> reference.toString() }.toSet().size() != 1 || reference_manifests.collect { manifest -> manifest.toString() }.toSet().size() != 1) {
                                                 error "Aggregate track group ${first.dataset}/${first.condition}/${first.target} resolved to multiple references"
                                             }
                                             def group_id = ['aggregate', first.dataset, first.condition, first.target, first.genome_id, 'bigwig']
@@ -529,14 +529,14 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                                 id                    : group_id,
                                                 track_role            : 'aggregate',
                                                 record_id             : null,
-                                                record_ids            : metas.collect { it.id },
-                                                sample_ids            : metas.collect { it.sample_id },
+                                                record_ids            : metas.collect { record -> record.id },
+                                                sample_ids            : metas.collect { record -> record.sample_id },
                                                 dataset               : first.dataset,
                                                 condition             : first.condition,
                                                 target                : first.target,
                                                 is_control            : false,
-                                                biological_replicates : metas.collect { it.biological_replicate },
-                                                technical_replicates  : metas.collect { it.technical_replicate },
+                                                biological_replicates : metas.collect { record -> record.biological_replicate },
+                                                technical_replicates  : metas.collect { record -> record.technical_replicate },
                                                 genome_id             : first.genome_id,
                                                 build                 : first.genome_id,
                                             ]

@@ -36,7 +36,7 @@ for `pipeline_config.sh`; it does not acquire or modify inputs.
 - Production Import policy: `full_length + lengthScaledTPM` accepted.
 - Queue was empty after completion.
 - Temporary validation directory (13 MB) was removed from
-  `/scratch/Schisto-epigenetics/gustavo/`.
+  um diretório temporário dedicado no filesystem de scratch do site.
 
 The pass detected and resolved two implementation defects before completion:
 an invalid dynamic `publishDir` expression and a duplicated path segment in the

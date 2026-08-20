@@ -33,10 +33,10 @@ elif [[ "$consensus_method" != "union" ]]; then
     echo "Production validation supports consensus method union or idr, observed: $consensus_method" >&2
     exit 2
 fi
-nextflow_jar=${HELIXFORGE_NEXTFLOW_JAR:-/home/ra236875@bio.ib.unicamp.br/helixforge-validation-20260811/.validation-runtimes/nxf-home-25.10.7/framework/25.10.7/nextflow-25.10.7-one.jar}
+nextflow_jar=${HELIXFORGE_NEXTFLOW_JAR:-${validation_root}/nextflow.jar}
 
 case "$validation_root" in
-    /scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-validation-*) ;;
+    /*/helixforge-chipseq-validation-*) ;;
     *) echo "Refusing unexpected validation root: $validation_root" >&2; exit 2 ;;
 esac
 test -e "$repo_root/.git"

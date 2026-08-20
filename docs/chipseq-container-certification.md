@@ -66,8 +66,8 @@ no head node.
 
 | Job | Nó | Resultado |
 |---|---|---|
-| `14748` | `srv-slurm-node-04` | Docker, Apptainer, Singularity, Podman, Enroot, Charliecloud e Shifter indisponíveis; sistema de módulos ausente. |
-| `14749` | `srv-slurm-node-04` | `/dev/fuse` acessível e `unshare --user --map-root-user` funcional; `curl` e `cpio` disponíveis, mas `rpm2cpio` ausente. |
+| `14748` | institutional compute node | Docker, Apptainer, Singularity, Podman, Enroot, Charliecloud e Shifter indisponíveis; sistema de módulos ausente. |
+| `14749` | institutional compute node | `/dev/fuse` acessível e `unshare --user --map-root-user` funcional; `curl` e `cpio` disponíveis, mas `rpm2cpio` ausente. |
 
 O caminho `full` não foi iniciado porque não existe runtime capaz de executar
 as imagens OCI nos nós. A instalação relocável não privilegiada do Apptainer é
