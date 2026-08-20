@@ -35,3 +35,16 @@ Only complete native assay DAGs emit the v1 terminal contract in the first
 iteration. Stage-specific modes continue to expose their domain manifests; an
 external assembler may use the same schemas after declaring all required run
 context.
+
+## Integrative
+
+`integrative_run_manifest.json` consumes exactly one RNA and one ChIP terminal
+manifest. It records compatibility validation, every component-manifest
+checksum, model/policy versions and run-relative checksums for the Master,
+interpretation, functional, visualization and report products. It is produced
+from typed channels and cannot be assembled by scanning output filenames.
+
+Normal assay terminal manifests also publish a compact
+`integration_artifacts/` bundle containing only products eligible for evidence
+integration. This makes independent manifest re-entry portable without copying
+large BAM, track or unrelated report artifacts.

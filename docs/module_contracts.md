@@ -4,7 +4,7 @@ This document defines the interface required for every new native Nextflow DSL2
 module in HelixForge. The contract standardizes orchestration and provenance; it
 does not force unrelated scientific tools to produce the same file types.
 
-Contract version: `2.9`
+Contract version: `3.0`
 
 This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
 later native module.
@@ -26,6 +26,12 @@ Interpretation modules receive only staged Integration/Stage 5 bundles and
 versioned policy/catalog inputs. Regulatory observations, interpretations and
 prioritization components remain separate datasets. A candidate score must
 state that it is non-inferential and expose every additive component.
+
+Stage 6 modules continue the same envelope. Functional analysis must distinguish
+descriptive legacy-compatible summaries from inferential tests; visualization
+and report modules may only render declared structured products; the terminal
+manifest module must checksum every exported artifact and preserve all upstream
+manifest identities. None may scan a published result tree.
 
 ## Module layout
 

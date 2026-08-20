@@ -4,7 +4,7 @@ Contract identifier: `helixforge.integration_api`
 Contract version: `1.0`
 
 The Integration API is the semantic boundary between completed assay workflows
-and the future Molecular Evidence Integration Engine. A terminal manifest says
+and the native Molecular Evidence Integration Engine. A terminal manifest says
 what a scientific product means, which reference and experimental context it
 belongs to, and how it was produced. It is not an inventory of a result
 directory.
@@ -13,8 +13,10 @@ directory.
 
 ```text
 native RNA-seq DAG ──> rnaseq_run_manifest.json ─┐
-                                                ├─> Evidence Providers
+                                                ├─> native Integrative DAG
 native ChIP-seq DAG ─> chipseq_run_manifest.json ┘
+                                                     │
+                                                     └─> integrative_run_manifest.json
 ```
 
 The manifests are assembled only from channels, metadata and artifacts already
@@ -114,5 +116,7 @@ as specified by the [Evidence Model v1](evidence_model.md). The next native
 boundary performs explicit ID/context/contrast/mark harmonization and creates a
 Master Molecular Evidence Table. See
 [Cross-Assay Harmonization and Molecular Integration v1](cross_assay_integration.md).
-Regulatory classes, candidate scores and functional analysis remain later-stage
-consumers.
+Regulatory classes, Candidate Score, statistics, functional analysis,
+visualization and report are native downstream consumers. Their terminal
+lineage is projected into `integrative_run_manifest.json`; see the
+[Native Integrative workflow](integrative-native-workflow.md).
