@@ -1,40 +1,20 @@
-# Integrative legacy characterization
+# Archived Integrative scientific characterization
 
-This fixture freezes the scientific behavior of the remaining Integrative
-legacy engine before native migration. It does not invoke Nextflow and does not
-modify `integrative_core.py`.
+This directory preserves the deterministic inputs, reviewed golden products,
+checksums and baseline provenance from the retired Integrative implementation.
+The executable legacy source and its characterization drivers are available
+only from the annotated tag `integrative-legacy-v1.0.0`.
 
 The reduced dataset contains eight genes, two RNA contrasts, two life-cycle
 stages, activating/repressive/reader ChIP marks, promoter/gene-body/distal
 peaks, differential binding, optional RNA evidence and functional annotations.
 Together these records exercise every current Integrative class.
 
-Run the characterization test:
-
-```bash
-python tests/integrative_legacy_characterization/test_characterization.py
-```
-
-Regenerate the baseline only after reviewing a deliberate legacy-source or
-fixture change:
-
-```bash
-python tests/integrative_legacy_characterization/generate_golden.py
-```
-
-The Bash wrappers can be characterized separately without visualization:
-
-```bash
-bash pipelines/integrative/legacy/integrative_pipeline.sh \
-  --config tests/integrative_legacy_characterization/fixture/pipeline_config.sh \
-  --mode local --force \
-  --step validate --step prepare --step harmonize --step map-peaks \
-  --step summarize-rna --step summarize-chip --step integrate --step score \
-  --step functional --step report
-```
-
-That check exercises `.done` behavior but does not store `.done` files as
-scientific golden outputs.
+Current native contract and workflow tests consume these fixtures directly.
+They verify the archived checksums and compare scientific tables without
+executing a second implementation. To reproduce the historical baseline, use
+an isolated worktree at the retirement tag; do not mix its outputs with a
+current native run.
 
 The golden text is normalized only for line endings, absolute fixture paths and
 timestamps. Scientific values are not normalized. `baseline_manifest.json`

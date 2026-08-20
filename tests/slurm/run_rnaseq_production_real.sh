@@ -140,7 +140,6 @@ run_pipeline() {
         --workflow rnaseq \
         --outdir "$case_root/results" \
         --rnaseq_config "$case_root/pipeline_config.sh" \
-        --legacy_dry_run true \
         --rnaseq_analysis_mode quantification \
         --rnaseq_run_mode full \
         --rnaseq_native_alignment false \

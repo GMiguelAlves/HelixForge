@@ -1,11 +1,10 @@
 # HelixForge implementation architecture
 
-HelixForge is a compatibility-first Nextflow DSL2 platform. Native APIs exchange
-typed channels and versioned manifests; unchanged pipeline coordinators remain
-behind `LEGACY_STEP` only where migration or scientific validation is pending.
-RNA-seq and ChIP-seq have crossed that boundary: their active DAGs are fully
-native and the former implementations are archived in `rnaseq-legacy-v1.0.0`
-and `chipseq-legacy-v1.0.0`.
+HelixForge is a Nextflow DSL2 platform whose native APIs exchange typed channels
+and versioned manifests. RNA-seq, ChIP-seq and Integrative active DAGs are fully
+native. Their former implementations are archived in `rnaseq-legacy-v1.0.0`,
+`chipseq-legacy-v1.0.0`, and `integrative-legacy-v1.0.0`; `LEGACY_STEP` is no
+longer present in the current source tree.
 
 ## Top-level composition
 
@@ -188,8 +187,9 @@ pipeline configuration until their controlled migration.
 - Optional exploratory Batch Effect Assessment API, tracked in the
   [scientific roadmap](roadmap.md). The current inferential DAG never consumes
   a batch-corrected matrix.
-- Integrative legacy execution is retained only as a frozen regression oracle;
-  it is not imported by the active workflow.
+- Integrative legacy execution is available only from the immutable
+  `integrative-legacy-v1.0.0` tag. Its fixtures and reviewed golden products
+  remain in the current tree as native regression oracles.
 - RNA Pathway Enrichment API and any analysis not yet represented by a native
   provider, tracked in the [scientific roadmap](roadmap.md).
 

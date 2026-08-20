@@ -73,8 +73,9 @@ scientifically validated merely because its stub succeeds.
 
 ## Development validation
 
-- `nextflow lint .`: 72 files passed; one pre-existing warning remains in
-  `LEGACY_STEP` for direct `projectDir` use.
+- At the time of this historical review, `nextflow lint .` passed 72 files and
+  reported one warning in `LEGACY_STEP`. That module was later removed during
+  Integrative retirement.
 - Native alignment stub: passed with one input control and two IP biological
   replicates (six FastQC tasks, MultiQC, one Bowtie2 index and three aligns).
 - Resume probe: every native foundation task was reported as cached.

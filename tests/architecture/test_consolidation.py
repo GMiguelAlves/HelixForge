@@ -109,11 +109,6 @@ def test_manifest_identity_and_lineage_guards() -> None:
 
 def test_branding_and_legacy_boundary() -> None:
     old_brand = "omics" + "flow"
-    old_prefix = "OMICS" + "FLOW_"
-    compatibility_files = {
-        Path("bin/run_legacy_step.sh"),
-        Path("modules/local/legacy_step/main.nf"),
-    }
     violations: list[str] = []
     tracked = subprocess.check_output(
         ["git", "-c", f"safe.directory={ROOT.as_posix()}", "ls-files", "-z"], cwd=ROOT
@@ -129,12 +124,35 @@ def test_branding_and_legacy_boundary() -> None:
             continue
         if old_brand not in text.lower():
             continue
-        if relative in compatibility_files:
-            residue = re.sub(old_prefix + r"[A-Z_]+", "", text, flags=re.IGNORECASE)
-            if old_brand not in residue.lower():
-                continue
         violations.append(str(relative))
     assert not violations, f"obsolete branding outside immutable legacy boundary: {violations}"
+
+
+def test_integrative_legacy_is_retired() -> None:
+    retired = (
+        "pipelines/integrative/legacy",
+        "subworkflows/local/integrative/integration.nf",
+        "modules/local/legacy_step",
+        "bin/run_legacy_step.sh",
+        "bin/check_legacy_scripts.sh",
+    )
+    for relative in retired:
+        path = ROOT / relative
+        assert not path.is_file()
+        assert not path.is_dir() or not any(candidate.is_file() for candidate in path.rglob("*"))
+
+    active_roots = ("workflows", "subworkflows", "modules")
+    active = "\n".join(
+        path.read_text(encoding="utf-8")
+        for root in active_roots
+        for path in (ROOT / root).rglob("*.nf")
+    )
+    assert "LEGACY_STEP" not in active
+    assert "pipelines/integrative/legacy" not in active
+
+    params = config_parameter_names()
+    assert "legacy_dry_run" not in params
+    assert "integrative_config" not in params
 
 
 if __name__ == "__main__":

@@ -171,7 +171,6 @@ run_stage() {
         --workflow chipseq \
         --outdir "$result_root" \
         --chipseq_config "$case_root/pipeline_config.sh" \
-        --legacy_dry_run true \
         "$@"
     archive_operational "$stage"
 }
