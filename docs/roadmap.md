@@ -5,6 +5,23 @@ current production contract. A planned item becomes supported only after its
 contract, provider runtime, reduced tests, real-data validation, provenance,
 and documentation are complete.
 
+## Container runtime validation milestone
+
+Status: **completed with an external operational limitation**.
+
+The RNA-seq and ChIP-seq OCI runtimes were certified with reduced functional
+Docker tests, and both complete synthetic scientific paths were validated on
+Slurm with controlled runtimes. The institutional cluster did not provide an
+administrator-supported Apptainer runtime on either the head node or compute
+nodes. Consequently, an end-to-end Apptainer run with registry pulls from GHCR
+and Quay and the required `/home` and `/scratch` mounts could not be performed.
+
+This infrastructure absence is documented and is not a scientific failure or
+a release gate for HelixForge. If the cluster later provides that complete
+runtime configuration, the versioned probe and full synthetic workflow should
+be repeated as an operational certification without reopening the pipeline
+architecture.
+
 ## RNA-seq inference policy already adopted
 
 - Differential Expression consumes the uncorrected count artifact from the
@@ -59,8 +76,8 @@ manifest, versions, execution metadata, and provenance.
 
 ## Release order
 
-1. Retire automatic batch correction from every top-level inferential path.
-2. Complete the native RNA-seq release and validate it with reviewed biological
+1. Complete the native release and retire the remaining approved legacy paths.
+2. Validate RNA-seq and ChIP-seq with reviewed biological
    datasets.
 3. Implement Batch Effect Assessment as an optional exploratory subworkflow.
 4. Implement Pathway Enrichment providers behind the common downstream API.

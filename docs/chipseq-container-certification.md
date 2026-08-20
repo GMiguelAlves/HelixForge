@@ -75,8 +75,10 @@ tecnicamente plausível, mas exigiria introduzir e manter dependências própria
 fora da infraestrutura certificada pelos administradores. Essa instalação não
 foi realizada em um cluster compartilhado.
 
-Estado: **bloqueado pelo ambiente externo**, sem falha científica do
-HelixForge. Quando um Apptainer administrado estiver disponível, repetir o
-probe versionado em `tests/slurm/probe_container_runtimes.sh`, testar um pull
-por digest e então executar o fixture completo com `-profile slurm,apptainer` e
-`executor.queueSize=5`.
+Estado da etapa: **concluída com limitação operacional externa**, sem falha
+científica do HelixForge. A ausência de um Apptainer administrado no head/nós,
+com acesso aos registries GHCR/Quay e aos mounts `/home` e `/scratch`, não é um
+release gate. Se essa infraestrutura for disponibilizada futuramente, repetir
+o probe versionado em `tests/slurm/probe_container_runtimes.sh`, testar um pull
+por digest e executar o fixture completo com `-profile slurm,apptainer` e
+`executor.queueSize=5` como certificação operacional adicional.
