@@ -50,15 +50,15 @@ Validated in this development environment:
 - missing treatment/control BAM failures;
 - isolated provider/aggregate stub and resume wiring.
 
-Not validated here because MACS3 or a container runtime was not installed:
-
-- functional MACS3 execution and biological peak production;
-- real q-value, peak-type, BAM and control cache invalidation;
-- Docker, Apptainer, Conda and Slurm execution;
-- performance/resource benchmark.
+Subsequent consolidation executed MACS3 in the complete reduced Slurm DAG. The
+pinned BioContainer digest also completed reduced `callpeak` and emitted a
+non-empty narrowPeak in GitHub Actions run `32368534261`. Apptainer execution,
+selective cache invalidation and a production benchmark remain pending.
 
 The deterministic paired-end fixture and scripts are ready under `tests/native_chipseq_peaks/`; `run_functional.sh` and `run_cache_tests.sh` exit 77 with the explicit missing-runtime reason instead of downloading software automatically.
 
 ## Out of scope
 
-Consensus, IDR, differential binding, annotation, motifs, GREAT, advanced visualization and complete FRiP are not implemented.
+Motifs, GREAT and advanced visualization remain outside this API. Consensus,
+optional IDR, Differential Binding, annotation, tracks and FRiP are implemented
+as downstream APIs.

@@ -80,9 +80,11 @@ Context and intermediate aggregation records are published below
 - no nested scheduler command exists in the native report graph;
 - the legacy ChIP-seq directory was not modified.
 
-No biological dataset, benchmark, Slurm, container runtime, scientific visual
-review, or complete legacy comparison was run. The result is an executable
-architecture, not a scientific-equivalence claim.
+The later complete Slurm DAG produced the final 37,472-byte HTML report with
+real upstream artifacts. Docker certification run `32368534261` executed the
+report contracts and semantic aggregation inside the immutable Python runtime.
+A biological dataset, benchmark, scientific visual review and complete legacy
+comparison remain pending.
 
 ## Next activity
 
