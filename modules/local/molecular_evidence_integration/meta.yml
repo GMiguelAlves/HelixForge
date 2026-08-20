@@ -1,0 +1,14 @@
+name: molecular_evidence_integration
+description: Builds long and gene-level Master Molecular Evidence representations.
+keywords: [integration, molecular-evidence, full-outer-join, provenance]
+input:
+  - meta: Stable integration identity.
+  - rna_evidence: Complete staged RNA Evidence bundle.
+  - chip_evidence: Complete staged ChIP Evidence bundle.
+  - harmonization: Complete staged Cross-Assay Harmonization bundle.
+output:
+  - artifacts: Master evidence datasets and integration manifest.
+  - manifest: Molecular Evidence Integration v1 manifest.
+  - reports: Execution and validation log.
+  - versions: Runtime and model versions.
+  - status: Completion record.
