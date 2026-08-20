@@ -97,6 +97,11 @@ the Nextflow graph because it can invalidate future cache and provenance work.
 
 ## Integrative
 
+Historical mapping only. These aliases and scripts were removed from the
+current tree after the native Stage 6 gate. Inspect
+`integrative-legacy-v1.0.0` to audit or reproduce this executable mapping; the
+current workflow is documented in `docs/integrative-native-workflow.md`.
+
 | Nextflow alias | Legacy step | Direct wrapper / engine command |
 |---|---|---|
 | `INTEGRATIVE_VALIDATE_STEP` | `validate` | `00_validate_inputs.sh` → `integrative_core.py validate` |
@@ -111,5 +116,4 @@ the Nextflow graph because it can invalidate future cache and provenance work.
 | `INTEGRATIVE_FUNCTIONAL_STEP` | `functional` | `09_functional_analysis.sh` → `functional` |
 | `INTEGRATIVE_REPORT_STEP` | `report` | `10_render_report.sh` → `report` |
 
-`server_inventory.sh` remains a manual deployment utility and is not a
-scientific workflow stage.
+`server_inventory.sh` was a manual deployment utility, not a scientific stage.

@@ -65,8 +65,10 @@ The existing configuration remains authoritative:
 ```text
 pipelines/rnaseq/config/pipeline_config.sh
 pipelines/chipseq/config/pipeline_config.sh
-pipelines/integrative/legacy/config/pipeline_config.sh
 ```
+
+Integrative configuration is supplied through native manifests and the
+versioned `integrative_*` policy parameters.
 
 Override a config without changing workflow code:
 
@@ -78,15 +80,13 @@ nextflow run . --workflow rnaseq \
 ## Profiles
 
 - `local`: Nextflow local executor.
-- `slurm`: one Nextflow task per native scientific process. The remaining
-  Integrative compatibility scripts run inside allocations and never submit
-  child jobs.
+- `slurm`: one scheduler allocation per native scientific process; processes
+  never submit child jobs.
 - `docker`: uses the pinned images declared by each native QC, alignment,
   quantification, and import module.
 - `singularity`: uses the same OCI images for native modules.
 - `apptainer`: uses pinned OCI/blob images for native modules.
-- `conda`: creates pinned native environments; the remaining Integrative
-  compatibility scripts still activate its existing named environment.
+- `conda`: creates the declared native module environments.
 - `test`: reduced local settings for stub tests.
 
 ## Dry-run modes
@@ -94,14 +94,8 @@ nextflow run . --workflow rnaseq \
 `-stub-run` compiles the complete graph and runs only module stub blocks. It is
 the safe validation mode for this repository.
 
-`--legacy_dry_run true` applies only to the remaining Integrative compatibility
-workflow and adds `--dry-run` to its orchestrator.
-
-```bash
-PYTHON_BIN=python3 nextflow run . -profile test --workflow integrative \
-  --legacy_dry_run true \
-  --integrative_config pipelines/integrative/legacy/config/pipeline_config.sh
-```
+The retired legacy dry-run switch and Integrative shell-config parameter are no
+longer part of the public interface. Use `-stub-run` for all active workflows.
 
 ## Nextflow reports
 

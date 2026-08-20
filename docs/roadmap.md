@@ -37,7 +37,7 @@ architecture.
 
 ## Batch Effect Assessment API
 
-Status: **planned, post-legacy-retirement release**.
+Status: **planned, post-retirement release**.
 
 The optional `BATCH_EFFECT_ASSESSMENT` subworkflow will consume the Import API
 manifest, uncorrected matrix, sample metadata, and the Differential Expression
@@ -76,13 +76,11 @@ manifest, versions, execution metadata, and provenance.
 
 ## Release order
 
-ChIP-seq legacy retirement is complete and its final source is preserved by
-`chipseq-legacy-v1.0.0`. The only remaining executable legacy workflow is
-Integrative.
+RNA-seq, ChIP-seq and Integrative legacy retirement is complete. Their final
+sources are preserved by `rnaseq-legacy-v1.0.0`, `chipseq-legacy-v1.0.0`, and
+`integrative-legacy-v1.0.0`.
 
-1. Review the completed native Integrative Stage 6 and retire its frozen legacy
-   path in a separate pull request/tag boundary.
-2. Validate RNA-seq and ChIP-seq with reviewed biological
+1. Validate RNA-seq and ChIP-seq with reviewed biological
    datasets.
-3. Implement Batch Effect Assessment as an optional exploratory subworkflow.
-4. Implement Pathway Enrichment providers behind the common downstream API.
+2. Implement Batch Effect Assessment as an optional exploratory subworkflow.
+3. Implement Pathway Enrichment providers behind the common downstream API.
