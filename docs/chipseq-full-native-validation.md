@@ -74,7 +74,7 @@ falhas. O validador aprovou 12 grupos de verificações, incluindo 12 regiões I
 para controle, 15 para tratado, differential binding, annotation, sete tracks
 e o relatório HTML final de 37.472 bytes.
 
-## Pendências
+## Validações posteriores
 
 - regressão com dataset biológico revisado após aposentadoria do legado;
 - execução top-level com o perfil Docker;
@@ -88,3 +88,7 @@ Uma tentativa posterior em Debian 13 confirmou, pelos jobs Slurm `14748` e
 `14749`, que nenhum runtime de containers está instalado nos nós. O kernel
 oferece FUSE e user namespaces, mas não foi feita instalação ad hoc de
 Apptainer no ambiente compartilhado.
+
+A etapa de containers foi encerrada como concluída com limitação externa. Os
+dois últimos itens são certificações operacionais futuras e não bloqueiam a
+release científica.
