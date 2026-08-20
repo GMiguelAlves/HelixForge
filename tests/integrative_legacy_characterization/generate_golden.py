@@ -9,16 +9,28 @@ import subprocess
 import sys
 from pathlib import Path
 
-from baseline_support import (
-    BASE_DIR,
-    COMMANDS,
-    FIXTURE_DIR,
-    GOLDEN_DIR,
-    iter_expected_outputs,
-    normalized_text,
-    sha256,
-)
-from run_baseline import REPO_ROOT, run
+try:
+    from .baseline_support import (
+        BASE_DIR,
+        COMMANDS,
+        FIXTURE_DIR,
+        GOLDEN_DIR,
+        iter_expected_outputs,
+        normalized_text,
+        sha256,
+    )
+    from .run_baseline import REPO_ROOT, run
+except ImportError:  # Direct script execution.
+    from baseline_support import (
+        BASE_DIR,
+        COMMANDS,
+        FIXTURE_DIR,
+        GOLDEN_DIR,
+        iter_expected_outputs,
+        normalized_text,
+        sha256,
+    )
+    from run_baseline import REPO_ROOT, run
 
 
 def command_output(command: list[str]) -> str:

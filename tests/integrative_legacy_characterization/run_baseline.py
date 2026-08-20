@@ -9,7 +9,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-from baseline_support import BASE_DIR, COMMANDS, FIXTURE_DIR
+try:
+    from .baseline_support import BASE_DIR, COMMANDS, FIXTURE_DIR
+except ImportError:  # Direct script execution.
+    from baseline_support import BASE_DIR, COMMANDS, FIXTURE_DIR
 
 
 REPO_ROOT = BASE_DIR.parents[1]
@@ -94,4 +97,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

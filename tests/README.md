@@ -26,6 +26,21 @@ The `validation/` datasets will hold golden scientific outputs. They are kept
 separate from syntax/stub tests because byte-for-byte comparison is not valid
 for every bioinformatics format.
 
+## Integrative legacy characterization
+
+Run the dependency-free scientific characterization baseline with:
+
+```bash
+python tests/integrative_legacy_characterization/test_characterization.py
+```
+
+The fixture exercises every legacy Integrative class, the fixed candidate-score
+heuristic, Fisher/BH statistics, RNA/ChIP correlations, functional summaries
+and the report renderer. Its 38 normalized golden artifacts are also discovered
+by `tests/run_unit_tests.py`. Plot bytes are deliberately excluded because
+visual outputs are not regression-critical and the baseline host had no
+`ggplot2` installation.
+
 ## Native Trim Galore
 
 Validate module mechanics without downloading scientific software:
