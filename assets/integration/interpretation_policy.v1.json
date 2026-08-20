@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "interpretation_model_version": "1.0",
+  "classification_version": "1.0",
+  "candidate_score_version": "1.0",
+  "rna": {"padj_threshold": 0.05, "absolute_log2fc_threshold": 1.0},
+  "chip": {"padj_threshold": 0.05, "absolute_log2fc_threshold": 1.0},
+  "statistics": {"fisher_alternative": "greater", "fisher_bh_family": "legacy_mark_enrichment_all", "correlation_min_n": 2},
+  "score": {
+    "deg_significance_cap": 10.0,
+    "rna_log2fc_cap": 5.0,
+    "promoter_peak_bonus": 2.0,
+    "differential_peak_bonus": 2.0,
+    "gene_interest_bonus": 1.0,
+    "epigenetic_machinery_bonus": 2.0,
+    "significant_contrast_increment": 0.5,
+    "significant_contrast_cap": 3.0,
+    "mark_increment": 0.5,
+    "mark_cap": 2.0,
+    "wgcna_bonus": 2.0,
+    "mfuzz_bonus": 1.5,
+    "dtu_bonus": 1.0,
+    "splicing_bonus": 1.0
+  }
+}
