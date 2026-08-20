@@ -1,0 +1,8 @@
+name: functional_analysis
+description: Downstream functional summaries and Fisher/BH tests over Candidate Score rankings
+keywords: [functional-analysis, enrichment, fisher]
+input:
+  - interpretation: {type: directory, description: Interpretation package}
+  - annotation: {type: file, description: Explicit gene-to-term annotation}
+output:
+  - functional: {type: directory, description: Functional datasets and manifest}
