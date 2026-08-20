@@ -1,0 +1,52 @@
+name: v1 release candidate gate
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rc-gate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts-and-smokes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install certified runtime
+        run: |
+          curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
+          python3 -m pip install --disable-pip-version-check jsonschema==4.23.0
+      - name: Verify environment
+        env:
+          NEXTFLOW: ${{ github.workspace }}/nextflow
+        run: bin/helixforge-doctor
+      - name: Run discovered unit and contract tests
+        run: python3 tests/run_unit_tests.py
+      - name: Validate documentation links
+        run: python3 bin/check_docs.py
+      - name: Lint complete DSL2 source
+        run: ./nextflow lint .
+      - name: Run all public workflow stub smokes
+        env:
+          NEXTFLOW: ${{ github.workspace }}/nextflow
+        run: tests/release/run_stub_smokes.sh
+      - name: Run reduced real Integrative smoke
+        run: |
+          python3 tests/integrative_workflow/prepare_fixture.py --output /tmp/helixforge-integrative-fixture
+          ./nextflow run tests/integrative_workflow/main.nf \
+            -c tests/integrative_workflow/nextflow.config \
+            --rna_manifest /tmp/helixforge-integrative-fixture/rna/rnaseq_run_manifest.json \
+            --chip_manifest /tmp/helixforge-integrative-fixture/chip/chipseq_run_manifest.json \
+            --outdir /tmp/helixforge-integrative-real
+          test -s /tmp/helixforge-integrative-real/integration/integrative_run_manifest.json
+          test -s /tmp/helixforge-integrative-real/integration/100-report/integrative_report/integrative_report.html

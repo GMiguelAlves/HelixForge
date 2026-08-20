@@ -26,11 +26,11 @@ jobs:
           python3 -m unittest tests.interpretation.test_interpretation -v
       - name: Prepare standardized evidence fixture
         run: python3 tests/molecular_integration/prepare_fixture.py --output /tmp/helixforge-interpretation-fixture
-      - name: Lint Stage 5 DSL2
+      - name: Lint molecular interpretation DSL2
         run: ./nextflow lint modules/local/regulatory_interpretation/main.nf modules/local/candidate_scoring/main.nf modules/local/cross_assay_statistics/main.nf tests/interpretation/main.nf
-      - name: Validate Stage 5 stubs
+      - name: Validate molecular interpretation stubs
         run: ./nextflow run tests/interpretation/main.nf -c tests/interpretation/nextflow.config --rna_evidence /tmp/helixforge-interpretation-fixture/rna --chip_evidence /tmp/helixforge-interpretation-fixture/chip --outdir /tmp/interpretation-stub -stub-run
-      - name: Run dependency-free Stage 5 fixture
+      - name: Run dependency-free molecular interpretation fixture
         run: |
           ./nextflow run tests/interpretation/main.nf -c tests/interpretation/nextflow.config --rna_evidence /tmp/helixforge-interpretation-fixture/rna --chip_evidence /tmp/helixforge-interpretation-fixture/chip --outdir /tmp/interpretation-real
           python3 bin/validate_interpretation.py /tmp/interpretation-real/integration/interpretation/final/interpretation/interpretation_manifest.json

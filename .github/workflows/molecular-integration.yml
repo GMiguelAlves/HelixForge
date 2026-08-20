@@ -29,10 +29,10 @@ jobs:
         run: python3 tests/molecular_integration/prepare_fixture.py --output /tmp/helixforge-integration-fixture
       - name: Lint DSL2
         run: ./nextflow lint .
-      - name: Validate Stage 4 stubs
+      - name: Validate molecular integration stubs
         run: |
           ./nextflow run tests/molecular_integration/main.nf -c tests/molecular_integration/nextflow.config --rna_evidence /tmp/helixforge-integration-fixture/rna --chip_evidence /tmp/helixforge-integration-fixture/chip --outdir /tmp/integration-stub -stub-run
-      - name: Run dependency-free Stage 4 fixture
+      - name: Run dependency-free molecular integration fixture
         run: |
           ./nextflow run tests/molecular_integration/main.nf -c tests/molecular_integration/nextflow.config --rna_evidence /tmp/helixforge-integration-fixture/rna --chip_evidence /tmp/helixforge-integration-fixture/chip --outdir /tmp/integration-real
           python3 bin/validate_molecular_integration.py /tmp/integration-real/integration/harmonization/harmonized_evidence/harmonization_manifest.json
