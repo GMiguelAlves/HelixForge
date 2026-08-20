@@ -1,0 +1,15 @@
+name: candidate_scoring
+description: Calculates decomposed HelixForge Candidate Score v1 and deterministic ranking.
+keywords: [integration, candidate, score, ranking]
+input:
+  - meta: Stable scoring identity.
+  - integration: Complete staged Molecular Evidence Integration bundle.
+  - classification: Complete staged Regulatory Interpretation bundle.
+  - policy: Versioned scoring policy.
+  - context: Explicit per-gene prioritization annotations.
+output:
+  - artifacts: Candidate scores, ranking and component manifest.
+  - manifest: Candidate Scoring component manifest.
+  - reports: Execution log.
+  - versions: Runtime and score versions.
+  - status: Completion record.
