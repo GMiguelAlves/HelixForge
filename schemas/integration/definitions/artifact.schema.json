@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helixforge.dev/schemas/integration/definitions/artifact.schema.json",
+  "title": "HelixForge Integration API artifact v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["artifact_id", "artifact_type", "assay", "format", "entity_level", "reference_id", "location", "source", "provenance"],
+  "properties": {
+    "artifact_id": {"$ref": "#/$defs/identifier"},
+    "artifact_type": {
+      "enum": [
+        "gene_counts", "gene_abundance", "transcript_counts", "transcript_abundance", "normalized_counts",
+        "differential_expression", "differential_expression_summary", "rnaseq_report",
+        "aligned_bam", "peak_set", "peak_qc", "consensus_peaks", "idr_peaks",
+        "differential_binding", "peak_gene_annotation", "signal_track", "chipseq_report"
+      ]
+    },
+    "assay": {"enum": ["rnaseq", "chipseq"]},
+    "format": {"type": "string", "minLength": 1},
+    "entity_level": {"enum": ["gene", "transcript", "peak", "sample", "run", "report"]},
+    "reference_id": {"$ref": "#/$defs/identifier"},
+    "contrast_id": {"oneOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+    "sample_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+    "condition": {"type": ["string", "null"]},
+    "stage": {"type": ["string", "null"]},
+    "mark_or_factor": {"type": ["string", "null"]},
+    "marks_or_factors": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "peak_type": {"type": ["string", "null"], "enum": ["narrow", "broad", null]},
+    "role": {"type": ["string", "null"]},
+    "location": {"$ref": "#/$defs/location"},
+    "checksum": {"oneOf": [{"$ref": "#/$defs/checksum"}, {"type": "null"}]},
+    "source": {"$ref": "#/$defs/source"},
+    "provenance": {"$ref": "provenance.schema.json"},
+    "metadata": {"type": "object"}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "value"],
+      "properties": {
+        "algorithm": {"const": "sha256"},
+        "value": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {"enum": ["helixforge", "external"]},
+        "name": {"type": ["string", "null"]},
+        "version": {"type": ["string", "null"]}
+      }
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {"enum": ["manifest_relative", "producer_relative", "absolute", "uri"]},
+        "path": {"type": "string", "minLength": 1},
+        "base_path": {"type": ["string", "null"]},
+        "uri": {"type": "string", "format": "uri"},
+        "producer_manifest_id": {"type": ["string", "null"]}
+      },
+      "allOf": [
+        {"if": {"properties": {"kind": {"const": "uri"}}}, "then": {"required": ["uri"]}},
+        {"if": {"properties": {"kind": {"enum": ["manifest_relative", "producer_relative", "absolute"]}}}, "then": {"required": ["path"]}},
+        {"if": {"properties": {"kind": {"const": "producer_relative"}}}, "then": {"required": ["producer_manifest_id"]}}
+      ]
+    }
+  }
+}

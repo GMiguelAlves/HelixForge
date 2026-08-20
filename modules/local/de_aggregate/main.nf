@@ -70,7 +70,7 @@ process DE_AGGREGATE {
     printf 'Analise DEG - stub\n' > analysis_summary.txt
     printf '"DE_AGGREGATE":\n    python: "stub"\n' > versions.yml
     printf '{"id":"%s","process":"DE_AGGREGATE","status":"stub"}\n' '${meta.id}' > execution.json
-    printf '{"schema_version":"1.0","type":"differential_expression","id":"%s","status":"stub","provider":"deseq2","test":"wald"}\n' '${meta.id}' > de_manifest.json
+    printf '{"schema_version":"1.0","type":"differential_expression","id":"%s","status":"stub","provider":"deseq2","test":"wald"}\n' '${meta.analysis_id ?: meta.id}' > de_manifest.json
     printf '{"id":"%s","process":"DE_AGGREGATE","status":"stub"}\n' '${meta.id}' > differential_expression.done
     """
 }

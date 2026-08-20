@@ -114,6 +114,8 @@ workflow DIFFERENTIAL_BINDING {
     emit:
     artifacts          = DB_AGGREGATE.out.artifacts
     results            = DB_AGGREGATE.out.results
+    contrast_results   = DESEQ2_DB_CONTRAST.out.results
+    contrast_manifest  = DESEQ2_DB_CONTRAST.out.manifest
     reports            = DB_PREFLIGHT.out.reports.mix(PEAK_COUNTING_PROVIDER.out.reports).mix(DESEQ2_DB_MODEL.out.reports).mix(DESEQ2_DB_CONTRAST.out.reports).mix(DB_AGGREGATE.out.reports)
     versions           = DB_PREFLIGHT.out.versions.mix(PEAK_COUNTING_PROVIDER.out.versions).mix(DESEQ2_DB_MODEL.out.versions).mix(DESEQ2_DB_CONTRAST.out.versions).mix(DB_AGGREGATE.out.versions)
     execution_metadata = PEAK_COUNTING_PROVIDER.out.execution_metadata.mix(DESEQ2_DB_MODEL.out.execution_metadata).mix(DESEQ2_DB_CONTRAST.out.execution_metadata).mix(DB_AGGREGATE.out.execution_metadata)

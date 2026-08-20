@@ -65,9 +65,15 @@ workflow DIFFERENTIAL_EXPRESSION {
     results            = DE_AGGREGATE.out.results
     significant        = DE_AGGREGATE.out.significant
     common_results     = DE_AGGREGATE.out.common_results
-    normalized_counts  = DESEQ2_MODEL.out.artifacts.map { meta, model, _spec, _annotation ->
-        tuple(meta, model)
+    normalized_counts  = DESEQ2_MODEL.out.artifacts.flatMap { meta, model, _spec, _annotation ->
+        model.toFile().listFiles()
+            .findAll { path -> path.name.startsWith('normalized_counts_') && path.name.endsWith('.tsv') }
+            .sort { left, right -> left.name <=> right.name }
+            .collect { path -> tuple(meta, file(path)) }
     }
+    model_manifest     = DESEQ2_MODEL.out.manifest
+    contrast_results   = DESEQ2_CONTRAST.out.common_results
+    contrast_manifest  = DESEQ2_CONTRAST.out.manifest
     reports            = DE_PREFLIGHT.out.reports
         .mix(DESEQ2_MODEL.out.reports)
         .mix(DESEQ2_CONTRAST.out.reports)

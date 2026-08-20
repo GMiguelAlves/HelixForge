@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "integration_api_version": "1.0",
+  "type": "chipseq_run_manifest",
+  "id": "fixture.chipseq.run",
+  "status": "complete",
+  "run": {
+    "workflow": "chipseq", "run_id": "fixture-chip-001", "run_name": "Fixture ChIP-seq", "created_at": null,
+    "helixforge_version": "0.1.0-dev", "git_commit": "example", "nextflow_version": "25.10.7", "profile": "test",
+    "source": {"type": "helixforge", "name": "HelixForge", "version": "0.1.0-dev"}
+  },
+  "reference": {"reference_id": "sm_fixture_v1", "display_name": "S. mansoni fixture", "organism": "Schistosoma mansoni", "species": "Schistosoma mansoni", "assembly": "fixture_v1", "genome_id": "sm_fixture_v1", "annotation_id": "fixture_annotation_v1", "resources": {}, "source": {"type": "external", "name": "deterministic fixture", "version": "1"}, "metadata": {}},
+  "samples": [
+    {"record_id": "input_1", "sample_id": "input_1", "dataset": "fixture", "condition": "adult", "stage": "adult", "biological_replicate": "1", "technical_replicate": "1", "is_control": true, "control_record_id": null, "mark_or_factor": null, "antibody": null},
+    {"record_id": "h3k27ac_1", "sample_id": "h3k27ac_1", "dataset": "fixture", "condition": "adult", "stage": "adult", "biological_replicate": "1", "technical_replicate": "1", "is_control": false, "control_record_id": "input_1", "mark_or_factor": "H3K27ac", "antibody": "anti-H3K27ac"}
+  ],
+  "conditions": ["adult"],
+  "marks_or_factors": ["H3K27ac"],
+  "contrasts": [],
+  "artifacts": [
+    {
+      "artifact_id": "fixture.h3k27ac.annotation", "artifact_type": "peak_gene_annotation", "assay": "chipseq", "format": "tsv", "entity_level": "peak", "reference_id": "sm_fixture_v1", "contrast_id": null, "sample_ids": ["h3k27ac_1"], "condition": "adult", "stage": "adult", "mark_or_factor": "H3K27ac", "peak_type": "narrow", "role": "peak_gene_associations",
+      "location": {"kind": "producer_relative", "path": "peak_gene_associations.tsv", "base_path": null, "producer_manifest_id": "fixture.h3k27ac.annotation.aggregate"},
+      "checksum": null, "source": {"type": "helixforge", "name": "python_interval_v1", "version": "1"},
+      "provenance": {"producer_workflow": "chipseq", "producer_process": "PEAK_ANNOTATION_AGGREGATE", "software": [], "parameters": {}, "source_manifest_ids": ["fixture.h3k27ac.annotation.aggregate"], "source_artifact_ids": [], "execution_metadata": null},
+      "metadata": {}
+    }
+  ],
+  "provenance": {"producer_workflow": "chipseq", "producer_process": "RUN_MANIFEST", "software": [{"name": "HelixForge", "version": "0.1.0-dev", "container": null}], "parameters": {}, "source_manifest_ids": ["fixture.h3k27ac.annotation.aggregate"], "source_artifact_ids": ["fixture.h3k27ac.annotation"], "execution_metadata": null}
+}

@@ -1,0 +1,39 @@
+name: run_manifest
+description: Builds an Integration API v1 terminal assay manifest from explicit DAG artifacts.
+keywords:
+  - provenance
+  - manifest
+  - integration
+tools:
+  - python:
+      description: Runtime for deterministic contract assembly.
+input:
+  - meta:
+      type: map
+      description: Stable run identity with assay rnaseq or chipseq.
+  - metadata:
+      type: file
+  - reference_manifest:
+      type: file
+  - schema_dir:
+      type: directory
+  - source_manifests:
+      type: list
+  - artifacts:
+      type: list
+  - contrast_spec:
+      type: file
+  - run_base64:
+      type: value
+  - artifact_specs_base64:
+      type: value
+output:
+  - artifacts:
+      type: file
+      description: RNA-seq or ChIP-seq terminal run manifest.
+  - reports:
+      type: files
+  - versions:
+      type: file
+  - status:
+      type: file

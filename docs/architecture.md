@@ -17,17 +17,20 @@ flowchart TB
     MAIN --> ALL["ALL"]
     ALL --> RNA
     ALL --> CHIP
+    RNA --> RM["RNA terminal manifest"]
+    CHIP --> CM["ChIP terminal manifest"]
     RNA --> GATE["completion status barrier"]
     CHIP --> GATE
     GATE --> INT
+    RM -. "Integration API v1" .-> FUTURE["future Evidence Providers"]
+    CM -. "Integration API v1" .-> FUTURE
 ```
 
-`ALL` starts RNA-seq and ChIP-seq independently, waits for both completion
-channels, then invokes Integrative. The current Integrative coordinator is a
-legacy boundary and resolves its scientific inputs from the unchanged
-integrative configuration. Completion status is therefore synchronization,
-not an artifact API; semantic RNA+ChIP manifest coupling remains a final
-validation item.
+`ALL` starts RNA-seq and ChIP-seq independently and exposes both Integration
+API v1 terminal manifests. It still waits for the completion channels before
+invoking the unchanged Integrative coordinator. That coordinator remains a
+legacy boundary and does not consume the new manifests yet; converting them to
+standardized molecular evidence belongs to the next migration stage.
 
 ## RNA-seq native DAG
 
@@ -61,6 +64,10 @@ flowchart LR
     TXI --> RCTX
     STARIMP --> RCTX
     RCTX --> RPT["RNASEQ_GENE_REPORT"]
+    AGG --> RM["RUN_MANIFEST"]
+    SQ --> RM
+    TXI --> RM
+    RPT --> RM
 ```
 
 The default production path executes Salmon. `rnaseq_run_mode=alignment`
@@ -76,6 +83,9 @@ because the former tximport wrapper was intentionally removed.
 The terminal report is optional in `full` and explicit in `report` mode. It
 joins Import and DE artifacts through channels and manifest checksums; it does
 not search published result directories or alter the DESeq2 inference path.
+In `full`, `RUN_MANIFEST` projects those known artifacts, normalized metadata,
+the Reference Bundle and contrast specification into
+`rnaseq_run_manifest.json`.
 
 ## ChIP-seq native DAG
 
@@ -101,6 +111,12 @@ flowchart LR
     DB -. component manifests .-> REPORT
     ANN -. component manifests .-> REPORT
     TRACK -. component manifests .-> REPORT
+    FINAL --> CM["RUN_MANIFEST"]
+    CONS --> CM
+    DB --> CM
+    ANN --> CM
+    TRACK --> CM
+    REPORT --> CM
 ```
 
 Records and Bowtie2 indices are paired by an explicit reference key, preventing
@@ -116,6 +132,9 @@ passing typed channels and manifests from QC through the final report. It has no
 legacy fallback. IDR is optional and selected explicitly; its completed
 provider-neutral artifacts flow through Differential Binding, Annotation and
 Report without special filename discovery.
+The complete path also emits `chipseq_run_manifest.json` from explicit channels,
+including controls, marks/factors, terminal BAMs, consolidated peaks,
+differential binding, peak-gene annotation, tracks and report artifacts.
 
 ## Contracts and provenance
 
@@ -124,6 +143,12 @@ use the common envelope in `schemas/manifest-v1.schema.json`:
 `schema_version`, `type`, stable `id`, and honest `status`. Cross-API lineage is
 recorded with upstream manifest checksums. Scientific outputs keep the legacy
 names and locations where compatibility requires them.
+
+The terminal assay boundary is specified separately by
+[Integration API v1](integration_api.md). Its shared Artifact, Reference,
+Contrast and Provenance objects live under `schemas/integration/`; schema,
+semantic and filesystem validation are deliberately independent. These run
+manifests are semantic APIs, not directory inventories.
 
 Scientific parameters remain explicit in `nextflow.config` and are all exposed
 by `nextflow_schema.json`. Scheduler queues, resources and environment engines

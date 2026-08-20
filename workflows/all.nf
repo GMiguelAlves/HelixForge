@@ -18,8 +18,8 @@ workflow ALL {
 
     emit:
     completed = ALL_INTEGRATIVE.out.completed
+    terminal_manifests = ALL_RNASEQ.out.terminal_manifest.mix(ALL_CHIPSEQ.out.terminal_manifest)
     logs      = ALL_RNASEQ.out.logs
         .mix(ALL_CHIPSEQ.out.logs)
         .mix(ALL_INTEGRATIVE.out.logs)
 }
-

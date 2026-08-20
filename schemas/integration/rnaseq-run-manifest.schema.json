@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://helixforge.dev/schemas/integration/rnaseq-run-manifest.schema.json",
+  "title": "HelixForge RNA-seq terminal run manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "integration_api_version", "type", "id", "status", "run", "reference", "samples", "conditions", "contrasts", "artifacts", "provenance"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "integration_api_version": {"const": "1.0"},
+    "type": {"const": "rnaseq_run_manifest"},
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "status": {"enum": ["complete", "complete_empty", "stub"]},
+    "run": {"$ref": "#/$defs/run"},
+    "reference": {"$ref": "definitions/reference.schema.json"},
+    "samples": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/sample"}},
+    "conditions": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "stages": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "batches": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "quantification_method": {"type": ["string", "null"]},
+    "contrasts": {"type": "array", "items": {"$ref": "definitions/contrast.schema.json"}},
+    "artifacts": {"type": "array", "minItems": 1, "items": {"$ref": "definitions/artifact.schema.json"}},
+    "provenance": {"$ref": "definitions/provenance.schema.json"}
+  },
+  "$defs": {
+    "run": {
+      "type": "object", "additionalProperties": false,
+      "required": ["workflow", "run_id", "run_name", "helixforge_version", "git_commit", "nextflow_version", "profile", "source"],
+      "properties": {
+        "workflow": {"const": "rnaseq"}, "run_id": {"type": "string", "minLength": 1}, "run_name": {"type": "string", "minLength": 1},
+        "created_at": {"type": ["string", "null"], "format": "date-time"}, "helixforge_version": {"type": "string", "minLength": 1},
+        "git_commit": {"type": "string", "minLength": 1}, "nextflow_version": {"type": "string", "minLength": 1}, "profile": {"type": "string"},
+        "source": {"$ref": "definitions/artifact.schema.json#/$defs/source"}
+      }
+    },
+    "sample": {
+      "type": "object", "additionalProperties": false,
+      "required": ["sample_id", "dataset", "condition", "technical_runs"],
+      "properties": {
+        "sample_id": {"type": "string", "minLength": 1}, "dataset": {"type": "string", "minLength": 1}, "condition": {"type": "string", "minLength": 1},
+        "stage": {"type": ["string", "null"]}, "batch": {"type": ["string", "null"]}, "biological_replicate": {"type": ["string", "integer", "null"]},
+        "technical_runs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    }
+  }
+}
