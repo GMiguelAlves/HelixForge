@@ -6,7 +6,7 @@ Contract versions:
 - Regulatory Classification: `1.0`
 - HelixForge Candidate Score: `1.0`
 
-Stage 5 converts the Master Molecular Evidence into structured interpretation,
+The native interpretation layer converts Master Molecular Evidence into structured interpretation,
 cross-assay statistics and an explainable ranking. Observations are never
 rewritten: classification refers to source evidence IDs, and score components
 remain separate from inferential statistics.
@@ -201,9 +201,10 @@ The manifest records the Integration Manifest checksum, component manifests,
 thresholds, score formula/version, mark catalog, optional context, statistical
 methods, datasets, record counts and SHA-256 checksums.
 
-## Stage 6 boundary
+## Downstream boundary
 
-Stage 5 does not create the final HTML report, replace the top-level Integrative
-workflow, perform functional/pathway enrichment, retire the legacy pipeline or
-run biological benchmarks. Those remain explicit Stage 6 or release-validation
-work.
+This API does not render the final HTML report or alter its own evidence model.
+The active native Integrative workflow consumes its products in Candidate
+Scoring, Cross-Assay Statistics, Functional Analysis, Visualization and Report
+APIs. Public/reviewed biological benchmarks remain a separate release-
+validation activity.
