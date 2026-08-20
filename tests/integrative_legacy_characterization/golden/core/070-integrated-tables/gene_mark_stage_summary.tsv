@@ -1,0 +1,10 @@
+gene_id	gene_name	is_epigenetic_machinery	machinery_group	functional_annotation	mark_or_factor	stage_or_condition	n_peaks	n_promoter_peaks	peak_locations	regulatory_class	expected_effect	rna_mean_TPM_in_stage	representative_deg_status	gene_total_associated_peaks	gene_n_differential_peaks	wgcna_hit	mfuzz_hit	dtu_hit	splicing_hit
+geneA	Alpha	true	chromatin_remodeler	Chromatin regulator	H3K27ac	adult	1	0	distal_intergenic	activating_mark	activation	5.5	up	2	1	true	false	false	false
+geneA	Alpha	true	chromatin_remodeler	Chromatin regulator	H3K27ac	cercariae	1	1	promoter	activating_mark	activation	52.5	up	2	1	true	false	false	false
+geneB	Beta	false		Repressive chromatin target	H3K27me3	adult	1	1	promoter	repressive_mark	repression	46.5	down	2	0	false	true	false	false
+geneB	Beta	false		Repressive chromatin target	H3K27me3	cercariae	1	1	promoter	repressive_mark	repression	2.5	down	2	0	false	true	false	false
+geneC	Gamma	false		Metabolic enzyme	H3K27ac	cercariae	1	0	exon	activating_mark	activation	29	down	1	0	false	false	true	false
+geneD	Delta	false		Signaling regulator	H3K27me3	adult	1	0	distal	repressive_mark	repression	5.5	up	1	0	false	false	false	true
+geneF	Phi	true	chromatin_reader	Chromatin reader	SmHP1	adult	1	0	gene_body	chromatin_reader	context_dependent	11.5	not_significant	2	0	false	false	false	false
+geneF	Phi	true	chromatin_reader	Chromatin reader	SmHP1	cercariae	1	1	promoter	chromatin_reader	context_dependent	12.5	not_significant	2	0	false	false	false	false
+geneG	Gamma2	false		Stress response	H3K27ac	adult	1	1	promoter	activating_mark	activation	1	not_significant	1	0	false	false	false	false

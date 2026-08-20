@@ -1,0 +1,7 @@
+chr1	fixture	gene	1000	2000	.	+	.	gene_id "geneA"; gene_name "Alpha"; gene_biotype "protein_coding";
+chr1	fixture	gene	3000	4000	.	-	.	gene_id "geneB"; gene_name "Beta"; gene_biotype "protein_coding";
+chr1	fixture	gene	5000	6000	.	+	.	gene_id "geneC"; gene_name "Gamma"; gene_biotype "protein_coding";
+chr1	fixture	gene	7000	8000	.	-	.	gene_id "geneD"; gene_name "Delta"; gene_biotype "protein_coding";
+chr2	fixture	gene	1000	2000	.	+	.	gene_id "geneE"; gene_name "Epsilon"; gene_biotype "protein_coding";
+chr1	fixture	gene	9000	10000	.	+	.	gene_id "geneF"; gene_name "Phi"; gene_biotype "protein_coding";
+chr1	fixture	gene	11000	12000	.	+	.	gene_id "geneG"; gene_name "Gamma2"; gene_biotype "protein_coding";

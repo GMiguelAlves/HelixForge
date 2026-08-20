@@ -1,0 +1,21 @@
+item	path	status	message
+RNA counts matrix	<FIXTURE_ROOT>/inputs/counts_matrix.tsv	ok	
+RNA normalized matrix	<FIXTURE_ROOT>/inputs/tpm_matrix.tsv	ok	
+RNA DEG results	<FIXTURE_ROOT>/inputs/deg_results.tsv	ok	
+RNA metadata	<FIXTURE_ROOT>/inputs/rna_metadata.tsv	ok	
+RNA epigenetic machinery catalog	<FIXTURE_ROOT>/inputs/gene_catalog.tsv	ok	
+RNA supplemental epigenetic catalog		warning	missing or empty
+RNA expression by context		warning	missing or empty
+RNA WGCNA hits	<FIXTURE_ROOT>/inputs/wgcna_hits.tsv	ok	
+RNA Mfuzz hits	<FIXTURE_ROOT>/inputs/mfuzz_hits.tsv	ok	
+RNA DTU hits	<FIXTURE_ROOT>/inputs/dtu_hits.tsv	ok	
+RNA splicing hits	<FIXTURE_ROOT>/inputs/splicing_hits.tsv	ok	
+ChIP metadata	<FIXTURE_ROOT>/inputs/chip_metadata.tsv	ok	
+ChIP differential binding	<FIXTURE_ROOT>/inputs/differential_binding.tsv	ok	
+Genome annotation	<FIXTURE_ROOT>/inputs/annotation.gtf	ok	
+Functional annotation	<FIXTURE_ROOT>/inputs/functional_annotation.tsv	ok	
+ChIP annotated peaks	<FIXTURE_ROOT>/inputs/annotated_peaks*.tsv	ok	1 matching file(s)
+ChIP peak BEDs	<FIXTURE_ROOT>/inputs/unused/*.bed	warning	0 matching file(s)
+ChIP peak counts	<FIXTURE_ROOT>/inputs/unused/*.counts.tsv	warning	0 matching file(s)
+RNA matrix gene overlap		ok	8 genes
+RNA DEG/expression gene overlap		ok	8 genes

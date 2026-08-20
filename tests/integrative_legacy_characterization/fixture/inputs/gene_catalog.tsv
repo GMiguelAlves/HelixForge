@@ -1,0 +1,3 @@
+matched_gene_id	gene_name	group	query	functional_annotation
+geneA	Alpha	chromatin_remodeler	alpha_query	ATP-dependent chromatin remodeling
+geneF	Phi	chromatin_reader	phi_query	Heterochromatin reader

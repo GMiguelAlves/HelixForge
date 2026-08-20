@@ -1,0 +1,4 @@
+mark_or_factor	n_linked_genes	n_epigenetic_machinery_genes	stages_or_conditions	n_promoter_gene_links	n_deg_linked_genes
+H3K27ac	3	1	adult;cercariae	2	2
+H3K27me3	2	0	adult;cercariae	2	2
+SmHP1	1	1	adult;cercariae	1	0

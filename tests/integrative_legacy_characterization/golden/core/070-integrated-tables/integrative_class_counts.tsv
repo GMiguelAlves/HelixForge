@@ -1,0 +1,8 @@
+integrative_class	n_genes
+ChIP_only	2
+DEG_only	1
+DEG_with_differential_peak	1
+DEG_with_distal_peak	1
+DEG_with_gene_body_peak	1
+DEG_with_promoter_peak	1
+unchanged	1

@@ -1,0 +1,4 @@
+binding_status	chip_log2FC	chip_padj	gene_id	log2FoldChange	mark_or_factor	padj	peak_id
+gained	2.2	0.01	geneA	2.2	H3K27ac	0.01	peakA1
+not_significant	0.5	0.2	geneB	0.5	H3K27me3	0.2	peakB1
+not_significant	-0.3	0.8	geneG	-0.3	H3K27ac	0.8	peakG1

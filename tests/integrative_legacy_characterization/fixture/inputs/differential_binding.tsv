@@ -1,0 +1,4 @@
+peak_id	gene_id	mark_or_factor	log2FoldChange	padj
+peakA1	geneA	H3K27ac	2.2	0.01
+peakB1	geneB	H3K27me3	0.5	0.2
+peakG1	geneG	H3K27ac	-0.3	0.8

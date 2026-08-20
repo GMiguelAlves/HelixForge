@@ -1,0 +1,11 @@
+assay	batch	condition	mark_or_factor	replicate	sample_id	stage
+rna	batch1	cercariae			C1	cercariae
+rna	batch2	cercariae			C2	cercaria
+rna	batch1	adult			A1	adult
+rna	batch2	adult			A2	adults
+chip	chip_batch1	cercariae	H3K27ac	1	ac_cerc_1	
+chip	chip_batch1	adult	H3K27ac	1	ac_adult_1	
+chip	chip_batch2	cercariae	H3K27me3	1	me3_cerc_1	
+chip	chip_batch2	adult	H3K27me3	1	me3_adult_1	
+chip	chip_batch1	cercariae	HP1	1	hp1_cerc_1	
+chip	chip_batch1	adult	Smp_179650	1	hp1_adult_1	

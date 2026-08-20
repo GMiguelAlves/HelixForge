@@ -1,0 +1,5 @@
+peak_id	chrom	start	end	mark_or_factor	condition	associated_gene_id	associated_gene_name	distance_to_tss	genomic_annotation	promoter_flag	link_mode	source_file
+peakA2	chr1	2200	2300	H3K27ac	adult	geneA	Alpha	250	distal_intergenic	false	annotated_peak_table	<FIXTURE_ROOT>/inputs/annotated_peaks_fixture.tsv
+peakC1	chr1	5200	5350	H3K27ac	cercariae	geneC	Gamma	250	exon	false	annotated_peak_table	<FIXTURE_ROOT>/inputs/annotated_peaks_fixture.tsv
+peakD1	chr1	8200	8300	H3K27me3	adult	geneD	Delta	250	distal	false	annotated_peak_table	<FIXTURE_ROOT>/inputs/annotated_peaks_fixture.tsv
+peakF2	chr1	9300	9450	SmHP1	adult	geneF	Phi	375	gene_body	false	annotated_peak_table	<FIXTURE_ROOT>/inputs/annotated_peaks_fixture.tsv

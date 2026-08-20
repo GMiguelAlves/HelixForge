@@ -1,0 +1,13 @@
+gene_id	gene_name	is_epigenetic_machinery	machinery_group	functional_annotation	candidate_score	integrative_class	representative_deg_status	wgcna_hit	mfuzz_hit	dtu_hit	splicing_hit	mark_or_factor	stage_or_condition	rna_mean_TPM	rna_mean_log2TPM	n_peaks	n_promoter_peaks	is_mark_assayed_in_stage	signal_source
+geneA	Alpha	true	chromatin_remodeler	Chromatin regulator	16.0000	DEG_with_differential_peak	up	true				H3K27ac	adult	5.5	2.7004397	1	0	true	observed_peak
+geneA	Alpha	true	chromatin_remodeler	Chromatin regulator	16.0000	DEG_with_differential_peak	up	true				H3K27ac	cercariae	52.5	5.741467	1	1	true	observed_peak
+geneC	Gamma	false		Metabolic enzyme	5.1990	DEG_with_gene_body_peak	down			true		H3K27ac	adult	8.5	3.2479275	0	0	true	assayed_no_linked_peak
+geneC	Gamma	false		Metabolic enzyme	5.1990	DEG_with_gene_body_peak	down			true		H3K27ac	cercariae	29	4.9068906	1	0	true	observed_peak
+geneG	Gamma2	false		Stress response	2.6969	ChIP_only	not_significant					H3K27ac	adult	1	1	1	1	true	observed_peak
+geneG	Gamma2	false		Stress response	2.6969	ChIP_only	not_significant					H3K27ac	cercariae	1	1	0	0	true	assayed_no_linked_peak
+geneB	Beta	false		Repressive chromatin target	8.8979	DEG_with_promoter_peak	down		true			H3K27me3	adult	46.5	5.5698556	1	1	true	observed_peak
+geneB	Beta	false		Repressive chromatin target	8.8979	DEG_with_promoter_peak	down		true			H3K27me3	cercariae	2.5	1.8073549	1	1	true	observed_peak
+geneD	Delta	false		Signaling regulator	4.5979	DEG_with_distal_peak	up				true	H3K27me3	adult	5.5	2.7004397	1	0	true	observed_peak
+geneD	Delta	false		Signaling regulator	4.5979	DEG_with_distal_peak	up				true	H3K27me3	cercariae	21	4.4594316	0	0	true	assayed_no_linked_peak
+geneF	Phi	true	chromatin_reader	Chromatin reader	5.7458	ChIP_only	not_significant					SmHP1	adult	11.5	3.6438562	1	0	true	observed_peak
+geneF	Phi	true	chromatin_reader	Chromatin reader	5.7458	ChIP_only	not_significant					SmHP1	cercariae	12.5	3.7548875	1	1	true	observed_peak

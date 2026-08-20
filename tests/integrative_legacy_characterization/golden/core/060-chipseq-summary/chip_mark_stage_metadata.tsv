@@ -1,0 +1,7 @@
+mark_or_factor	stage_or_condition	n_samples	replicates	batches	sample_ids
+H3K27ac	adult	1	1	chip_batch1	ac_adult_1
+H3K27me3	adult	1	1	chip_batch2	me3_adult_1
+SmHP1	adult	1	1	chip_batch1	hp1_adult_1
+H3K27ac	cercariae	1	1	chip_batch1	ac_cerc_1
+H3K27me3	cercariae	1	1	chip_batch2	me3_cerc_1
+SmHP1	cercariae	1	1	chip_batch1	hp1_cerc_1
