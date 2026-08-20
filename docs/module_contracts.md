@@ -4,7 +4,7 @@ This document defines the interface required for every new native Nextflow DSL2
 module in HelixForge. The contract standardizes orchestration and provenance; it
 does not force unrelated scientific tools to produce the same file types.
 
-Contract version: `2.7`
+Contract version: `2.8`
 
 This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
 later native module.
@@ -15,6 +15,12 @@ normalized plan. `REFERENCE_BUNDLE` receives references as tracked `path`
 inputs and records SHA-256 checksums. Neither module may download, decompress,
 edit, or index inputs; acquisition utilities cannot be dependencies of the
 scientific workflow.
+
+Cross-assay modules receive complete Evidence Model bundles as staged `path`
+inputs. `EVIDENCE_HARMONIZATION` additionally receives an explicit policy file;
+`MOLECULAR_EVIDENCE_INTEGRATION` receives the resulting harmonization bundle.
+Both reject incompatible references and may not scan a published results tree,
+infer identity from filenames, or silently normalize biological IDs.
 
 ## Module layout
 

@@ -13,7 +13,7 @@ directory.
 
 ```text
 native RNA-seq DAG ──> rnaseq_run_manifest.json ─┐
-                                                ├─> future Evidence Providers
+                                                ├─> Evidence Providers
 native ChIP-seq DAG ─> chipseq_run_manifest.json ┘
 ```
 
@@ -106,11 +106,13 @@ Examples are in `assets/examples/rnaseq_run_manifest.example.json` and
 `assets/examples/chipseq_run_manifest.example.json`; both are exercised by the
 contract tests.
 
-## Evidence-provider boundary
+## Evidence-provider and integration boundary
 
 The terminal manifest describes products of an assay run. Standardized RNA and
-ChIP Evidence Providers now consume that contract plus explicitly staged
-artifacts, as specified by the [Evidence Model v1](evidence_model.md). They do
-not yet perform cross-assay ID harmonization, stage/mark canonicalization, a
-Master Molecular Evidence Table, integration classes, candidate scoring or
-functional analysis.
+ChIP Evidence Providers consume that contract plus explicitly staged artifacts,
+as specified by the [Evidence Model v1](evidence_model.md). The next native
+boundary performs explicit ID/context/contrast/mark harmonization and creates a
+Master Molecular Evidence Table. See
+[Cross-Assay Harmonization and Molecular Integration v1](cross_assay_integration.md).
+Regulatory classes, candidate scores and functional analysis remain later-stage
+consumers.
