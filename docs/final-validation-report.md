@@ -421,9 +421,10 @@ upstream reproduction.
 
 ## Lint and static validation
 
-Nextflow 26.04.6 linted 87 project files without errors. One existing warning remains:
-`LEGACY_STEP` accesses `projectDir` inside a process. This warning belongs to
-the compatibility wrapper and does not affect native scientific processes.
+At the time of this validation, Nextflow 26.04.6 linted 87 project files
+without errors and reported one warning from the compatibility-only
+`LEGACY_STEP`. That historical module was removed during Integrative legacy
+retirement and is not present in the current source tree.
 
 Python discovery is no longer ambiguous: `tests/run_unit_tests.py` and the
 GitHub Actions run `31520434883` both reported `Discovered 62 tests`, `Ran 62

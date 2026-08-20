@@ -5,10 +5,9 @@ overview of the current architecture, workflows, execution, and development.
 Planned scientific APIs are tracked in the [roadmap](docs/roadmap.md).
 
 HelixForge is a Nextflow DSL2 implementation for RNA-seq, ChIP-seq, and
-IntegrateSeq analyses. RNA-seq and ChIP-seq are fully native and their retired
-implementations are archived by immutable legacy tags. Integrative Stage 6 is
-fully native; its unchanged executable legacy path remains temporarily as a
-regression oracle until the dedicated retirement pull request.
+IntegrateSeq analyses. All three active workflows are native. Their final
+executable legacy snapshots are archived by immutable annotated tags; the
+current source tree contains no legacy workflow coordinator or fallback.
 
 The RNA-seq input boundary and QC layer are native: validated local FASTQs and
 metadata feed a checksummed Reference Bundle, FastQC, Trim Galore, per-sample
@@ -101,11 +100,11 @@ historical components and uses deterministic tie-breaking. Cross-assay Fisher,
 BH and descriptive Pearson/Spearman outputs are packaged in a checksummed
 Interpretation Manifest. Stage 6 composes those products with Functional
 Analysis, checksummed SVG visualization, a searchable HTML report and an
-Integrative terminal manifest. The top-level coordinator is fully native and
-accepts only RNA/ChIP terminal bundles; the executable legacy path is retained
-solely for the later isolated retirement PR. See the [native Integrative
-workflow](docs/integrative-native-workflow.md) and [interpretation and
-prioritization contract](docs/regulatory_interpretation.md).
+Integrative terminal manifest. The top-level coordinator accepts only RNA/ChIP
+terminal bundles. The retired implementation is preserved in
+`integrative-legacy-v1.0.0`; see the [retirement record](docs/integrative-legacy-retirement.md),
+[native Integrative workflow](docs/integrative-native-workflow.md), and
+[interpretation and prioritization contract](docs/regulatory_interpretation.md).
 
 Native differential expression requires a versioned JSON specification with an
 explicit design, contrasts, filter, and count-handling policy. Copy

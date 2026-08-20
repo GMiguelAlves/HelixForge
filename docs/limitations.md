@@ -1,9 +1,9 @@
-# Limitations of the compatibility skeleton
+# Current limitations
 
 - RNA-seq, ChIP-seq and Integrative active workflows are native and exchange
-  content-tracked artifacts/manifests. The Integrative executable legacy tree
-  remains only as a frozen regression oracle pending its isolated retirement
-  pull request; it is not imported by the active DAG.
+  content-tracked artifacts/manifests. Historical executables are available
+  only through their immutable retirement tags; reviewed Integrative fixtures
+  and golden products remain for native regression.
 - ChIP raw QC, Bowtie2 alignment, BAM selection, duplicate policy, blacklist
   exclusion, final BAM QC, per-replicate MACS3 peak calling, Peak QC and
   interval consensus fan out natively. Optional IDR 2.0.4.2, Differential
@@ -70,5 +70,4 @@
 - The v1 comparison universe is the explicit union of compatible condition-level
   completed Consensus or IDR BEDs. Choosing IDR changes the per-condition peak
   evidence but does not silently change the cross-condition universe policy.
-- Existing `.done` files remain only inside the frozen Integrative legacy tree.
-  The active Integrative workflow does not consume them.
+- No active workflow consumes legacy `.done` tokens.
