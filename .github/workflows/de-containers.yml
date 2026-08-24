@@ -44,7 +44,7 @@ jobs:
           java-version: '21'
       - name: Scientific regression
         run: |
-          curl -fsSL https://get.nextflow.io | bash
+          curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
           docker pull ghcr.io/gmiguelalves/helixforge-deseq2:1.0.1
           NEXTFLOW="$PWD/nextflow" \
           DESEQ2_TEST_IMAGE=ghcr.io/gmiguelalves/helixforge-deseq2:1.0.1 \

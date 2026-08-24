@@ -6,7 +6,7 @@ workflow RNASEQ_DIFFERENTIAL_EXPRESSION {
     take:
     config_file
     pipeline_root
-    quantification_status
+    _quantification_status
     import_manifest
     imported_counts
     imported_abundance

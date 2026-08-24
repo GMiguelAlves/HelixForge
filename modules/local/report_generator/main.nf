@@ -10,7 +10,7 @@ process REPORT_GENERATOR {
     errorStrategy 'terminate'
     maxRetries 0
 
-    container params.chipseq_report_container
+    container { workflow.containerEngine in ['singularity', 'apptainer'] ? params.chipseq_report_apptainer_container : params.chipseq_report_container }
     conda "${moduleDir}/environment.yml"
 
     publishDir "${params.outdir}/chipseq/report",

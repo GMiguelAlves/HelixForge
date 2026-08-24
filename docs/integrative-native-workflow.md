@@ -1,6 +1,7 @@
 # Native Integrative workflow
 
-Status: Stage 6 complete; legacy retained only as a frozen regression oracle.
+Status: native production workflow complete; legacy retained only as a frozen
+regression oracle.
 
 The native Integrative workflow consumes one complete RNA-seq terminal bundle
 and one complete ChIP-seq terminal bundle. It never discovers files in a

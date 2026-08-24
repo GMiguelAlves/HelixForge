@@ -3,8 +3,8 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "${ROOT}/tests/lib/materialize_rnaseq_legacy.sh"
-IMAGE="${DESEQ2_TEST_IMAGE:-ghcr.io/gmiguelalves/helixforge-deseq2:1.0.1}"
-ADAPTER_IMAGE="${DE_ADAPTER_TEST_IMAGE:-ghcr.io/gmiguelalves/helixforge-import-python:1.0.0}"
+IMAGE="${DESEQ2_TEST_IMAGE:-ghcr.io/gmiguelalves/helixforge-deseq2:1.0.1@sha256:0356ef0276bdeadf36da2fc3c97dbc4f925fec6783abea1c5da1aac7c1dc61eb}"
+ADAPTER_IMAGE="${DE_ADAPTER_TEST_IMAGE:-ghcr.io/gmiguelalves/helixforge-import-python:1.0.0@sha256:f09bbd79be8b6a14b3addebfad2134a692b2cb78d253b86d667fc423a34fe456}"
 NXF_BIN="${NEXTFLOW:-nextflow}"
 NXF_JAR="${NEXTFLOW_JAR:-}"
 
