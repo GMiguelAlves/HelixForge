@@ -10,7 +10,7 @@ plan="$validation_root/idr-conda-plan.json"
 summary="$validation_root/idr-conda-plan-summary.json"
 
 case "$validation_root" in
-    /scratch/Schisto-epigenetics/gustavo/helixforge-idr-validation-*) ;;
+    /*/helixforge-idr-validation-*) ;;
     *) echo "Refusing unexpected validation root: $validation_root" >&2; exit 2 ;;
 esac
 test -n "${SLURM_JOB_ID:-}"

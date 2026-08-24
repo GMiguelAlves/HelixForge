@@ -12,7 +12,7 @@ legacy_root="${case_root}/legacy_root"
 legacy_out="${case_root}/legacy"
 native_out="${case_root}/native"
 nextflow_out="${case_root}/nextflow"
-image=${HELIXFORGE_IMPORT_CONTAINER:-ghcr.io/gmiguelalves/helixforge-import:1.0.0}
+image=${HELIXFORGE_IMPORT_CONTAINER:-ghcr.io/gmiguelalves/helixforge-import:1.0.0@sha256:e8bc49869f641cee2d538df058fb9afb8e7883c4b48b29d1f946a9761ff105f7}
 
 run_nextflow() {
     if [[ -n "$nextflow_jar" ]]; then

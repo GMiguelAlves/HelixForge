@@ -23,7 +23,7 @@ work_root="${validation_root}/work/${case_name}"
 cache_root="${HELIXFORGE_NXF_CACHE_DIR:-${repo_root}/.validation-cache/${case_name}}"
 
 case "$validation_root" in
-    /scratch/Schisto-epigenetics/gustavo/helixforge-validation-*) ;;
+    /*/helixforge-validation-*) ;;
     *) echo "Refusing unexpected validation root: $validation_root" >&2; exit 2 ;;
 esac
 

@@ -21,8 +21,8 @@ jobs:
       - name: Install certified Nextflow and schema runtime
         run: |
           curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
-          python3 -m pip install --disable-pip-version-check jsonschema==4.23.0
-      - name: Run Stage 6 contracts
+          python3 -m pip install --disable-pip-version-check -r requirements-dev.txt
+      - name: Run native Integrative contracts
         run: python3 -m unittest discover -s tests/integrative_workflow -p 'test_*.py' -v
       - name: Prepare portable terminal manifests
         run: python3 tests/integrative_workflow/prepare_fixture.py --output /tmp/helixforge-integrative-fixture

@@ -43,7 +43,7 @@ explicitly bound terminal artifacts to the
 compatibility, harmonizes explicit identities and constructs lossless long-form
 and full-outer gene-level molecular evidence tables. Interpretation, functional
 analysis, visualization, report and the terminal Integrative contract are all
-part of the active Stage 6 DAG.
+part of the active native DAG.
 
 ## RNA-seq native DAG
 
@@ -173,7 +173,7 @@ The interpretation boundary is [Regulatory Interpretation and Candidate
 Prioritization v1](regulatory_interpretation.md). It preserves the characterized
 legacy evidence classes, adds independently versioned directional patterns,
 decomposes Candidate Score v1 and produces Fisher/BH and descriptive
-correlations. Stage 6 composes them with a legacy-compatible descriptive
+correlations. The native workflow composes them with a legacy-compatible descriptive
 functional summary, separate Fisher/BH tests, deterministic SVGs, a searchable
 HTML report and `integrative_run_manifest.json`.
 

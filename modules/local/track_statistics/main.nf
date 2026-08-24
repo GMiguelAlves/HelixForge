@@ -10,7 +10,7 @@ process TRACK_STATISTICS {
     errorStrategy 'terminate'
     maxRetries 0
 
-    container params.chipseq_track_container
+    container { workflow.containerEngine in ['singularity', 'apptainer'] ? params.chipseq_track_apptainer_container : params.chipseq_track_container }
     conda "${moduleDir}/environment.yml"
 
     publishDir "${params.outdir}/pipeline_info/native_chipseq/tracks/statistics",
