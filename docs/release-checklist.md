@@ -3,7 +3,7 @@
 ## Governance
 
 - [ ] Release scope and version approved.
-- [ ] Project license selected and present at repository root.
+- [x] Apache License 2.0 and project NOTICE present at repository root.
 - [ ] `CITATION.cff`, `CHANGELOG.md` and release notes validated.
 - [ ] No release tag exists before all gates pass.
 
@@ -31,6 +31,8 @@
 ## Operational evidence
 
 - [ ] Pinned OCI images are available and container certification is current.
+- [ ] Project-built images preserve upstream package license metadata and
+      notices; repeat the image-content audit when dependencies change.
 - [ ] Slurm execution uses Nextflow-only scheduling and site-safe concurrency.
 - [ ] `-resume` status and any external runtime limitation are documented.
 - [ ] No credentials, private data, personal paths, caches or large generated

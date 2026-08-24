@@ -3,7 +3,7 @@
 ## Status
 
 This is a draft release candidate. No tag should be created until the release
-checklist passes and a project license is declared.
+checklist passes and the maintainer explicitly approves it.
 
 ## Highlights
 
@@ -17,6 +17,8 @@ checklist passes and a project license is declared.
 - Pinned provider images, provenance, checksums, resource declarations and
   regression fixtures.
 - Certified Nextflow 25.10.7 / Java 21 runtime baseline.
+- Apache License 2.0 for HelixForge source, with third-party runtime licensing
+  kept explicit and separate.
 
 ## Important decisions
 
@@ -35,7 +37,6 @@ historical audit or semantic comparison.
 
 ## Known limitations
 
-- Project license not yet declared (release blocker).
 - Apptainer/Singularity and Conda are experimental.
 - Externally authored terminal manifests require further interoperability
   certification.
