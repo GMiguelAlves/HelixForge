@@ -1,5 +1,8 @@
 # RNA-seq legacy retirement
 
+> **Historical retirement record.** Current RNA-seq execution is documented in
+> the workflow and API guides.
+
 The RNA-seq shell pipeline was removed from the active source tree after the
 native production path passed final synthetic validation locally, in CI, and on
 Slurm. The immutable tag `rnaseq-legacy-v1.0.0` points to the last reviewed

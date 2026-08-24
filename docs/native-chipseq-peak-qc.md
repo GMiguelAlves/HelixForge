@@ -1,5 +1,8 @@
 # Native ChIP-seq Peak QC
 
+> **Historical implementation record.** The current contract is documented in
+> [Peak QC API v1](peak_qc_api.md).
+
 Foundation 0.4 implements a caller-neutral Peak QC API after final BAM
 processing and per-replicate peak calling. The implementation is native
 Nextflow DSL2 and contains no scheduler submission or legacy wrapper.

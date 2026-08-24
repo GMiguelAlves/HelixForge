@@ -1,5 +1,8 @@
 # Native RNA-seq Import API
 
+> **Historical implementation record.** The current contract is documented in
+> the [Import API](import_api.md).
+
 Import API v1 removes the RNA-seq tximport compatibility wrapper. The selected
 Alignment or Quantification provider now hands a manifest and a semantic
 artifact directly to a native DSL2 subworkflow. No import module searches the

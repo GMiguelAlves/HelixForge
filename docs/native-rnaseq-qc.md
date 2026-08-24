@@ -1,5 +1,8 @@
 # Native RNA-seq quality control
 
+> **Historical implementation record.** Current execution is documented in
+> the [RNA-seq workflow guide](workflows.md#rna-seq).
+
 The RNA-seq QC layer is fully native in Nextflow DSL2 while preserving the
 scientific commands, resource requests, filenames, compression, and result
 directories of step 030 in the existing pipeline.

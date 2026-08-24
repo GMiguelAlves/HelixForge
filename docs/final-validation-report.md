@@ -1,5 +1,8 @@
 # Controlled real validation report
 
+> **Historical validation record.** This report preserves dated runtime and
+> scientific evidence; it is not an installation or execution guide.
+
 > Update (2026-08-13): IDR 2.0.4.2 is implemented as an optional provider and
 > passed both immutable-OCI certification and a complete reduced top-level
 > Slurm execution. Statements below that IDR was `not_implemented` describe an

@@ -1,5 +1,8 @@
 # Native ChIP-seq Differential Binding
 
+> **Historical implementation record.** The current contract is documented in
+> [Differential Binding API v1](differential_binding_api.md).
+
 Foundation 0.6 implements the orchestration and contracts required to replace
 the legacy differential-binding step after later biological validation.
 

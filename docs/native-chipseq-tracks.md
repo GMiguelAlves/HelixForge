@@ -1,5 +1,8 @@
 # Native ChIP-seq track generation
 
+> **Historical implementation record.** The current contract is documented in
+> [Track Generation API v1](track_generation_api.md).
+
 Track Generation API v1 is the first native implementation of the legacy
 ChIP-seq `tracks` stage. It starts from an explicit inventory of already
 produced `FINAL_BAM`/BAI artifacts, their manifests, and one reference
@@ -78,10 +81,8 @@ tracks in the complete real reduced DAG. Docker certification run
 pyBigWig from the immutable production image. A legacy-vs-native biological
 BigWig comparison and IGV review remain deferred to the reviewed dataset.
 
-## Next step
+## Remaining validation scope
 
-Run one small paired legacy/native dataset with the same deepTools version.
-Compare BigWig chromosome sets, bin summaries, global coverage statistics, and
-visual loci; then record runtime, peak memory, CPU efficiency, and cache reuse.
-Only after that regression should native tracks be considered scientifically
-validated or enabled by default.
+The Track API is part of the current `full` workflow. A reviewed biological
+comparison should assess BigWig chromosome sets, coverage summaries and visual
+loci, together with runtime and resource use.
