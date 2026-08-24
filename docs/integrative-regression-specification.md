@@ -1,5 +1,8 @@
 # Integrative legacy regression specification
 
+> **Historical regression record.** These equivalence rules preserve the
+> migration baseline and are not the public Integration API.
+
 This specification defines how future native Integration providers are compared
 with the frozen stage-1 legacy baseline. It deliberately distinguishes
 scientific identity from volatile presentation metadata.
@@ -64,4 +67,3 @@ Known candidates for reviewed deviation are:
 - machinery genes receiving both gene-interest and machinery score bonuses;
 - descriptive functional counts being named enrichment;
 - Python/R stage and mark canonicalization differences.
-

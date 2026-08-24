@@ -1,5 +1,8 @@
 # Native ChIP-seq peak calling
 
+> **Historical implementation record.** The current contract is documented in
+> [Peak Calling API v1](peak_calling_api.md).
+
 ## Architecture
 
 ```mermaid

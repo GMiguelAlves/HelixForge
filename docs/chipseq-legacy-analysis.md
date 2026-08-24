@@ -1,5 +1,8 @@
 # ChIP-seq legacy analysis
 
+> **Historical migration record.** This analysis is retained for regression
+> and reproducibility of the retired implementation.
+
 This historical audit is based on the commands preserved in the
 `chipseq-legacy-v1.0.0` tag, formerly under
 `pipelines/chipseq/legacy/`. The legacy implementation is evidence of previous

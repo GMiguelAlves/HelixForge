@@ -3,9 +3,9 @@
 ## Governance
 
 - [ ] Release scope and version approved.
-- [x] Apache License 2.0 and project NOTICE present at repository root.
+- [ ] `LICENSE` and `NOTICE` reflect the distributed content.
 - [ ] `CITATION.cff`, `CHANGELOG.md` and release notes validated.
-- [ ] No release tag exists before all gates pass.
+- [ ] Release version and tag are consistent with the approved release.
 
 ## Contracts and science
 
@@ -40,7 +40,7 @@
 
 ## Publication
 
-- [ ] Create the annotated RC tag only after maintainer approval.
+- [ ] Create the annotated release tag after all required gates pass.
 - [ ] Publish GitHub release notes and archive/DOI metadata when available.
 - [ ] Verify repository Wiki/navigation.
 - [ ] Announce unresolved experimental surfaces without overstating support.

@@ -1,5 +1,9 @@
 # Native Trim Galore migration
 
+> **Historical implementation record.** This document preserves the migration
+> compatibility rationale; current QC execution is documented in the workflow
+> guide.
+
 ## Scope
 
 This document records the first incremental migration, when only run-level

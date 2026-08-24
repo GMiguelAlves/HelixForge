@@ -5,9 +5,6 @@ and cross-assay molecular evidence integration. It preserves explicit
 scientific contracts, provenance, and deterministic outputs while remaining
 ready for future assay providers.
 
-> **Release candidate:** the source is preparing for `1.0.0-rc.1`. No release
-> tag has been created; tagging still requires explicit maintainer approval.
-
 ## What it runs
 
 | Workflow | Production path | Terminal contract |
@@ -125,12 +122,11 @@ nextflow lint .
 ```
 
 Run `bin/helixforge-doctor` before reporting an environment failure. Contribution
-rules and scientific-change expectations are in `CONTRIBUTING.md` (added as
-part of the release-candidate consolidation).
+rules and scientific-change expectations are in `CONTRIBUTING.md`.
 
 ## Citation and license
 
-Citation metadata is provided in `CITATION.cff` as part of the release
-candidate. HelixForge is licensed under the [Apache License 2.0](LICENSE).
+Citation metadata is provided in `CITATION.cff`. HelixForge is licensed under
+the [Apache License 2.0](LICENSE).
 Third-party tools and container components retain their own licenses; see the
 [licensing and third-party software policy](docs/licensing.md).

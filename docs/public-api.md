@@ -51,8 +51,8 @@ scientific meaning.
 
 - STAR as an optional RNA Alignment provider; Salmon is the certified
   production quantification path;
-- Apptainer/Singularity and Conda profiles until their complete RC smoke
-  matrices run on a supported site;
+- Apptainer/Singularity and Conda profiles until they are certified on a
+  supported site;
 - externally authored Integration API manifests. The schema is public, but
   format-specific external adapters are not yet supplied;
 - standalone ChIP re-entry modes that consume annotation, track, or report

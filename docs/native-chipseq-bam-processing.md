@@ -1,5 +1,8 @@
 # Native ChIP-seq BAM processing
 
+> **Historical implementation record.** Current behavior is summarized in the
+> [ChIP-seq API guide](chipseq-api.md).
+
 BAM Processing API version: `0.1`
 
 This layer converts a provider-neutral aligned BAM into a validated final BAM

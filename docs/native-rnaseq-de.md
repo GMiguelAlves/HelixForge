@@ -1,5 +1,8 @@
 # Native RNA-seq differential expression
 
+> **Historical implementation record.** The current contract is documented in
+> the [Differential Expression API](differential_expression_api.md).
+
 ## Implemented flow
 
 ```mermaid
@@ -66,10 +69,8 @@ uncertified fallback.
 No scientific-equivalence claim is made until `run_regression.sh` passes. No
 real benchmark is reported; stub timing is not scientifically useful.
 
-## Next step
+## Subsequent status
 
-Run the golden regression and cache test on a runner that already has the
-pinned image. Batch should be represented as a design covariate; matrix
-correction must remain a separate exploratory output and must not be inserted
-automatically before inference. Final reporting should remain downstream of
-the stable Differential Expression manifest.
+The pinned DESeq2 runtime, regression path and downstream reporting were
+completed after this implementation record. Batch remains a design covariate;
+matrix correction is exploratory and never enters inference automatically.

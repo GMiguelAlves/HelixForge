@@ -121,25 +121,20 @@ flowchart TD
 - `annotation`, `tracks`, and `report` remain standalone manifest-inventory
   re-entry modes. Under `full`, they are composed directly by channels and do
   not discover published result directories.
-- Native `full` is an architectural composition. Its scientific status remains
-  limited to the reduced controlled Slurm validation until the planned reviewed
+- The `full` workflow is an architectural composition. Its scientific status
+  remains limited to reduced controlled Slurm validation until the reviewed
   biological regression is complete.
 
 The Nextflow executor owns all scheduling. Modules contain no Slurm submission,
 partition, account or host-specific path logic. Profiles select local, Slurm,
 Docker, Conda, Singularity or Apptainer execution.
 
-The native top-level stub evidence is recorded in
+Top-level validation evidence is recorded in
 [chipseq-full-native-validation.md](chipseq-full-native-validation.md).
 
-## Incremental migration order
+## Component composition
 
-1. metadata + raw QC + Bowtie2 alignment (foundation 0.1);
-2. BAM selection, duplicate policy, blacklist and final QC (foundation 0.2);
-3. explicit MACS3 provider and caller-neutral peak outputs (foundation 0.3);
-4. explicit FRiP/Peak QC API and per-replicate aggregation (foundation 0.4);
-5. Consensus API boundary (foundation 0.5) and optional IDR provider (0.10);
-6. Differential Binding API with explicit design/contrasts (foundation 0.6);
-7. manifest-driven Peak Annotation API (foundation 0.7);
-8. manifest-driven Track Generation API (foundation 0.8);
-9. manifest-driven Report/Integration API (foundation 0.9; functional DAG complete).
+The workflow composes metadata and QC, Bowtie2 alignment, BAM processing,
+MACS3 peak calling, FRiP/Peak QC, Consensus or optional IDR, Differential
+Binding, Peak Annotation, Track Generation and Report APIs. Each boundary is
+manifest-driven and independently cacheable.

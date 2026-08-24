@@ -132,9 +132,9 @@ Every successful contrast exposes:
 DESeq2-specific artifacts remain additive and must not be required by generic
 downstream consumers.
 
-## Legacy fallback
+## Historical compatibility
 
-The native provider retains default `DESeq()` Wald fitting and the established
+The DESeq2 provider retains default `DESeq()` Wald fitting and the established
 result/plot layout, but it no longer copies unsafe implicit behavior. The
 retired scripts and their historical behavior are preserved by the immutable
 `rnaseq-legacy-v1.0.0` tag; they are not executable providers in the current

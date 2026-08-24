@@ -1,19 +1,12 @@
 # ChIP-seq APIs
 
-ChIP-seq API version: `0.9`
+ChIP-seq API suite version: `0.9`
 
 These contracts define semantic roles independently from organism, aligner,
-peak caller and legacy directory names. Version 0.1 implemented metadata, raw
-QC and Bowtie2 alignment. Version 0.2 implements the independent BAM processing
-roles. Version 0.3 implements Peak Calling API v1 with MACS3 3.0.4. Version 0.4
-implements per-replicate Peak QC API v1. Version 0.5 implements Consensus API
-v1; version 0.10 completes its optional IDR 2.0.4.2 provider.
-Version 0.6 adds separate differential-binding preflight, peak counting,
-statistical model, contrast and aggregation boundaries.
-Version 0.7 adds manifest-driven Peak Annotation API v1. Version 0.8 adds
-manifest-driven Track Generation API v1.
-Version 0.9 adds terminal Report/Integration API v1 and completes the native
-functional DAG.
+peak caller and historical directory names. The suite covers metadata, QC,
+Bowtie2 alignment, BAM processing, MACS3 peak calling, FRiP/Peak QC, Consensus
+or optional IDR, Differential Binding, Peak Annotation, Track Generation and
+terminal Report/Integration APIs.
 
 ## Common experiment metadata
 
@@ -139,9 +132,9 @@ exactly two premerged biological narrowPeak replicates, an explicit threshold
 and rank metric, and emits filtered peaks plus local/global IDR evidence.
 See `docs/consensus_idr_api.md`.
 
-## Modes and implementation state
+## Modes and current behavior
 
-| Mode | Native state in 0.9 |
+| Mode | Behavior in 0.9 |
 |---|---|
 | `qc` | metadata validation + raw FastQC + MultiQC |
 | `alignment` | native QC + Bowtie2 index/alignment |
