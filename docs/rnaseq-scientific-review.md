@@ -131,7 +131,7 @@ reconhecidas pela Differential Expression API.
   GTF/GFF antes do STAR.
 - O QC nativo não possui fluxo single-end completo.
 - A sample metadata inicial ainda é descoberta pelo adapter legado; por isso a
-  metadata deve virar um input Nextflow rastreado em uma etapa futura.
+  metadata deve virar um input Nextflow rastreado em uma versão futura.
 - Provenance é distribuída entre manifests, `execution.json`, trace/report e
   Git; ainda não existe um manifesto final único com a versão do Nextflow.
 - Os recursos HPC continuam conservadores e não foram benchmarkados.
@@ -167,7 +167,7 @@ produção.
 - Testes Python: metadata, sample table, colisão STAR e DE preflight passaram.
 - Parsing dos três scripts R modificados: passou.
 - Testes com ferramentas científicas reais, regressão legado × nativo e
-  benchmark: não executados para evitar downloads/builds pesados nesta etapa.
+  benchmark: permanecem programados para o ciclo de validação biológica.
 
 ## Recomendação objetiva
 

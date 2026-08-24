@@ -1,5 +1,8 @@
 # Native architecture consolidation audit
 
+> **Historical implementation record.** This document captures an earlier
+> consolidation audit and is not part of the current user guide.
+
 ## Scope and evidence level
 
 The audit covered the actual DSL2 workflows, subworkflows, native modules,

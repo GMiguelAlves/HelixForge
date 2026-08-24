@@ -94,5 +94,6 @@ only external native manifests.
 The dedicated `tracks` mode always invokes this API. Native `full` supplies the
 final-BAM and Reference Bundle channels directly to the same Track API.
 
-This stage establishes architecture and executable contracts. It does not
-claim BigWig equivalence or scientific validation.
+The API has deterministic contract and reduced runtime validation. Reviewed
+biological equivalence of generated BigWigs remains part of the broader
+benchmarking scope.

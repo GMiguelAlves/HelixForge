@@ -1,5 +1,8 @@
 # RNA-seq synthetic release validation
 
+> **Historical validation record.** This document reports a dated synthetic
+> validation and does not replace the current workflow guide.
+
 The official production path was revalidated on the institutional Slurm
 cluster on 2026-08-13 at commit `967dfc4`:
 

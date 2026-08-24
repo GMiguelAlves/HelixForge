@@ -1,5 +1,8 @@
 # Native RNA-seq report migration
 
+> **Historical implementation record.** The current contract is documented in
+> the [RNA-seq Report API](rnaseq_report_api.md).
+
 ## Native processes
 
 - `RNASEQ_REPORT_CONTEXT`: validates API manifests, semantic matrices,

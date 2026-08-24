@@ -1,5 +1,8 @@
 # Integrative legacy scientific audit
 
+> **Historical scientific record.** This audit characterizes the retired
+> Integrative implementation and its regression baseline.
+
 Status: **historical characterization; executable source archived in
 `integrative-legacy-v1.0.0`**
 Legacy source: `pipelines/integrative/legacy` at commit

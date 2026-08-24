@@ -1,5 +1,8 @@
 # Native ChIP-seq Peak Annotation
 
+> **Historical implementation record.** The current contract is documented in
+> [Peak Annotation API v1](peak_annotation_api.md).
+
 Foundation 0.7 introduces Peak Annotation API v1 as an independent,
 manifest-driven workflow. It does not call Peak Calling or Differential
 Binding and does not modify the legacy implementation.
@@ -100,8 +103,8 @@ context/provider/statistics/aggregate chain inside the immutable Python image.
 A biological dataset, legacy regression, benchmark and scientific comparison
 remain deferred.
 
-## Next step
+## Remaining validation scope
 
-Validate a production reference bundle and a small real peak set against the
-legacy tables, then add a batch-input manifest. Tracks and final reporting can
-then consume this provider-neutral annotation manifest.
+The current workflow consumes this provider-neutral annotation manifest in
+tracks, reporting and Integrative evidence. A reviewed biological comparison
+against the historical tables remains part of the broader benchmark cycle.

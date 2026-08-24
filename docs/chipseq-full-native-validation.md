@@ -1,5 +1,8 @@
 # Validação do coordenador ChIP-seq `full` nativo
 
+> **Registro histórico de validação.** Os resultados abaixo descrevem a
+> execução controlada na data indicada, não um guia de uso atual.
+
 ## Escopo
 
 Em 13 de agosto de 2026, o modo `chipseq_run_mode=full` foi executado como uma
@@ -89,6 +92,6 @@ Uma tentativa posterior em Debian 13 confirmou, pelos jobs Slurm `14748` e
 oferece FUSE e user namespaces, mas não foi feita instalação ad hoc de
 Apptainer no ambiente compartilhado.
 
-A etapa de containers foi encerrada como concluída com limitação externa. Os
+A certificação de containers foi encerrada com limitação externa. Os
 dois últimos itens são certificações operacionais futuras e não bloqueiam a
 release científica.

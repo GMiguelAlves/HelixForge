@@ -1,5 +1,8 @@
 # ChIP-seq legacy differential-binding review
 
+> **Historical scientific record.** This review documents the retired
+> implementation used for comparison; it does not define the current API.
+
 This review documents the current implementation without changing it or
 declaring it scientifically equivalent to the native API. Files audited:
 

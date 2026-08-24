@@ -1,5 +1,8 @@
 # ChIP-seq legacy retirement
 
+> **Historical retirement record.** Current ChIP-seq execution is documented
+> in the workflow and API guides.
+
 Status: **retired from the current source tree**.
 
 The final executable snapshot was preserved before removal:

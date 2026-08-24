@@ -1,5 +1,8 @@
 # Native ChIP-seq Consensus / IDR
 
+> **Historical implementation record.** The current contract is documented in
+> [Consensus / IDR API v1](consensus_idr_api.md).
+
 Foundation 0.5 adds a provider-neutral consolidation layer after native Peak
 Calling and Peak QC. The formal scientific contract is
 `docs/consensus_idr_api.md`.

@@ -31,8 +31,8 @@ still applies the semantic contract but records schema validation as
 `skipped_stub`; the same fixture is validated against the real schema engine by
 the Python contract suite and CI.
 
-Only complete native assay DAGs emit the v1 terminal contract in the first
-iteration. Stage-specific modes continue to expose their domain manifests; an
+Complete assay DAGs emit the v1 terminal contract. Stage-specific modes expose
+their domain manifests; an
 external assembler may use the same schemas after declaring all required run
 context.
 
