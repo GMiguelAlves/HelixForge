@@ -1,5 +1,8 @@
 # Native RNA-seq quantification
 
+> **Historical implementation record.** The current contract is documented in
+> the [Quantification API](quantification_api.md).
+
 The RNA-seq Salmon path implements Quantification API 1.0. Workflows call the
 generic `TRANSCRIPTOME_INDEX` and `QUANTIFICATION` subworkflows; they do not
 call Salmon processes directly. The native Import API consumes Salmon

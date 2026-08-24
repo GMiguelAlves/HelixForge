@@ -1,10 +1,8 @@
-# HelixForge implementation architecture
+# HelixForge architecture
 
-HelixForge is a Nextflow DSL2 platform whose native APIs exchange typed channels
-and versioned manifests. RNA-seq, ChIP-seq and Integrative active DAGs are fully
-native. Their former implementations are archived in `rnaseq-legacy-v1.0.0`,
-`chipseq-legacy-v1.0.0`, and `integrative-legacy-v1.0.0`; `LEGACY_STEP` is no
-longer present in the current source tree.
+HelixForge is a Nextflow DSL2 platform whose workflows exchange typed channels
+and versioned manifests. RNA-seq, ChIP-seq and Integrative are independent
+public entry points, while `all` composes the three workflows.
 
 ## Top-level composition
 
@@ -35,7 +33,7 @@ flowchart TB
 ```
 
 `ALL` starts RNA-seq and ChIP-seq independently and passes both real Integration
-API v1 terminal bundles directly to the native Integrative coordinator. It does
+API v1 terminal bundles directly to the Integrative coordinator. It does
 not use completion tokens as data. Independent RNA and ChIP providers convert
 explicitly bound terminal artifacts to the
 [Standardized Evidence Model v1](evidence_model.md). The native
@@ -45,7 +43,7 @@ and full-outer gene-level molecular evidence tables. Interpretation, functional
 analysis, visualization, report and the terminal Integrative contract are all
 part of the active native DAG.
 
-## RNA-seq native DAG
+## RNA-seq workflow
 
 ```mermaid
 flowchart LR
@@ -100,7 +98,7 @@ In `full`, `RUN_MANIFEST` projects those known artifacts, normalized metadata,
 the Reference Bundle and contrast specification into
 `rnaseq_run_manifest.json`.
 
-## ChIP-seq native DAG
+## ChIP-seq workflow
 
 ```mermaid
 flowchart LR
@@ -177,12 +175,12 @@ correlations. The native workflow composes them with a legacy-compatible descrip
 functional summary, separate Fisher/BH tests, deterministic SVGs, a searchable
 HTML report and `integrative_run_manifest.json`.
 
-Scientific parameters remain explicit in `nextflow.config` and are all exposed
-by `nextflow_schema.json`. Scheduler queues, resources and environment engines
-remain orchestration concerns; scientific defaults stay in the authoritative
-pipeline configuration until their controlled migration.
+Scientific parameters remain explicit in `nextflow.config` and are exposed by
+`nextflow_schema.json`. Scheduler queues, resources and environment engines
+remain orchestration concerns. The pipeline configuration remains the
+authoritative compatibility interface for established scientific defaults.
 
-## Deliberate legacy boundaries
+## Compatibility and planned extensions
 
 - Optional exploratory Batch Effect Assessment API, tracked in the
   [scientific roadmap](roadmap.md). The current inferential DAG never consumes
@@ -193,6 +191,6 @@ pipeline configuration until their controlled migration.
 - RNA Pathway Enrichment API and any analysis not yet represented by a native
   provider, tracked in the [scientific roadmap](roadmap.md).
 
-These boundaries are not described as scientifically validated native paths.
-Their replacement requires the mandatory comparisons in
-[final validation plan](final-validation-plan.md).
+Historical implementations and their validation evidence are documented
+separately from the active architecture. Current support and benchmarking
+boundaries are summarized in [Limitations](limitations.md).

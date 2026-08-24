@@ -1,9 +1,6 @@
-# Native Integrative workflow
+# Integrative workflow
 
-Status: native production workflow complete; legacy retained only as a frozen
-regression oracle.
-
-The native Integrative workflow consumes one complete RNA-seq terminal bundle
+The Integrative workflow consumes one complete RNA-seq terminal bundle
 and one complete ChIP-seq terminal bundle. It never discovers files in a
 published results directory. Independent re-entry requires the two portable
 terminal manifests and their sibling `integration_artifacts/` directories.
@@ -58,7 +55,7 @@ inputs.
 - legacy-compatible descriptive `functional_enrichment.tsv` plus the separate
   inferential `functional_tests.tsv`;
 - checksummed SVG summaries and per-candidate panels;
-- searchable, science-free HTML report and structured report manifest;
+- searchable, presentation-only HTML report and structured report manifest;
 - `integrative_run_manifest.json`, containing input/component lineage,
   reference, policies, model versions and checksums for terminal artifacts.
 
@@ -97,8 +94,8 @@ runtime/filesystem combination.
   database or pathway provider;
 - externally generated absolute paths require matching mounts; portable
   manifest-relative bundles are the certified re-entry mechanism;
-- biological benchmark validation remains intentionally deferred until after
-  the legacy-retirement release;
+- reviewed biological benchmark validation remains part of the v1 validation
+  cycle;
 - `-resume` semantics are implemented normally but not operationally certified
   on the affected shared/WSL filesystem because its Nextflow task database may
   persist with zero entries.

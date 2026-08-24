@@ -1,5 +1,8 @@
 # Native ChIP-seq report
 
+> **Historical implementation record.** The current contract is documented in
+> [ChIP-seq Report API v1](chipseq_report_api.md).
+
 Report/Integration API v1 closes the functional native ChIP-seq DAG. It joins
 already produced semantic manifests and explicitly declared result files; it
 does not discover directories or run a scientific provider.
@@ -77,9 +80,8 @@ report contracts and semantic aggregation inside the immutable Python runtime.
 A biological dataset, benchmark, scientific visual review and complete legacy
 comparison remain pending.
 
-## Next activity
+## Remaining validation scope
 
-Do not add another major ChIP-seq feature. The next activity is consolidated
-scientific review and real execution of the complete DAG: validate providers,
-selective legacy regressions, resources, Slurm, containers, outputs, and only
-then retire wrappers that are proven unnecessary.
+The complete DAG and retired-wrapper boundary are now established. Reviewed
+biological report interpretation and broader performance measurements remain
+part of the benchmark cycle.

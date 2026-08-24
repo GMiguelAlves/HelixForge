@@ -118,9 +118,9 @@ version removal and declares `oldGeneA -> geneA`, both become canonical
 `chipOnly` and an RNA-only `geneV` both remain in `master_evidence.tsv`, with
 the opposite assay represented by an explicit absence state.
 
-## Legacy correspondence
+## Historical regression correspondence
 
-The regression fixture compares Stage 4 with the frozen IntegrateSeq
+The regression fixture compares this contract with the frozen IntegrateSeq
 `harmonize`, `map-peaks`, and pre-classification `integrate` outputs. It verifies
 the gene universe, RNA effects/p-values, contrast and mark aliases, and peak
 counts by gene/mark/context. Intentional differences are:
@@ -129,7 +129,8 @@ counts by gene/mark/context. Intentional differences are:
 - existing Peak-Gene Evidence replaces legacy nearest-gene remapping;
 - region-level observations are retained instead of being dropped;
 - missingness is explicit rather than encoded as zero or an empty join;
-- integration class, candidate score and ranking are deferred.
+- integration class, candidate score and ranking are produced by downstream,
+  independently versioned interpretation components.
 
 ## Outputs and provenance
 
@@ -139,9 +140,9 @@ every table, provider/model versions, and execution provenance. The schemas are
 under `schemas/integration-engine/` and semantic/filesystem validation is
 available through `bin/validate_molecular_integration.py`.
 
-## Stage 5 boundary
+## Downstream interpretation boundary
 
-Regulatory classification, candidate scoring/ranking, enrichment, Fisher tests,
-correlations and final integrated figures/reports are deliberately outside v1.
-They must consume this evidence contract without changing its measurements or
-turning absence into evidence.
+Regulatory classification, Candidate Score, enrichment, Fisher tests,
+correlations, visualizations and the final report consume this evidence
+contract through the current Integrative workflow. They are independently
+versioned and cannot change its measurements or turn absence into evidence.

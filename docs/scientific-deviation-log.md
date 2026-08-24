@@ -42,7 +42,7 @@ because a native process completes.
 | SD-034 | BAM manifest staging | BAM processing stages initially reused the upstream manifest basename; shell redirection followed staged symlinks and overwrote alignment provenance. The report then received duplicate or intermediate identities. | Scientific BAM contents were unaffected, but provenance and final report composition were invalid. | RESOLVED | Give every BAM stage an immutable role-specific manifest filename, propagate report-builder failures with `pipefail`, and validate only `*.bam_final.manifest.json`. The corrected 105-process Slurm DAG and final report passed. |
 | SD-035 | Slurm container runtime | Debian 13 compute-node probes found no Docker, Apptainer, Singularity, Podman, Enroot, Charliecloud, Shifter, or module system. FUSE and unprivileged user namespaces work, but the official relocatable Apptainer installer still lacks `rpm2cpio`. | The immutable OCI images are certified independently, but the provided infrastructure cannot execute the complete Slurm DAG through OCI/Apptainer. | DOCUMENTED-EXTERNAL | Treat the stage as complete with an external operational limitation. Do not maintain an ad hoc dependency chain in shared home/scratch; repeat the probe only if administrators provide Apptainer with registry and mount access. |
 
-## Acceptance rule
+## Review policy
 
 An open scientific difference requires one of: correction, explicit documented
 release policy, or a justified tolerance with evidence. Environment blockers may

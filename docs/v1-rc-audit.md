@@ -1,5 +1,8 @@
 # v1 release-candidate consolidation audit
 
+> **Historical record.** This audit documents preparation of the first release
+> candidate. It is retained for traceability and is not user guidance.
+
 Audit date: 2026-08-20. Branch: `contrib/v1-rc-consolidation`.
 
 ## Classification
@@ -93,9 +96,5 @@ biological benchmark.
 - `POST_RC`: reviewed biological benchmarks, Batch Effect Assessment, pathway
   enrichment, base-image/action SHA hardening and additional providers.
 
-Decision: **RC_READY**. No scientific, software-test, or repository-license
-blocker remains in the executed RC gate. Creating `v1.0.0-rc.1` still requires
-explicit maintainer authorization.
-
-The final decision must be reported as `RC_READY` only when this list is empty;
-otherwise it is `RC_BLOCKED` with the unresolved items named explicitly.
+The audit found no remaining scientific, software-test, or repository-license
+blocker in the executed release-candidate gate.

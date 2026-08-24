@@ -1,5 +1,8 @@
 # Certificação dos containers ChIP-seq
 
+> **Registro histórico de validação.** Este documento preserva a evidência do
+> ambiente testado e não substitui o inventário de runtimes atual.
+
 ## Resultado
 
 Em 20 de agosto de 2026, os runtimes que ainda impediam o perfil de containers
@@ -75,7 +78,7 @@ tecnicamente plausível, mas exigiria introduzir e manter dependências própria
 fora da infraestrutura certificada pelos administradores. Essa instalação não
 foi realizada em um cluster compartilhado.
 
-Estado da etapa: **concluída com limitação operacional externa**, sem falha
+Estado da certificação: **concluída com limitação operacional externa**, sem falha
 científica do HelixForge. A ausência de um Apptainer administrado no head/nós,
 com acesso aos registries GHCR/Quay e aos mounts `/home` e `/scratch`, não é um
 release gate. Se essa infraestrutura for disponibilizada futuramente, repetir

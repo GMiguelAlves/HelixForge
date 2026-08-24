@@ -1,10 +1,13 @@
 # Integrative legacy retirement
 
+> **Historical retirement record.** The current Integrative workflow is
+> documented in [Integrative workflow](integrative-native-workflow.md).
+
 Status: **retired from the current source tree**.
 
 ## Immutable boundary
 
-The final commit containing both the accepted native Stage 6 workflow and the
+The final commit containing both the accepted Integrative workflow and the
 executable Integrative legacy path was protected before deletion:
 
 - annotated tag: `integrative-legacy-v1.0.0`;
@@ -23,7 +26,7 @@ not a supported provider in current runs.
 - `legacy_dry_run` and `integrative_config` from configuration and schema;
 - legacy characterization executors that depended on removed source.
 
-The native `workflows/integrative.nf`, Stage 2–6 APIs, schemas, modules and
+The current `workflows/integrative.nf`, Integration APIs, schemas, modules and
 `workflow all` terminal-bundle wiring were not changed.
 
 ## Preserved scientific evidence
@@ -37,7 +40,7 @@ imports or public parameters.
 
 ## Validation gate
 
-Retirement requires the green Stage 2–6 contract suites, native Integrative
+Retirement required green Integration contract suites, Integrative
 stub and reduced real run, schema-valid terminal manifest, and `workflow all`
 stub composition. Scientific outputs are compared with the archived golden
 tables; paths, timestamps and serialization metadata are not treated as

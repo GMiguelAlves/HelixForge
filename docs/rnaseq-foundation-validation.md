@@ -1,5 +1,8 @@
 # RNA-seq native foundation validation
 
+> **Historical validation record.** This document captures the foundation
+> validation performed during migration.
+
 Validation date: 2026-08-13  
 Validated commit: `97d6c4b`  
 Runtime: Nextflow `25.10.7`, Java `21`, Slurm  

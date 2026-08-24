@@ -1,5 +1,9 @@
 # Final validation plan
 
+> **Historical planning record.** This plan guided the migration validation
+> cycle. Current limitations and future work are maintained in
+> [Limitations](limitations.md) and the [Roadmap](roadmap.md).
+
 This plan defines the work required before HelixForge can claim scientific
 equivalence. The consolidation audit validates architecture and lightweight
 contracts only; it does **not** constitute scientific validation.
@@ -85,7 +89,7 @@ contracts only; it does **not** constitute scientific validation.
 - Consider stricter domain-specific manifest schemas after real consumers and
   version-compatibility requirements exist.
 
-## Acceptance rule
+## Historical validation criteria
 
 Architecture, stub and lint success are necessary but insufficient. A
 scientific-release claim requires every item in section A, recorded evidence,

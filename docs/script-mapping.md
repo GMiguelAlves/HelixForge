@@ -1,5 +1,8 @@
 # Legacy script to Nextflow mapping
 
+> **Historical migration reference.** This mapping explains provenance of the
+> current modules; users do not need it to run HelixForge.
+
 No scientific script was rewritten. `LEGACY_STEP` is included under a distinct
 process alias for every coarse step below. Each alias calls the existing top
 level orchestrator with one `--step` and forces local execution.
@@ -98,7 +101,7 @@ the Nextflow graph because it can invalidate future cache and provenance work.
 ## Integrative
 
 Historical mapping only. These aliases and scripts were removed from the
-current tree after the native Stage 6 gate. Inspect
+current tree after the Integrative migration gate. Inspect
 `integrative-legacy-v1.0.0` to audit or reproduce this executable mapping; the
 current workflow is documented in `docs/integrative-native-workflow.md`.
 

@@ -1,5 +1,8 @@
 # Native RNA-seq alignment
 
+> **Historical implementation record.** Current provider behavior is
+> documented in the [Alignment API](alignment_api.md).
+
 The RNA-seq STAR path now implements Alignment API 1.0. Workflows call the
 generic `REFERENCE_INDEX` and `ALIGNMENT` subworkflows; they do not call STAR
 modules directly. Salmon now implements the independent Quantification API;
