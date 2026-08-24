@@ -56,6 +56,16 @@ class ReleaseContractTest(unittest.TestCase):
         self.assertIn("*.tsv text eol=lf", attributes)
         self.assertIn("*.bam -text", attributes)
 
+    def test_project_license_is_declared(self):
+        license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
+        self.assertIn("Apache License", license_text)
+        self.assertIn("Version 2.0, January 2004", license_text)
+        self.assertTrue((ROOT / "NOTICE").is_file())
+        citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
+        self.assertIn('license: "Apache-2.0"', citation)
+        config = (ROOT / "nextflow.config").read_text(encoding="utf-8")
+        self.assertIn("license         = 'Apache-2.0'", config)
+
 
 if __name__ == "__main__":
     unittest.main()

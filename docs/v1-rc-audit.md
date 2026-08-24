@@ -45,10 +45,19 @@ Audit date: 2026-08-20. Branch: `contrib/v1-rc-consolidation`.
   are excluded or treated as binary by repository hygiene rules.
 - Heavy/private scientific datasets are not part of the repository.
 
-## Release blockers
+## License audit
 
-1. **License:** no root `LICENSE` exists. A maintainer must choose the license;
-   it cannot be inferred safely from code or repository history.
+The maintainer selected Apache License 2.0 on 2026-08-24. The source audit
+found no vendored third-party source tree, submodule, external binary asset, or
+redistributed biological dataset. Synthetic fixtures are project-owned test
+data. A root `LICENSE`, `NOTICE`, CFF license identifier, and explicit
+third-party/container boundary are now present.
+
+Scientific tools invoked by the workflows remain independently licensed.
+Project-built containers are aggregate distributions and must preserve the
+license metadata and notices shipped by their operating-system, Conda,
+Bioconda, CRAN, and Bioconductor packages. Changing HelixForge from Apache-2.0
+to MIT would not remove those upstream obligations.
 
 The first clean-clone attempt exposed an undeclared development dependency: an
 incomplete host `jsonschema` installation lacked `referencing`. The RC now pins
@@ -58,9 +67,10 @@ an isolated `/tmp` target and passed the complete gate.
 ## Consolidation validation
 
 - Environment: WSL2/Linux, Java 21.0.11, Nextflow 25.10.7, Docker available.
-- Unit/contract/architectural suite: 138 tests, 138 passed in the clean clone;
+- Unit/contract/architectural suite: 139 tests, 139 passed; the original clean
+  clone gate passed 138 tests and the licensing contract added one more;
   no skipped test in that dependency-complete environment.
-- Documentation: 106 local links checked, none broken.
+- Documentation: 111 local links checked, none broken.
 - Nextflow lint: 162 files, zero errors and zero warnings.
 - Public stubs: RNA-seq 27, ChIP-seq 69, Integrative 12, and `all` 108
   processes; terminal manifests present for all.
@@ -77,15 +87,15 @@ biological benchmark.
 
 ## Final classification
 
-- `RC_BLOCKER`: missing project license.
+- `RC_BLOCKER`: none.
 - `KNOWN_LIMITATION`: environment-specific Nextflow/LevelDB resume behavior;
   experimental STAR, Apptainer/Singularity, Conda and external manifests.
 - `POST_RC`: reviewed biological benchmarks, Batch Effect Assessment, pathway
   enrichment, base-image/action SHA hardening and additional providers.
 
-Decision: **RC_BLOCKED** until the maintainer selects and adds a project
-license. No scientific or software-test blocker remains in the executed RC
-gate.
+Decision: **RC_READY**. No scientific, software-test, or repository-license
+blocker remains in the executed RC gate. Creating `v1.0.0-rc.1` still requires
+explicit maintainer authorization.
 
 The final decision must be reported as `RC_READY` only when this list is empty;
 otherwise it is `RC_BLOCKED` with the unresolved items named explicitly.

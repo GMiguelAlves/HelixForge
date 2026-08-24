@@ -6,8 +6,7 @@ scientific contracts, provenance, and deterministic outputs while remaining
 ready for future assay providers.
 
 > **Release candidate:** the source is preparing for `1.0.0-rc.1`. No release
-> tag has been created. A project license has not yet been declared and is a
-> release blocker.
+> tag has been created; tagging still requires explicit maintainer approval.
 
 ## What it runs
 
@@ -132,6 +131,6 @@ part of the release-candidate consolidation).
 ## Citation and license
 
 Citation metadata is provided in `CITATION.cff` as part of the release
-candidate. **No project license has yet been declared.** Until the maintainers
-choose and add one, reuse and redistribution terms are not defined; this must
-be resolved before the v1 release.
+candidate. HelixForge is licensed under the [Apache License 2.0](LICENSE).
+Third-party tools and container components retain their own licenses; see the
+[licensing and third-party software policy](docs/licensing.md).

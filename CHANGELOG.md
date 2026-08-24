@@ -9,8 +9,7 @@ contract/model versions evolve independently as documented in
 
 ### Release blockers
 
-- A project license must be selected and added before v1 is released.
-- The final clean-clone RC gate and documented smoke matrix must pass.
+- None. Creating the RC tag still requires explicit maintainer approval.
 
 ## [1.0.0-rc.1] - unreleased
 
@@ -30,6 +29,8 @@ contract/model versions evolve independently as documented in
   functional and regression tests.
 - User-first installation, Quick Start, workflow, output and scientific
   documentation.
+- Apache License 2.0 project licensing with explicit third-party software and
+  container licensing boundaries.
 
 ### Changed
 

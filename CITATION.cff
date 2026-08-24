@@ -8,6 +8,7 @@ authors:
 repository-code: "https://github.com/GMiguelAlves/HelixForge"
 url: "https://github.com/GMiguelAlves/HelixForge"
 version: "1.0.0-rc.1"
+license: "Apache-2.0"
 keywords:
   - bioinformatics
   - nextflow
