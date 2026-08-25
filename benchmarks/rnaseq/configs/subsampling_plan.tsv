@@ -1,0 +1,5 @@
+depth_id	fraction_of_base	target_pairs_per_sample	seed_formula	parent
+depth_100	1.00	5000000	202608250000 + sample_index * 1000 + 100	original ENA pair
+depth_50	0.50	2500000	202608250000 + sample_index * 1000 + 50	depth_100
+depth_25	0.25	1250000	202608250000 + sample_index * 1000 + 25	depth_100
+depth_10	0.10	500000	202608250000 + sample_index * 1000 + 10	depth_100
