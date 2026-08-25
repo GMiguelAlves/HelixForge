@@ -25,6 +25,8 @@ bash -n "$scripts/test_benchmark_scripts.sh"
 bash -n "$scripts/slurm_create_environment.sh"
 bash -n "$scripts/slurm_download_reference.sh"
 bash -n "$scripts/run_independent_reference.sh"
+bash -n "$scripts/slurm_generate_polyester.sh"
+bash -n "$scripts/slurm_convert_polyester_sample.sh"
 
 printf '{"status":"pass","slurm_job_id":"%s","node":"%s"}\n' \
     "$SLURM_JOB_ID" "$(hostname)" > "$output"

@@ -36,6 +36,7 @@ done < "$samples"
 "$salmon" --version > "$output/provenance/versions.txt"
 "$rscript" -e 'cat("R ",getRversion(),"\ntximport ",as.character(packageVersion("tximport")),"\nDESeq2 ",as.character(packageVersion("DESeq2")),"\n",sep="")' \
     >> "$output/provenance/versions.txt"
-find "$output" -type f -print0 | sort -z | xargs -0 sha256sum > "$output/provenance/checksums.tsv"
+find "$output" -type f ! -path "$output/provenance/checksums.tsv" -print0 \
+    | sort -z | xargs -0 sha256sum > "$output/provenance/checksums.tsv"
 printf '{"status":"complete","slurm_job_id":"%s","node":"%s","cpus":%s}\n' \
     "$SLURM_JOB_ID" "$(hostname)" "$cpus" > "$output/provenance/execution.json"
