@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+"""Fail-closed structural validation of a completed synthetic RC execution."""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+from pathlib import Path
+
+
+def require(path: Path) -> Path:
+    if not path.is_file() or path.stat().st_size == 0:
+        raise FileNotFoundError(path)
+    return path
+
+
+def rows(path: Path, delimiter: str = "\t") -> list[dict[str, str]]:
+    with path.open(encoding="utf-8", newline="") as handle:
+        return list(csv.DictReader(handle, delimiter=delimiter))
+
+
+def one(candidates: list[Path], label: str) -> Path:
+    candidates = [path for path in candidates if path.is_file() and path.stat().st_size > 0]
+    if len(candidates) != 1:
+        raise ValueError(f"expected one {label}, found {len(candidates)}")
+    return candidates[0]
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--case-root", required=True, type=Path)
+    parser.add_argument("--output", required=True, type=Path)
+    args = parser.parse_args()
+    require(args.case_root / "execution_identity.json")
+    identity = json.loads((args.case_root / "execution_identity.json").read_text(encoding="utf-8"))
+    if identity.get("rc_sha") != "fc38ada8f592bb57a13467965a718ce0df7fb6ce":
+        raise ValueError("incorrect RC SHA")
+    if identity.get("nextflow") != "25.10.7" or identity.get("java_major") != 21:
+        raise ValueError("incorrect Nextflow/Java runtime identity")
+
+    metadata = rows(require(args.case_root / "metadata.csv"), delimiter=",")
+    samples = [row["sample_id"] for row in metadata]
+    if len(samples) != 6 or len(set(samples)) != 6:
+        raise ValueError("expected six unique samples")
+    if [row["condition"] for row in metadata] != ["control"] * 3 + ["treatment"] * 3:
+        raise ValueError("condition/sample order differs from frozen design")
+
+    pipeline_info = args.case_root / "results/pipeline_info"
+    trace_path = require(pipeline_info / "execution_trace.tsv")
+    for filename in ("execution_timeline.html", "execution_report.html", "pipeline_dag.html"):
+        require(pipeline_info / filename)
+    trace = rows(trace_path)
+    if not trace:
+        raise ValueError("empty Nextflow trace")
+    bad = [row for row in trace if row.get("status") not in {"COMPLETED", "CACHED"}]
+    if bad:
+        raise ValueError(f"non-successful tasks in trace: {bad[:3]}")
+    names = [row["name"] for row in trace]
+    required_processes = (
+        "RNASEQ_CONTEXT", "RNASEQ_METADATA", "REFERENCE_BUNDLE", "FASTQC_RAW",
+        "TRIM_GALORE", "FASTQC_TRIMMED", "MERGE_FASTQ", "FASTQC_MERGED", "MULTIQC",
+        "SALMON_INDEX", "SALMON_QUANT", "TX2GENE_BUILD", "TXIMPORT", "DE_PREFLIGHT",
+        "DESEQ2_MODEL", "DESEQ2_CONTRAST", "DE_AGGREGATE", "RUN_MANIFEST",
+    )
+    absent = [process for process in required_processes if not any(process in name for name in names)]
+    if absent:
+        raise ValueError(f"missing expected processes: {absent}")
+    forbidden = [name for name in names if "STAR_INDEX" in name or "STAR_ALIGN" in name]
+    if forbidden:
+        raise ValueError(f"STAR unexpectedly executed: {forbidden}")
+    if any("RNASEQ_GENE_REPORT" in name for name in names):
+        raise ValueError("truth-sensitive candidate gene report unexpectedly executed")
+
+    require(args.case_root / "scratch/POLYESTER_V1/multiqc_030/POLYESTER_V1_multiqc_030.html")
+    pipeline = args.case_root / "pipeline"
+    for filename in ("counts_matrix.tsv", "tpm_matrix.tsv", "length_matrix.tsv",
+                     "summarized_experiment.rds"):
+        require(pipeline / f"050-quantification/{filename}")
+    require(args.case_root / "results/pipeline_info/native_import/tximport/import_manifest.json")
+
+    salmon = {}
+    for sample in samples:
+        quant = pipeline / f"040-alignment/quants/POLYESTER_V1/{sample}"
+        for relative in ("quant.sf", "cmd_info.json", "lib_format_counts.json", "aux_info/meta_info.json"):
+            require(quant / relative)
+        meta = json.loads((quant / "aux_info/meta_info.json").read_text(encoding="utf-8"))
+        processed, mapped = int(meta["num_processed"]), int(meta["num_mapped"])
+        if processed != 2_000_000:
+            raise ValueError(f"{sample}: Salmon processed {processed}, expected 2000000")
+        salmon[sample] = {"processed": processed, "mapped": mapped,
+                          "mapping_rate": mapped / processed}
+
+    de_table = one(list((pipeline / "060-deg-analysis").rglob("differential_expression_results.tsv")),
+                   "aggregate differential expression table")
+    if len(rows(de_table)) != 1200:
+        raise ValueError("DE table must contain the complete 1,200-gene universe")
+    run_manifest = one(list((args.case_root / "results").rglob("rnaseq_run_manifest.json")),
+                       "RNA-seq run manifest")
+    manifest = json.loads(run_manifest.read_text(encoding="utf-8"))
+    if manifest.get("status") != "complete":
+        raise ValueError("terminal run manifest is not complete")
+
+    report = {
+        "schema_version": "1.0", "status": "pass", "samples": samples,
+        "tasks": len(trace), "cached_tasks": sum(row["status"] == "CACHED" for row in trace),
+        "salmon": salmon, "de_genes": 1200,
+        "run_manifest": str(run_manifest.relative_to(args.case_root)),
+        "candidate_gene_report": "NOT_APPLICABLE_BY_FROZEN_SYNTHETIC_DESIGN",
+        "star": "EXCLUDED_BY_FROZEN_PRODUCTION_PATH",
+    }
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(json.dumps({"status": "pass", "tasks": len(trace), "samples": len(samples)}))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
