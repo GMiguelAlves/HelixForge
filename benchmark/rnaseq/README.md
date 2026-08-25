@@ -13,6 +13,7 @@ Nextflow work directories and result trees must never be committed.
 | Git commit | `fc38ada8f592bb57a13467965a718ce0df7fb6ce` |
 | Nextflow | `25.10.7` |
 | Java | `21` |
+| Python manifest runtime | `3.12.4`; `jsonschema 4.23.0` |
 | RNA-seq mode | `full` |
 | Analysis provider | Salmon only; STAR is excluded |
 | Import policy | `production_v1` |
