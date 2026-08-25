@@ -38,6 +38,7 @@ Implemented for the Stage 9B.1 preparation boundary:
 - `run_helixforge_synthetic.sh`.
 - `evaluate_synthetic.py`.
 - `compare_independent.py`.
+- `validate_helixforge_run.py`.
 
 `run_independent_reference.sh` must invoke Salmon 1.10.3, tximport 1.30.0 and
 DESeq2 1.42.0 directly from a separately pinned environment. It must consume the
