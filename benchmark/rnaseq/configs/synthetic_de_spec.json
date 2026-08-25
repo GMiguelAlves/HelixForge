@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "analysis_id": "benchmark_synthetic_primary",
+  "scope": "polyester_human_v1",
+  "correction": "raw",
+  "provider": "deseq2",
+  "test": "wald",
+  "target_dir": "results/rnaseq/differential_expression/benchmark_synthetic_primary",
+  "design": {
+    "variable": "condition",
+    "covariates": [],
+    "formula": "~ condition"
+  },
+  "contrasts": [
+    {
+      "id": "condition__treatment_vs_control",
+      "factor": "condition",
+      "numerator": "treatment",
+      "denominator": "control",
+      "description": "synthetic treatment versus control",
+      "direction": "treatment/control"
+    }
+  ],
+  "filter": {"method": "none"},
+  "parameters": {
+    "alpha": 0.05,
+    "lfc_threshold": 1.0,
+    "min_replicates": 2,
+    "non_integer_counts": "round"
+  }
+}

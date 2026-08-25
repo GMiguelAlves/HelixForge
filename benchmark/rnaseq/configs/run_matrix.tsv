@@ -1,0 +1,6 @@
+case_id	level	dataset_id	depth_id	de_spec	report_enabled	report_genes	clean_repeats	independent_reference	release_role
+synthetic_primary	A	polyester_human_v1	full	configs/synthetic_de_spec.json	false	not_applicable	2	true	RELEASE_GATE
+public_100	B	gse52778_airway	depth_100	configs/airway_de_spec.json	true	configs/airway_report_genes.txt	2	true	RELEASE_GATE
+public_50	C	gse52778_airway	depth_50	configs/airway_de_spec.json	true	configs/airway_report_genes.txt	1	false	EXPECTED_RANGE
+public_25	C	gse52778_airway	depth_25	configs/airway_de_spec.json	true	configs/airway_report_genes.txt	1	false	EXPECTED_RANGE
+public_10	C	gse52778_airway	depth_10	configs/airway_de_spec.json	true	configs/airway_report_genes.txt	1	false	EXPECTED_RANGE
