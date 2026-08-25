@@ -25,6 +25,7 @@ head node.
 Implemented for the Stage 9B.1 preparation boundary:
 
 - `slurm_runtime_preflight.sh`;
+- `test_benchmark_scripts.sh`;
 - `prepare_synthetic_reference.py`;
 - `build_synthetic_truth.R`;
 - `fasta_to_fastq.py`;
