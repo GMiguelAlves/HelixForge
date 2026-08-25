@@ -12,7 +12,8 @@ configs="$repo_root/benchmark/rnaseq/configs"
 
 for script in \
     prepare_synthetic_reference.py fasta_to_fastq.py \
-    validate_synthetic_dataset.py build_helixforge_inputs.py; do
+    validate_synthetic_dataset.py build_helixforge_inputs.py evaluate_synthetic.py \
+    compare_independent.py; do
     "$python_bin" -m py_compile "$scripts/$script"
 done
 
