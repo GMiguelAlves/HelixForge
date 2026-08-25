@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gzip
 import json
 from pathlib import Path
 
@@ -25,6 +26,17 @@ def one(candidates: list[Path], label: str) -> Path:
     if len(candidates) != 1:
         raise ValueError(f"expected one {label}, found {len(candidates)}")
     return candidates[0]
+
+
+def fastq_records(path: Path) -> int:
+    """Count records in a gzipped FASTQ and reject truncated records."""
+    line_count = 0
+    with gzip.open(require(path), "rt", encoding="utf-8") as handle:
+        for line_count, _ in enumerate(handle, start=1):
+            pass
+    if line_count % 4:
+        raise ValueError(f"incomplete FASTQ record in {path}")
+    return line_count // 4
 
 
 def main() -> int:
@@ -86,10 +98,19 @@ def main() -> int:
             require(quant / relative)
         meta = json.loads((quant / "aux_info/meta_info.json").read_text(encoding="utf-8"))
         processed, mapped = int(meta["num_processed"]), int(meta["num_mapped"])
-        if processed != 2_000_000:
-            raise ValueError(f"{sample}: Salmon processed {processed}, expected 2000000")
+        merged = args.case_root / "scratch/POLYESTER_V1/trimmed_merged"
+        read1 = fastq_records(merged / f"{sample}_R1_trimmed.fastq.gz")
+        read2 = fastq_records(merged / f"{sample}_R2_trimmed.fastq.gz")
+        if read1 != read2:
+            raise ValueError(f"{sample}: post-trim FASTQ mates differ ({read1} != {read2})")
+        if processed != read1:
+            raise ValueError(
+                f"{sample}: Salmon processed {processed}, post-trim FASTQ contains {read1} pairs"
+            )
         salmon[sample] = {"processed": processed, "mapped": mapped,
-                          "mapping_rate": mapped / processed}
+                          "mapping_rate": mapped / processed,
+                          "raw_pairs": 2_000_000,
+                          "retained_pair_rate": processed / 2_000_000}
 
     de_table = one(list((pipeline / "060-deg-analysis").rglob("differential_expression_results.tsv")),
                    "aggregate differential expression table")
