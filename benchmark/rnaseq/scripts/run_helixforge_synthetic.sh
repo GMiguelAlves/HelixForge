@@ -33,7 +33,7 @@ observed_tag=$(git -C "$rc_root" describe --tags --exact-match HEAD)
 "$java_bin" -jar "$nextflow_jar" -version 2>&1 | grep -Fq 'version 25.10.7'
 
 mkdir -p "$case_root/logs" "$case_root/nxf-home" "$case_root/nxf-cache"
-runtime_path="$r_env/bin:$python_env/bin:$rna_env/bin:$(dirname "$java_bin"):/usr/bin:/bin"
+runtime_path="$python_env/bin:$r_env/bin:$rna_env/bin:$(dirname "$java_bin"):/usr/bin:/bin"
 started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 "$rna_env/bin/java" -version > "$case_root/logs/fastqc_java_version.txt" 2>&1
 
