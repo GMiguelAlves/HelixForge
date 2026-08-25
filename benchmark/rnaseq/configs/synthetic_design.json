@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "polyester_human_v1",
+  "simulator": {
+    "name": "polyester",
+    "version": "1.38.0",
+    "r_version": "4.3.2",
+    "bioconductor_version": "3.18"
+  },
+  "reference_bundle": "gencode_human_v49_primary",
+  "selection": {
+    "genes": 1200,
+    "genes_per_transcript_count": {"1": 400, "2": 400, "3": 400},
+    "expected_transcripts": 2400,
+    "eligible_transcript_length_min": 500,
+    "eligible_transcript_length_max": 5000,
+    "exclude_zero_length": true,
+    "algorithm": "group genes by exact retained transcript count 1, 2 or 3; sort each group by SHA-256(seed + gene_id); take the first 400",
+    "seed": 20260825
+  },
+  "experiment": {
+    "conditions": ["control", "treatment"],
+    "replicates_per_condition": 3,
+    "design_formula": "~ condition",
+    "contrast": ["condition", "treatment", "control"]
+  },
+  "library": {
+    "layout": "paired-end",
+    "read_length": 75,
+    "fragments_per_sample": 2000000,
+    "fragment_length_mean": 250,
+    "fragment_length_sd": 25,
+    "polyester_error_model": "uniform",
+    "polyester_error_rate": 0.005,
+    "fastq_quality_encoding": "constant Phred+33 Q40"
+  },
+  "expression": {
+    "baseline_log2_mean": 6.0,
+    "baseline_log2_sd": 2.0,
+    "baseline_min": 1.0,
+    "baseline_max": 2048.0,
+    "isoform_proportion_distribution": "Dirichlet(alpha=1)",
+    "negative_binomial_dispersion": 0.1,
+    "generation_algorithm": "draw baseline gene abundance, split across isoforms, apply the condition multiplier, draw each replicate with NB size=1/dispersion, then integer-scale every sample to exactly fragments_per_sample using largest remainders with transcript_id as tie-breaker",
+    "count_seed": 2026082501
+  },
+  "differential_expression": {
+    "differential_genes": 240,
+    "non_differential_genes": 960,
+    "effect_groups": [
+      {"absolute_log2_fold_change": 0.5, "up": 40, "down": 40},
+      {"absolute_log2_fold_change": 1.0, "up": 40, "down": 40},
+      {"absolute_log2_fold_change": 2.0, "up": 40, "down": 40}
+    ],
+    "selection_seed": 2026082503
+  },
+  "read_generation_seed": 2026082502,
+  "required_truth_outputs": [
+    "sample_table.tsv",
+    "transcript_truth.tsv",
+    "gene_truth.tsv",
+    "gene_de_truth.tsv",
+    "simulation_manifest.json",
+    "versions.yml"
+  ]
+}

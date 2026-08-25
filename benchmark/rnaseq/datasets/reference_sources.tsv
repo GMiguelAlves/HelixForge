@@ -1,0 +1,4 @@
+bundle_id	release	assembly	role	filename	url	upstream_checksum_source	derivation
+gencode_human_v49_primary	GENCODE_49	GRCh38.p14	annotation	gencode.v49.primary_assembly.annotation.gtf.gz	https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_49/gencode.v49.primary_assembly.annotation.gtf.gz	release_49 CHECKSUMS	unmodified source
+gencode_human_v49_primary	GENCODE_49	GRCh38.p14	transcripts	gencode.v49.transcripts.fa.gz	https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_49/gencode.v49.transcripts.fa.gz	release_49 CHECKSUMS	filter to transcript_id values in primary GTF; retain versions; header is first pipe-delimited token
+gencode_human_v49_primary	GENCODE_49	GRCh38.p14	genome	GRCh38.primary_assembly.genome.fa.gz	https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_49/GRCh38.primary_assembly.genome.fa.gz	release_49 CHECKSUMS	unmodified source
