@@ -146,9 +146,14 @@ def main() -> int:
     de_rows = rows(de_table)
     if {row["gene_id"] for row in de_rows} != effective_genes:
         raise ValueError("DE table does not preserve the complete estimable Import API universe")
-    run_manifest = one(list((args.case_root / "results").rglob("rnaseq_run_manifest.json")),
-                       "RNA-seq run manifest")
-    manifest = json.loads(run_manifest.read_text(encoding="utf-8"))
+    run_manifests = sorted((args.case_root / "results").rglob("rnaseq_run_manifest.json"))
+    if not run_manifests:
+        raise ValueError("RNA-seq run manifest is absent")
+    manifest_payloads = [require(path).read_bytes() for path in run_manifests]
+    if any(payload != manifest_payloads[0] for payload in manifest_payloads[1:]):
+        raise ValueError("published RNA-seq run manifest copies differ")
+    run_manifest = run_manifests[0]
+    manifest = json.loads(manifest_payloads[0])
     if manifest.get("status") != "complete":
         raise ValueError("terminal run manifest is not complete")
 
@@ -159,7 +164,7 @@ def main() -> int:
         "indexed_transcripts": len(quantified_transcripts),
         "duplicate_transcripts_removed": removed_transcripts,
         "estimable_genes": len(effective_genes), "de_genes": len(de_rows),
-        "run_manifest": str(run_manifest.relative_to(args.case_root)),
+        "run_manifests": [str(path.relative_to(args.case_root)) for path in run_manifests],
         "candidate_gene_report": "NOT_APPLICABLE_BY_FROZEN_SYNTHETIC_DESIGN",
         "star": "EXCLUDED_BY_FROZEN_PRODUCTION_PATH",
     }
