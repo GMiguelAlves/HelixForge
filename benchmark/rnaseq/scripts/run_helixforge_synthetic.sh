@@ -13,7 +13,7 @@ queue=${8:-general}
 expected_sha=fc38ada8f592bb57a13467965a718ce0df7fb6ce
 expected_tag=v1.0.0-rc.1
 test -z "${SLURM_JOB_ID:-}"
-test -d "$rc_root/.git"
+git -C "$rc_root" rev-parse --is-inside-work-tree | grep -Fxq true
 test -x "$java_bin"
 test -s "$nextflow_jar"
 test -x "$rna_env/bin/salmon"
