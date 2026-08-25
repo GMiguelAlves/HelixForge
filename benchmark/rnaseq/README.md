@@ -41,6 +41,7 @@ change creates a new benchmark subject and requires rerunning affected cases.
 - [Interpretation and release gates](protocol/interpretation_criteria.md)
 - [Expected Slurm cost](protocol/cost_estimate.md)
 - [Risks and limitations](protocol/risks_and_limitations.md)
+- [Stage 9B.1 protocol/implementation audit](protocol/9b1_protocol_discrepancies.md)
 - [Dataset registry](datasets/dataset_registry.md)
 - [Dataset provenance](datasets/dataset_provenance.tsv)
 - [Public sample manifest](datasets/airway_samples.tsv)
