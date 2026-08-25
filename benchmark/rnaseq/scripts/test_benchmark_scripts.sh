@@ -18,11 +18,13 @@ done
 
 "$python_bin" -c 'import json, pathlib, sys; [json.loads(path.read_text()) for path in map(pathlib.Path, sys.argv[1:])]' \
     "$configs/synthetic_design.json" "$configs/synthetic_de_spec.json"
-"$rscript_bin" -e 'parse(file=commandArgs(TRUE)[1])' "$scripts/build_synthetic_truth.R"
+"$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$scripts/build_synthetic_truth.R"
+"$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$scripts/independent_tximport_deseq2.R"
 bash -n "$scripts/slurm_runtime_preflight.sh"
 bash -n "$scripts/test_benchmark_scripts.sh"
 bash -n "$scripts/slurm_create_environment.sh"
 bash -n "$scripts/slurm_download_reference.sh"
+bash -n "$scripts/run_independent_reference.sh"
 
 printf '{"status":"pass","slurm_job_id":"%s","node":"%s"}\n' \
     "$SLURM_JOB_ID" "$(hostname)" > "$output"

@@ -33,6 +33,7 @@ Implemented for the Stage 9B.1 preparation boundary:
 - `fasta_to_fastq.py`;
 - `validate_synthetic_dataset.py`;
 - `build_helixforge_inputs.py`.
+- `run_independent_reference.sh` and `independent_tximport_deseq2.R`.
 
 `run_independent_reference.sh` must invoke Salmon 1.10.3, tximport 1.30.0 and
 DESeq2 1.42.0 directly from a separately pinned environment. It must consume the
