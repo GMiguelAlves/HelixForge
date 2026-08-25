@@ -17,6 +17,7 @@ git -C "$rc_root" rev-parse --is-inside-work-tree | grep -Fxq true
 test -x "$java_bin"
 test -s "$nextflow_jar"
 test -x "$rna_env/bin/salmon"
+test -x "$rna_env/bin/java"
 test -x "$python_env/bin/python3"
 test -x "$r_env/bin/Rscript"
 test -s "$case_root/pipeline_config.sh"
@@ -32,11 +33,15 @@ observed_tag=$(git -C "$rc_root" describe --tags --exact-match HEAD)
 "$java_bin" -jar "$nextflow_jar" -version 2>&1 | grep -Fq 'version 25.10.7'
 
 mkdir -p "$case_root/logs" "$case_root/nxf-home" "$case_root/nxf-cache"
-runtime_path="$(dirname "$java_bin"):$r_env/bin:$rna_env/bin:$python_env/bin:/usr/bin:/bin"
+runtime_path="$r_env/bin:$python_env/bin:$rna_env/bin:$(dirname "$java_bin"):/usr/bin:/bin"
 started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+"$rna_env/bin/java" -version > "$case_root/logs/fastqc_java_version.txt" 2>&1
 
 cd "$rc_root"
 env PATH="$runtime_path" \
+    FONTCONFIG_PATH="$rna_env/etc/fonts" \
+    FONTCONFIG_FILE="$rna_env/etc/fonts/fonts.conf" \
+    XDG_DATA_DIRS="$rna_env/share:/usr/local/share:/usr/share" \
     NXF_HOME="$case_root/nxf-home" \
     NXF_CACHE_DIR="$case_root/nxf-cache" \
     "$java_bin" -Xms128m -Xmx1g -jar "$nextflow_jar" \
