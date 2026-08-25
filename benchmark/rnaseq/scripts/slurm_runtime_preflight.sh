@@ -55,6 +55,9 @@ done
     identical(as.character(packageVersion("tximport")), "1.30.0"),
     identical(as.character(packageVersion("DESeq2")), "1.42.0")
 )'
+"$python_env/bin/python3" -c 'import importlib.metadata, sys
+assert sys.version_info[:3] == (3, 12, 4)
+assert importlib.metadata.version("jsonschema") == "4.23.0"'
 
 printf '{"status":"complete","slurm_job_id":"%s","node":"%s"}\n' \
     "$SLURM_JOB_ID" "$(hostname)" > "$output_dir/preflight.json"
