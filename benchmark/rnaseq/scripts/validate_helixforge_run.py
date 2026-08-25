@@ -112,10 +112,40 @@ def main() -> int:
                           "raw_pairs": 2_000_000,
                           "retained_pair_rate": processed / 2_000_000}
 
+    tx2gene_rows = rows(require(pipeline / "050-quantification/tx2gene.tsv"))
+    tx_to_gene = {row["transcript_id"]: row["gene_id"] for row in tx2gene_rows}
+    input_genes = set(tx_to_gene.values())
+    if len(input_genes) != 1200 or len(tx_to_gene) != 2400:
+        raise ValueError("tx2gene does not contain the frozen 1,200-gene/2,400-transcript universe")
+    first_quant = pipeline / f"040-alignment/quants/POLYESTER_V1/{samples[0]}/quant.sf"
+    quantified_transcripts = {row["Name"] for row in rows(require(first_quant))}
+    if not quantified_transcripts <= tx_to_gene.keys():
+        raise ValueError("Salmon quantification contains transcripts absent from tx2gene")
+    effective_genes = {tx_to_gene[transcript] for transcript in quantified_transcripts}
+    counts_rows = rows(require(pipeline / "050-quantification/counts_matrix.tsv"))
+    count_genes = {row["gene_id"] for row in counts_rows}
+    if count_genes != effective_genes:
+        raise ValueError("Import gene universe differs from Salmon's indexed transcript universe")
+
+    index_info = json.loads(require(
+        pipeline_info / "native_quantification/salmon_index/info.json"
+    ).read_text(encoding="utf-8"))
+    index_log = require(
+        pipeline_info
+        / "native_quantification/salmon_index/"
+        "salmon.transcriptome.index.salmon_index_reports/salmon_index.log"
+    ).read_text(encoding="utf-8")
+    removed_transcripts = len(tx_to_gene) - len(quantified_transcripts)
+    if index_info.get("keep_duplicates") is not False or removed_transcripts != 24:
+        raise ValueError("unexpected Salmon duplicate-transcript indexing policy/result")
+    if "Removed 24 transcripts that were sequence duplicates" not in index_log:
+        raise ValueError("Salmon duplicate removal is not documented in its index log")
+
     de_table = one(list((pipeline / "060-deg-analysis").rglob("differential_expression_results.tsv")),
                    "aggregate differential expression table")
-    if len(rows(de_table)) != 1200:
-        raise ValueError("DE table must contain the complete 1,200-gene universe")
+    de_rows = rows(de_table)
+    if {row["gene_id"] for row in de_rows} != effective_genes:
+        raise ValueError("DE table does not preserve the complete estimable Import API universe")
     run_manifest = one(list((args.case_root / "results").rglob("rnaseq_run_manifest.json")),
                        "RNA-seq run manifest")
     manifest = json.loads(run_manifest.read_text(encoding="utf-8"))
@@ -125,7 +155,10 @@ def main() -> int:
     report = {
         "schema_version": "1.0", "status": "pass", "samples": samples,
         "tasks": len(trace), "cached_tasks": sum(row["status"] == "CACHED" for row in trace),
-        "salmon": salmon, "de_genes": 1200,
+        "salmon": salmon, "input_genes": len(input_genes),
+        "indexed_transcripts": len(quantified_transcripts),
+        "duplicate_transcripts_removed": removed_transcripts,
+        "estimable_genes": len(effective_genes), "de_genes": len(de_rows),
         "run_manifest": str(run_manifest.relative_to(args.case_root)),
         "candidate_gene_report": "NOT_APPLICABLE_BY_FROZEN_SYNTHETIC_DESIGN",
         "star": "EXCLUDED_BY_FROZEN_PRODUCTION_PATH",
