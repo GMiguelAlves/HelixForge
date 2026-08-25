@@ -4,12 +4,12 @@ set -euo pipefail
 output_dir=${1:?output directory is required}
 conda_base=${2:?conda base is required}
 java21=${3:?Java 21 executable is required}
+rna_env=${4:-$conda_base/envs/rna-tools}
+r_env=${5:-$conda_base/envs/r-analysis}
+python_env=${6:-$conda_base/envs/python-list}
 mkdir -p "$output_dir"
 test -n "${SLURM_JOB_ID:-}"
 
-rna_env="$conda_base/envs/rna-tools"
-r_env="$conda_base/envs/r-analysis"
-python_env="$conda_base/envs/python-list"
 export PATH="$(dirname "$java21"):$rna_env/bin:$r_env/bin:$python_env/bin:/usr/bin:/bin"
 
 {

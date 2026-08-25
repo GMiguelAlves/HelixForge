@@ -35,8 +35,13 @@ Implemented for the Stage 9B.1 preparation boundary:
 - `build_helixforge_inputs.py`.
 - `run_independent_reference.sh` and `independent_tximport_deseq2.R`.
 - `slurm_generate_polyester.sh` and `slurm_convert_polyester_sample.sh`.
+- `run_helixforge_synthetic.sh`.
 
 `run_independent_reference.sh` must invoke Salmon 1.10.3, tximport 1.30.0 and
 DESeq2 1.42.0 directly from a separately pinned environment. It must consume the
 same post-trim merged FASTQs and reference artifacts as HelixForge, but it must
 not source, include or copy any HelixForge process/module script.
+
+`run_helixforge_synthetic.sh` is a head-node driver only. It verifies the
+immutable RC identity and starts Nextflow 25.10.7; every scientific process is
+submitted by Nextflow to Slurm with a five-task queue ceiling.
