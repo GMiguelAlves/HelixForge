@@ -60,7 +60,7 @@ def main() -> int:
     required_processes = (
         "RNASEQ_CONTEXT", "RNASEQ_METADATA", "REFERENCE_BUNDLE", "FASTQC_RAW",
         "TRIM_GALORE", "FASTQC_TRIMMED", "MERGE_FASTQ", "FASTQC_MERGED", "MULTIQC",
-        "SALMON_INDEX", "SALMON_QUANT", "TX2GENE_BUILD", "TXIMPORT", "DE_PREFLIGHT",
+        "SALMON_INDEX", "SALMON_QUANT", "TX2GENE_BUILD", "SALMON_IMPORT", "DE_PREFLIGHT",
         "DESEQ2_MODEL", "DESEQ2_CONTRAST", "DE_AGGREGATE", "RUN_MANIFEST",
     )
     absent = [process for process in required_processes if not any(process in name for name in names)]
