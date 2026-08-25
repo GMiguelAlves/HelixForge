@@ -45,5 +45,16 @@ for executable in \
     test -x "$executable"
 done
 
+"$java21" -version 2>&1 | grep -Fq 'version "21.'
+"$rna_env/bin/salmon" --version | grep -Fq '1.10.3'
+"$rna_env/bin/fastqc" --version | grep -Fq '0.12.1'
+"$rna_env/bin/trim_galore" --version | grep -Fq '0.6.10'
+"$rna_env/bin/multiqc" --version | grep -Fq '1.17'
+"$r_env/bin/Rscript" -e 'stopifnot(
+    identical(as.character(getRversion()), "4.3.3"),
+    identical(as.character(packageVersion("tximport")), "1.30.0"),
+    identical(as.character(packageVersion("DESeq2")), "1.42.0")
+)'
+
 printf '{"status":"complete","slurm_job_id":"%s","node":"%s"}\n' \
     "$SLURM_JOB_ID" "$(hostname)" > "$output_dir/preflight.json"
