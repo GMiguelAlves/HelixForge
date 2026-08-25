@@ -3,12 +3,14 @@ set -euo pipefail
 
 output_dir=${1:?output directory is required}
 conda_base=${2:?conda base is required}
+java21=${3:?Java 21 executable is required}
 mkdir -p "$output_dir"
 test -n "${SLURM_JOB_ID:-}"
 
 rna_env="$conda_base/envs/rna-tools"
 r_env="$conda_base/envs/r-analysis"
 python_env="$conda_base/envs/python-list"
+export PATH="$(dirname "$java21"):$rna_env/bin:$r_env/bin:$python_env/bin:/usr/bin:/bin"
 
 {
     printf 'utc\t%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -22,7 +24,7 @@ python_env="$conda_base/envs/python-list"
 } > "$output_dir/environment.tsv"
 
 {
-    "$rna_env/bin/java" -version
+    "$java21" -version
     "$rna_env/bin/salmon" --version
     "$rna_env/bin/fastqc" --version
     "$rna_env/bin/trim_galore" --version
@@ -37,7 +39,7 @@ python_env="$conda_base/envs/python-list"
 } > "$output_dir/tool_versions.txt" 2>&1
 
 for executable in \
-    "$rna_env/bin/java" "$rna_env/bin/salmon" "$rna_env/bin/fastqc" \
+    "$java21" "$rna_env/bin/salmon" "$rna_env/bin/fastqc" \
     "$rna_env/bin/trim_galore" "$rna_env/bin/multiqc" \
     "$python_env/bin/python3" "$r_env/bin/Rscript"; do
     test -x "$executable"
@@ -45,4 +47,3 @@ done
 
 printf '{"status":"complete","slurm_job_id":"%s","node":"%s"}\n' \
     "$SLURM_JOB_ID" "$(hostname)" > "$output_dir/preflight.json"
-

@@ -1,0 +1,11 @@
+name: helixforge-rnaseq-benchmark-tools
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - salmon=1.10.3
+  - fastqc=0.12.1
+  - trim-galore=0.6.10
+  - multiqc=1.17
+  - procps-ng
