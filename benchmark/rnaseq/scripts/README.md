@@ -1,7 +1,7 @@
 # Stage 9B script contracts
 
-This directory intentionally contains contracts only in Stage 9A. The scripts
-are implemented and tested before the first benchmark run in Stage 9B. They must
+Stage 9A defined contracts; Stage 9B.1 implements the synthetic subset here.
+Scripts must
 be deterministic, fail closed, emit a machine-readable manifest and run as Slurm
 jobs through Nextflow or `sbatch`; none may perform scientific processing on the
 head node.
@@ -21,6 +21,15 @@ head node.
 | `compare_runs.py` | two complete run manifests | numeric and semantic comparison tables | incompatible protocol/RC identity |
 | `collect_performance.py` | Nextflow trace/report and `sacct` export | task/run resource tables | missing task-to-job mapping |
 | `render_report.R` | all validated metric tables/manifests | HTML/PDF summary | missing provenance or gate classification |
+
+Implemented for the Stage 9B.1 preparation boundary:
+
+- `slurm_runtime_preflight.sh`;
+- `prepare_synthetic_reference.py`;
+- `build_synthetic_truth.R`;
+- `fasta_to_fastq.py`;
+- `validate_synthetic_dataset.py`;
+- `build_helixforge_inputs.py`.
 
 `run_independent_reference.sh` must invoke Salmon 1.10.3, tximport 1.30.0 and
 DESeq2 1.42.0 directly from a separately pinned environment. It must consume the
