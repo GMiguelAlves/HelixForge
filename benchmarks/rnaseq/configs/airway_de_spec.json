@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "analysis_id": "benchmark_airway_primary",
+  "scope": "gse52778_airway",
+  "correction": "raw",
+  "provider": "deseq2",
+  "test": "wald",
+  "target_dir": "results/rnaseq/differential_expression/benchmark_airway_primary",
+  "design": {
+    "variable": "condition",
+    "covariates": ["batch"],
+    "formula": "~ batch + condition"
+  },
+  "contrasts": [
+    {
+      "id": "condition__dexamethasone_vs_untreated",
+      "factor": "condition",
+      "numerator": "dexamethasone",
+      "denominator": "untreated",
+      "description": "dexamethasone versus untreated, accounting for donor",
+      "direction": "dexamethasone/untreated"
+    }
+  ],
+  "filter": {"method": "none"},
+  "parameters": {
+    "alpha": 0.05,
+    "lfc_threshold": 1.0,
+    "min_replicates": 2,
+    "non_integer_counts": "round"
+  }
+}
