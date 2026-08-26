@@ -84,7 +84,22 @@ def main() -> int:
     if any("RNASEQ_GENE_REPORT" in name for name in names):
         raise ValueError("truth-sensitive candidate gene report unexpectedly executed")
 
-    require(args.case_root / "scratch/POLYESTER_V1/multiqc_030/POLYESTER_V1_multiqc_030.html")
+    multiqc_root = args.case_root / "scratch/POLYESTER_V1/multiqc_030"
+    require(multiqc_root / "POLYESTER_V1_multiqc_030.html")
+    multiqc_data = multiqc_root / "POLYESTER_V1_multiqc_030_data"
+    software_table = rows(require(multiqc_data / "multiqc_software_versions.txt"))
+    if not software_table:
+        raise ValueError("MultiQC software table is empty")
+    with (multiqc_data / "multiqc_software_versions.txt").open(encoding="utf-8") as handle:
+        multiqc_modules = next(csv.reader(handle, delimiter="\t"))[1:]
+    if "FastQC" not in multiqc_modules:
+        raise ValueError("MultiQC does not contain the required FastQC module")
+    multiqc_sources = rows(require(multiqc_data / "multiqc_sources.txt"))
+    multiqc_sanity_findings = []
+    if not any(module.lower() in {"cutadapt", "trim galore"} for module in multiqc_modules):
+        multiqc_sanity_findings.append("TRIM_GALORE_OR_CUTADAPT_SECTION_ABSENT")
+    if not any(module.lower() == "salmon" for module in multiqc_modules):
+        multiqc_sanity_findings.append("SALMON_SECTION_ABSENT_BECAUSE_MULTIQC_PRECEDES_QUANTIFICATION")
     pipeline = args.case_root / "pipeline"
     for filename in ("counts_matrix.tsv", "tpm_matrix.tsv", "length_matrix.tsv",
                      "summarized_experiment.rds"):
@@ -164,6 +179,8 @@ def main() -> int:
         "indexed_transcripts": len(quantified_transcripts),
         "duplicate_transcripts_removed": removed_transcripts,
         "estimable_genes": len(effective_genes), "de_genes": len(de_rows),
+        "multiqc": {"modules": multiqc_modules, "sources": len(multiqc_sources),
+                    "sanity_findings": multiqc_sanity_findings},
         "run_manifests": [str(path.relative_to(args.case_root)) for path in run_manifests],
         "candidate_gene_report": "NOT_APPLICABLE_BY_FROZEN_SYNTHETIC_DESIGN",
         "star": "EXCLUDED_BY_FROZEN_PRODUCTION_PATH",
