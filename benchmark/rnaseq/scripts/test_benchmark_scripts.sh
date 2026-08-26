@@ -18,7 +18,7 @@ for script in \
     archive_failed_attempts.py prepare_stage9b1_figures.py \
     finalize_stage9b1_figures.py validate_gse52778_metadata.py \
     validate_gse52778_fastq.py finalize_gse52778_download.py \
-    prepare_gencode_reference.py; do
+    prepare_gencode_reference.py build_gse52778_inputs.py; do
     "$python_bin" -m py_compile "$scripts/$script"
 done
 
@@ -45,6 +45,7 @@ bash -n "$scripts/run_stage9b1_figures.sh"
 bash -n "$scripts/slurm_prepare_gse52778_metadata.sh"
 bash -n "$scripts/download_gse52778.sh"
 bash -n "$scripts/slurm_prepare_gencode_reference.sh"
+bash -n "$scripts/run_helixforge_gse52778.sh"
 
 printf '{"status":"pass","slurm_job_id":"%s","node":"%s"}\n' \
     "$SLURM_JOB_ID" "$(hostname)" > "$output"

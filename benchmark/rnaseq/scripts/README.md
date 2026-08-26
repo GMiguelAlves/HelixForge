@@ -66,6 +66,10 @@ Implemented for the Stage 9B.2 metadata and download boundary:
 - `prepare_gencode_reference.py` derives the exact versioned primary-assembly
   transcriptome and `tx2gene.tsv`, decompresses the matching annotation/genome,
   and emits a self-validating `REFERENCE_READY` manifest.
+- `build_gse52778_inputs.py` joins the frozen registry, validated download and
+  reference manifests into the exact eight-library donor-paired RC case;
+- `run_helixforge_gse52778.sh` verifies the immutable RC/Nextflow/Java identity
+  and launches the full biological path with at most five Slurm tasks.
 
 The download array is submitted with a conservative `%2` concurrency limit.
 Heavy payloads remain in the dedicated scratch root and are never committed.
