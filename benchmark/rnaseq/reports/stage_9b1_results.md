@@ -181,6 +181,16 @@ checksum inside the ZIP would be circular. Heavy FASTQs and Nextflow work
 directories are intentionally excluded; their checksums, manifests, traces,
 logs, results metadata and truth tables are retained.
 
-Scratch cleanup is performed only after the audit archive passes an integrity
-test. The frozen dataset and reference remain available until the complete
-benchmark programme is reviewed.
+| Archive | SHA-256 | Independent verification |
+|---|---|---|
+| Main evidence (`helixforge-rnaseq-stage9b1-audit-20260826.zip`) | `693700ccf512f118572a2647c6f9f34b4923a56287c210e470c6034240a449cb` | `PASS`, 1,145 members, Slurm job `15595` |
+| Superseded attempts (`helixforge-rnaseq-stage9b1-failed-attempts-20260826.zip`) | `acb4ee299c30436f7bfeaa513be3e9b5766a4fffa7276e88da57e486d2da7cdf` | `PASS`, 875 members, Slurm job `15600` |
+
+Only after both archives passed checksum and ZIP integrity verification, the
+four superseded case roots and the `work/` and staged-FASTQ `scratch/`
+directories of the two successful runs were removed. Cleanup jobs `15602` and
+`15605` removed 13,073,901,128 bytes in total. This removal is not recoverable
+from scratch, but all retained evidence is in home and the frozen raw dataset,
+reference, exact environments, published results, independent comparisons,
+metrics, validation reports and provenance remain available for review and
+later benchmark stages.
