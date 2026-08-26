@@ -31,6 +31,7 @@ def main() -> None:
     parser.add_argument("archive", type=Path)
     parser.add_argument("checksum", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--required-member", action="append")
     args = parser.parse_args()
     if not os.environ.get("SLURM_JOB_ID"):
         raise SystemExit("archive verification must execute inside a Slurm job")
@@ -40,7 +41,8 @@ def main() -> None:
     with zipfile.ZipFile(args.archive) as archive:
         corrupt_member = archive.testzip()
         names = set(archive.namelist())
-    missing = sorted(REQUIRED_MEMBERS - names)
+    required_members = set(args.required_member or REQUIRED_MEMBERS)
+    missing = sorted(required_members - names)
     report = {
         "status": "pass" if expected == observed and not corrupt_member and not missing else "fail",
         "slurm_job_id": os.environ["SLURM_JOB_ID"],
