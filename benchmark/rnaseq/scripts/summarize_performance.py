@@ -69,6 +69,22 @@ def process_family(name: str) -> str:
     return name.split(" (", 1)[0]
 
 
+def peak_running_concurrency(rows: list[dict]) -> int:
+    events = []
+    for row in rows:
+        submitted = datetime.strptime(row["submit"], "%Y-%m-%d %H:%M:%S.%f")
+        duration = parse_duration(row.get("duration", ""))
+        realtime = parse_duration(row.get("realtime", ""))
+        started = submitted.timestamp() + max(duration - realtime, 0.0)
+        ended = submitted.timestamp() + duration
+        events.extend(((started, 1), (ended, -1)))
+    active = peak = 0
+    for _, delta in sorted(events, key=lambda item: (item[0], item[1])):
+        active += delta
+        peak = max(peak, active)
+    return peak
+
+
 def summarize_case(case_root: Path) -> dict:
     identity_path = case_root / "execution_identity.json"
     trace_path = case_root / "results/pipeline_info/execution_trace.tsv"
@@ -132,6 +148,7 @@ def summarize_case(case_root: Path) -> dict:
         "trace": {
             "path": str(trace_path),
             "task_count": len(rows),
+            "peak_running_concurrency": peak_running_concurrency(rows),
             "processes": dict(sorted(families.items())),
         },
         "storage_bytes": {

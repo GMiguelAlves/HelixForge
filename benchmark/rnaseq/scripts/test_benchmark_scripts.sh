@@ -19,7 +19,7 @@ for script in \
 done
 
 "$python_bin" -c \
-    'import sys; sys.path.insert(0, sys.argv[1]); import summarize_performance as s; assert s.parse_duration("327ms") == 0.327; assert s.parse_duration("1m 4.2s") == 64.2' \
+    'import sys; sys.path.insert(0, sys.argv[1]); import summarize_performance as s; assert s.parse_duration("327ms") == 0.327; assert s.parse_duration("1m 4.2s") == 64.2; rows=[{"submit":"2026-01-01 00:00:00.000","duration":"5s","realtime":"4s"},{"submit":"2026-01-01 00:00:01.000","duration":"5s","realtime":"4s"}]; assert s.peak_running_concurrency(rows) == 2' \
     "$scripts"
 
 "$python_bin" -c 'import json, pathlib, sys; [json.loads(path.read_text()) for path in map(pathlib.Path, sys.argv[1:])]' \
@@ -34,6 +34,7 @@ bash -n "$scripts/run_independent_reference.sh"
 bash -n "$scripts/slurm_generate_polyester.sh"
 bash -n "$scripts/slurm_convert_polyester_sample.sh"
 bash -n "$scripts/run_helixforge_synthetic.sh"
+bash -n "$scripts/archive_stage9b1.sh"
 
 printf '{"status":"pass","slurm_job_id":"%s","node":"%s"}\n' \
     "$SLURM_JOB_ID" "$(hostname)" > "$output"
