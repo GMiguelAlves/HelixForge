@@ -33,25 +33,33 @@ targets=(
     "$scratch_root/cases/synthetic-clean-repeat"
     "$scratch_root/cases/synthetic-primary-run3/work"
     "$scratch_root/cases/synthetic-clean-repeat-v2/work"
+    "$scratch_root/cases/synthetic-primary-run3/scratch"
+    "$scratch_root/cases/synthetic-clean-repeat-v2/scratch"
 )
 
 bytes_before=0
+existing_targets=()
 for target in "${targets[@]}"; do
+    if [[ ! -e "$target" ]]; then
+        continue
+    fi
     test -d "$target"
     test ! -L "$target"
     resolved=$(realpath "$target")
     [[ "$resolved" == "$expected_scratch"/cases/* ]]
     size=$(du -sb "$resolved" | cut -f1)
     bytes_before=$((bytes_before + size))
+    existing_targets+=("$resolved")
 done
+test "${#existing_targets[@]}" -gt 0
 
-rm -rf -- "${targets[@]}"
+rm -rf -- "${existing_targets[@]}"
 
-for target in "${targets[@]}"; do
+for target in "${existing_targets[@]}"; do
     test ! -e "$target"
 done
 
-python3 - "$report" "$SLURM_JOB_ID" "$bytes_before" "${targets[@]}" <<'PY'
+python3 - "$report" "$SLURM_JOB_ID" "$bytes_before" "${existing_targets[@]}" <<'PY'
 import json
 import pathlib
 import sys
