@@ -9,13 +9,26 @@ tx2gene=${5:?tx2gene is required}
 samples=${6:?sample table is required}
 reads_dir=${7:?post-trim reads directory is required}
 output=${8:?output directory is required}
+existing_index=${9:-}
 cpus=${SLURM_CPUS_PER_TASK:-2}
 test -n "${SLURM_JOB_ID:-}"
 test ! -e "$output"
-mkdir -p "$output/index" "$output/quant" "$output/logs" "$output/provenance"
+mkdir -p "$output/quant" "$output/logs" "$output/provenance"
 
-"$salmon" index -t "$transcriptome" -i "$output/index" -p "$cpus" -k 31 \
-    > "$output/logs/salmon_index.log" 2>&1
+if [[ -n "$existing_index" ]]; then
+    test -d "$existing_index"
+    index=$existing_index
+    index_mode=shared_rc_artifact
+    find "$existing_index" -type f -print0 | sort -z | xargs -0 sha256sum \
+        > "$output/provenance/index_checksums.tsv"
+    printf '%s\n' "$existing_index" > "$output/provenance/index_source.txt"
+else
+    mkdir -p "$output/index"
+    index=$output/index
+    index_mode=independently_rebuilt
+    "$salmon" index -t "$transcriptome" -i "$index" -p "$cpus" -k 31 \
+        > "$output/logs/salmon_index.log" 2>&1
+fi
 
 while IFS=$'\t' read -r sample_id condition replicate; do
     [[ "$sample_id" == "sample_id" ]] && continue
@@ -24,7 +37,7 @@ while IFS=$'\t' read -r sample_id condition replicate; do
     test -s "$r1"
     test -s "$r2"
     mkdir -p "$output/quant/$sample_id"
-    "$salmon" quant -i "$output/index" -l A -1 "$r1" -2 "$r2" \
+    "$salmon" quant -i "$index" -l A -1 "$r1" -2 "$r2" \
         --validateMappings -p "$cpus" -o "$output/quant/$sample_id" \
         > "$output/logs/salmon_${sample_id}.log" 2>&1
 done < "$samples"
@@ -38,5 +51,5 @@ done < "$samples"
     >> "$output/provenance/versions.txt"
 find "$output" -type f ! -path "$output/provenance/checksums.tsv" -print0 \
     | sort -z | xargs -0 sha256sum > "$output/provenance/checksums.tsv"
-printf '{"status":"complete","slurm_job_id":"%s","node":"%s","cpus":%s}\n' \
-    "$SLURM_JOB_ID" "$(hostname)" "$cpus" > "$output/provenance/execution.json"
+printf '{"status":"complete","slurm_job_id":"%s","node":"%s","cpus":%s,"index_mode":"%s"}\n' \
+    "$SLURM_JOB_ID" "$(hostname)" "$cpus" "$index_mode" > "$output/provenance/execution.json"
