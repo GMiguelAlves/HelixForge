@@ -35,7 +35,7 @@ gene <- read_table("gene_abundance.tsv")
 samples <- unique(gene$sample_id)
 stratum_colors <- c(ZERO = light_grey, LOW = sky, MEDIUM = orange, HIGH = blue)
 draw_gene <- function() {
-  par(mfrow = c(2, 3), mar = c(3.2, 3.4, 2.3, 1), oma = c(2.4, 2.8, 3.2, 0.5), las = 1)
+  par(mfrow = c(2, 3), mar = c(3.2, 3.4, 2.3, 1), oma = c(2.4, 4.8, 3.2, 0.5), las = 1)
   for (i in seq_along(samples)) {
     current <- gene[gene$sample_id == samples[[i]], ]
     x <- log10(current$true_tpm + 0.1)
@@ -52,7 +52,7 @@ draw_gene <- function() {
                        pch = 16, bty = "n", cex = 0.68)
   }
   mtext("True gene TPM, log10(TPM + 0.1)", side = 1, outer = TRUE, line = 0.7)
-  mtext("Estimated gene TPM, log10(TPM + 0.1)", side = 2, outer = TRUE, line = 0.8)
+  mtext("Estimated gene TPM, log10(TPM + 0.1)", side = 2, outer = TRUE, line = 2.5)
   mtext("Gene abundance recovery across six synthetic samples", side = 3, outer = TRUE, line = 1.3, font = 2)
 }
 save_figure("figure_1_gene_abundance", 10, 7.2, draw_gene)
@@ -95,7 +95,7 @@ draw_de <- function() {
          legend = c("True down", "True unchanged", "True up", "padj >= 0.05", "padj < 0.05"),
          col = c(blue, grey, vermillion, "#111827", "#111827"),
          pch = c(16, 16, 16, 1, 16), bty = "n", cex = 0.82)
-  legend("bottomright", bty = "n", cex = 0.85,
+  legend("bottomright", inset = 0.04, bty = "n", cex = 0.82,
          legend = sprintf("Pearson = %.3f\nSpearman = %.3f\nDE direction = %.3f",
                           annotations$log2fc_pearson, annotations$log2fc_spearman,
                           annotations$direction_concordance))
@@ -118,7 +118,7 @@ save_figure("figure_4_precision_recall", 7.4, 6.2, draw_pr)
 
 repro <- read_table("reproducibility.tsv")
 draw_repro <- function() {
-  par(mar = c(8, 4.8, 4.2, 1.5), las = 1)
+  par(mar = c(8, 7, 4.2, 1.5), las = 1)
   values <- rbind(repro$deg_jaccard, repro$direction_concordance,
                   repro$pvalue_rank_spearman, repro$top100_overlap)
   matplot(seq_len(nrow(repro)), t(values), type = "b", lty = 1,
@@ -148,17 +148,19 @@ memory_matrix <- sapply(names(case_labels), function(case) {
   setNames(current$peak_rss_mb, current$process)[process_order]
 })
 draw_performance <- function() {
-  layout(matrix(c(1, 2, 3, 3), nrow = 2, byrow = TRUE), heights = c(1.35, 1))
-  par(mar = c(8, 4.5, 3.2, 1), las = 1)
-  barplot(t(runtime_matrix), beside = TRUE, names.arg = process_order, las = 2,
-          col = c(blue, orange), border = NA, ylab = "Summed realtime (minutes)",
+  layout(matrix(c(1, 2, 3, 3), nrow = 2, byrow = TRUE), heights = c(1.25, 1))
+  runtime_plot <- runtime_matrix[rev(process_order), , drop = FALSE]
+  memory_plot <- memory_matrix[rev(process_order), , drop = FALSE]
+  par(mar = c(4.2, 10, 3.2, 1), las = 1)
+  barplot(t(runtime_plot), beside = TRUE, horiz = TRUE, names.arg = rev(process_order),
+          col = c(blue, orange), border = NA, xlab = "Summed realtime (minutes)",
           main = "Top process families by task realtime")
-  legend("topright", legend = unname(case_labels), fill = c(blue, orange), bty = "n", cex = 0.8)
-  par(mar = c(8, 4.5, 3.2, 1), las = 1)
-  barplot(t(memory_matrix), beside = TRUE, names.arg = process_order, las = 2,
-          col = c(green, purple), border = NA, ylab = "Peak RSS (MB)",
+  legend("bottomright", legend = unname(case_labels), fill = c(blue, orange), bty = "n", cex = 0.8)
+  par(mar = c(4.2, 10, 3.2, 1), las = 1)
+  barplot(t(memory_plot), beside = TRUE, horiz = TRUE, names.arg = rev(process_order),
+          col = c(green, purple), border = NA, xlab = "Peak RSS (MB)",
           main = "Peak task memory by process family")
-  legend("topright", legend = unname(case_labels), fill = c(green, purple), bty = "n", cex = 0.8)
+  legend("bottomright", legend = unname(case_labels), fill = c(green, purple), bty = "n", cex = 0.8)
   par(mar = c(4.8, 4.5, 3, 1), las = 1)
   workflow_matrix <- rbind(workflow$wall_seconds / 60, workflow$summed_scheduler_wait_seconds / 60)
   barplot(workflow_matrix, beside = TRUE, names.arg = case_labels[workflow$case],
