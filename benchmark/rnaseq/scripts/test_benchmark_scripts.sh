@@ -36,6 +36,7 @@ bash -n "$scripts/slurm_generate_polyester.sh"
 bash -n "$scripts/slurm_convert_polyester_sample.sh"
 bash -n "$scripts/run_helixforge_synthetic.sh"
 bash -n "$scripts/archive_stage9b1.sh"
+bash -n "$scripts/cleanup_stage9b1.sh"
 
 printf '{"status":"pass","slurm_job_id":"%s","node":"%s"}\n' \
     "$SLURM_JOB_ID" "$(hostname)" > "$output"
