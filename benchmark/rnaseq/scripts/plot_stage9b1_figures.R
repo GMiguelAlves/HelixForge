@@ -35,15 +35,16 @@ gene <- read_table("gene_abundance.tsv")
 samples <- unique(gene$sample_id)
 stratum_colors <- c(ZERO = light_grey, LOW = sky, MEDIUM = orange, HIGH = blue)
 draw_gene <- function() {
-  par(mfrow = c(2, 3), mar = c(3.2, 3.4, 2.3, 1), oma = c(2.4, 4.8, 3.2, 0.5), las = 1)
+  par(mfrow = c(2, 3), mar = c(3.2, 4.5, 2.3, 1), oma = c(2.4, 0.5, 3.2, 0.5), las = 1)
   for (i in seq_along(samples)) {
     current <- gene[gene$sample_id == samples[[i]], ]
     x <- log10(current$true_tpm + 0.1)
     y <- log10(current$estimated_tpm + 0.1)
     rho <- cor(current$true_tpm, current$estimated_tpm, method = "spearman")
+    panel_ylab <- if (i %in% c(1, 4)) "Estimated gene TPM\nlog10(TPM + 0.1)" else ""
     plot(x, y, pch = 16, cex = 0.43,
          col = adjustcolor(stratum_colors[current$abundance_stratum], alpha.f = 0.48),
-         xlab = "", ylab = "", main = samples[[i]],
+         xlab = "", ylab = panel_ylab, main = samples[[i]],
          xlim = range(c(x, y)), ylim = range(c(x, y)),
          panel.first = grid(col = "#ECEFF1", lty = 1))
     abline(0, 1, col = grey, lwd = 1.2)
@@ -52,7 +53,6 @@ draw_gene <- function() {
                        pch = 16, bty = "n", cex = 0.68)
   }
   mtext("True gene TPM, log10(TPM + 0.1)", side = 1, outer = TRUE, line = 0.7)
-  mtext("Estimated gene TPM, log10(TPM + 0.1)", side = 2, outer = TRUE, line = 2.5)
   mtext("Gene abundance recovery across six synthetic samples", side = 3, outer = TRUE, line = 1.3, font = 2)
 }
 save_figure("figure_1_gene_abundance", 10, 7.2, draw_gene)
@@ -118,15 +118,16 @@ save_figure("figure_4_precision_recall", 7.4, 6.2, draw_pr)
 
 repro <- read_table("reproducibility.tsv")
 draw_repro <- function() {
-  par(mar = c(8, 7, 4.2, 1.5), las = 1)
+  par(mar = c(8, 9, 4.2, 1.5), las = 1)
   values <- rbind(repro$deg_jaccard, repro$direction_concordance,
                   repro$pvalue_rank_spearman, repro$top100_overlap)
   matplot(seq_len(nrow(repro)), t(values), type = "b", lty = 1,
           pch = c(16, 17, 15, 18), col = c(blue, orange, green, purple),
-          xaxt = "n", ylim = c(0.9997, 1.00003), xlab = "", ylab = "Semantic agreement",
+          xaxt = "n", ylim = c(0.9997, 1.00003), xlab = "", ylab = "",
           main = "Scientific stability across repeat and independent arms",
           panel.first = grid(col = "#ECEFF1"))
   axis(1, at = seq_len(nrow(repro)), labels = repro$arm, las = 2, cex.axis = 0.78)
+  mtext("Semantic agreement", side = 2, line = 6.2)
   legend("bottomleft", legend = c("DEG Jaccard", "Direction", "P-value rank", "Top-100 overlap"),
          col = c(blue, orange, green, purple), pch = c(16, 17, 15, 18), lty = 1,
          bty = "n", cex = 0.78)
@@ -151,13 +152,15 @@ draw_performance <- function() {
   layout(matrix(c(1, 2, 3, 3), nrow = 2, byrow = TRUE), heights = c(1.25, 1))
   runtime_plot <- runtime_matrix[rev(process_order), , drop = FALSE]
   memory_plot <- memory_matrix[rev(process_order), , drop = FALSE]
+  process_labels <- rev(process_order)
+  process_labels[process_labels == "RNASEQ_QUANTIFICATION_PLAN"] <- "QUANT_PLAN"
   par(mar = c(4.2, 10, 3.2, 1), las = 1)
-  barplot(t(runtime_plot), beside = TRUE, horiz = TRUE, names.arg = rev(process_order),
+  barplot(t(runtime_plot), beside = TRUE, horiz = TRUE, names.arg = process_labels,
           col = c(blue, orange), border = NA, xlab = "Summed realtime (minutes)",
           main = "Top process families by task realtime")
   legend("bottomright", legend = unname(case_labels), fill = c(blue, orange), bty = "n", cex = 0.8)
   par(mar = c(4.2, 10, 3.2, 1), las = 1)
-  barplot(t(memory_plot), beside = TRUE, horiz = TRUE, names.arg = rev(process_order),
+  barplot(t(memory_plot), beside = TRUE, horiz = TRUE, names.arg = process_labels,
           col = c(green, purple), border = NA, xlab = "Peak RSS (MB)",
           main = "Peak task memory by process family")
   legend("bottomright", legend = unname(case_labels), fill = c(green, purple), bty = "n", cex = 0.8)
