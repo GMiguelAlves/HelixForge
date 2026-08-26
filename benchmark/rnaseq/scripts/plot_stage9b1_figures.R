@@ -107,7 +107,7 @@ draw_pr <- function() {
   par(mar = c(4.6, 5, 4, 1.5), las = 1)
   plot(pr$recall, pr$precision, type = "l", lwd = 2.2, col = blue,
        xlim = c(0, 1), ylim = c(0, 1), xlab = "Recall", ylab = "Precision",
-       main = "Precision–recall curve for synthetic differential expression",
+       main = "Precision-recall curve for synthetic differential expression",
        panel.first = grid(col = "#ECEFF1"))
   abline(h = pr$prevalence[[1]], col = orange, lty = 2, lwd = 1.8)
   legend("topright", bty = "n", lwd = c(2.2, 1.8), lty = c(1, 2), col = c(blue, orange),
