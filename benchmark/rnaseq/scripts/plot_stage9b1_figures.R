@@ -126,7 +126,7 @@ draw_repro <- function() {
           xaxt = "n", ylim = c(0.9997, 1.00003), xlab = "", ylab = "",
           main = "Scientific stability across repeat and independent arms",
           panel.first = grid(col = "#ECEFF1"))
-  arm_labels <- c("Clean repeat", "Independent shared index", "Same-index repeat")
+  arm_labels <- c("Clean repeat", "Independent shared index", "Same index")
   axis(1, at = seq_len(nrow(repro)), labels = arm_labels, las = 1, cex.axis = 0.82)
   legend("bottomleft", legend = c("DEG Jaccard", "Direction", "P-value rank", "Top-100 overlap"),
          col = c(blue, orange, green, purple), pch = c(16, 17, 15, 18), lty = 1,
