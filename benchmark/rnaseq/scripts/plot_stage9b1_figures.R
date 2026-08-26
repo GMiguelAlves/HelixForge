@@ -137,7 +137,7 @@ save_figure("figure_5_reproducibility", 8.3, 6.2, draw_repro)
 
 perf <- read_table("performance_process.tsv")
 workflow <- read_table("performance_workflow.tsv")
-case_labels <- c(synthetic-primary-run3 = "Primary", synthetic-clean-repeat-v2 = "Clean repeat")
+case_labels <- c("synthetic-primary-run3" = "Primary", "synthetic-clean-repeat-v2" = "Clean repeat")
 process_order <- unique(perf$process)
 runtime_matrix <- sapply(names(case_labels), function(case) {
   current <- perf[perf$case == case, ]
