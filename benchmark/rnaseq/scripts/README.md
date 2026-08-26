@@ -48,3 +48,19 @@ not source, include or copy any HelixForge process/module script.
 `run_helixforge_synthetic.sh` is a head-node driver only. It verifies the
 immutable RC identity and starts Nextflow 25.10.7; every scientific process is
 submitted by Nextflow to Slurm with a five-task queue ceiling.
+
+Implemented for the Stage 9B.2 metadata and download boundary:
+
+- `slurm_prepare_gse52778_metadata.sh` fetches official ENA, NCBI and GEO
+  metadata inside a Slurm allocation;
+- `validate_gse52778_metadata.py` verifies the frozen eight-run selection and
+  writes the exact transfer/space plan;
+- `download_gse52778.sh` downloads one run per array task using resumable ENA
+  paired FASTQs and excludes orphan exports;
+- `validate_gse52778_fastq.py` checks official MD5, local SHA-256, gzip
+  structure, mate IDs, lengths and paired-record counts;
+- `finalize_gse52778_download.py` emits the aggregate manifest, checksum file
+  and `DOWNLOAD_READY.json` only after all eight run checkpoints pass.
+
+The download array is submitted with a conservative `%2` concurrency limit.
+Heavy payloads remain in the dedicated scratch root and are never committed.
