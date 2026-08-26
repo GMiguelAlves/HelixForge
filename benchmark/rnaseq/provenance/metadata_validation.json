@@ -1,0 +1,30 @@
+{
+  "conditions": {
+    "dexamethasone": 4,
+    "untreated": 4
+  },
+  "donors": 4,
+  "official_sources": [
+    "ENA Portal API",
+    "ENA Browser XML",
+    "NCBI RunInfo",
+    "GEO SOFT"
+  ],
+  "samples": 8,
+  "schema_version": "1.0",
+  "selected_runs": [
+    "SRR1039508",
+    "SRR1039509",
+    "SRR1039512",
+    "SRR1039513",
+    "SRR1039516",
+    "SRR1039517",
+    "SRR1039520",
+    "SRR1039521"
+  ],
+  "slurm_job_id": "15642",
+  "status": "METADATA_VALIDATED",
+  "warnings": [
+    "GEO describes 75 bp library sequencing, while the deposited ENA/SRA spot descriptor contains two 63 bp application reads (spot length 126); the benchmark uses deposited reads."
+  ]
+}
