@@ -31,6 +31,7 @@ def de_path(case_root: Path) -> Path:
 
 def normalized_manifest(path: Path) -> dict[str, object]:
     document = copy.deepcopy(json.loads(path.read_text(encoding="utf-8")))
+    document["id"] = "<volatile-run-qualified-id>"
     document["run"]["run_id"] = "<volatile-run-id>"
     document["run"]["run_name"] = "<volatile-run-name>"
     for artifact in document.get("artifacts", []):
@@ -89,7 +90,8 @@ def main() -> int:
     manifest_equal = normalized_manifest(left_manifest) == normalized_manifest(right_manifest)
     comparisons["manifest_structure"] = {
         "status": "pass" if manifest_equal else "fail",
-        "normalization_allowlist": ["run.run_id", "run.run_name", "artifacts[].checksum.value"],
+        "normalization_allowlist": ["id", "run.run_id", "run.run_name",
+                                    "artifacts[].checksum.value"],
         "equal": manifest_equal,
     }
     strict_status = "pass" if all(item.get("status", "pass") == "pass"
