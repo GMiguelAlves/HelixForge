@@ -15,7 +15,8 @@ for script in \
     validate_synthetic_dataset.py build_helixforge_inputs.py evaluate_synthetic.py \
     compare_independent.py compare_reference_repeats.py compare_helixforge_repeats.py \
     validate_helixforge_run.py summarize_performance.py verify_audit_archive.py \
-    archive_failed_attempts.py; do
+    archive_failed_attempts.py prepare_stage9b1_figures.py \
+    finalize_stage9b1_figures.py; do
     "$python_bin" -m py_compile "$scripts/$script"
 done
 
@@ -27,6 +28,7 @@ done
     "$configs/synthetic_design.json" "$configs/synthetic_de_spec.json"
 "$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$scripts/build_synthetic_truth.R"
 "$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$scripts/independent_tximport_deseq2.R"
+"$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$scripts/plot_stage9b1_figures.R"
 bash -n "$scripts/slurm_runtime_preflight.sh"
 bash -n "$scripts/test_benchmark_scripts.sh"
 bash -n "$scripts/slurm_create_environment.sh"
@@ -37,6 +39,7 @@ bash -n "$scripts/slurm_convert_polyester_sample.sh"
 bash -n "$scripts/run_helixforge_synthetic.sh"
 bash -n "$scripts/archive_stage9b1.sh"
 bash -n "$scripts/cleanup_stage9b1.sh"
+bash -n "$scripts/run_stage9b1_figures.sh"
 
 printf '{"status":"pass","slurm_job_id":"%s","node":"%s"}\n' \
     "$SLURM_JOB_ID" "$(hostname)" > "$output"
