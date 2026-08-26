@@ -7,6 +7,7 @@ import argparse
 import csv
 import json
 import os
+import re
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -25,18 +26,20 @@ def parse_duration(value: str) -> float:
     value = (value or "").strip()
     if not value or value == "-":
         return 0.0
-    total = 0.0
-    number = ""
-    units = {"d": 86400, "h": 3600, "m": 60, "s": 1}
-    for char in value:
-        if char.isdigit() or char == ".":
-            number += char
-        elif char in units and number:
-            total += float(number) * units[char]
-            number = ""
-    if number:
-        total += float(number)
-    return total
+    units = {
+        "d": 86400,
+        "h": 3600,
+        "m": 60,
+        "s": 1,
+        "ms": 1e-3,
+        "us": 1e-6,
+        "µs": 1e-6,
+        "ns": 1e-9,
+    }
+    matches = re.findall(r"(\d+(?:\.\d+)?)\s*(ms|us|µs|ns|d|h|m|s)", value)
+    if not matches:
+        return float(value)
+    return sum(float(number) * units[unit] for number, unit in matches)
 
 
 def parse_size(value: str) -> int:

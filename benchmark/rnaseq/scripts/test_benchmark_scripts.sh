@@ -18,6 +18,10 @@ for script in \
     "$python_bin" -m py_compile "$scripts/$script"
 done
 
+"$python_bin" -c \
+    'import sys; sys.path.insert(0, sys.argv[1]); import summarize_performance as s; assert s.parse_duration("327ms") == 0.327; assert s.parse_duration("1m 4.2s") == 64.2' \
+    "$scripts"
+
 "$python_bin" -c 'import json, pathlib, sys; [json.loads(path.read_text()) for path in map(pathlib.Path, sys.argv[1:])]' \
     "$configs/synthetic_design.json" "$configs/synthetic_de_spec.json"
 "$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$scripts/build_synthetic_truth.R"
