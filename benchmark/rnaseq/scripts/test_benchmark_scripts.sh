@@ -14,7 +14,8 @@ for script in \
     prepare_synthetic_reference.py fasta_to_fastq.py \
     validate_synthetic_dataset.py build_helixforge_inputs.py evaluate_synthetic.py \
     compare_independent.py compare_reference_repeats.py compare_helixforge_repeats.py \
-    validate_helixforge_run.py summarize_performance.py verify_audit_archive.py; do
+    validate_helixforge_run.py summarize_performance.py verify_audit_archive.py \
+    archive_failed_attempts.py; do
     "$python_bin" -m py_compile "$scripts/$script"
 done
 
