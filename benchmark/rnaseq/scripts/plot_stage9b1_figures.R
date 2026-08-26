@@ -118,7 +118,7 @@ save_figure("figure_4_precision_recall", 7.4, 6.2, draw_pr)
 
 repro <- read_table("reproducibility.tsv")
 draw_repro <- function() {
-  par(mar = c(8, 5.2, 4.2, 1.5), las = 1)
+  par(mar = c(5.2, 5.2, 4.2, 1.5), las = 1)
   values <- rbind(repro$deg_jaccard, repro$direction_concordance,
                   repro$pvalue_rank_spearman, repro$top100_overlap)
   matplot(seq_len(nrow(repro)), t(values), type = "b", lty = 1,
@@ -126,7 +126,8 @@ draw_repro <- function() {
           xaxt = "n", ylim = c(0.9997, 1.00003), xlab = "", ylab = "",
           main = "Scientific stability across repeat and independent arms",
           panel.first = grid(col = "#ECEFF1"))
-  axis(1, at = seq_len(nrow(repro)), labels = repro$arm, las = 2, cex.axis = 0.78)
+  arm_labels <- c("Clean repeat", "Independent shared index", "Same-index repeat")
+  axis(1, at = seq_len(nrow(repro)), labels = arm_labels, las = 1, cex.axis = 0.82)
   legend("bottomleft", legend = c("DEG Jaccard", "Direction", "P-value rank", "Top-100 overlap"),
          col = c(blue, orange, green, purple), pch = c(16, 17, 15, 18), lty = 1,
          bty = "n", cex = 0.78)
