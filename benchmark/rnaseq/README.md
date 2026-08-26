@@ -70,9 +70,11 @@ ceiling, not a target.
 
 Stage 9B.1 has completed two clean synthetic top-level executions on Slurm.
 The scientific path, contracts and ground-truth recovery passed; strict
-numeric repeatability remains under explicit review because Salmon 1.10.3
-varied across otherwise identical invocations while DEG sets, direction and
-rankings remained stable. MultiQC's pre-quantification placement is also
+numeric repeatability failed because Salmon 1.10.3 varied across otherwise
+identical invocations while DEG sets, direction and rankings remained stable.
+The project owner explicitly accepted that documented runtime limitation on
+26 August 2026, giving Stage 9B.1 the classification
+`PASS_WITH_LIMITATIONS`. MultiQC's pre-quantification placement is also
 recorded as a sanity limitation. See the
 [Stage 9B.1 results](reports/stage_9b1_results.md) and the detailed
 [protocol audit](protocol/9b1_protocol_discrepancies.md).

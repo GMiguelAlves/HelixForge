@@ -124,8 +124,11 @@ Despite the numeric divergence, all compared arms retained:
 - exact top-50, top-100, top-250 and top-500 sets;
 - p-value rank Spearman of 0.99987–0.99998.
 
-The strict numeric comparison remains failed pending explicit scientific
-review of this documented exception.
+The strict numeric comparison remains technically failed. On 26 August 2026,
+the project owner explicitly reviewed and accepted this documented Salmon
+runtime limitation for Stage 9B.1. The acceptance applies to the stable
+scientific semantics demonstrated here; it does not redefine the tolerance or
+claim byte/numeric identity.
 
 ## MultiQC sanity finding
 
@@ -155,22 +158,22 @@ runtime-prefix collection occupied 7.80 GB and the compact synthetic reference
 |---|---|
 | Exact RC/runtime, complete terminal contract | `PASS` |
 | Synthetic sample/input integrity | `PASS` |
-| Independent strict numeric tolerance | `REVIEW_REQUIRED` — failed with demonstrated Salmon runtime cause |
-| Clean-repeat strict numeric tolerance | `REVIEW_REQUIRED` — semantic outputs stable, numeric tolerance failed |
+| Independent strict numeric tolerance | `ACCEPTED_LIMITATION` — failed with demonstrated Salmon runtime cause |
+| Clean-repeat strict numeric tolerance | `ACCEPTED_LIMITATION` — semantic outputs stable, numeric tolerance failed |
 | Informative synthetic DE | `PASS` |
 | All declared strata and calibration metrics | `PASS` |
 | No hidden scientific changes | `PASS` |
 | Public eight-sample and depth-series evidence | `NOT_RUN` — outside Stage 9B.1 |
 
-**Stage 9B.1 scientific-path result:** passed for correctness, contracts and
-truth recovery, with a documented MultiQC sanity limitation.
+**Stage 9B.1 classification:** `PASS_WITH_LIMITATIONS`. Correctness, contracts
+and truth recovery passed. The explicitly accepted limitations are Salmon's
+failure to provide byte/numeric repeatability at the frozen tolerance and the
+documented MultiQC aggregation scope.
 
-**Overall RC benchmark classification:** `INCONCLUSIVE` until the documented
-Salmon numeric-repeatability exception receives explicit review and the later
-public/coverage stages supply their predeclared evidence. If the exception is
-accepted, the appropriate Stage 9B.1 classification is
-`PASS_WITH_LIMITATIONS`; it is not byte/numerically reproducible at the frozen
-tolerance.
+**Overall RC benchmark programme:** remains `INCONCLUSIVE` until the later
+public biological and coverage-depth stages supply their predeclared evidence.
+Acceptance of the Salmon limitation closes the Stage 9B.1 review only; it does
+not pre-approve results from those later stages.
 
 ## Audit artifacts
 
