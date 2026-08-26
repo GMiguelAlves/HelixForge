@@ -57,9 +57,14 @@ find "$scratch_root/independent" -type f \
         cp -a "$source_file" "$bundle/independent/$relative"
     done
 
-sacct -j 15165,15202,15419,15420,15421,15422,15423,15424,15425,15426,15427,15431,15432,15433,15434,15435,15436,15437,15438,15497,15575,15576,15577,15578,15579,15580,15581,15584,15585 \
+if ! sacct -j 15165,15202,15419,15420,15421,15422,15423,15424,15425,15426,15427,15431,15432,15433,15434,15435,15436,15437,15438,15497,15575,15576,15577,15578,15579,15580,15581,15584,15585,15586,15587,15588 \
     --format=JobID,JobName,State,ExitCode,Elapsed,AllocCPUS,MaxRSS,NodeList \
-    > "$bundle/slurm/job_accounting.txt"
+    > "$bundle/slurm/job_accounting.txt"; then
+    printf '%s\n' \
+        'A contabilidade sacct estava temporariamente indisponível no nó durante o empacotamento.' \
+        'Os IDs e estados essenciais permanecem registrados nos logs e relatórios do benchmark.' \
+        > "$bundle/slurm/job_accounting_unavailable_PT.txt"
+fi
 
 printf '%s\n' \
     '# Auditoria do benchmark RNA-seq sintético — HelixForge' \
