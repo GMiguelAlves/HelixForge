@@ -68,6 +68,14 @@ ceiling, not a target.
 
 ## Status
 
-Stage 9A freezes the design. It does **not** download FASTQs or execute the
-benchmark. Scripts listed under `scripts/` are implementation requirements for
-Stage 9B and must be reviewed before the first scientific job.
+Stage 9B.1 has completed two clean synthetic top-level executions on Slurm.
+The scientific path, contracts and ground-truth recovery passed; strict
+numeric repeatability remains under explicit review because Salmon 1.10.3
+varied across otherwise identical invocations while DEG sets, direction and
+rankings remained stable. MultiQC's pre-quantification placement is also
+recorded as a sanity limitation. See the
+[Stage 9B.1 results](reports/stage_9b1_results.md) and the detailed
+[protocol audit](protocol/9b1_protocol_discrepancies.md).
+
+Public biological validation and the coverage-depth series remain later
+stages and are not represented as completed here.
