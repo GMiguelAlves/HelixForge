@@ -61,6 +61,11 @@ Implemented for the Stage 9B.2 metadata and download boundary:
   structure, mate IDs, lengths and paired-record counts;
 - `finalize_gse52778_download.py` emits the aggregate manifest, checksum file
   and `DOWNLOAD_READY.json` only after all eight run checkpoints pass.
+- `slurm_prepare_gencode_reference.sh` downloads the three frozen GENCODE 49
+  inputs with resume support and validates the official release MD5 values;
+- `prepare_gencode_reference.py` derives the exact versioned primary-assembly
+  transcriptome and `tx2gene.tsv`, decompresses the matching annotation/genome,
+  and emits a self-validating `REFERENCE_READY` manifest.
 
 The download array is submitted with a conservative `%2` concurrency limit.
 Heavy payloads remain in the dedicated scratch root and are never committed.
