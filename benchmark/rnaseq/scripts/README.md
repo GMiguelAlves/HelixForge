@@ -70,6 +70,9 @@ Implemented for the Stage 9B.2 metadata and download boundary:
   reference manifests into the exact eight-library donor-paired RC case;
 - `run_helixforge_gse52778.sh` verifies the immutable RC/Nextflow/Java identity
   and launches the full biological path with at most five Slurm tasks.
+- `slurm_restore_temurin21.sh` restores only the exact Temurin 21.0.12+8
+  runtime certified in Stage 9B.1 when the portable binary is no longer present;
+  the official Adoptium archive is pinned by SHA-256 and extracted on a node.
 
 The download array is submitted with a conservative `%2` concurrency limit.
 Heavy payloads remain in the dedicated scratch root and are never committed.
