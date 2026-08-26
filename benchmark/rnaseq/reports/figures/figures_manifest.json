@@ -1,0 +1,71 @@
+{
+  "files": [
+    {
+      "bytes": 173844,
+      "name": "figure_1_gene_abundance.png",
+      "sha256": "642368298c38772a04a55efa576b8da43c9bc4309c24af2c75e6fba900272606"
+    },
+    {
+      "bytes": 408361,
+      "name": "figure_1_gene_abundance.pdf",
+      "sha256": "b023bef4a6489c38d887c1ce9424af87ec8f71c586ec18bbffb04e7d97d7619b"
+    },
+    {
+      "bytes": 125196,
+      "name": "figure_2_transcript_quantification.png",
+      "sha256": "2cb2beed0fd7921aea805d6a003d92d98462aa2028fc9aef5b24395ec8ae769f"
+    },
+    {
+      "bytes": 6319,
+      "name": "figure_2_transcript_quantification.pdf",
+      "sha256": "17913b46ea997e0e5b627e08620872a5d354071e0b2ec89a99f24fe08e4688f8"
+    },
+    {
+      "bytes": 145408,
+      "name": "figure_3_log2fc_recovery.png",
+      "sha256": "ae56a1496caaa90b05badb0205379bd55d4f631f7771ba2d76179a70eec275e3"
+    },
+    {
+      "bytes": 73663,
+      "name": "figure_3_log2fc_recovery.pdf",
+      "sha256": "9c0a55b148e83584cc511e8d34a06cbb3559ffa1eedc9ac7c0e7e15ce0058b79"
+    },
+    {
+      "bytes": 77512,
+      "name": "figure_4_precision_recall.png",
+      "sha256": "1892067c559248255a911988aab4d00b9b705432aafb0071e35be6afa4450368"
+    },
+    {
+      "bytes": 8888,
+      "name": "figure_4_precision_recall.pdf",
+      "sha256": "325168831b53c5f994ea3122092a97f0ec725777776a20f425b90f8d7ceffaac"
+    },
+    {
+      "bytes": 78022,
+      "name": "figure_5_reproducibility.png",
+      "sha256": "a589e0a3097e7a122531a7959c4254c258ffc0cea7aa1deec48d1fafa9195957"
+    },
+    {
+      "bytes": 5465,
+      "name": "figure_5_reproducibility.pdf",
+      "sha256": "e92a935a87abb11046215afc308853d557efdcb71d4fac38316cd5cd66cdc9d6"
+    },
+    {
+      "bytes": 111395,
+      "name": "figure_6_performance.png",
+      "sha256": "996ef46050e1e99a8cde69965a83329700019abb9caa0922b0f71ac55a56ead7"
+    },
+    {
+      "bytes": 5967,
+      "name": "figure_6_performance.pdf",
+      "sha256": "3424e4eec8a9b53e8a212ef884bd58e158646e424ae1798b0b369782860b1959"
+    }
+  ],
+  "schema_version": "1.0",
+  "slurm_job_id": "15624",
+  "status": "pass",
+  "subject": {
+    "commit": "fc38ada8f592bb57a13467965a718ce0df7fb6ce",
+    "tag": "v1.0.0-rc.1"
+  }
+}

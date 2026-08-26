@@ -78,6 +78,23 @@ Transcript fragment-count Spearman correlation ranged from 0.9884 to 0.9904.
 All declared abundance strata were emitted. These results exceed the frozen
 gene (0.90) and transcript (0.80) sanity thresholds.
 
+![Figure 1 — gene abundance recovery](figures/figure_1_gene_abundance.png)
+
+*Figure 1. Gene-level abundance recovery for every sample. Points are colored
+by the frozen abundance stratum and the diagonal represents exact agreement.
+The matching publication-quality file is available as
+[PDF](figures/figure_1_gene_abundance.pdf).*
+
+![Figure 2 — transcript quantification summary](figures/figure_2_transcript_quantification.png)
+
+*Figure 2. Transcript-level correlation and error summary over all 2,376
+estimable transcripts in each sample
+([PDF](figures/figure_2_transcript_quantification.pdf)). This figure is derived
+from metrics calculated against the primary `quant.sf` outputs before the
+audited cleanup. Those per-sample intermediates were not part of the published
+terminal contract and were subsequently removed, so this is an aggregate
+summary rather than a transcript-by-transcript scatter plot.*
+
 ## Differential expression against truth
 
 The tested estimable universe contains 239 true DE genes and 956 non-DE genes.
@@ -101,6 +118,18 @@ AUROC and AUPRC exceed their frozen random/prevalence baselines; log2FC
 correlation is positive; and the required abundance, effect-size and nominal
 FDR strata are all present. Observed FDP was 0.0381, 0.0853 and 0.1429 at
 nominal thresholds 0.01, 0.05 and 0.10, respectively.
+
+![Figure 3 — log2 fold-change recovery](figures/figure_3_log2fc_recovery.png)
+
+*Figure 3. Recovery of the configured differential-expression effects. Filled
+points pass `padj < 0.05`; color indicates the frozen true state
+([PDF](figures/figure_3_log2fc_recovery.pdf)).*
+
+![Figure 4 — precision-recall curve](figures/figure_4_precision_recall.png)
+
+*Figure 4. Precision-recall performance against the synthetic DE truth. The
+prevalence line is the frozen random baseline
+([PDF](figures/figure_4_precision_recall.pdf)).*
 
 ## Independent reference and clean-repeat behavior
 
@@ -130,6 +159,13 @@ runtime limitation for Stage 9B.1. The acceptance applies to the stable
 scientific semantics demonstrated here; it does not redefine the tolerance or
 claim byte/numeric identity.
 
+![Figure 5 — reproducibility endpoints](figures/figure_5_reproducibility.png)
+
+*Figure 5. Semantic agreement across the clean HelixForge repeat, independent
+shared-index comparison and same-index reference repeat. The narrow vertical
+scale makes the residual p-value-rank variation visible while the other
+endpoints remain exactly stable ([PDF](figures/figure_5_reproducibility.pdf)).*
+
 ## MultiQC sanity finding
 
 MultiQC 1.17 completed in both runs and aggregated 24 FastQC sources. In the RC
@@ -151,6 +187,13 @@ reported separately and must not be interpreted as pipeline runtime. Aggregate
 task I/O was approximately 29.7 GB read and 24.7 GB written per run. The exact
 runtime-prefix collection occupied 7.80 GB and the compact synthetic reference
 7.96 MB. Values are descriptive for this shared cluster, not performance gates.
+
+![Figure 6 — execution performance](figures/figure_6_performance.png)
+
+*Figure 6. Descriptive task realtime, peak resident memory and workflow wall
+time for the primary and clean-repeat executions. Scheduler wait is shown
+separately and is not treated as pipeline runtime
+([PDF](figures/figure_6_performance.pdf)).*
 
 ## Gate assessment and classification
 
@@ -183,6 +226,14 @@ Its adjacent `.sha256` file is authoritative because embedding the ZIP's own
 checksum inside the ZIP would be circular. Heavy FASTQs and Nextflow work
 directories are intentionally excluded; their checksums, manifests, traces,
 logs, results metadata and truth tables are retained.
+
+The six report figures were rendered from the retained evidence in Slurm job
+`15624` using R 4.3.3 and Python 3.12.4. Their PNG/PDF checksums and immutable
+RC subject are recorded in
+[`figures_manifest.json`](figures/figures_manifest.json); runtime versions are
+recorded in [`render_versions.txt`](figures/render_versions.txt). No
+coverage-depth figure is presented because that predeclared benchmark arm was
+not run in Stage 9B.1.
 
 | Archive | SHA-256 | Independent verification |
 |---|---|---|

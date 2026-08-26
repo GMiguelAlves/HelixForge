@@ -1,0 +1,2 @@
+Python 3.12.4
+Rscript (R) version 4.3.3 (2024-02-29)
