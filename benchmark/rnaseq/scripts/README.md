@@ -86,6 +86,9 @@ Implemented for the Stage 9B.2 metadata and download boundary:
   split Slurm job identity in provenance.
 - `summarize_gse52778_comparison.py` retains every strict-tolerance mismatch
   while producing the separately labelled descriptive concordance assessment.
+- `evaluate_gse52778_biology.py` evaluates only the five responsive genes and
+  four reference controls declared before execution; biological expectations
+  remain sanity checks rather than release gates.
 - `slurm_restore_temurin21.sh` restores only the exact Temurin 21.0.12+8
   runtime certified in Stage 9B.1 when the portable binary is no longer present;
   the official Adoptium archive is pinned by SHA-256 and extracted on a node.
