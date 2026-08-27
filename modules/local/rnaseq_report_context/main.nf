@@ -63,7 +63,7 @@ process RNASEQ_REPORT_CONTEXT {
     """
     printf '{"schema_version":"1.0","type":"rnaseq_report_context","id":"%s","provider":"candidate_genes_v1","status":"stub","sample_count":1,"gene_count":1,"query_count":1}\n' \
         '${meta.id}' > report_context.json
-    printf 'export REPORT_TITLE=%s\nexport EXPRESSION_UNIT=TPM\nexport LIFE_STAGE_LEVELS=unknown\nexport STAGE_SYNONYM_MAP=%s\nexport ORGANISM_SPECIFIC_REPORTS=0\n' \
+    printf 'export REPORT_TITLE=%s\nexport EXPRESSION_UNIT=TPM\nexport LIFE_STAGE_LEVELS=unknown\nexport STAGE_SYNONYM_MAP=%s\nexport ORGANISM_SPECIFIC_REPORTS=0\nexport GENE_ID_VERSION_POLICY=preserve\n' \
         "'Candidate gene report'" "''" > report.env
     printf '[STUB] RNA-seq report context\n' > rnaseq_report_context.log
     printf '"RNASEQ_REPORT_CONTEXT":\n    python: stub\n' > rnaseq_report_context.versions.yml

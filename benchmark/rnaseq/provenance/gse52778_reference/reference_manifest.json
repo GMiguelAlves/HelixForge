@@ -1,0 +1,76 @@
+{
+  "artifacts": [
+    {
+      "bytes": 3326907803,
+      "path": "gencode49-primary/annotation.gtf",
+      "records": 509650,
+      "role": "annotation",
+      "sha256": "8eb596086228540c93ccf56fbb6601fd99f19a6df2cecdde239af423e5db0729"
+    },
+    {
+      "bytes": 937139053,
+      "path": "gencode49-primary/transcriptome.fa",
+      "records": 509650,
+      "role": "transcriptome",
+      "sha256": "ff912a4b9fbf5e1da803575c01faecc6c9d0f9c71ca9511fabeec0e5de8f44cc"
+    },
+    {
+      "bytes": 3151417447,
+      "path": "gencode49-primary/genome.fa",
+      "role": "genome",
+      "sha256": "e49b92b3e4f321bf254c042f25b726d9931c4d74c7523e8b6bb530e63b0cfd4b"
+    },
+    {
+      "bytes": 18646893,
+      "path": "gencode49-primary/tx2gene.tsv",
+      "records": 509650,
+      "role": "tx2gene",
+      "sha256": "024901688e725acf4367d4dafee0c85195016062902b175b3cbc4276b1a08c3c"
+    }
+  ],
+  "assembly": "GRCh38.p14",
+  "bundle_id": "gencode_human_v49_primary",
+  "genes": 78899,
+  "id_policy": {
+    "ignoreAfterBar": false,
+    "ignoreTxVersion": false,
+    "transcript_fasta_header": "first pipe-delimited token",
+    "transcript_filter": "transcript_id present in primary-assembly GTF",
+    "versioned_ids": true
+  },
+  "md5s": {
+    "sha256": "61ba509e9cc43e1c184f07ee0e7f2e913b6377541cdb7f763fdb7fbb3240b6ac",
+    "url": "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_49/MD5SUMS"
+  },
+  "release": "GENCODE_49",
+  "schema_version": "1.0",
+  "slurm_job_id": "15658",
+  "sources": [
+    {
+      "bytes": 93496634,
+      "filename": "gencode.v49.primary_assembly.annotation.gtf.gz",
+      "md5": "8486a6bdcd27a8a7a08232d01cc13b77",
+      "role": "annotation",
+      "sha256": "5cabe88e93064851dc6cb826efe0e8b7babf7985e73df280cfb05910d05cd023",
+      "url": "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_49/gencode.v49.primary_assembly.annotation.gtf.gz"
+    },
+    {
+      "bytes": 141418363,
+      "filename": "gencode.v49.transcripts.fa.gz",
+      "md5": "ce72162016c56f64918a7dde76535ddb",
+      "role": "transcripts",
+      "sha256": "08ee7ee86514061de6fd62dc643c2fe962fbc393080589ebc491bd11e22b119e",
+      "url": "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_49/gencode.v49.transcripts.fa.gz"
+    },
+    {
+      "bytes": 845635028,
+      "filename": "GRCh38.primary_assembly.genome.fa.gz",
+      "md5": "1c73e18ea14fec14fe7eca5a48755de3",
+      "role": "genome",
+      "sha256": "3023c0705e83e86309271b09e25bdf678945fac98ce2fe5bb6b6e068f2225452",
+      "url": "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_49/GRCh38.primary_assembly.genome.fa.gz"
+    }
+  ],
+  "status": "REFERENCE_READY",
+  "transcripts": 509650
+}

@@ -13,7 +13,7 @@ expected_scratch=/scratch/Schisto-epigenetics/gustavo/helixforge-rnaseq-benchmar
 test ! -e "$output_dir"
 mkdir -p "$output_dir/data"
 
-scripts="$repo_root/benchmark/rnaseq/scripts"
+scripts="$repo_root/benchmark/rnaseq/scripts/synthetic"
 truth="$scratch_root/dataset/polyester-ground-truth-v1/truth"
 results="$scratch_root/cases/synthetic-primary-run3/results"
 validation="$scratch_root/validation"

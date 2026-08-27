@@ -1,0 +1,11 @@
+feature_type	feature	expected_direction	evidence_type	source	note
+gene	CRISPLD2	UP	BIOLOGICAL_EXPECTATION	https://doi.org/10.1371/journal.pone.0099625	DEX-induced RNA and protein validated in airway smooth muscle
+gene	DUSP1	UP	BIOLOGICAL_EXPECTATION	https://doi.org/10.1371/journal.pone.0099625	DEX upregulation confirmed by qRT-PCR
+gene	KLF15	UP	BIOLOGICAL_EXPECTATION	https://doi.org/10.1371/journal.pone.0099625	DEX upregulation confirmed by qRT-PCR
+gene	PER1	UP	BIOLOGICAL_EXPECTATION	https://doi.org/10.1371/journal.pone.0099625	DEX upregulation confirmed by qRT-PCR
+gene	TSC22D3	UP	BIOLOGICAL_EXPECTATION	https://doi.org/10.1371/journal.pone.0099625	DEX upregulation confirmed by qRT-PCR
+gene	B2M	STABLE_HIGH	BIOLOGICAL_EXPECTATION	https://doi.org/10.1371/journal.pone.0099625	publication-reported highly expressed non-differential check
+gene	GABARAP	STABLE_HIGH	BIOLOGICAL_EXPECTATION	https://doi.org/10.1371/journal.pone.0099625	publication-reported highly expressed non-differential check
+gene	GAPDH	STABLE_HIGH	BIOLOGICAL_EXPECTATION	https://doi.org/10.1371/journal.pone.0099625	publication-reported highly expressed non-differential check
+gene	RPL19	STABLE_HIGH	BIOLOGICAL_EXPECTATION	https://doi.org/10.1371/journal.pone.0099625	publication-reported highly expressed non-differential check
+gene_set	published_316	CONTEXT_ONLY	HISTORICAL_REFERENCE	https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE52778	set overlap only; hg19 and Cufflinks/Cuffdiff are not ground truth
