@@ -88,6 +88,9 @@ Implemented for the Stage 9B.2 metadata and download boundary:
 - `slurm_select_gse52778_python_provider.sh` records and selects an existing
   account-level Python provider only after proving on a Slurm node that it
   contains pandas, which is required by the native Salmon plan generator.
+- `slurm_fix_gse52778_report_genes.sh` repairs the initial newline-only gene
+  list to the Report API's explicit `group: gene1,gene2` contract, guarded by
+  the original SHA-256 and recording the resulting two groups and nine queries.
 
 The download array is submitted with a conservative `%2` concurrency limit.
 Heavy payloads remain in the dedicated scratch root and are never committed.
