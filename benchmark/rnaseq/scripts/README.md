@@ -78,6 +78,9 @@ Implemented for the Stage 9B.2 metadata and download boundary:
 - `airway_independent_samples.tsv` and
   `independent_gse52778_tximport_deseq2.R` freeze the independently implemented
   `~ batch + condition` analysis and DEX-versus-untreated contrast.
+- `compare_gse52778_independent.py` compares the biological run against that
+  same-method harness and maps Import API identifiers from
+  `dataset__sample_id` back to biological sample IDs.
 - `slurm_restore_temurin21.sh` restores only the exact Temurin 21.0.12+8
   runtime certified in Stage 9B.1 when the portable binary is no longer present;
   the official Adoptium archive is pinned by SHA-256 and extracted on a node.
