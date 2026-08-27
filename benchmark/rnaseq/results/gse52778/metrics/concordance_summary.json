@@ -1,0 +1,72 @@
+{
+  "comparison": "METHOD_CONTROLLED",
+  "dataset": "GSE52778",
+  "de_gene_universe": 78432,
+  "deg_overlap": [
+    {
+      "absolute_log2fc_threshold": null,
+      "category": "all",
+      "helixforge": 3519,
+      "independent": 3511,
+      "intersection": 3507,
+      "jaccard": 0.9954584161226228,
+      "overlap_coefficient": 0.9988607234406152,
+      "padj_threshold": 0.05,
+      "union": 3523
+    },
+    {
+      "absolute_log2fc_threshold": null,
+      "category": "up",
+      "helixforge": 1980,
+      "independent": 1976,
+      "intersection": 1973,
+      "jaccard": 0.9949571356530509,
+      "overlap_coefficient": 0.9984817813765182,
+      "padj_threshold": 0.05,
+      "union": 1983
+    },
+    {
+      "absolute_log2fc_threshold": null,
+      "category": "down",
+      "helixforge": 1539,
+      "independent": 1535,
+      "intersection": 1534,
+      "jaccard": 0.9961038961038962,
+      "overlap_coefficient": 0.9993485342019544,
+      "padj_threshold": 0.05,
+      "union": 1540
+    },
+    {
+      "absolute_log2fc_threshold": 1,
+      "category": "effect_filtered",
+      "helixforge": 939,
+      "independent": 938,
+      "intersection": 937,
+      "jaccard": 0.9968085106382979,
+      "overlap_coefficient": 0.9989339019189766,
+      "padj_threshold": 0.05,
+      "union": 940
+    }
+  ],
+  "log2fc_direction_concordance": 0.9994810586403736,
+  "outputs": [
+    "quantification_concordance.tsv",
+    "de_concordance.tsv",
+    "deg_overlap.tsv",
+    "ranking_concordance.tsv"
+  ],
+  "pvalue_policy": "-log10; pairwise NA excluded; zeros capped at 1e-300",
+  "quantification_records": 48,
+  "samples": [
+    "N61311_untreated",
+    "N61311_dexamethasone",
+    "N052611_untreated",
+    "N052611_dexamethasone",
+    "N080611_untreated",
+    "N080611_dexamethasone",
+    "N061011_untreated",
+    "N061011_dexamethasone"
+  ],
+  "schema_version": "1.0",
+  "status": "complete"
+}

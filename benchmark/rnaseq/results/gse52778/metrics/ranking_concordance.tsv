@@ -1,0 +1,13 @@
+ranking	spearman	top_n	shared	overlap_fraction	na_policy
+padj	0.9999632572701924	25	25	1.0	padj NA=1; effect NA ranked last
+padj	0.9999632572701924	50	50	1.0	padj NA=1; effect NA ranked last
+padj	0.9999632572701924	100	100	1.0	padj NA=1; effect NA ranked last
+padj	0.9999632572701924	250	249	0.996	padj NA=1; effect NA ranked last
+absolute_log2FoldChange	0.9998667762410143	25	24	0.96	padj NA=1; effect NA ranked last
+absolute_log2FoldChange	0.9998667762410143	50	49	0.98	padj NA=1; effect NA ranked last
+absolute_log2FoldChange	0.9998667762410143	100	99	0.99	padj NA=1; effect NA ranked last
+absolute_log2FoldChange	0.9998667762410143	250	249	0.996	padj NA=1; effect NA ranked last
+signed_log2FoldChange	0.9999175169548215	25	25	1.0	padj NA=1; effect NA ranked last
+signed_log2FoldChange	0.9999175169548215	50	50	1.0	padj NA=1; effect NA ranked last
+signed_log2FoldChange	0.9999175169548215	100	100	1.0	padj NA=1; effect NA ranked last
+signed_log2FoldChange	0.9999175169548215	250	249	0.996	padj NA=1; effect NA ranked last

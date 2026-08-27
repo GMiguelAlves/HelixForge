@@ -1,0 +1,18 @@
+{
+  "dataset": "GSE52778",
+  "multiqc": "report_present",
+  "multiqc_limitation": "KNOWN_REPORTING_LIMITATION:MULTIQC_SOFTWARE_TABLE_ABSENT",
+  "outlier_policy": "descriptive only; no sample excluded automatically",
+  "raw_pairs": 195411576,
+  "retained_pairs": 192350096,
+  "retention_percent_max": 99.09252115964577,
+  "retention_percent_median": 98.32937905422978,
+  "retention_percent_min": 98.15517888815755,
+  "salmon_mapping_percent_max": 95.60574571897799,
+  "salmon_mapping_percent_median": 94.99616073453787,
+  "salmon_mapping_percent_min": 94.37809154279978,
+  "sample_exclusions": [],
+  "samples": 8,
+  "schema_version": "1.0",
+  "status": "complete"
+}
