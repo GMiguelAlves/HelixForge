@@ -10,6 +10,7 @@ r_env=${6:?R analysis prefix is required}
 case_root=${7:?prepared case root is required}
 source_work=${8:?successful report-context work directory is required}
 queue=${9:-general}
+expected_report_commit=${10:-}
 
 test -z "${SLURM_JOB_ID:-}"
 test -x "$java_bin"
@@ -19,12 +20,22 @@ test -x "$r_env/bin/Rscript"
 test -s "$source_work/report_context.json"
 test -s "$source_work/inputs/genes.txt"
 test ! -e "$case_root/pipeline/090-search-gene/results"
-git -C "$repo_root" diff --quiet v1.0.0-rc.1 -- \
-    modules/local/rnaseq_report_context \
-    modules/local/rnaseq_gene_report \
-    subworkflows/local/rnaseq/report.nf
+if [[ -z "$expected_report_commit" ]]; then
+    git -C "$repo_root" diff --quiet v1.0.0-rc.1 -- \
+        modules/local/rnaseq_report_context \
+        modules/local/rnaseq_gene_report \
+        subworkflows/local/rnaseq/report.nf
+    recovery_type=report_recovery
+    report_modules_equal_rc=true
+    recovery="$case_root/report-recovery"
+else
+    actual_commit=$(git -C "$repo_root" rev-parse HEAD)
+    [[ "$actual_commit" == "$expected_report_commit" ]]
+    recovery_type=report_hotfix_recovery
+    report_modules_equal_rc=false
+    recovery="$case_root/report-hotfix-recovery"
+fi
 
-recovery="$case_root/report-recovery"
 mkdir -p "$recovery/logs" "$recovery/nxf-home" "$recovery/nxf-cache"
 runtime_path="$python_env/bin:$r_env/bin:$rna_env/bin:$(dirname "$java_bin"):/usr/bin:/bin"
 started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -57,5 +68,6 @@ env PATH="$runtime_path" \
 
 ended=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 benchmark_sha=$(git -C "$repo_root" rev-parse HEAD)
-printf '{"status":"complete","type":"report_recovery","rc_tag":"v1.0.0-rc.1","report_modules_equal_rc":true,"benchmark_sha":"%s","nextflow":"25.10.7","java_major":21,"started_utc":"%s","ended_utc":"%s","queue":"%s"}\n' \
+printf '{"status":"complete","type":"%s","rc_tag":"v1.0.0-rc.1","report_modules_equal_rc":%s,"validated_commit":"%s","benchmark_sha":"%s","nextflow":"25.10.7","java_major":21,"started_utc":"%s","ended_utc":"%s","queue":"%s"}\n' \
+    "$recovery_type" "$report_modules_equal_rc" "${expected_report_commit:-$benchmark_sha}" \
     "$benchmark_sha" "$started" "$ended" "$queue" > "$recovery/recovery_identity.json"

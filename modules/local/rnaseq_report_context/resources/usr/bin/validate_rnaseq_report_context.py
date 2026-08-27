@@ -136,6 +136,13 @@ def main() -> int:
     expression_unit = parameters.get("expression_unit") or "TPM"
     if expression_unit not in {"TPM", "CPM"}:
         raise ValueError("expression_unit must be TPM or CPM.")
+    import_parameters = import_manifest.get("parameters", {})
+    if not isinstance(import_parameters, dict):
+        raise ValueError("Import manifest parameters must be an object.")
+    ignore_tx_version = import_parameters.get("ignoreTxVersion", False)
+    if not isinstance(ignore_tx_version, bool):
+        raise ValueError("Import manifest ignoreTxVersion must be boolean.")
+    gene_id_version_policy = "strip" if ignore_tx_version else "preserve"
     title = parameters.get("title") or "Candidate gene report"
     life_stages = parameters.get("life_stage_levels") or "unknown"
     synonyms = parameters.get("stage_synonym_map") or ""
@@ -153,6 +160,7 @@ def main() -> int:
             "life_stage_levels": life_stages,
             "stage_synonym_map": synonyms,
             "organism_specific": organism_specific,
+            "gene_id_version_policy": gene_id_version_policy,
         },
         "sample_count": len(sample_rows),
         "gene_count": len(abundance_rows),
@@ -176,6 +184,7 @@ def main() -> int:
         "LIFE_STAGE_LEVELS": life_stages,
         "STAGE_SYNONYM_MAP": synonyms,
         "ORGANISM_SPECIFIC_REPORTS": "1" if organism_specific else "0",
+        "GENE_ID_VERSION_POLICY": gene_id_version_policy,
     }
     args.environment.write_text(
         "".join(f"export {key}={shlex.quote(str(value))}\n" for key, value in environment.items()),
