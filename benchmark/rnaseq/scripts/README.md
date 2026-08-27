@@ -93,6 +93,9 @@ Implemented for the Stage 9B.2 metadata and download boundary:
   fold-change, transformed-p-value, DEG-set and ranking concordance tables.
 - `summarize_gse52778_qc.py` reconciles Trim Galore, post-trim FastQC and
   Salmon fragment counts into the versionable per-sample QC table.
+- `summarize_gse52778_performance.py` reconstructs task metrics from preserved
+  Nextflow logs/work traces and keeps transfer, reference, HelixForge and
+  independent-reference phases separate.
 - `slurm_restore_temurin21.sh` restores only the exact Temurin 21.0.12+8
   runtime certified in Stage 9B.1 when the portable binary is no longer present;
   the official Adoptium archive is pinned by SHA-256 and extracted on a node.
