@@ -18,7 +18,7 @@ for script in \
     archive_failed_attempts.py prepare_stage9b1_figures.py \
     finalize_stage9b1_figures.py validate_gse52778_metadata.py \
     validate_gse52778_fastq.py finalize_gse52778_download.py \
-    prepare_gencode_reference.py build_gse52778_inputs.py; do
+    prepare_gencode_reference.py build_gse52778_inputs.py validate_gse52778_run.py; do
     "$python_bin" -m py_compile "$scripts/$script"
 done
 
@@ -30,6 +30,7 @@ done
     "$configs/synthetic_design.json" "$configs/synthetic_de_spec.json"
 "$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$scripts/build_synthetic_truth.R"
 "$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$scripts/independent_tximport_deseq2.R"
+"$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$scripts/independent_gse52778_tximport_deseq2.R"
 "$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$scripts/plot_stage9b1_figures.R"
 bash -n "$scripts/slurm_runtime_preflight.sh"
 bash -n "$scripts/test_benchmark_scripts.sh"
