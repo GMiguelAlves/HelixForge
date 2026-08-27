@@ -97,7 +97,9 @@ Implemented for the Stage 9B.2 metadata and download boundary:
 - `run_gse52778_report_recovery.sh` executes only the official Report API
   subworkflow against completed Import/DE artifacts after asserting that the
   report modules are unchanged from `v1.0.0-rc.1`; this avoids repeating the
-  scientific path when the external NFS task cache contains no entries.
+  scientific path when the external NFS task cache contains no entries. An
+  optional tenth argument pins an exact report-hotfix commit and records that
+  its modules differ from the RC instead of claiming immutable-RC equivalence.
 
 The download array is submitted with a conservative `%2` concurrency limit.
 Heavy payloads remain in the dedicated scratch root and are never committed.

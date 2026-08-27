@@ -48,6 +48,13 @@ Parameters are:
 - `stage_synonym_map`;
 - `organism_specific`.
 
+The provider inherits the Import API identifier policy. Production imports
+with `ignoreTxVersion=false` preserve versioned gene IDs from the reference
+annotation; the explicit legacy compatibility mode with
+`ignoreTxVersion=true` strips the terminal numeric version. The selected
+`gene_id_version_policy` is recorded in the report context and exported to the
+R provider, preventing silent normalization or empty joins.
+
 The production Salmon path defaults to `TPM`. Parameters that influence output
 are explicit cache inputs and recorded in the context and final manifest.
 
