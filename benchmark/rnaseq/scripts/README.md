@@ -85,6 +85,9 @@ Implemented for the Stage 9B.2 metadata and download boundary:
   from Conda environment names to the already certified absolute prefixes after
   the biological preflight exposed that those external prefixes are not present
   in the account-level Conda environment registry.
+- `slurm_select_gse52778_python_provider.sh` records and selects an existing
+  account-level Python provider only after proving on a Slurm node that it
+  contains pandas, which is required by the native Salmon plan generator.
 
 The download array is submitted with a conservative `%2` concurrency limit.
 Heavy payloads remain in the dedicated scratch root and are never committed.
