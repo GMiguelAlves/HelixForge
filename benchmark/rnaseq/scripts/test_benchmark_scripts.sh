@@ -51,6 +51,7 @@ bash -n "$scripts/slurm_restore_temurin21.sh"
 bash -n "$scripts/slurm_fix_gse52778_runtime_settings.sh"
 bash -n "$scripts/slurm_select_gse52778_python_provider.sh"
 bash -n "$scripts/slurm_fix_gse52778_report_genes.sh"
+bash -n "$scripts/run_gse52778_report_recovery.sh"
 
 printf '{"status":"pass","slurm_job_id":"%s","node":"%s"}\n' \
     "$SLURM_JOB_ID" "$(hostname)" > "$output"
