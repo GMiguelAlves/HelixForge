@@ -139,6 +139,8 @@ def main() -> int:
         raise ValueError("unexpected candidate-gene report provider")
     if report_payload.get("sample_count") != 8:
         raise ValueError("candidate-gene report does not contain all eight samples")
+    if report_payload.get("group_count") != 2 or report_payload.get("query_count") != 9:
+        raise ValueError("candidate-gene report does not preserve the frozen two groups and nine queries")
     report_plots = [path for path in (report_root / "plots").glob("*.png") if path.stat().st_size > 100]
     if not report_plots:
         raise ValueError("candidate-gene report produced no non-empty scientific plots")
@@ -166,6 +168,7 @@ def main() -> int:
         "de_genes": len(de_rows), "de_table": str(de_table.relative_to(args.case_root)),
         "gene_report": str(report_html.relative_to(args.case_root)),
         "gene_report_plots": len(report_plots),
+        "gene_report_groups": 2, "gene_report_queries": 9,
         "run_manifests": [str(path.relative_to(args.case_root)) for path in run_manifests],
         "multiqc_findings": multiqc_findings,
         "star": "EXCLUDED_BY_FROZEN_PRODUCTION_PATH",
