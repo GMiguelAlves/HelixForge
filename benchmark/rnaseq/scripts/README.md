@@ -98,6 +98,8 @@ Implemented for the Stage 9B.2 metadata and download boundary:
   independent-reference phases separate.
 - `plot_gse52778_benchmark.R` renders compact concordance, QC and biological
   figures and preserves the native HelixForge PCA for interpretation.
+- `slurm_finalize_gse52778.sh` renders the GSE52778 figures and regenerates the
+  redacted public performance summary on a Slurm compute node.
 - `slurm_restore_temurin21.sh` restores only the exact Temurin 21.0.12+8
   runtime certified in Stage 9B.1 when the portable binary is no longer present;
   the official Adoptium archive is pinned by SHA-256 and extracted on a node.
