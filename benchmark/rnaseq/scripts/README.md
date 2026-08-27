@@ -100,6 +100,12 @@ Implemented for the Stage 9B.2 metadata and download boundary:
   scientific path when the external NFS task cache contains no entries. An
   optional tenth argument pins an exact report-hotfix commit and records that
   its modules differ from the RC instead of claiming immutable-RC equivalence.
+- `build_gse52778_terminal_recovery_spec.py` builds a fail-closed, explicit map
+  of the completed quantification, Import, DE and report artifacts; it performs
+  no result-tree discovery and records the composite hotfix identity.
+- `run_gse52778_terminal_manifest_recovery.sh` invokes the unchanged RC
+  `RUN_MANIFEST` module with that map on Slurm and records the exact hotfix
+  commit, instead of forging an uninterrupted top-level execution.
 
 The download array is submitted with a conservative `%2` concurrency limit.
 Heavy payloads remain in the dedicated scratch root and are never committed.
