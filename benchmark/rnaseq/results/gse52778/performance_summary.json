@@ -1,0 +1,426 @@
+{
+  "classification": "DESCRIPTIVE_CLUSTER_PERFORMANCE",
+  "download_time": "reported_separately_in_download_provenance",
+  "external_reference_jobs": [
+    {
+      "allocated_cpus": 8,
+      "elapsed_seconds": 3637,
+      "exit_code": "1:0",
+      "job_id": "15986",
+      "max_rss_bytes": 25624854528,
+      "node": "slurm_compute_node_redacted",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 66,
+      "exit_code": "0:0",
+      "job_id": "15988",
+      "max_rss_bytes": 1138929664,
+      "node": "slurm_compute_node_redacted",
+      "state": "COMPLETED"
+    }
+  ],
+  "helixforge_segments": [
+    {
+      "label": "HELIXFORGE_EXECUTION",
+      "log": "nextflow.log",
+      "processes": {
+        "DESEQ2_CONTRAST": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 901980160,
+          "peak_vmem_bytes": 1562882048,
+          "read_bytes": 127671913,
+          "summed_cpu_seconds": 210.64314,
+          "summed_realtime_seconds": 25.017,
+          "task_count": 1,
+          "write_bytes": 26784650
+        },
+        "DESEQ2_MODEL": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 958541824,
+          "peak_vmem_bytes": 1829261312,
+          "read_bytes": 109732731,
+          "summed_cpu_seconds": 498.31632,
+          "summed_realtime_seconds": 51.057,
+          "task_count": 1,
+          "write_bytes": 33823268
+        },
+        "DE_AGGREGATE": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 172584960,
+          "peak_vmem_bytes": 187252736,
+          "read_bytes": 104206405,
+          "summed_cpu_seconds": 23.6873,
+          "summed_realtime_seconds": 3.458,
+          "task_count": 1,
+          "write_bytes": 76621795
+        },
+        "DE_PREFLIGHT": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 30646272,
+          "peak_vmem_bytes": 43188224,
+          "read_bytes": 35992246,
+          "summed_cpu_seconds": 8.923919999999999,
+          "summed_realtime_seconds": 1.236,
+          "task_count": 1,
+          "write_bytes": 6975124
+        },
+        "FASTQC_MERGED": {
+          "completed": 16,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 831348736,
+          "peak_vmem_bytes": 4166590464,
+          "read_bytes": 21298066449,
+          "summed_cpu_seconds": 17971.784689999997,
+          "summed_realtime_seconds": 1809.746,
+          "task_count": 16,
+          "write_bytes": 49356783
+        },
+        "FASTQC_RAW": {
+          "completed": 16,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 497205248,
+          "peak_vmem_bytes": 3619164160,
+          "read_bytes": 21929177522,
+          "summed_cpu_seconds": 18656.44787,
+          "summed_realtime_seconds": 1860.59,
+          "task_count": 16,
+          "write_bytes": 47131924
+        },
+        "FASTQC_TRIMMED": {
+          "completed": 16,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 816283648,
+          "peak_vmem_bytes": 4166590464,
+          "read_bytes": 21298013060,
+          "summed_cpu_seconds": 19152.66497,
+          "summed_realtime_seconds": 2079.7380000000003,
+          "task_count": 16,
+          "write_bytes": 49390170
+        },
+        "IMPORT_SOURCE": {
+          "completed": 8,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 13996032,
+          "peak_vmem_bytes": 24637440,
+          "read_bytes": 384627191,
+          "summed_cpu_seconds": 17.816830000000003,
+          "summed_realtime_seconds": 5.4639999999999995,
+          "task_count": 8,
+          "write_bytes": 187996062
+        },
+        "MERGE_FASTQ": {
+          "completed": 8,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 10530816,
+          "peak_vmem_bytes": 27607040,
+          "read_bytes": 84365788117,
+          "summed_cpu_seconds": 2163.46206,
+          "summed_realtime_seconds": 1968.9749999999997,
+          "task_count": 8,
+          "write_bytes": 42182100463
+        },
+        "MULTIQC": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 94068736,
+          "peak_vmem_bytes": 565288960,
+          "read_bytes": 47822849,
+          "summed_cpu_seconds": 62.64297,
+          "summed_realtime_seconds": 17.847,
+          "task_count": 1,
+          "write_bytes": 7574384
+        },
+        "REFERENCE_BUNDLE": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 73101312,
+          "peak_vmem_bytes": 90251264,
+          "read_bytes": 14832052537,
+          "summed_cpu_seconds": 645.9932600000001,
+          "summed_realtime_seconds": 65.186,
+          "task_count": 1,
+          "write_bytes": 1688
+        },
+        "RNASEQ_ALIGNMENT_PLAN": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 65880064,
+          "peak_vmem_bytes": 96169984,
+          "read_bytes": 11846703,
+          "summed_cpu_seconds": 15.533280000000001,
+          "summed_realtime_seconds": 5.796,
+          "task_count": 1,
+          "write_bytes": 2310
+        },
+        "RNASEQ_CONTEXT": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 3567616,
+          "peak_vmem_bytes": 7385088,
+          "read_bytes": 118445,
+          "summed_cpu_seconds": 0.36133999999999994,
+          "summed_realtime_seconds": 0.178,
+          "task_count": 1,
+          "write_bytes": 6084
+        },
+        "RNASEQ_DE_CONTEXT": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 3612672,
+          "peak_vmem_bytes": 7385088,
+          "read_bytes": 1140798,
+          "summed_cpu_seconds": 1.1712,
+          "summed_realtime_seconds": 0.366,
+          "task_count": 1,
+          "write_bytes": 2275
+        },
+        "RNASEQ_IMPORT_CONTEXT": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 6139904,
+          "peak_vmem_bytes": 14221312,
+          "read_bytes": 3327010928,
+          "summed_cpu_seconds": 20.9521,
+          "summed_realtime_seconds": 32.234,
+          "task_count": 1,
+          "write_bytes": 3326911613
+        },
+        "RNASEQ_METADATA": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 17100800,
+          "peak_vmem_bytes": 31260672,
+          "read_bytes": 1108509,
+          "summed_cpu_seconds": 1.16602,
+          "summed_realtime_seconds": 0.337,
+          "task_count": 1,
+          "write_bytes": 13325
+        },
+        "RNASEQ_QUANTIFICATION_PLAN": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 79081472,
+          "peak_vmem_bytes": 432373760,
+          "read_bytes": 21481265,
+          "summed_cpu_seconds": 26.55,
+          "summed_realtime_seconds": 7.375,
+          "task_count": 1,
+          "write_bytes": 6885
+        },
+        "RNASEQ_REPORT_CONTEXT": {
+          "completed": 0,
+          "failed": 1,
+          "missing_trace": 0,
+          "peak_rss_bytes": 165384192,
+          "peak_vmem_bytes": 180772864,
+          "read_bytes": 3369626966,
+          "summed_cpu_seconds": 319.19777999999997,
+          "summed_realtime_seconds": 64.746,
+          "task_count": 1,
+          "write_bytes": 2023
+        },
+        "SALMON_IMPORT": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 1181700096,
+          "peak_vmem_bytes": 3879014400,
+          "read_bytes": 120022366,
+          "summed_cpu_seconds": 527.81872,
+          "summed_realtime_seconds": 55.913,
+          "task_count": 1,
+          "write_bytes": 30264220
+        },
+        "SALMON_INDEX": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 2142560256,
+          "peak_vmem_bytes": 5686259712,
+          "read_bytes": 22622919071,
+          "summed_cpu_seconds": 19889.292599999997,
+          "summed_realtime_seconds": 406.734,
+          "task_count": 1,
+          "write_bytes": 3474993902
+        },
+        "SALMON_QUANT": {
+          "completed": 8,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 2758447104,
+          "peak_vmem_bytes": 3606142976,
+          "read_bytes": 60891490430,
+          "summed_cpu_seconds": 234788.79948000002,
+          "summed_realtime_seconds": 6186.505000000001,
+          "task_count": 8,
+          "write_bytes": 209075687
+        },
+        "SALMON_SAMPLE_TABLE": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 3452928,
+          "peak_vmem_bytes": 7249920,
+          "read_bytes": 1094350,
+          "summed_cpu_seconds": 1.16564,
+          "summed_realtime_seconds": 0.362,
+          "task_count": 1,
+          "write_bytes": 6851
+        },
+        "TRIM_GALORE": {
+          "completed": 8,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 161533952,
+          "peak_vmem_bytes": 762957824,
+          "read_bytes": 480402390542,
+          "summed_cpu_seconds": 301256.54457,
+          "summed_realtime_seconds": 16354.086000000003,
+          "task_count": 8,
+          "write_bytes": 479192786085
+        },
+        "TX2GENE_BUILD": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 4488163328,
+          "peak_vmem_bytes": 5065351168,
+          "read_bytes": 10055112103,
+          "summed_cpu_seconds": 3240.6157800000005,
+          "summed_realtime_seconds": 330.338,
+          "task_count": 1,
+          "write_bytes": 18651231
+        },
+        "__all__": {
+          "completed": 96,
+          "failed": 1,
+          "missing_trace": 0,
+          "peak_rss_bytes": 4488163328,
+          "peak_vmem_bytes": 5686259712,
+          "read_bytes": 745358513496,
+          "summed_cpu_seconds": 619501.55184,
+          "summed_realtime_seconds": 31333.284000000007,
+          "task_count": 97,
+          "write_bytes": 528920478802
+        }
+      },
+      "task_count": 97,
+      "wall_seconds": 8270.276000022888
+    },
+    {
+      "label": "HELIXFORGE_REPORT_RECOVERY",
+      "log": "nextflow.log",
+      "processes": {
+        "RNASEQ_GENE_REPORT": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 4396646400,
+          "peak_vmem_bytes": 5199884288,
+          "read_bytes": 6740040114,
+          "summed_cpu_seconds": 2018.4918,
+          "summed_realtime_seconds": 268.06,
+          "task_count": 1,
+          "write_bytes": 31847219
+        },
+        "RNASEQ_REPORT_CONTEXT": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 198004736,
+          "peak_vmem_bytes": 211554304,
+          "read_bytes": 3369545124,
+          "summed_cpu_seconds": 128.09835,
+          "summed_realtime_seconds": 16.113,
+          "task_count": 1,
+          "write_bytes": 2031
+        },
+        "__all__": {
+          "completed": 2,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 4396646400,
+          "peak_vmem_bytes": 5199884288,
+          "read_bytes": 10109585238,
+          "summed_cpu_seconds": 2146.59015,
+          "summed_realtime_seconds": 284.173,
+          "task_count": 2,
+          "write_bytes": 31849250
+        }
+      },
+      "task_count": 2,
+      "wall_seconds": 303.07599997520447
+    },
+    {
+      "label": "HELIXFORGE_MANIFEST_RECOVERY",
+      "log": "nextflow.log",
+      "processes": {
+        "RUN_MANIFEST": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 29609984,
+          "peak_vmem_bytes": 47579136,
+          "read_bytes": 318352623,
+          "summed_cpu_seconds": 33.16326,
+          "summed_realtime_seconds": 18.122,
+          "task_count": 1,
+          "write_bytes": 45085621
+        },
+        "__all__": {
+          "completed": 1,
+          "failed": 0,
+          "missing_trace": 0,
+          "peak_rss_bytes": 29609984,
+          "peak_vmem_bytes": 47579136,
+          "read_bytes": 318352623,
+          "summed_cpu_seconds": 33.16326,
+          "summed_realtime_seconds": 18.122,
+          "task_count": 1,
+          "write_bytes": 45085621
+        }
+      },
+      "task_count": 1,
+      "wall_seconds": 18.121999979019165
+    }
+  ],
+  "limitations": [
+    "Shared-cluster measurements are descriptive and include scheduler/filesystem effects.",
+    "The HelixForge result is a controlled composite recovery, not one uninterrupted run.",
+    "External job 15986 completed all Salmon tasks but exited after the initial wrong-R probe; job 15988 completed tximport/DESeq2."
+  ],
+  "reference_preparation_time": "reported_separately_in_reference_provenance",
+  "schema_version": "1.0",
+  "status": "complete",
+  "storage_bytes": {
+    "download": 21723748036,
+    "helixforge_case": 213550822540,
+    "helixforge_results": 152195709,
+    "helixforge_work": 169348891688,
+    "independent_reference": 253593158,
+    "reference": 8514668405
+  }
+}
