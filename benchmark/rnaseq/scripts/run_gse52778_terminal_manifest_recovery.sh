@@ -26,7 +26,7 @@ git -C "$repo_root" diff --quiet v1.0.0-rc.1 -- \
 
 recovery="$case_root/terminal-manifest-recovery"
 mkdir -p "$recovery/logs" "$recovery/nxf-home" "$recovery/nxf-cache"
-runtime_path="$python_env/bin:$(dirname "$java_bin"):/usr/bin:/bin"
+runtime_path="$repo_root/bin:$python_env/bin:$(dirname "$java_bin"):/usr/bin:/bin"
 started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
 cd "$repo_root"
