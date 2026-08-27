@@ -13,6 +13,7 @@ Nextflow work directories and result trees must never be committed.
 | Git commit | `fc38ada8f592bb57a13467965a718ce0df7fb6ce` |
 | Nextflow | `25.10.7` |
 | Java | `21` |
+| Python manifest runtime | `3.12.4`; `jsonschema 4.23.0` |
 | RNA-seq mode | `full` |
 | Analysis provider | Salmon only; STAR is excluded |
 | Import policy | `production_v1` |
@@ -41,6 +42,7 @@ change creates a new benchmark subject and requires rerunning affected cases.
 - [Interpretation and release gates](protocol/interpretation_criteria.md)
 - [Expected Slurm cost](protocol/cost_estimate.md)
 - [Risks and limitations](protocol/risks_and_limitations.md)
+- [Stage 9B.1 protocol/implementation audit](protocol/9b1_protocol_discrepancies.md)
 - [Dataset registry](datasets/dataset_registry.md)
 - [Dataset provenance](datasets/dataset_provenance.tsv)
 - [Public sample manifest](datasets/airway_samples.tsv)
@@ -66,6 +68,16 @@ ceiling, not a target.
 
 ## Status
 
-Stage 9A freezes the design. It does **not** download FASTQs or execute the
-benchmark. Scripts listed under `scripts/` are implementation requirements for
-Stage 9B and must be reviewed before the first scientific job.
+Stage 9B.1 has completed two clean synthetic top-level executions on Slurm.
+The scientific path, contracts and ground-truth recovery passed; strict
+numeric repeatability failed because Salmon 1.10.3 varied across otherwise
+identical invocations while DEG sets, direction and rankings remained stable.
+The project owner explicitly accepted that documented runtime limitation on
+26 August 2026, giving Stage 9B.1 the classification
+`PASS_WITH_LIMITATIONS`. MultiQC's pre-quantification placement is also
+recorded as a sanity limitation. See the
+[Stage 9B.1 results](reports/stage_9b1_results.md) and the detailed
+[protocol audit](protocol/9b1_protocol_discrepancies.md).
+
+Public biological validation and the coverage-depth series remain later
+stages and are not represented as completed here.
