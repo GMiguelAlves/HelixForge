@@ -89,6 +89,8 @@ Implemented for the Stage 9B.2 metadata and download boundary:
 - `evaluate_gse52778_biology.py` evaluates only the five responsive genes and
   four reference controls declared before execution; biological expectations
   remain sanity checks rather than release gates.
+- `measure_gse52778_concordance.py` emits the preregistered transcript/gene,
+  fold-change, transformed-p-value, DEG-set and ranking concordance tables.
 - `slurm_restore_temurin21.sh` restores only the exact Temurin 21.0.12+8
   runtime certified in Stage 9B.1 when the portable binary is no longer present;
   the official Adoptium archive is pinned by SHA-256 and extracted on a node.
