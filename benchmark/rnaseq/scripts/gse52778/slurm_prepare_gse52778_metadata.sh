@@ -23,7 +23,7 @@ for run in SRR1039508 SRR1039509 SRR1039512 SRR1039513 SRR1039516 SRR1039517 SRR
         "https://www.ebi.ac.uk/ena/browser/api/xml/${run}"
 done
 
-"$python_bin" "$repo_root/benchmark/rnaseq/scripts/validate_gse52778_metadata.py" \
+"$python_bin" "$repo_root/benchmark/rnaseq/scripts/gse52778/validate_gse52778_metadata.py" \
     --registry "$repo_root/benchmark/rnaseq/datasets/airway_samples.tsv" \
     --ena "$output.sources/ena_read_run.tsv" \
     --runinfo "$output.sources/ncbi_runinfo.csv" \

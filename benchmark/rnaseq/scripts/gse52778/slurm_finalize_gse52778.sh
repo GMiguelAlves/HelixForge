@@ -18,7 +18,7 @@ rscript=$4
 python=$5
 download_root=$6
 reference_root=$7
-scripts="$repository/benchmark/rnaseq/scripts"
+scripts="$repository/benchmark/rnaseq/scripts/gse52778"
 validation="$case_root/validation"
 
 "$rscript" "$scripts/plot_gse52778_benchmark.R" \
@@ -39,4 +39,3 @@ validation="$case_root/validation"
     --sacct-file "$validation/external_jobs.sacct.tsv" \
     --output "$validation/performance_summary.json" \
     --table-output "$validation/performance_summary.tsv"
-
