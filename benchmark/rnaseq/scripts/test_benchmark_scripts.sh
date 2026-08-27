@@ -26,6 +26,7 @@ for script in \
     summarize_gse52778_performance.py; do
     "$python_bin" -m py_compile "$scripts/$script"
 done
+python3 -m py_compile "$scripts/archive_gse52778_audit.py"
 
 "$python_bin" -c \
     'import sys; sys.path.insert(0, sys.argv[1]); import summarize_performance as s; assert s.parse_duration("327ms") == 0.327; assert s.parse_duration("1m 4.2s") == 64.2; rows=[{"submit":"2026-01-01 00:00:00.000","duration":"5s","realtime":"4s"},{"submit":"2026-01-01 00:00:01.000","duration":"5s","realtime":"4s"}]; assert s.peak_running_concurrency(rows) == 2' \
