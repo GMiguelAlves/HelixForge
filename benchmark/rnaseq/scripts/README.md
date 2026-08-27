@@ -91,6 +91,9 @@ Implemented for the Stage 9B.2 metadata and download boundary:
 - `slurm_fix_gse52778_report_genes.sh` repairs the initial newline-only gene
   list to the Report API's explicit `group: gene1,gene2` contract, guarded by
   the original SHA-256 and recording the resulting two groups and nine queries.
+- `slurm_probe_rnaseq_report_provider.sh` certifies on a Slurm node that an
+  existing R prefix loads every package required by the Gene Report and records
+  the exact R/package versions without modifying the environment.
 - `run_gse52778_report_recovery.sh` executes only the official Report API
   subworkflow against completed Import/DE artifacts after asserting that the
   report modules are unchanged from `v1.0.0-rc.1`; this avoids repeating the
