@@ -96,14 +96,19 @@ def parse_memory(value: str) -> int | None:
     return int(float(value[:-1]) * factors[suffix]) if suffix in factors else int(value)
 
 
-def slurm_jobs(job_ids: list[str]) -> list[dict[str, object]]:
-    command = [
-        "sacct", "-j", ",".join(job_ids), "--noheader", "--parsable2",
-        "--format=JobIDRaw,State,ExitCode,ElapsedRaw,MaxRSS,AllocCPUS,NodeList",
-    ]
-    result = subprocess.run(command, check=True, text=True, capture_output=True)
+def slurm_jobs(job_ids: list[str], sacct_file: Path | None = None) -> list[dict[str, object]]:
+    if sacct_file:
+        output = sacct_file.read_text(encoding="utf-8")
+    else:
+        command = [
+            "sacct", "-j", ",".join(job_ids), "--noheader", "--parsable2",
+            "--format=JobIDRaw,State,ExitCode,ElapsedRaw,MaxRSS,AllocCPUS,NodeList",
+        ]
+        output = subprocess.run(
+            command, check=True, text=True, capture_output=True
+        ).stdout
     by_job: dict[str, dict[str, object]] = {}
-    for line in result.stdout.splitlines():
+    for line in output.splitlines():
         fields = line.split("|")
         if len(fields) < 7:
             continue
@@ -136,6 +141,7 @@ def main() -> int:
     parser.add_argument("--download-root", required=True, type=Path)
     parser.add_argument("--reference-root", required=True, type=Path)
     parser.add_argument("--external-job", action="append", required=True)
+    parser.add_argument("--sacct-file", type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--table-output", required=True, type=Path)
     args = parser.parse_args()
@@ -150,7 +156,7 @@ def main() -> int:
         segment, current = summarize_segment(label, log)
         segments.append(segment)
         process_records.extend(current)
-    external = slurm_jobs(args.external_job)
+    external = slurm_jobs(args.external_job, args.sacct_file)
     for job in external:
         process_records.append({
             "phase": "EXTERNAL_REFERENCE_EXECUTION", "process": f"slurm_job_{job['job_id']}",
