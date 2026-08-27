@@ -41,6 +41,7 @@ done
 bash -n "$scripts/slurm_runtime_preflight.sh"
 bash -n "$scripts/test_benchmark_scripts.sh"
 bash -n "$scripts/slurm_create_environment.sh"
+bash -n "$scripts/slurm_finalize_gse52778.sh"
 bash -n "$scripts/slurm_download_reference.sh"
 bash -n "$scripts/run_independent_reference.sh"
 bash -n "$scripts/recover_independent_analysis.sh"
