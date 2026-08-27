@@ -91,6 +91,10 @@ Implemented for the Stage 9B.2 metadata and download boundary:
 - `slurm_fix_gse52778_report_genes.sh` repairs the initial newline-only gene
   list to the Report API's explicit `group: gene1,gene2` contract, guarded by
   the original SHA-256 and recording the resulting two groups and nine queries.
+- `run_gse52778_report_recovery.sh` executes only the official Report API
+  subworkflow against completed Import/DE artifacts after asserting that the
+  report modules are unchanged from `v1.0.0-rc.1`; this avoids repeating the
+  scientific path when the external NFS task cache contains no entries.
 
 The download array is submitted with a conservative `%2` concurrency limit.
 Heavy payloads remain in the dedicated scratch root and are never committed.

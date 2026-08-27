@@ -139,7 +139,8 @@ def main() -> int:
         raise ValueError("unexpected candidate-gene report provider")
     if report_payload.get("sample_count") != 8:
         raise ValueError("candidate-gene report does not contain all eight samples")
-    if report_payload.get("group_count") != 2 or report_payload.get("query_count") != 9:
+    report_context = json.loads((report_root / "context.json").read_text(encoding="utf-8"))
+    if report_context.get("group_count") != 2 or report_payload.get("query_count") != 9:
         raise ValueError("candidate-gene report does not preserve the frozen two groups and nine queries")
     report_plots = [path for path in (report_root / "plots").glob("*.png") if path.stat().st_size > 100]
     if not report_plots:
