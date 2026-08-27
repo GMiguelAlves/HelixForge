@@ -37,6 +37,7 @@ done
 "$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$scripts/independent_tximport_deseq2.R"
 "$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$scripts/independent_gse52778_tximport_deseq2.R"
 "$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$scripts/plot_stage9b1_figures.R"
+"$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$scripts/plot_gse52778_benchmark.R"
 bash -n "$scripts/slurm_runtime_preflight.sh"
 bash -n "$scripts/test_benchmark_scripts.sh"
 bash -n "$scripts/slurm_create_environment.sh"

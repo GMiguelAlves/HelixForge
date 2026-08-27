@@ -81,7 +81,10 @@ def summarize_segment(label: str, log: Path) -> tuple[dict, list[dict[str, objec
             continue
         records.append({"phase": label, "process": process, **item})
     return {
-        "label": label, "log": str(log), "task_count": len(tasks),
+        # Public summaries retain the segment identity without exposing the
+        # institutional scratch path. The original log remains in the audit
+        # archive on the cluster.
+        "label": label, "log": log.name, "task_count": len(tasks),
         "wall_seconds": max(ends) - min(starts) if starts else None,
         "processes": dict(sorted(groups.items())),
     }, records
@@ -120,7 +123,8 @@ def slurm_jobs(job_ids: list[str], sacct_file: Path | None = None) -> list[dict[
             by_job[parent] = {
                 "job_id": parent, "state": fields[1], "exit_code": fields[2],
                 "elapsed_seconds": int(fields[3] or 0), "max_rss_bytes": memory,
-                "allocated_cpus": int(fields[5] or 0), "node": fields[6],
+                "allocated_cpus": int(fields[5] or 0),
+                "node": "slurm_compute_node_redacted",
             }
         elif memory is not None:
             by_job.setdefault(parent, {"job_id": parent})["max_rss_bytes"] = max(
