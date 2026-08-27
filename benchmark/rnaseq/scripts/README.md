@@ -84,6 +84,8 @@ Implemented for the Stage 9B.2 metadata and download boundary:
 - `recover_independent_analysis.sh` resumes only tximport/DESeq2 after all
   eight independent Salmon quantifications have been verified, retaining the
   split Slurm job identity in provenance.
+- `summarize_gse52778_comparison.py` retains every strict-tolerance mismatch
+  while producing the separately labelled descriptive concordance assessment.
 - `slurm_restore_temurin21.sh` restores only the exact Temurin 21.0.12+8
   runtime certified in Stage 9B.1 when the portable binary is no longer present;
   the official Adoptium archive is pinned by SHA-256 and extracted on a node.

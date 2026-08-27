@@ -20,7 +20,8 @@ for script in \
     finalize_stage9b1_figures.py validate_gse52778_metadata.py \
     validate_gse52778_fastq.py finalize_gse52778_download.py \
     prepare_gencode_reference.py build_gse52778_inputs.py \
-    build_gse52778_terminal_recovery_spec.py validate_gse52778_run.py; do
+    build_gse52778_terminal_recovery_spec.py validate_gse52778_run.py \
+    summarize_gse52778_comparison.py; do
     "$python_bin" -m py_compile "$scripts/$script"
 done
 
