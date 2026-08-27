@@ -1,0 +1,9 @@
+{
+  "compressed_bytes": 21723731678,
+  "fastq_files": 16,
+  "libraries": 8,
+  "paired_records": 195411576,
+  "schema_version": "1.0",
+  "slurm_job_id": "15646",
+  "status": "DOWNLOAD_READY"
+}

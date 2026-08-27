@@ -50,6 +50,7 @@ process RNASEQ_GENE_REPORT {
         --metadata '${samples}' \
         --deg-root de_inputs \
         --gff '${annotation}' \
+        --gene-id-version-policy "\$GENE_ID_VERSION_POLICY" \
         --output-dir results \
         --title "\$REPORT_TITLE" \
         > rnaseq_gene_report.log 2>&1

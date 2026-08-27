@@ -46,6 +46,11 @@ The frozen case list is `configs/run_matrix.tsv`. The public cases set
 reporting so no truth-derived gene selection enters the workflow. All other
 top-level production stages are exercised in both primary cases.
 
+The public candidate-gene request contains two explicit report groups and nine
+queries: five glucocorticoid-response genes and four reference controls. The
+grouped syntax is part of the Report API input contract and does not affect the
+differential-expression model.
+
 Scientific settings frozen from the RC are Trim Galore 0.6.10 with quality 20
 and minimum length 20, Salmon 1.10.3 with k=31, library type `A` and validated
 mappings, tximport 1.30.0 with `production_v1`, full-length libraries,

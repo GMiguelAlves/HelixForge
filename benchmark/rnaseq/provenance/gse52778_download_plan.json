@@ -1,0 +1,22 @@
+{
+  "nextflow_work_reserve_bytes": 268435456000,
+  "paired_fastq_download_bytes": 21723731678,
+  "paired_fastq_download_gib": 20.23180171661079,
+  "paired_spots": 195411576,
+  "reference_and_salmon_index_reserve_bytes": 64424509440,
+  "required_scratch_bytes": 470073166998,
+  "required_scratch_gib": 437.78975214622915,
+  "results_reserve_bytes": 21474836480,
+  "runs": 8,
+  "safety_margin_fraction": 0.25,
+  "schema_version": "1.0",
+  "sra_download_alternative_bytes": 17566793728,
+  "status": "METADATA_VALIDATED",
+  "strategy": "official ENA paired FASTQ, resumable curl, no SRA conversion",
+  "temporary_uncompressed_fastq_bytes_chosen_strategy": 0,
+  "uncompressed_fastq_planning_bytes": 61554646440,
+  "uncompressed_fastq_sequence_quality_floor_bytes": 49243717152,
+  "warnings": [
+    "GEO describes 75 bp library sequencing, while the deposited ENA/SRA spot descriptor contains two 63 bp application reads (spot length 126); the benchmark uses deposited reads."
+  ]
+}

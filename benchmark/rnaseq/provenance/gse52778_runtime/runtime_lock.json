@@ -1,0 +1,25 @@
+{
+  "java": {
+    "archive": "OpenJDK21U-jdk_x64_linux_hotspot_21.0.12_8.tar.gz",
+    "provider": "Eclipse Temurin",
+    "sha256": "e4446ff06a276155697597cc0f1b15da004ff083f4964a35271ecee567177370",
+    "slurm_job_id": "15660",
+    "version": "21.0.12+8"
+  },
+  "nextflow": "25.10.7",
+  "preflight": {
+    "slurm_job_id": "15661",
+    "status": "complete"
+  },
+  "python": "3.12.4",
+  "r": "4.3.3",
+  "scientific_tools": {
+    "DESeq2": "1.42.0",
+    "FastQC": "0.12.1",
+    "MultiQC": "1.17",
+    "Salmon": "1.10.3",
+    "Trim_Galore": "0.6.10",
+    "tximport": "1.30.0"
+  },
+  "status": "RUNTIME_READY"
+}

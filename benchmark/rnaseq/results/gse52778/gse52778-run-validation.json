@@ -1,0 +1,129 @@
+{
+  "conditions": {
+    "dexamethasone": 4,
+    "untreated": 4
+  },
+  "de_genes": 78432,
+  "de_table": "pipeline/060-deg-analysis/benchmark_airway_primary/differential_expression_results.tsv",
+  "donors": [
+    "N052611",
+    "N061011",
+    "N080611",
+    "N61311"
+  ],
+  "estimable_genes": 78432,
+  "execution_limitation": "not_one_uninterrupted_top_level_run",
+  "execution_mode": "composite_recovery",
+  "gene_report": "pipeline/090-search-gene/results/gene_set_report.html",
+  "gene_report_groups": 2,
+  "gene_report_plots": 12,
+  "gene_report_queries": 9,
+  "identities": {
+    "report_recovery": {
+      "benchmark_sha": "e913ac6aa53b21a1afbc347575a05adb92c5c65e",
+      "ended_utc": "2026-08-27T14:59:31Z",
+      "java_major": 21,
+      "nextflow": "25.10.7",
+      "queue": "general",
+      "rc_tag": "v1.0.0-rc.1",
+      "report_modules_equal_rc": false,
+      "started_utc": "2026-08-27T14:53:54Z",
+      "status": "complete",
+      "type": "report_hotfix_recovery",
+      "validated_commit": "e913ac6aa53b21a1afbc347575a05adb92c5c65e"
+    },
+    "terminal_recovery": {
+      "base_rc_tag": "v1.0.0-rc.1",
+      "ended_utc": "2026-08-27T15:13:52Z",
+      "java_major": 21,
+      "launcher_commit": "d0cf0f6bf68304cd5cf590fb913c7cbc2d6e3b17",
+      "nextflow": "25.10.7",
+      "queue": "general",
+      "recovery_spec_commit": "1692263f71c4f93f7162bd153fa65c8dfa354d40",
+      "run_manifest_code_equal_rc": true,
+      "started_utc": "2026-08-27T15:13:07Z",
+      "status": "complete",
+      "type": "terminal_manifest_recovery"
+    }
+  },
+  "import_sample_ids": [
+    "gse52778_airway__N052611_dexamethasone",
+    "gse52778_airway__N052611_untreated",
+    "gse52778_airway__N061011_dexamethasone",
+    "gse52778_airway__N061011_untreated",
+    "gse52778_airway__N080611_dexamethasone",
+    "gse52778_airway__N080611_untreated",
+    "gse52778_airway__N61311_dexamethasone",
+    "gse52778_airway__N61311_untreated"
+  ],
+  "indexed_transcripts": 508163,
+  "multiqc_findings": [],
+  "reference_transcripts": 509650,
+  "run_manifests": [
+    "results/pipeline_info/integration_api/rnaseq_run_manifest.json",
+    "results/rnaseq/rnaseq_run_manifest.json"
+  ],
+  "salmon": {
+    "N052611_dexamethasone": {
+      "mapped": 15798316,
+      "mapping_rate": 0.9560574571897799,
+      "processed": 16524442
+    },
+    "N052611_untreated": {
+      "mapped": 26410502,
+      "mapping_rate": 0.9515381568735579,
+      "processed": 27755589
+    },
+    "N061011_dexamethasone": {
+      "mapped": 21958802,
+      "mapping_rate": 0.9524714664796552,
+      "processed": 23054551
+    },
+    "N061011_untreated": {
+      "mapped": 19862104,
+      "mapping_rate": 0.9490808055743464,
+      "processed": 20927727
+    },
+    "N080611_dexamethasone": {
+      "mapped": 32095889,
+      "mapping_rate": 0.9508424091164108,
+      "processed": 33755214
+    },
+    "N080611_untreated": {
+      "mapped": 25426645,
+      "mapping_rate": 0.9483962584467546,
+      "processed": 26810149
+    },
+    "N61311_dexamethasone": {
+      "mapped": 19625960,
+      "mapping_rate": 0.9437809154279978,
+      "processed": 20795038
+    },
+    "N61311_untreated": {
+      "mapped": 21507939,
+      "mapping_rate": 0.9463445994185165,
+      "processed": 22727386
+    }
+  },
+  "samples": [
+    "N61311_untreated",
+    "N61311_dexamethasone",
+    "N052611_untreated",
+    "N052611_dexamethasone",
+    "N080611_untreated",
+    "N080611_dexamethasone",
+    "N061011_untreated",
+    "N061011_dexamethasone"
+  ],
+  "schema_version": "1.0",
+  "star": "EXCLUDED_BY_FROZEN_PRODUCTION_PATH",
+  "status": "pass",
+  "task_evidence": {
+    "report_recovery_log": "report-hotfix-recovery/logs/nextflow.log",
+    "report_recovery_terminal_tasks": 2,
+    "scientific_log": "logs/nextflow.log",
+    "scientific_terminal_tasks": 97,
+    "terminal_recovery_log": "terminal-manifest-recovery/logs/nextflow.log",
+    "terminal_recovery_terminal_tasks": 1
+  }
+}

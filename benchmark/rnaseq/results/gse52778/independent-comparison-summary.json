@@ -1,0 +1,131 @@
+{
+  "dataset": "GSE52778",
+  "descriptive_concordance_checks": {
+    "common_deg_direction_concordance_is_one": true,
+    "deg_jaccard_at_least_0_99": true,
+    "deg_overlap_coefficient_at_least_0_99": true,
+    "pvalue_rank_spearman_at_least_0_999": true,
+    "top_100_overlap_at_least_0_99": true,
+    "top_250_overlap_at_least_0_99": true,
+    "top_500_overlap_at_least_0_99": true,
+    "top_50_overlap_at_least_0_99": true
+  },
+  "differential_expression": {
+    "direction_concordance_common_significant": 1.0,
+    "intersection": 3507,
+    "jaccard": 0.9954584161226228,
+    "left_significant": 3519,
+    "overlap_coefficient": 0.9988607234406152,
+    "pvalue_rank_spearman": 0.9998972420480665,
+    "right_significant": 3511,
+    "top_n_overlap": {
+      "100": {
+        "evaluated_n": 100,
+        "fraction": 1.0,
+        "shared": 100
+      },
+      "250": {
+        "evaluated_n": 250,
+        "fraction": 0.996,
+        "shared": 249
+      },
+      "50": {
+        "evaluated_n": 50,
+        "fraction": 1.0,
+        "shared": 50
+      },
+      "500": {
+        "evaluated_n": 500,
+        "fraction": 1.0,
+        "shared": 500
+      }
+    },
+    "union": 3523
+  },
+  "exact_failures": {
+    "differential_expression": {
+      "maximum_absolute_delta": 11.159369064029306,
+      "mismatch_count": 234512,
+      "rows": 78432,
+      "same_row_order": false
+    },
+    "import/counts_matrix.tsv": {
+      "maximum_absolute_delta": 189.023264303009,
+      "mismatch_count": 257452,
+      "rows": 78432,
+      "same_row_order": true
+    },
+    "import/length_matrix.tsv": {
+      "maximum_absolute_delta": 950.8050481825471,
+      "mismatch_count": 622585,
+      "rows": 78432,
+      "same_row_order": true
+    },
+    "import/tpm_matrix.tsv": {
+      "maximum_absolute_delta": 6016.109087999997,
+      "mismatch_count": 260534,
+      "rows": 78432,
+      "same_row_order": true
+    },
+    "quant/N052611_dexamethasone": {
+      "maximum_absolute_delta": 6016.109087999997,
+      "mismatch_count": 662747,
+      "rows": 508163,
+      "same_row_order": true
+    },
+    "quant/N052611_untreated": {
+      "maximum_absolute_delta": 4578.490516999998,
+      "mismatch_count": 702890,
+      "rows": 508163,
+      "same_row_order": true
+    },
+    "quant/N061011_dexamethasone": {
+      "maximum_absolute_delta": 2450.5774999999994,
+      "mismatch_count": 684454,
+      "rows": 508163,
+      "same_row_order": true
+    },
+    "quant/N061011_untreated": {
+      "maximum_absolute_delta": 870.0297710000013,
+      "mismatch_count": 691015,
+      "rows": 508163,
+      "same_row_order": true
+    },
+    "quant/N080611_dexamethasone": {
+      "maximum_absolute_delta": 3023.5518199999933,
+      "mismatch_count": 719433,
+      "rows": 508163,
+      "same_row_order": true
+    },
+    "quant/N080611_untreated": {
+      "maximum_absolute_delta": 2853.383145,
+      "mismatch_count": 710451,
+      "rows": 508163,
+      "same_row_order": true
+    },
+    "quant/N61311_dexamethasone": {
+      "maximum_absolute_delta": 1464.532000000001,
+      "mismatch_count": 686947,
+      "rows": 508163,
+      "same_row_order": true
+    },
+    "quant/N61311_untreated": {
+      "maximum_absolute_delta": 1740.5776620000033,
+      "mismatch_count": 695913,
+      "rows": 508163,
+      "same_row_order": true
+    }
+  },
+  "exact_tolerance": "1e-8 + 1e-6*abs(reference)",
+  "exact_tolerance_status": "fail",
+  "identity_checks": {
+    "eight_quantifications_compared": true,
+    "import_gene_universe_preserved": true,
+    "quantification_row_identity_and_order_preserved": true,
+    "three_import_matrices_compared": true
+  },
+  "interpretation_policy": "Descriptive post-run interpretation accepted by project decision; it does not replace the preregistered exact numeric comparison and is not a new release gate.",
+  "limitation": "Independent Salmon execution used 8 threads while the HelixForge run used 4; strict numeric tolerance failed although artifact identities and downstream differential-expression conclusions were highly concordant.",
+  "schema_version": "1.0",
+  "status": "PASS_WITH_LIMITATIONS"
+}

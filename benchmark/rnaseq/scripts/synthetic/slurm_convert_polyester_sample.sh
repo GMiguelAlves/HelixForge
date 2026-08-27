@@ -17,4 +17,3 @@ mkdir -p "$candidate/fastq" "$candidate/conversion_manifests"
     --r2-fastq "$candidate/fastq/${sample}_R2.fastq.gz" \
     --quality I \
     --manifest "$candidate/conversion_manifests/${sample}.json"
-

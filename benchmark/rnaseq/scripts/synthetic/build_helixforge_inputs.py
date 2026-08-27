@@ -98,7 +98,7 @@ def main() -> int:
     de_spec = json.loads((args.rc_root.parent / "benchmark/rnaseq/configs/synthetic_de_spec.json").read_text(
         encoding="utf-8"
     )) if (args.rc_root.parent / "benchmark/rnaseq/configs/synthetic_de_spec.json").is_file() else json.loads(
-        (Path(__file__).resolve().parents[1] / "configs/synthetic_de_spec.json").read_text(encoding="utf-8")
+        (Path(__file__).resolve().parents[2] / "configs/synthetic_de_spec.json").read_text(encoding="utf-8")
     )
     de_spec["target_dir"] = str(pipeline_root / "060-deg-analysis/benchmark_synthetic_primary")
     (args.case_root / "analysis_spec.json").write_text(

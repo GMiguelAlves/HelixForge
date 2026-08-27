@@ -26,9 +26,13 @@ samples_file <- get_arg("--samples", file.path(Sys.getenv("QUANTIFICATION_DIR", 
 metadata_file <- get_arg("--metadata", Sys.getenv("METADATA_FINAL_NEW", unset = Sys.getenv("METADATA_FINAL", unset = "")))
 deg_root <- get_arg("--deg-root", Sys.getenv("DEG_DIR", unset = "../060-deg-analysis"))
 gff_file <- get_arg("--gff", Sys.getenv("GENE_REPORT_ANNOTATION_FILE", unset = Sys.getenv("REF_GFF3", unset = "")))
+gene_id_version_policy <- get_arg("--gene-id-version-policy", Sys.getenv("GENE_ID_VERSION_POLICY", unset = "preserve"))
 out_dir <- get_arg("--output-dir", file.path(Sys.getenv("GENE_REPORT_DIR", unset = "."), "results"))
 report_title <- get_arg("--title", "Relatorio exploratorio de genes")
 if (is.na(expression_unit) || expression_unit == "") expression_unit <- "TPM"
+if (!gene_id_version_policy %in% c("preserve", "strip")) {
+  stop("[ERRO] --gene-id-version-policy deve ser preserve ou strip")
+}
 expression_log_label <- paste0("log2(", expression_unit, "+1)")
 expression_mean_log_label <- paste0("Media log2(", expression_unit, "+1)")
 
@@ -247,7 +251,7 @@ load_annotations <- function(gff_file) {
   }
   gene_id <- pick_col(genes, c("ID", "gene_id"))
   gene_id <- gsub("^gene:", "", gene_id)
-  gene_id <- gsub("\\.[0-9]+$", "", gene_id)
+  if (gene_id_version_policy == "strip") gene_id <- gsub("\\.[0-9]+$", "", gene_id)
   gene_name <- pick_col(genes, c("gene_name", "symbol", "gene", "Name", "locus_tag"))
   gene_name[is.na(gene_name) | gene_name == ""] <- gene_id[is.na(gene_name) | gene_name == ""]
   biotype <- pick_col(genes, c("biotype", "gene_biotype", "type"), "Unknown")
@@ -424,7 +428,7 @@ make_expression_long <- function(tpm, samples, gene_catalog) {
     dplyr::mutate(
       TPM = as.numeric(TPM),
       log2TPM = log2(TPM + 1),
-      gene_display_label = ifelse(is.na(gene_display_label) | gene_display_label == "", make_gene_display_label(gene_name, gene_id, description), gene_display_label),
+      gene_display_label = as.character(ifelse(is.na(gene_display_label) | gene_display_label == "", make_gene_display_label(gene_name, gene_id, description), gene_display_label)),
       sample_label = paste(dataset, sample_id, sep = " | "),
       context_full = paste(dataset, batch, condition, stage, tissue, sex, sep = " | "),
       context_biology = paste(condition, stage, tissue, sex, sep = " | ")
@@ -454,7 +458,7 @@ summarise_gene_descriptives <- function(expr_long, expr_summary, deg_hits, gene_
       n_samples = dplyr::n(),
       mean_TPM = mean(TPM, na.rm = TRUE),
       median_TPM = median(TPM, na.rm = TRUE),
-      max_TPM = max(TPM, na.rm = TRUE),
+      max_TPM = if (all(is.na(TPM))) NA_real_ else max(TPM, na.rm = TRUE),
       fraction_samples_TPM_gt1 = mean(TPM > 1, na.rm = TRUE),
       n_datasets = dplyr::n_distinct(dataset),
       n_batches = dplyr::n_distinct(batch),

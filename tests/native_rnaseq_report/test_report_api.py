@@ -29,7 +29,7 @@ class ReportApiTest(unittest.TestCase):
     def test_native_r_provider_matches_certified_source_digest(self):
         self.assertEqual(
             canonical_text_digest(NATIVE_REPORT),
-            "36e084d6a36ec16d125ad94f5cd3e9890de265ffa63d80d01ab8e6b98ed03930",
+            "76a565898d54701f20c5795e200d938484e2e5661783087ae33ca534cd130434",
         )
 
     def build_request(self, root: Path) -> list[str]:
@@ -46,6 +46,7 @@ class ReportApiTest(unittest.TestCase):
         import_manifest = root / "import.json"
         import_manifest.write_text(json.dumps({
             "type": "import", "status": "complete",
+            "parameters": {"ignoreTxVersion": False},
             "artifacts": {
                 "abundance": {"sha256": digest(abundance)},
                 "metadata": {"sha256": digest(samples)},
@@ -71,6 +72,23 @@ class ReportApiTest(unittest.TestCase):
             self.assertEqual(context["sample_count"], 1)
             self.assertEqual(context["query_count"], 1)
             self.assertEqual(context["provider"], "candidate_genes_v1")
+            self.assertEqual(context["parameters"]["gene_id_version_policy"], "preserve")
+            environment = (root / "report.env").read_text(encoding="utf-8")
+            self.assertIn("export GENE_ID_VERSION_POLICY=preserve", environment)
+
+    def test_context_propagates_legacy_version_policy(self):
+        with tempfile.TemporaryDirectory() as name:
+            root = Path(name)
+            command = self.build_request(root)
+            import_manifest = root / "import.json"
+            payload = json.loads(import_manifest.read_text(encoding="utf-8"))
+            payload["parameters"]["ignoreTxVersion"] = True
+            import_manifest.write_text(json.dumps(payload), encoding="utf-8")
+            subprocess.run(command, check=True, capture_output=True, text=True)
+            context = json.loads((root / "context.json").read_text(encoding="utf-8"))
+            self.assertEqual(context["parameters"]["gene_id_version_policy"], "strip")
+            environment = (root / "report.env").read_text(encoding="utf-8")
+            self.assertIn("export GENE_ID_VERSION_POLICY=strip", environment)
 
     def test_context_rejects_sample_order_mismatch(self):
         with tempfile.TemporaryDirectory() as name:

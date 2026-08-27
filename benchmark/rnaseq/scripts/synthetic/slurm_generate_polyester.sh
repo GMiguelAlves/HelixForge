@@ -17,4 +17,3 @@ start=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 end=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 printf '{"status":"complete","slurm_job_id":"%s","node":"%s","started_utc":"%s","ended_utc":"%s"}\n' \
     "$SLURM_JOB_ID" "$(hostname)" "$start" "$end" > "$output/generation_execution.json"
-
