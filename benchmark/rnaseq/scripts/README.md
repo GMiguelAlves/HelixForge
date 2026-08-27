@@ -69,7 +69,15 @@ Implemented for the Stage 9B.2 metadata and download boundary:
 - `build_gse52778_inputs.py` joins the frozen registry, validated download and
   reference manifests into the exact eight-library donor-paired RC case;
 - `run_helixforge_gse52778.sh` verifies the immutable RC/Nextflow/Java identity
-  and launches the full biological path with at most five Slurm tasks.
+  and launches or resumes the full biological path with at most five Slurm
+  tasks; it requires `configs/slurm-biological.config`, because the 15-minute
+  synthetic-test envelope is intentionally unsuitable for complete libraries.
+- `validate_gse52778_run.py` gates the completed RC run on its eight samples,
+  paired donor design, production ID policy, Salmon/Import/DE universes,
+  candidate-gene report, terminal manifest and successful trace;
+- `airway_independent_samples.tsv` and
+  `independent_gse52778_tximport_deseq2.R` freeze the independently implemented
+  `~ batch + condition` analysis and DEX-versus-untreated contrast.
 - `slurm_restore_temurin21.sh` restores only the exact Temurin 21.0.12+8
   runtime certified in Stage 9B.1 when the portable binary is no longer present;
   the official Adoptium archive is pinned by SHA-256 and extracted on a node.
