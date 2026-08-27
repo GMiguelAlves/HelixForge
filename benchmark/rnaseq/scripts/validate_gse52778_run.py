@@ -166,6 +166,15 @@ def main() -> int:
         matrices[filename] = rows(path)
     require(pipeline / "050-quantification/summarized_experiment.rds")
     sample_ids = [row["sample_id"] for row in metadata]
+    quant_samples = rows(require(pipeline / "050-quantification/quant_samples.tsv"))
+    if len(quant_samples) != 8 or {row["sample_id"] for row in quant_samples} != set(sample_ids):
+        raise ValueError("Import sample table differs from frozen metadata")
+    import_ids = [row["import_id"] for row in quant_samples]
+    expected_import_ids = {f"{row['dataset']}__{row['sample_id']}" for row in metadata}
+    if len(set(import_ids)) != 8 or set(import_ids) != expected_import_ids:
+        raise ValueError("Import sample identifiers do not follow the dataset__sample_id contract")
+    if any(row.get("quant_exists", "").strip().upper() != "TRUE" for row in quant_samples):
+        raise ValueError("Import sample table records missing quantifications")
     salmon = {}
     transcript_universe: set[str] | None = None
     for sample in sample_ids:
@@ -194,8 +203,8 @@ def main() -> int:
     for filename, matrix_rows in matrices.items():
         if {row["gene_id"] for row in matrix_rows} != estimable_genes:
             raise ValueError(f"{filename} gene universe differs from quantified transcripts")
-        if set(matrix_rows[0]).difference({"gene_id"}) != set(sample_ids):
-            raise ValueError(f"{filename} sample columns differ from frozen metadata")
+        if set(matrix_rows[0]).difference({"gene_id"}) != set(import_ids):
+            raise ValueError(f"{filename} sample columns differ from the Import API contract")
 
     de_table = one(list((pipeline / "060-deg-analysis").rglob("differential_expression_results.tsv")),
                    "aggregate differential expression table")
@@ -273,6 +282,7 @@ def main() -> int:
         multiqc_findings.append("KNOWN_REPORTING_LIMITATION:MULTIQC_SOFTWARE_TABLE_ABSENT")
     report = {
         "schema_version": "1.0", "status": "pass", "samples": sample_ids,
+        "import_sample_ids": import_ids,
         "donors": sorted(donors), "conditions": dict(Counter(row["condition"] for row in metadata)),
         "execution_mode": execution_mode,
         "execution_limitation": (
