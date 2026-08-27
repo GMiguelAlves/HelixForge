@@ -7,8 +7,9 @@ java_bin=${3:?Java 21 executable is required}
 python_env=${4:?certified Python prefix is required}
 case_root=${5:?prepared case root is required}
 recovery_spec=${6:?terminal recovery specification is required}
-expected_commit=${7:?validated hotfix commit is required}
+expected_spec_commit=${7:?validated recovery-spec commit is required}
 queue=${8:-general}
+expected_launcher_commit=${9:?validated launcher commit is required}
 
 test -z "${SLURM_JOB_ID:-}"
 test -x "$java_bin"
@@ -16,7 +17,7 @@ test -s "$nextflow_jar"
 test -x "$python_env/bin/python3"
 test -s "$recovery_spec"
 test ! -e "$case_root/results/rnaseq/rnaseq_run_manifest.json"
-[[ "$(git -C "$repo_root" rev-parse HEAD)" == "$expected_commit" ]]
+[[ "$(git -C "$repo_root" rev-parse HEAD)" == "$expected_launcher_commit" ]]
 git -C "$repo_root" diff --quiet v1.0.0-rc.1 -- \
     modules/local/run_manifest \
     bin/build_run_manifest.py \
@@ -45,5 +46,5 @@ env PATH="$runtime_path" \
     --schema_root "$repo_root/schemas/integration"
 
 ended=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-printf '{"status":"complete","type":"terminal_manifest_recovery","base_rc_tag":"v1.0.0-rc.1","run_manifest_code_equal_rc":true,"validated_commit":"%s","nextflow":"25.10.7","java_major":21,"started_utc":"%s","ended_utc":"%s","queue":"%s"}\n' \
-    "$expected_commit" "$started" "$ended" "$queue" > "$recovery/recovery_identity.json"
+printf '{"status":"complete","type":"terminal_manifest_recovery","base_rc_tag":"v1.0.0-rc.1","run_manifest_code_equal_rc":true,"recovery_spec_commit":"%s","launcher_commit":"%s","nextflow":"25.10.7","java_major":21,"started_utc":"%s","ended_utc":"%s","queue":"%s"}\n' \
+    "$expected_spec_commit" "$expected_launcher_commit" "$started" "$ended" "$queue" > "$recovery/recovery_identity.json"
