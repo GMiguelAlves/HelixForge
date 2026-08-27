@@ -21,7 +21,7 @@ for script in \
     validate_gse52778_fastq.py finalize_gse52778_download.py \
     prepare_gencode_reference.py build_gse52778_inputs.py \
     build_gse52778_terminal_recovery_spec.py validate_gse52778_run.py \
-    summarize_gse52778_comparison.py; do
+    summarize_gse52778_comparison.py evaluate_gse52778_biology.py; do
     "$python_bin" -m py_compile "$scripts/$script"
 done
 
