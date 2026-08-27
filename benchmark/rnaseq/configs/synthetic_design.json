@@ -8,6 +8,16 @@
     "bioconductor_version": "3.18"
   },
   "reference_bundle": "gencode_human_v49_primary",
+  "synthetic_reference": {
+    "source_role": "GENCODE v49 transcript sequences only",
+    "source_file": "gencode.v49.transcripts.fa.gz",
+    "header_contract": "pipe-delimited transcript_id in field 1 and gene_id in field 2, both versioned",
+    "generated_genome": "selected transcript sequences represented as independent pseudo-contigs",
+    "generated_annotation": "one transcript and one exon spanning each pseudo-contig",
+    "ambiguity_model": "real GENCODE isoforms from the same gene retain shared sequence",
+    "gene_id_policy": "preserve version",
+    "transcript_id_policy": "preserve version"
+  },
   "selection": {
     "genes": 1200,
     "genes_per_transcript_count": {"1": 400, "2": 400, "3": 400},
@@ -21,6 +31,14 @@
   "experiment": {
     "conditions": ["control", "treatment"],
     "replicates_per_condition": 3,
+    "samples": [
+      {"sample_id": "control_r1", "condition": "control", "replicate": 1},
+      {"sample_id": "control_r2", "condition": "control", "replicate": 2},
+      {"sample_id": "control_r3", "condition": "control", "replicate": 3},
+      {"sample_id": "treatment_r1", "condition": "treatment", "replicate": 1},
+      {"sample_id": "treatment_r2", "condition": "treatment", "replicate": 2},
+      {"sample_id": "treatment_r3", "condition": "treatment", "replicate": 3}
+    ],
     "design_formula": "~ condition",
     "contrast": ["condition", "treatment", "control"]
   },
@@ -52,7 +70,15 @@
       {"absolute_log2_fold_change": 1.0, "up": 40, "down": 40},
       {"absolute_log2_fold_change": 2.0, "up": 40, "down": 40}
     ],
+    "assignment_algorithm": "sort selected genes by SHA-256(selection_seed + gene_id); assign consecutive blocks in effect_groups order, up then down; all remaining genes are unchanged",
     "selection_seed": 2026082503
+  },
+  "truth_calculation": {
+    "fragment_count": "exact integer readmat supplied to Polyester",
+    "transcript_tpm": "1e6 * (fragment_count / transcript_length) / sum(fragment_count / transcript_length) within sample",
+    "gene_tpm": "sum transcript_tpm for transcripts mapped to the gene",
+    "true_log2_fold_change": "configured condition multiplier before replicate sampling",
+    "true_state": "UP if true_log2_fold_change > 0; DOWN if < 0; UNCHANGED if = 0"
   },
   "read_generation_seed": 2026082502,
   "required_truth_outputs": [
