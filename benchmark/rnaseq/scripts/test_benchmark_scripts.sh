@@ -48,6 +48,7 @@ bash -n "$scripts/download_gse52778.sh"
 bash -n "$scripts/slurm_prepare_gencode_reference.sh"
 bash -n "$scripts/run_helixforge_gse52778.sh"
 bash -n "$scripts/slurm_restore_temurin21.sh"
+bash -n "$scripts/slurm_fix_gse52778_runtime_settings.sh"
 
 printf '{"status":"pass","slurm_job_id":"%s","node":"%s"}\n' \
     "$SLURM_JOB_ID" "$(hostname)" > "$output"

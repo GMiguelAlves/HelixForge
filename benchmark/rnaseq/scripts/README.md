@@ -81,6 +81,10 @@ Implemented for the Stage 9B.2 metadata and download boundary:
 - `slurm_restore_temurin21.sh` restores only the exact Temurin 21.0.12+8
   runtime certified in Stage 9B.1 when the portable binary is no longer present;
   the official Adoptium archive is pinned by SHA-256 and extracted on a node.
+- `slurm_fix_gse52778_runtime_settings.sh` performs the audited one-time repair
+  from Conda environment names to the already certified absolute prefixes after
+  the biological preflight exposed that those external prefixes are not present
+  in the account-level Conda environment registry.
 
 The download array is submitted with a conservative `%2` concurrency limit.
 Heavy payloads remain in the dedicated scratch root and are never committed.
