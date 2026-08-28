@@ -124,6 +124,82 @@ nextflow lint .
 Run `bin/helixforge-doctor` before reporting an environment failure. Contribution
 rules and scientific-change expectations are in `CONTRIBUTING.md`.
 
+## Third-party references
+
+HelixForge orchestrates, but does not replace, the scientific software below.
+Please cite the relevant original tools and data resources when publishing
+results. Version pins and container identities in the module environments and
+run manifests are authoritative; these links provide attribution, not mutable
+dependency specifications.
+
+### Workflow and execution infrastructure
+
+| Resource | Reference |
+|---|---|
+| Nextflow | Di Tommaso et al. (2017), [*Nextflow enables reproducible computational workflows*](https://doi.org/10.1038/nbt.3820) |
+| Slurm | Yoo, Jette and Grondona (2003), [*SLURM: Simple Linux Utility for Resource Management*](https://doi.org/10.1007/10968987_3) |
+| Docker / OCI | [Docker documentation](https://docs.docker.com/) and the [Open Container Initiative](https://opencontainers.org/) |
+| Apptainer / Singularity | Kurtzer, Sochat and Bauer (2017), [*Singularity: Scientific containers for mobility of compute*](https://doi.org/10.1371/journal.pone.0177459) |
+| Conda / Bioconda | Grüning et al. (2018), [*Bioconda: sustainable and comprehensive software distribution for the life sciences*](https://doi.org/10.1038/s41592-018-0046-7) |
+| R / Bioconductor | Gentleman et al. (2004), [*Bioconductor: open software development for computational biology and bioinformatics*](https://doi.org/10.1186/gb-2004-5-10-r80) |
+
+Auxiliary runtime and reporting dependencies—including Python, R, Bash,
+Coreutils, gzip, jsonschema, data.table, dplyr, ggplot2, ggrepel, jsonlite,
+matrixStats, pheatmap, readr, stringr, tibble and tidyr—are recorded with exact
+versions in the corresponding `environment.yml` files. Their package metadata
+and `citation()` output should be consulted when a publication depends directly
+on one of them.
+
+### Quality control and preprocessing
+
+| Tool | Reference |
+|---|---|
+| FastQC | Andrews, [FastQC: a quality control tool for high-throughput sequence data](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) |
+| MultiQC | Ewels et al. (2016), [*MultiQC: summarize analysis results for multiple tools and samples in a single report*](https://doi.org/10.1093/bioinformatics/btw354) |
+| Trim Galore | Krueger, [Trim Galore project](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/); adapter trimming is provided by Cutadapt |
+| Cutadapt | Martin (2011), [*Cutadapt removes adapter sequences from high-throughput sequencing reads*](https://doi.org/10.14806/ej.17.1.200) |
+
+### RNA-seq
+
+| Tool | Reference |
+|---|---|
+| STAR | Dobin et al. (2013), [*STAR: ultrafast universal RNA-seq aligner*](https://doi.org/10.1093/bioinformatics/bts635) |
+| Salmon | Patro et al. (2017), [*Salmon provides fast and bias-aware quantification of transcript expression*](https://doi.org/10.1038/nmeth.4197) |
+| tximport | Soneson, Love and Robinson (2015), [*Differential analyses for RNA-seq: transcript-level estimates improve gene-level inferences*](https://doi.org/10.12688/f1000research.7563.2) |
+| DESeq2 | Love, Huber and Anders (2014), [*Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2*](https://doi.org/10.1186/s13059-014-0550-8) |
+| rtracklayer | Lawrence, Gentleman and Carey (2009), [*rtracklayer: an R package for interfacing with genome browsers*](https://doi.org/10.1093/bioinformatics/btp328) |
+| SummarizedExperiment | [Bioconductor package and citation information](https://bioconductor.org/packages/SummarizedExperiment/) |
+
+### ChIP-seq
+
+| Tool | Reference |
+|---|---|
+| Bowtie 2 | Langmead and Salzberg (2012), [*Fast gapped-read alignment with Bowtie 2*](https://doi.org/10.1038/nmeth.1923) |
+| SAMtools / HTSlib | Li et al. (2009), [*The Sequence Alignment/Map format and SAMtools*](https://doi.org/10.1093/bioinformatics/btp352) |
+| BEDTools | Quinlan and Hall (2010), [*BEDTools: a flexible suite of utilities for comparing genomic features*](https://doi.org/10.1093/bioinformatics/btq033) |
+| MACS3 | [MACS3 project](https://github.com/macs3-project/MACS); Zhang et al. (2008), [*Model-based analysis of ChIP-Seq (MACS)*](https://doi.org/10.1186/gb-2008-9-9-r137) |
+| featureCounts / Subread | Liao, Smyth and Shi (2014), [*featureCounts: an efficient general-purpose program for assigning sequence reads to genomic features*](https://doi.org/10.1093/bioinformatics/btt656) |
+| IDR | Li et al. (2011), [*Measuring reproducibility of high-throughput experiments*](https://doi.org/10.1214/11-AOAS466) |
+| deepTools | Ramírez et al. (2016), [*deepTools2: a next generation web server for deep-sequencing data analysis*](https://doi.org/10.1093/nar/gkw257) |
+| pyBigWig | [pyBigWig project](https://github.com/deeptools/pyBigWig) |
+
+### Benchmark datasets and reference resources
+
+| Resource | Reference and use |
+|---|---|
+| Polyester synthetic RNA-seq benchmark | Frazee et al. (2015), [*Polyester: simulating RNA-seq datasets with differential transcript expression*](https://doi.org/10.1093/bioinformatics/btv272) |
+| GSE52778 / SRP033351 / PRJNA229998 | Himes et al. (2014), [airway smooth-muscle RNA-seq study](https://doi.org/10.1371/journal.pone.0099625); [GEO record](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE52778) |
+| GEO | Barrett et al. (2013), [*NCBI GEO: archive for functional genomics data sets—update*](https://doi.org/10.1093/nar/gks1193) |
+| European Nucleotide Archive | Harrison et al. (2022), [*The European Nucleotide Archive in 2021*](https://doi.org/10.1093/nar/gkab1051) |
+| GENCODE Human Release 49 | [GENCODE release 49](https://www.gencodegenes.org/human/release_49.html); Frankish et al. (2021), [*GENCODE 2021*](https://doi.org/10.1093/nar/gkaa1087) |
+| GRCh38 | Schneider et al. (2017), [*Evaluation of GRCh38 and de novo haploid genome assemblies*](https://doi.org/10.1101/gr.213611.116) |
+
+The current ChIP-seq validation artifacts use small project-owned synthetic
+fixtures; no third-party biological ChIP-seq dataset is claimed as a completed
+benchmark yet. Exact accessions, source checksums and reuse notes for completed
+RNA-seq benchmarks are preserved in the
+[RNA-seq dataset registry](benchmark/rnaseq/datasets/dataset_registry.md).
+
 ## Citation and license
 
 Citation metadata is provided in `CITATION.cff`. HelixForge is licensed under
