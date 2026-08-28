@@ -30,7 +30,7 @@ source_root=$(find "$build_parent" -mindepth 2 -maxdepth 2 -type f -name CMakeLi
 
 cmake -S "$source_root" -B "$build_parent/build" \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_CXX_FLAGS=-include\ cstdint
+    -DCMAKE_CXX_FLAGS=-include\ bits/stdc++.h
 cmake --build "$build_parent/build" --parallel "${SLURM_CPUS_PER_TASK:-2}"
 binary=$(find "$build_parent/build" -type f -name chips -perm -u+x -print -quit)
 [[ -n "$binary" ]]
@@ -44,7 +44,7 @@ install -m 0755 "$binary" "$install_root/bin/chips"
     printf 'binary_sha256\t%s\n' "$(sha256sum "$install_root/bin/chips" | cut -d' ' -f1)"
     printf 'compiler\t%s\n' "$(c++ --version | head -n 1)"
     printf 'cmake\t%s\n' "$(cmake --version | head -n 1)"
-    printf 'compatibility_cxx_flags\t%s\n' '-include cstdint'
+    printf 'compatibility_cxx_flags\t%s\n' '-include bits/stdc++.h'
     printf 'slurm_job_id\t%s\n' "$SLURM_JOB_ID"
     printf 'hostname\t%s\n' "$(hostname -f 2>/dev/null || hostname)"
 } > "$install_root/provenance/runtime.tsv"
