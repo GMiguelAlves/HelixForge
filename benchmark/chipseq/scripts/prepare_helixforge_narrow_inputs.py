@@ -73,7 +73,9 @@ def main() -> None:
         writer.writeheader()
         writer.writerows(rows)
 
-    results = run_root / "results"
+    # The input contract lives in ``<run>/input`` while Nextflow publishes to
+    # ``<run>/results``.  Keep metadata paths aligned with the real publish root.
+    results = run_root.parent / "results"
     values = {
         "FASTQ_DIR": fastq_dir,
         "METADATA_FILE": metadata,

@@ -64,20 +64,24 @@ def main() -> None:
     parser.add_argument("--java-home", required=True, type=Path)
     parser.add_argument("--r-bin", required=True, type=Path)
     parser.add_argument("--nextflow", required=True, type=Path)
+    parser.add_argument("--git", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
     if "SLURM_JOB_ID" not in os.environ:
         raise RuntimeError("preflight must run in a Slurm allocation")
 
     repo, scratch = args.repo.resolve(), args.scratch.resolve()
-    head = command(["git", "-C", str(repo), "rev-parse", "HEAD"])
-    target = command(["git", "-C", str(repo), "rev-parse", SCIENTIFIC_TARGET])
+    git = str(args.git.resolve())
+    if not args.git.is_file():
+        raise FileNotFoundError(f"Git executable not found: {args.git}")
+    head = command([git, "-C", str(repo), "rev-parse", "HEAD"])
+    target = command([git, "-C", str(repo), "rev-parse", SCIENTIFIC_TARGET])
     if target != SCIENTIFIC_TARGET:
         raise ValueError("scientific target cannot be resolved")
-    if command(["git", "-C", str(repo), "merge-base", "HEAD", PROTOCOL_COMMIT]) != PROTOCOL_COMMIT:
+    if command([git, "-C", str(repo), "merge-base", "HEAD", PROTOCOL_COMMIT]) != PROTOCOL_COMMIT:
         raise ValueError("frozen protocol is not an ancestor of the benchmark branch")
     diff = subprocess.run(
-        ["git", "-C", str(repo), "diff", "--quiet", SCIENTIFIC_TARGET, "--", *SCIENTIFIC_PATHS], check=False
+        [git, "-C", str(repo), "diff", "--quiet", SCIENTIFIC_TARGET, "--", *SCIENTIFIC_PATHS], check=False
     )
     if diff.returncode:
         raise ValueError("scientific files differ from the target commit")
@@ -141,7 +145,7 @@ def main() -> None:
         "status": "PASS",
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "host": {"hostname": socket.getfqdn(), "platform": platform.platform(), "slurm_job_id": os.environ["SLURM_JOB_ID"]},
-        "git": {"branch": command(["git", "-C", str(repo), "branch", "--show-current"]), "head": head, "scientific_target": SCIENTIFIC_TARGET, "protocol_commit": PROTOCOL_COMMIT},
+        "git": {"branch": command([git, "-C", str(repo), "branch", "--show-current"]), "head": head, "scientific_target": SCIENTIFIC_TARGET, "protocol_commit": PROTOCOL_COMMIT},
         "checks": {"scientific_target": True, "protocol": True, **frozen, **expected, "scratch": True, "disk": usage.free > 500_000_000_000},
         "versions": versions,
         "chips": {"commit": CHIPS_COMMIT, "source_sha256": CHIPS_SOURCE_SHA256, "binary_sha256": sha256(args.chips)},
