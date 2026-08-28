@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the Stage 9B.1 audit ZIP and its external SHA-256 sidecar."""
+"""Verify the frozen Polyester audit ZIP and its external SHA-256 sidecar."""
 
 from __future__ import annotations
 

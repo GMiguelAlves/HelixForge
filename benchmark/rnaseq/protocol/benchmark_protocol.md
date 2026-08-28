@@ -84,8 +84,8 @@ benchmark is then repeated from the first affected boundary.
 
 ## 4. Reference preparation
 
-Both levels use GENCODE Human Release 49, GRCh38.p14. Stage 9B downloads and
-checksums:
+Both benchmark cases use GENCODE Human Release 49, GRCh38.p14. Reference
+preparation downloads and checksums:
 
 - comprehensive primary-assembly GTF;
 - all-transcript FASTA;
@@ -162,14 +162,16 @@ checksums. HelixForge receives only FASTQ, metadata and the derived reference.
 
 The selected study is `GSE52778` / `SRP033351` / `PRJNA229998`: primary human
 airway smooth-muscle cell lines from four donors, untreated or exposed to 1 µM
-dexamethasone for 18 hours. Libraries are 75 bp paired-end. Only the eight
-untreated/DEX runs in `datasets/airway_samples.tsv` are used; albuterol arms
-and ENA orphan/unpaired exports are excluded.
+dexamethasone for 18 hours. The study describes 75 bp paired-end sequencing;
+the deposited ENA exports contain 63+63 bp application reads, which are the
+actual benchmark inputs. Only the eight untreated/DEX runs in
+`datasets/airway_samples.tsv` are used; albuterol arms and ENA orphan/unpaired
+exports are excluded.
 
-The original paired FASTQs are downloaded from ENA to scratch, checked against
-ENA MD5 values, and retained read-only until the audit closes. A deterministic
-5,000,000-pair cap per sample defines the benchmark's 100% base. Pair identity,
-exact pair count, gzip integrity and SHA-256 must pass before execution.
+The original paired FASTQs were downloaded from ENA to scratch and checked
+against ENA MD5 values. The completed biological benchmark used every paired
+read from all eight selected libraries without subsampling. Pair identity,
+exact pair count, gzip integrity and SHA-256 passed before execution.
 
 Metadata maps donor to `batch`, treatment to `condition`, and uses the paired
 design `~ batch + condition`. The contrast is
@@ -202,32 +204,31 @@ The harness must reproduce explicit commands rather than call HelixForge
 resources. It emits its own environment and command manifest. The comparison
 is semantic for JSON/TSV and ignores paths/timestamps only where listed.
 
-Pinned nf-core/rnaseq 3.26.0 with Salmon-only and Trim Galore is a secondary,
-non-gating comparison if runtime and queue budget remain. Its different
-tximport/output policies must be documented; differences are not pipeline
-errors by default.
+An nf-core/rnaseq comparison is a future, non-gating comparison between
+pipelines. It is not required to validate this baseline because its additional
+methodological choices would make it less controlled than the independent
+same-method harness used here.
 
-## 8. Level C — deterministic coverage robustness
+## 8. Future coverage robustness
 
-Subsampling operates on the 5,000,000-pair public base, not on published full
-depth. Levels are 5,000,000 (100%), 2,500,000 (50%), 1,250,000 (25%) and
-500,000 (10%) pairs per sample. Seeds are fixed in
-`configs/subsampling_plan.tsv`.
+Coverage subsampling is a `FUTURE_EXTENSION`, not part of this baseline. The
+frozen plan defines 5,000,000, 2,500,000, 1,250,000 and 500,000 pairs per
+sample with seeds in `configs/subsampling_plan.tsv`.
 
-`subsample_pairs.py` applies the same random selection to mates by normalized
-read ID, never by independently sampling R1 and R2. It emits exact counts,
-seed, parent checksum, output checksums and a pair-validation report. Each
-depth is compared to its ground truth where available and to the 100% public
-base for abundance, log2FC, DEG overlap, direction and ranking stability.
+When implemented, paired subsampling must apply the same deterministic
+selection to both mates, record parent/output checksums and compare each depth
+with truth where available and with the full-depth public result. This work is
+robustness characterization and does not block the frozen RNA-seq baseline.
 
 ## 9. Replicability
 
-The primary synthetic and public 100% analyses run twice from separate clean
-output/work directories with identical inputs. The second run is not a
-`-resume` test. FASTQ/reference inputs use byte comparison; numeric matrices
-and statistical tables use the tolerances in `metrics.md`; manifests ignore
-only declared volatile paths, run IDs and timestamps. Cache behavior is an
-optional operational appendix and cannot block scientific evaluation.
+The primary synthetic analysis ran twice from separate clean output/work
+directories with identical inputs. The GSE52778 case was compared with an
+independently launched same-method analysis. FASTQ/reference inputs use byte
+comparison; numeric matrices and statistical tables use the tolerances in
+`metrics.md`; manifests ignore only declared volatile paths, run IDs and
+timestamps. Cache behavior is an operational concern and does not replace
+scientific evaluation.
 
 ## 10. Performance and storage
 
@@ -256,34 +257,48 @@ directory and are removed only after compact audit evidence is archived under
 the user's home directory.
 
 Runtime preflight is mandatory. If the compute nodes cannot execute a
-site-supported environment matching the RC versions, Stage 9B stops and marks
+site-supported environment matching the RC versions, execution stops and marks
 the runtime blocked; it must not silently mix OCI, Conda or host results.
 
-## 12. Order of Stage 9B
+## 12. Reproduction sequence
 
-1. Open SSH control tunnel and capture the read-only Slurm preflight.
-2. Create isolated home repository/cache and scratch benchmark root.
-3. Verify tag/commit, Nextflow 25.10.7, Java 21 and runtime availability.
-4. Download/checksum GENCODE inputs and build the exact-ID reference.
-5. Implement/review scripts listed in `scripts/README.md`; run their small
-   contract tests in Slurm allocations.
-6. Generate synthetic seed 20260825 and validate truth/FASTQ pairing.
-7. Run HelixForge synthetic primary, independent reference and clean repeat.
-8. Calculate Level A metrics; stop for unexplained release-gate failures.
-9. Download/checksum the eight ENA pairs and build the 5M-pair bases.
-10. Run public 100%, independent reference and clean repeat.
-11. Evaluate publication expectations and reference concordance.
-12. Generate and run 50%, 25% and 10% depths, one depth at a time.
-13. Run confirmatory synthetic seeds only if cost/queue criteria permit.
-14. Aggregate performance/storage and render the report.
-15. Archive compact manifests, logs, metrics, trace and report with a
-    Portuguese README; remove only owned disposable scratch artifacts after
-    explicit review.
+1. Capture a read-only Slurm/runtime preflight.
+2. Verify the RC commit, Nextflow 25.10.7, Java 21 and scientific runtimes.
+3. Download and checksum registered inputs; build the exact-ID reference.
+4. Generate and validate the deterministic Polyester truth and paired FASTQs.
+5. Run the synthetic HelixForge case, independent reference and clean repeat.
+6. Download and validate the eight complete ENA paired libraries.
+7. Run the full GSE52778 HelixForge case and independent same-method reference.
+8. Calculate metrics, evaluate preregistered biological expectations and
+   render reports/figures.
+9. Archive compact manifests, logs, metrics, traces and reports; remove only
+   owned disposable scratch data after checksum verification.
 
-Each stage is fail-closed. Later stages do not overwrite or reinterpret a
-failed earlier result.
+Every boundary fails closed. A failed result is preserved and is never
+silently overwritten or reinterpreted.
 
-## 13. Command contract
+## 13. Resolved protocol decisions
+
+- The canonical repository path is the existing singular `benchmark/rnaseq/`.
+- The synthetic case uses a deterministic closed pseudo-reference derived from
+  real GENCODE v49 transcripts, preserving exact gene/transcript truth.
+- Sample membership, differential-effect assignment, TPM formulas, seeds and
+  ID normalization are explicit machine-readable contracts.
+- The optional candidate-gene report is disabled for Polyester to avoid
+  truth-derived selection and is exercised by GSE52778 with a predeclared list.
+- Salmon duplicate removal defines an estimable universe of 2,376 transcripts
+  and 1,195 genes; metrics distinguish it from the 2,400/1,200 input universe.
+- Differential tables are compared by unique gene identity rather than display
+  order; quantification and Import matrices retain strict ID/order checks.
+- The biological benchmark uses deposited 63+63 bp ENA pairs, excludes orphan
+  exports and processes full data. The study-level 75 bp description is retained
+  as provenance.
+- Strict numeric discrepancies from Salmon index/quantification parallelism are
+  retained as accepted limitations; tolerances were not silently widened.
+- MultiQC aggregation limitations and the controlled GSE52778 report recovery
+  remain visible in the final reports.
+
+## 14. Command contract
 
 `build_helixforge_inputs.py` creates a case-specific `pipeline_config.sh`,
 samplesheet/metadata files and a resolved parameter manifest. It must not

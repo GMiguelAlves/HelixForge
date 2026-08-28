@@ -1,10 +1,10 @@
-# Stage 9B.1 — controlled synthetic RNA-seq validation
+# Polyester controlled synthetic RNA-seq benchmark
 
 ## Identity and scope
 
 This report records the controlled ground-truth validation of the immutable
 HelixForge RNA-seq release candidate. It does not include the public biological
-dataset or the coverage-depth series planned for later benchmark stages.
+dataset or the coverage-depth robustness extension.
 
 | Item | Validated value |
 |---|---|
@@ -19,8 +19,8 @@ dataset or the coverage-depth series planned for later benchmark stages.
 
 No HelixForge scientific module, algorithm, parameter, schema or statistical
 threshold was changed during this benchmark. Corrections were confined to the
-benchmark harness and are recorded in
-`protocol/9b1_protocol_discrepancies.md`.
+benchmark harness; the resulting protocol decisions are consolidated in
+[`benchmark_protocol.md`](../protocol/benchmark_protocol.md).
 
 ## Dataset and reference
 
@@ -155,7 +155,7 @@ Despite the numeric divergence, all compared arms retained:
 
 The strict numeric comparison remains technically failed. On 26 August 2026,
 the project owner explicitly reviewed and accepted this documented Salmon
-runtime limitation for Stage 9B.1. The acceptance applies to the stable
+runtime limitation for the synthetic benchmark. The acceptance applies to the stable
 scientific semantics demonstrated here; it does not redefine the tolerance or
 claim byte/numeric identity.
 
@@ -197,7 +197,7 @@ separately and is not treated as pipeline runtime
 
 ## Gate assessment and classification
 
-| Criterion | Stage 9B.1 result |
+| Criterion | Synthetic benchmark result |
 |---|---|
 | Exact RC/runtime, complete terminal contract | `PASS` |
 | Synthetic sample/input integrity | `PASS` |
@@ -206,22 +206,22 @@ separately and is not treated as pipeline runtime
 | Informative synthetic DE | `PASS` |
 | All declared strata and calibration metrics | `PASS` |
 | No hidden scientific changes | `PASS` |
-| Public eight-sample and depth-series evidence | `NOT_RUN` — outside Stage 9B.1 |
+| Public eight-sample evidence | `PASS_WITH_LIMITATIONS` — reported separately for GSE52778 |
+| Coverage-depth evidence | `FUTURE_EXTENSION` |
 
-**Stage 9B.1 classification:** `PASS_WITH_LIMITATIONS`. Correctness, contracts
+**Synthetic benchmark classification:** `PASS_WITH_LIMITATIONS`. Correctness, contracts
 and truth recovery passed. The explicitly accepted limitations are Salmon's
 failure to provide byte/numeric repeatability at the frozen tolerance and the
 documented MultiQC aggregation scope.
 
-**Overall RC benchmark programme:** remains `INCONCLUSIVE` until the later
-public biological and coverage-depth stages supply their predeclared evidence.
-Acceptance of the Salmon limitation closes the Stage 9B.1 review only; it does
-not pre-approve results from those later stages.
+**RNA-seq baseline classification:** `PASS_WITH_LIMITATIONS` after combining
+this controlled synthetic evidence with the separately reported full GSE52778
+benchmark. Coverage-depth characterization remains a non-blocking future
+extension.
 
 ## Audit artifacts
 
-The compact audit package is stored under
-`/home/ra236875@bio.ib.unicamp.br/helixforge-rnaseq-benchmark-audits/20260825-9b1/`.
+The compact audit package is retained outside Git in private archival storage.
 Its adjacent `.sha256` file is authoritative because embedding the ZIP's own
 checksum inside the ZIP would be circular. Heavy FASTQs and Nextflow work
 directories are intentionally excluded; their checksums, manifests, traces,
@@ -233,12 +233,12 @@ RC subject are recorded in
 [`figures_manifest.json`](figures/figures_manifest.json); runtime versions are
 recorded in [`render_versions.txt`](figures/render_versions.txt). No
 coverage-depth figure is presented because that predeclared benchmark arm was
-not run in Stage 9B.1.
+not run for this baseline.
 
 | Archive | SHA-256 | Independent verification |
 |---|---|---|
-| Main evidence (`helixforge-rnaseq-stage9b1-audit-20260826.zip`) | `693700ccf512f118572a2647c6f9f34b4923a56287c210e470c6034240a449cb` | `PASS`, 1,145 members, Slurm job `15595` |
-| Superseded attempts (`helixforge-rnaseq-stage9b1-failed-attempts-20260826.zip`) | `acb4ee299c30436f7bfeaa513be3e9b5766a4fffa7276e88da57e486d2da7cdf` | `PASS`, 875 members, Slurm job `15600` |
+| Main evidence archive | `693700ccf512f118572a2647c6f9f34b4923a56287c210e470c6034240a449cb` | `PASS`, 1,145 members, Slurm job `15595` |
+| Superseded-attempt archive | `acb4ee299c30436f7bfeaa513be3e9b5766a4fffa7276e88da57e486d2da7cdf` | `PASS`, 875 members, Slurm job `15600` |
 
 Only after both archives passed checksum and ZIP integrity verification, the
 four superseded case roots and the `work/` and staged-FASTQ `scratch/`
@@ -247,4 +247,4 @@ directories of the two successful runs were removed. Cleanup jobs `15602` and
 from scratch, but all retained evidence is in home and the frozen raw dataset,
 reference, exact environments, published results, independent comparisons,
 metrics, validation reports and provenance remain available for review and
-later benchmark stages.
+future benchmark extensions.

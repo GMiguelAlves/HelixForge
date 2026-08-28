@@ -1,0 +1,141 @@
+# RNA-seq baseline file audit
+# Date: 2026-08-27
+# Scope: tracked files present before or after administrative consolidation
+# Scientific workflow/module/schema changes: none
+path	classification	disposition
+benchmark/rnaseq/provenance/baseline_file_audit.tsv	KEEP_PUBLIC	complete administrative classification of the frozen baseline tree
+benchmark/rnaseq/README.md	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/configs/airway_de_spec.json	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/configs/airway_independent_samples.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/configs/airway_report_genes.txt	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/configs/biological_expectations.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/configs/polyester.environment.yml	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/configs/python-runtime.environment.yml	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/configs/r-analysis.environment.yml	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/configs/rna-tools.environment.yml	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/configs/run_matrix.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/configs/slurm-biological.config	KEEP_DEVELOPER	lightweight validation or site execution support
+benchmark/rnaseq/configs/subsampling_plan.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/configs/synthetic_de_spec.json	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/configs/synthetic_design.json	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/datasets/airway_samples.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/datasets/dataset_provenance.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/datasets/dataset_registry.md	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/datasets/gse52778_run_metadata.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/datasets/reference_sources.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/protocol/9b1_protocol_discrepancies.md	MOVE_OR_CONSOLIDATE	scientific decisions consolidated in protocol/benchmark_protocol.md
+benchmark/rnaseq/protocol/9b2_protocol_discrepancies.md	MOVE_OR_CONSOLIDATE	scientific decisions consolidated in protocol/benchmark_protocol.md
+benchmark/rnaseq/protocol/benchmark_protocol.md	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/protocol/cost_estimate.md	REMOVE_OBSOLETE	superseded by measured performance in final reports
+benchmark/rnaseq/protocol/gse52778_download_plan.md	KEEP_REPRODUCIBILITY	frozen transfer plan
+benchmark/rnaseq/protocol/interpretation_criteria.md	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/protocol/metrics.md	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/protocol/risks_and_limitations.md	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/provenance/GSE52778_AUDIT_README_PT.md	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/provenance/README.md	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/provenance/gse52778_download/DOWNLOAD_READY.json	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/provenance/gse52778_download/checksums.sha256	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/provenance/gse52778_download/download_manifest.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/provenance/gse52778_download_plan.json	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/provenance/gse52778_reference/reference_manifest.json	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/provenance/gse52778_runtime/runtime_lock.json	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/provenance/metadata_validation.json	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/provenance/source_checksums.sha256	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/reports/benchmark_report_template.md	KEEP_DEVELOPER	retained benchmark support
+benchmark/rnaseq/reports/figures/README.md	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/README_PT.md	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/figure_1_gene_abundance.pdf	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/figure_1_gene_abundance.png	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/figure_2_transcript_quantification.pdf	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/figure_2_transcript_quantification.png	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/figure_3_log2fc_recovery.pdf	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/figure_3_log2fc_recovery.png	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/figure_4_precision_recall.pdf	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/figure_4_precision_recall.png	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/figure_5_reproducibility.pdf	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/figure_5_reproducibility.png	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/figure_6_performance.pdf	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/figure_6_performance.png	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/figures_manifest.json	KEEP_DEVELOPER	retained benchmark support
+benchmark/rnaseq/reports/figures/gse52778/README.md	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/gse52778/figure_1_log2fc_concordance.pdf	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/gse52778/figure_1_log2fc_concordance.png	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/gse52778/figure_2_qc.pdf	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/gse52778/figure_2_qc.png	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/gse52778/figure_3_biological_expectations.pdf	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/gse52778/figure_3_biological_expectations.png	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/gse52778/figure_4_helixforge_pca.png	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/figures/gse52778/render_sessionInfo.txt	KEEP_DEVELOPER	retained benchmark support
+benchmark/rnaseq/reports/figures/render_versions.txt	KEEP_DEVELOPER	retained benchmark support
+benchmark/rnaseq/reports/gse52778_full_benchmark.md	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/reports/polyester_benchmark.md	KEEP_PUBLIC	renamed final synthetic report
+benchmark/rnaseq/reports/stage_9b1_results.md	MOVE_OR_CONSOLIDATE	renamed to benchmark/rnaseq/reports/polyester_benchmark.md
+benchmark/rnaseq/results/.gitignore	KEEP_DEVELOPER	lightweight validation or site execution support
+benchmark/rnaseq/results/README.md	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/results/gse52778/README.md	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/results/gse52778/biological-expectations.json	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/results/gse52778/biological-expectations.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/results/gse52778/gse52778-run-validation.json	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/results/gse52778/independent-comparison-summary.json	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/results/gse52778/metrics/concordance_summary.json	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/results/gse52778/metrics/de_concordance.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/results/gse52778/metrics/deg_overlap.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/results/gse52778/metrics/quantification_concordance.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/results/gse52778/metrics/ranking_concordance.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/results/gse52778/performance_summary.json	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/results/gse52778/performance_summary.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/results/gse52778/qc_summary.json	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/results/gse52778/sample_qc.tsv	KEEP_REPRODUCIBILITY	frozen contract, manifest, checksum, metric or compact evidence
+benchmark/rnaseq/scripts/README.md	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/scripts/common/compare_gse52778_independent.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/common/compare_helixforge_repeats.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/common/compare_independent.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/common/compare_reference_repeats.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/common/prepare_gencode_reference.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/common/slurm_create_environment.sh	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/common/slurm_download_reference.sh	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/common/slurm_restore_temurin21.sh	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/common/slurm_runtime_preflight.sh	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/build_gse52778_inputs.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/download_gse52778.sh	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/evaluate_gse52778_biology.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/finalize_gse52778_download.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/independent_gse52778_tximport_deseq2.R	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/measure_gse52778_concordance.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/plot_gse52778_benchmark.R	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/run_helixforge_gse52778.sh	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/slurm_finalize_gse52778.sh	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/slurm_prepare_gencode_reference.sh	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/slurm_prepare_gse52778_metadata.sh	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/summarize_gse52778_comparison.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/summarize_gse52778_performance.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/summarize_gse52778_qc.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/validate_gse52778_fastq.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/validate_gse52778_metadata.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/gse52778/validate_gse52778_run.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/synthetic/build_helixforge_inputs.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/synthetic/build_synthetic_truth.R	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/synthetic/evaluate_synthetic.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/synthetic/fasta_to_fastq.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/synthetic/finalize_polyester_figures.py	KEEP_REPRODUCIBILITY	renamed reproducibility script
+benchmark/rnaseq/scripts/synthetic/finalize_stage9b1_figures.py	MOVE_OR_CONSOLIDATE	renamed to benchmark/rnaseq/scripts/synthetic/finalize_polyester_figures.py
+benchmark/rnaseq/scripts/synthetic/independent_tximport_deseq2.R	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/synthetic/plot_polyester_benchmark.R	KEEP_REPRODUCIBILITY	renamed reproducibility script
+benchmark/rnaseq/scripts/synthetic/plot_stage9b1_figures.R	MOVE_OR_CONSOLIDATE	renamed to benchmark/rnaseq/scripts/synthetic/plot_polyester_benchmark.R
+benchmark/rnaseq/scripts/synthetic/prepare_polyester_figures.py	KEEP_REPRODUCIBILITY	renamed reproducibility script
+benchmark/rnaseq/scripts/synthetic/prepare_stage9b1_figures.py	MOVE_OR_CONSOLIDATE	renamed to benchmark/rnaseq/scripts/synthetic/prepare_polyester_figures.py
+benchmark/rnaseq/scripts/synthetic/prepare_synthetic_reference.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/synthetic/render_polyester_figures.sh	KEEP_REPRODUCIBILITY	renamed reproducibility script
+benchmark/rnaseq/scripts/synthetic/run_helixforge_synthetic.sh	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/synthetic/run_independent_reference.sh	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/synthetic/run_stage9b1_figures.sh	MOVE_OR_CONSOLIDATE	renamed to benchmark/rnaseq/scripts/synthetic/render_polyester_figures.sh
+benchmark/rnaseq/scripts/synthetic/slurm_convert_polyester_sample.sh	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/synthetic/slurm_generate_polyester.sh	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/synthetic/summarize_performance.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/synthetic/validate_helixforge_run.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/synthetic/validate_synthetic_dataset.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/synthetic/verify_audit_archive.py	KEEP_REPRODUCIBILITY	required generation, execution, evaluation or rendering script
+benchmark/rnaseq/scripts/tests/test_benchmark_scripts.sh	KEEP_DEVELOPER	lightweight validation or site execution support
+benchmark/rnaseq/truth/README.md	KEEP_PUBLIC	public documentation or reviewed figure
+benchmark/rnaseq/workflows/gse52778_report_recovery.nf	REMOVE_OBSOLETE	orphaned one-off recovery workflow; private execution evidence retained
+benchmark/rnaseq/workflows/gse52778_terminal_manifest_recovery.nf	REMOVE_OBSOLETE	orphaned one-off recovery workflow; private execution evidence retained

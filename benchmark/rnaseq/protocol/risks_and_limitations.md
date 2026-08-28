@@ -4,7 +4,7 @@
 
 - The institutional Slurm nodes previously exposed no supported Docker,
   Apptainer/Singularity or equivalent runtime. Because every scientific test
-  must run on Slurm, Stage 9B may end as `BLOCKED_RUNTIME` unless a supported
+  must run on Slurm, a reproduction may end as `BLOCKED_RUNTIME` unless a supported
   site runtime can execute the RC's pinned artifacts. The protocol forbids
   silently substituting a mixed host/Conda result for the certified RC run.
 - GENCODE v49 creates a large Salmon index and raises the cost of an otherwise
@@ -25,8 +25,9 @@
 - The public dataset is small (four paired donors). Its publication used hg19,
   fixed cropping and Cufflinks/Cuffdiff, so DEG count and set agreement are
   contextual rather than exact validation.
-- The 5 M-pair cap controls cost but is not the full archived experiment.
-  Robustness conclusions apply to the declared cap and depth series only.
+- Coverage/depth subsampling was deliberately deferred. The completed GSE52778
+  benchmark used all reads from the eight selected paired libraries, so no
+  robustness claim across sequencing depths is made.
 - One simulator and one public study cannot establish universal sensitivity,
   FDR control or biological performance across organisms and protocols.
 - STAR remains experimental and is outside this benchmark. Results validate

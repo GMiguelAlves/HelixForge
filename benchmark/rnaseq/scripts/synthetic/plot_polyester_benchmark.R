@@ -1,5 +1,5 @@
 args <- commandArgs(trailingOnly = TRUE)
-if (length(args) != 2) stop("usage: plot_stage9b1_figures.R DATA_DIR OUTPUT_DIR")
+if (length(args) != 2) stop("usage: plot_polyester_benchmark.R DATA_DIR OUTPUT_DIR")
 if (Sys.getenv("SLURM_JOB_ID") == "") stop("figures must be rendered inside a Slurm job")
 data_dir <- args[[1]]
 output_dir <- args[[2]]

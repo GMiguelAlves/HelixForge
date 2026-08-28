@@ -6,7 +6,7 @@ Run unit, contract and legacy-regression tests:
 python -m unittest tests.interpretation.test_interpretation -v
 ```
 
-Prepare Stage 3 evidence and exercise the Stage 4 → Stage 5 test DAG:
+Prepare molecular evidence and exercise the integration-to-prioritization test DAG:
 
 ```bash
 python tests/molecular_integration/prepare_fixture.py --output /tmp/helixforge-interpretation-fixture

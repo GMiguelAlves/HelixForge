@@ -4,7 +4,7 @@
 > migration baseline and are not the public Integration API.
 
 This specification defines how future native Integration providers are compared
-with the frozen stage-1 legacy baseline. It deliberately distinguishes
+with the frozen initial legacy baseline. It deliberately distinguishes
 scientific identity from volatile presentation metadata.
 
 ## Equivalence classes

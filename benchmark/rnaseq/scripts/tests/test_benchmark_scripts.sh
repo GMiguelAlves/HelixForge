@@ -22,7 +22,7 @@ for script in \
     synthetic/validate_synthetic_dataset.py synthetic/build_helixforge_inputs.py \
     synthetic/evaluate_synthetic.py synthetic/validate_helixforge_run.py \
     synthetic/summarize_performance.py synthetic/verify_audit_archive.py \
-    synthetic/prepare_stage9b1_figures.py synthetic/finalize_stage9b1_figures.py \
+    synthetic/prepare_polyester_figures.py synthetic/finalize_polyester_figures.py \
     gse52778/validate_gse52778_metadata.py gse52778/validate_gse52778_fastq.py \
     gse52778/finalize_gse52778_download.py gse52778/build_gse52778_inputs.py \
     gse52778/validate_gse52778_run.py gse52778/summarize_gse52778_comparison.py \
@@ -40,7 +40,7 @@ done
 "$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$synthetic/build_synthetic_truth.R"
 "$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$synthetic/independent_tximport_deseq2.R"
 "$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$gse52778/independent_gse52778_tximport_deseq2.R"
-"$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$synthetic/plot_stage9b1_figures.R"
+"$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$synthetic/plot_polyester_benchmark.R"
 "$rscript_bin" -e 'invisible(parse(file=commandArgs(TRUE)[1]))' "$gse52778/plot_gse52778_benchmark.R"
 bash -n "$common/slurm_runtime_preflight.sh"
 bash -n "$common/slurm_create_environment.sh"
@@ -50,7 +50,7 @@ bash -n "$synthetic/run_independent_reference.sh"
 bash -n "$synthetic/slurm_generate_polyester.sh"
 bash -n "$synthetic/slurm_convert_polyester_sample.sh"
 bash -n "$synthetic/run_helixforge_synthetic.sh"
-bash -n "$synthetic/run_stage9b1_figures.sh"
+bash -n "$synthetic/render_polyester_figures.sh"
 bash -n "$gse52778/slurm_prepare_gse52778_metadata.sh"
 bash -n "$gse52778/download_gse52778.sh"
 bash -n "$gse52778/slurm_prepare_gencode_reference.sh"
