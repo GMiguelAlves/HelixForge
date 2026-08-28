@@ -62,6 +62,7 @@ def main() -> None:
     parser.add_argument("--chips", required=True, type=Path)
     parser.add_argument("--chips-source", required=True, type=Path)
     parser.add_argument("--java-home", required=True, type=Path)
+    parser.add_argument("--r-bin", required=True, type=Path)
     parser.add_argument("--nextflow", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
@@ -110,7 +111,7 @@ def main() -> None:
         "nextflow": first_line(command([str(args.nextflow), "-version"], env)),
         "slurm": command(["srun", "--version"], env),
         "python": command([str(args.runtime / "bin/python"), "--version"], env),
-        "r": first_line(command(["R", "--version"], env)) if shutil.which("R", path=env["PATH"]) else "NOT_AVAILABLE_NOT_USED",
+        "r": first_line(command([str(args.r_bin), "--version"], env)),
         "chips": "v2.4 source-and-binary provenance verified",
         "bowtie2": first_line(command([str(args.runtime / "bin/bowtie2"), "--version"], env)),
         "samtools": first_line(command([str(args.runtime / "bin/samtools"), "--version"], env)),

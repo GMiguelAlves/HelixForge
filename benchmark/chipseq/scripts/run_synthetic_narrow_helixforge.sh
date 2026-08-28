@@ -109,6 +109,10 @@ command=(
     --peak_qc_queue "$queue"
     --consensus_queue "$queue"
     --idr_queue "$queue"
+    -with-trace "$run_root/trace.tsv"
+    -with-report "$run_root/report.html"
+    -with-timeline "$run_root/timeline.html"
+    -with-dag "$run_root/dag.html"
 )
 
 printf '%q ' "${command[@]}" > "$log_root/nextflow.command.sh"
