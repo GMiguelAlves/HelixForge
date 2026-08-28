@@ -27,8 +27,10 @@ trap 'rm -rf "$build_parent"' EXIT
 tar -xzf "$source_tar" -C "$build_parent"
 source_root=$(find "$build_parent" -mindepth 2 -maxdepth 2 -type f -name CMakeLists.txt -printf '%h\n' | head -n 1)
 [[ -n "$source_root" ]]
+compiler=${CXX:-c++}
 
 cmake -S "$source_root" -B "$build_parent/build" \
+    -DCMAKE_CXX_COMPILER="$compiler" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_CXX_FLAGS=-include\ bits/stdc++.h
 cmake --build "$build_parent/build" --parallel "${SLURM_CPUS_PER_TASK:-2}"
@@ -42,7 +44,8 @@ install -m 0755 "$binary" "$install_root/bin/chips"
     printf 'chips_commit\t%s\n' "$expected_commit"
     printf 'source_sha256\t%s\n' "$observed_source_sha256"
     printf 'binary_sha256\t%s\n' "$(sha256sum "$install_root/bin/chips" | cut -d' ' -f1)"
-    printf 'compiler\t%s\n' "$(c++ --version | head -n 1)"
+    printf 'compiler_path\t%s\n' "$compiler"
+    printf 'compiler\t%s\n' "$("$compiler" --version | head -n 1)"
     printf 'cmake\t%s\n' "$(cmake --version | head -n 1)"
     printf 'compatibility_cxx_flags\t%s\n' '-include bits/stdc++.h'
     printf 'slurm_job_id\t%s\n' "$SLURM_JOB_ID"
