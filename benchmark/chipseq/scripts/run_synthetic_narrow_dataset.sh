@@ -17,6 +17,7 @@ dataset_root="$benchmark_root/dataset"
 run_root="$benchmark_root/dataset-generation"
 work_root="$benchmark_root/work/dataset-generation"
 log_root="$run_root/logs"
+observer_id=$(date -u +%Y%m%dT%H%M%SZ)
 
 [[ -z "${SLURM_JOB_ID:-}" ]] || {
     echo "The Nextflow driver must run on the head node." >&2
@@ -63,10 +64,10 @@ command=(
     --chips_binary "$chips_binary"
     --chips_source_sha256 "$chips_source_sha256"
     --dataset_outdir "$dataset_root"
-    -with-trace "$run_root/trace.tsv"
-    -with-report "$run_root/report.html"
-    -with-timeline "$run_root/timeline.html"
-    -with-dag "$run_root/dag.html"
+    -with-trace "$run_root/trace.${observer_id}.tsv"
+    -with-report "$run_root/report.${observer_id}.html"
+    -with-timeline "$run_root/timeline.${observer_id}.html"
+    -with-dag "$run_root/dag.${observer_id}.html"
 )
 printf '%q ' "${command[@]}" > "$log_root/nextflow.command.sh"
 printf '\n' >> "$log_root/nextflow.command.sh"
