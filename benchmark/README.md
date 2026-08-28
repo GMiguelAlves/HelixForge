@@ -10,5 +10,7 @@ shared runners.
 - [`rnaseq/`](rnaseq/README.md): scientific validation protocol for the
   `v1.0.0-rc.1` Salmon production path, including synthetic truth, public data,
   subsampling, external-reference concordance and Slurm resource measurement.
+- [`chipseq/`](chipseq/README.md): frozen pre-execution design for controlled
+  narrow and broad enrichment and for public K562 CTCF/H3K27me3 datasets.
 - [`scenarios/`](scenarios/): focused migration and implementation scenarios.
 - [`reports/`](reports/): compact benchmark reports approved for versioning.

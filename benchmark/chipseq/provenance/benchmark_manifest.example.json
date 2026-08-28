@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "benchmark_id": "chipseq-synthetic-narrow-v1-example",
+  "arm": "synthetic_narrow",
+  "status": "planned",
+  "benchmark_target": {
+    "version": "1.0.0-rc.1",
+    "commit": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f"
+  },
+  "dataset": {
+    "type": "synthetic",
+    "id": "synthetic_chip_v1"
+  },
+  "simulator": {
+    "name": "ChIPs",
+    "version": "v2.4",
+    "commit": "766c92cbb50783a537c897431b77e6bff8dba506",
+    "seeds": [20260911, 20260912, 20260913]
+  },
+  "reference": {
+    "id": "synthetic_chip_v1",
+    "assembly": "synthetic",
+    "effective_genome_size": 54000000
+  },
+  "blacklist": null,
+  "tools": [
+    {"name": "Nextflow", "version": "25.10.7", "container": null},
+    {"name": "Bowtie2", "version": "2.5.4", "container": "TO_BE_RECORDED"},
+    {"name": "samtools", "version": "1.20", "container": "TO_BE_RECORDED"},
+    {"name": "MACS3", "version": "3.0.4", "container": "TO_BE_RECORDED"},
+    {"name": "IDR", "version": "2.0.4.2", "container": "TO_BE_RECORDED"}
+  ],
+  "parameters": {
+    "design_config": "../configs/narrow_design.json",
+    "macs3_config": "../configs/macs3_parameters.json"
+  },
+  "execution": {
+    "engine": "Nextflow DSL2",
+    "executor": "slurm",
+    "nextflow_version": "25.10.7",
+    "java_version": "21",
+    "session_id": "TO_BE_RECORDED",
+    "slurm_job_ids": []
+  },
+  "inputs": [],
+  "outputs": [],
+  "metrics": [],
+  "timestamps": {
+    "started_at": null,
+    "completed_at": null
+  },
+  "limitations": [
+    "Example only; it is not evidence that a benchmark was executed."
+  ]
+}
