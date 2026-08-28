@@ -13,6 +13,8 @@ process PREPARE_SYNTHETIC_NARROW {
 
     input:
     path design_config
+    path prepare_script
+    path validate_script
 
     output:
     path 'reference', emit: reference
@@ -21,11 +23,11 @@ process PREPARE_SYNTHETIC_NARROW {
 
     script:
     """
-    python '${projectDir}/prepare_synthetic_narrow.py' \
+    python '${prepare_script}' \
         --config '${design_config}' --output run1
-    python '${projectDir}/prepare_synthetic_narrow.py' \
+    python '${prepare_script}' \
         --config '${design_config}' --output run2
-    python '${projectDir}/validate_synthetic_narrow.py' truth \
+    python '${validate_script}' truth \
         --config '${design_config}' --primary run1 --repeat run2 \
         --output truth_determinism.json
     mv run1/reference .
@@ -75,6 +77,7 @@ process VALIDATE_TRUTH_MAPPABILITY {
     path reference
     path truth
     path bowtie2_index
+    path validate_script
 
     output:
     path 'truth_validation.json', emit: validation
@@ -86,7 +89,7 @@ process VALIDATE_TRUTH_MAPPABILITY {
         -U '${truth}/narrow_mappability_probes.fa' \
         -k 2 --threads ${task.cpus} -S mappability.sam \
         > mappability.log 2>&1
-    python '${projectDir}/validate_synthetic_narrow.py' truth \
+    python '${validate_script}' truth \
         --config '${design_config}' --primary . --repeat . \
         --sam mappability.sam --output truth_validation.json
     """
@@ -110,6 +113,7 @@ process SIMULATE_CHIPS_LIBRARY {
     path design_config
     path chips_binary
     val chips_source_sha256
+    path simulation_script
 
     output:
     tuple val(sample),
@@ -122,7 +126,7 @@ process SIMULATE_CHIPS_LIBRARY {
 
     script:
     """
-    python '${projectDir}/simulate_chips_narrow.py' \
+    python '${simulation_script}' \
         --config '${design_config}' \
         --chips '${chips_binary}' \
         --chips-source-sha256 '${chips_source_sha256}' \
@@ -145,20 +149,22 @@ process VALIDATE_SYNTHETIC_NARROW_DATASET {
     input:
     path design_config
     path library_files
+    path aggregate_script
+    path validate_script
 
     output:
     path 'simulation_manifest.json', emit: simulation_manifest
     path 'dataset_manifest.json', emit: dataset_manifest
 
     script:
-    def manifestArgs = library_files.findAll { it.name.endsWith('.simulation.json') }
-        .collect { "--manifest '${it}'" }.join(' ')
+    def manifestArgs = library_files.findAll { file -> file.name.endsWith('.simulation.json') }
+        .collect { file -> "--manifest '${file}'" }.join(' ')
     """
     mkdir fastq
     cp *.fastq fastq/
-    python '${projectDir}/aggregate_simulation_manifests.py' \
+    python '${aggregate_script}' \
         ${manifestArgs} --output simulation_manifest.json
-    python '${projectDir}/validate_synthetic_narrow.py' dataset \
+    python '${validate_script}' dataset \
         --config '${design_config}' --fastq-dir fastq \
         --simulation-manifest simulation_manifest.json \
         --output dataset_manifest.json
@@ -170,28 +176,33 @@ workflow {
     if (!params.design_config || !params.chips_binary || !params.chips_source_sha256 || !params.dataset_outdir) {
         error 'Required: --design_config, --chips_binary, --chips_source_sha256, --dataset_outdir'
     }
-    design_ch = Channel.value(file(params.design_config, checkIfExists: true))
-    chips_ch = Channel.value(file(params.chips_binary, checkIfExists: true))
+    design_ch = channel.value(file(params.design_config, checkIfExists: true))
+    chips_ch = channel.value(file(params.chips_binary, checkIfExists: true))
+    prepare_script_ch = channel.value(file("${projectDir}/prepare_synthetic_narrow.py", checkIfExists: true))
+    validate_script_ch = channel.value(file("${projectDir}/validate_synthetic_narrow.py", checkIfExists: true))
+    simulation_script_ch = channel.value(file("${projectDir}/simulate_chips_narrow.py", checkIfExists: true))
+    aggregate_script_ch = channel.value(file("${projectDir}/aggregate_simulation_manifests.py", checkIfExists: true))
 
-    PREPARE_SYNTHETIC_NARROW(design_ch)
+    PREPARE_SYNTHETIC_NARROW(design_ch, prepare_script_ch, validate_script_ch)
     BUILD_MAPPABILITY_INDEX(PREPARE_SYNTHETIC_NARROW.out.reference)
     VALIDATE_TRUTH_MAPPABILITY(
         design_ch,
         PREPARE_SYNTHETIC_NARROW.out.reference,
         PREPARE_SYNTHETIC_NARROW.out.truth,
-        BUILD_MAPPABILITY_INDEX.out.index
+        BUILD_MAPPABILITY_INDEX.out.index,
+        validate_script_ch
     )
 
-    simulation_inputs = Channel
+    simulation_inputs = channel
         .of('chip_rep1', 'chip_rep2', 'input')
         .combine(PREPARE_SYNTHETIC_NARROW.out.reference)
         .combine(PREPARE_SYNTHETIC_NARROW.out.truth)
         .combine(VALIDATE_TRUTH_MAPPABILITY.out.validation)
-    SIMULATE_CHIPS_LIBRARY(simulation_inputs, design_ch, chips_ch, params.chips_source_sha256)
+    SIMULATE_CHIPS_LIBRARY(simulation_inputs, design_ch, chips_ch, params.chips_source_sha256, simulation_script_ch)
 
     library_files_ch = SIMULATE_CHIPS_LIBRARY.out.libraries
-        .map { sample, r1, r2, manifest, stdout, stderr -> [r1, r2, manifest, stdout, stderr] }
+        .map { _sample, r1, r2, manifest, stdout, stderr -> [r1, r2, manifest, stdout, stderr] }
         .collect()
         .map { files -> files.flatten() }
-    VALIDATE_SYNTHETIC_NARROW_DATASET(design_ch, library_files_ch)
+    VALIDATE_SYNTHETIC_NARROW_DATASET(design_ch, library_files_ch, aggregate_script_ch, validate_script_ch)
 }
