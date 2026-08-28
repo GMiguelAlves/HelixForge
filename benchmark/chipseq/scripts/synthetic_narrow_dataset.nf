@@ -103,10 +103,10 @@ process SIMULATE_CHIPS_LIBRARY {
     errorStrategy 'terminate'
     maxRetries 0
 
-    publishDir "${params.dataset_outdir}/fastq", mode: 'copy', overwrite: false,
-        pattern: '*.fastq', saveAs: { name -> name.tokenize('/')[-1] }
+    publishDir "${params.dataset_outdir}/fastq", mode: 'link', overwrite: false,
+        pattern: 'library/*.fastq', saveAs: { name -> name.tokenize('/')[-1] }
     publishDir "${params.dataset_outdir}/provenance/libraries", mode: 'copy', overwrite: true,
-        pattern: '*.{json,log}', saveAs: { name -> name.tokenize('/')[-1] }
+        pattern: 'library/*.{json,log}', saveAs: { name -> name.tokenize('/')[-1] }
 
     input:
     tuple val(sample), path(reference), path(truth), path(truth_validation)
