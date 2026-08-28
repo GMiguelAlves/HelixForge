@@ -192,5 +192,6 @@ workflow {
     library_files_ch = SIMULATE_CHIPS_LIBRARY.out.libraries
         .map { sample, r1, r2, manifest, stdout, stderr -> [r1, r2, manifest, stdout, stderr] }
         .collect()
+        .map { files -> files.flatten() }
     VALIDATE_SYNTHETIC_NARROW_DATASET(design_ch, library_files_ch)
 }

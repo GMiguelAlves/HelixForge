@@ -25,7 +25,7 @@ observed_source_sha256=$(sha256sum "$source_tar" | cut -d' ' -f1)
 build_parent=$(mktemp -d "${TMPDIR:-/tmp}/helixforge-chips-v2.4.XXXXXX")
 trap 'rm -rf "$build_parent"' EXIT
 tar -xzf "$source_tar" -C "$build_parent"
-source_root=$(find "$build_parent" -mindepth 1 -maxdepth 1 -type d -name 'chips-2.4-Source*' -print -quit)
+source_root=$(find "$build_parent" -mindepth 2 -maxdepth 2 -type f -name CMakeLists.txt -printf '%h\n' | head -n 1)
 [[ -n "$source_root" ]]
 
 cmake -S "$source_root" -B "$build_parent/build" -DCMAKE_BUILD_TYPE=Release
