@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare compact plotting tables from frozen Stage 9B.1 evidence."""
+"""Prepare compact plotting tables from frozen Polyester benchmark evidence."""
 
 from __future__ import annotations
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write checksums and provenance for rendered Stage 9B.1 figures."""
+"""Write checksums and provenance for rendered Polyester benchmark figures."""
 
 from __future__ import annotations
 

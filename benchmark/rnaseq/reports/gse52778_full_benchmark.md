@@ -135,10 +135,9 @@ version controlled.
 - **Performance:** descriptive only on a shared cluster; it is not a comparative
   speed or cost claim.
 - **Excluded scope:** no STAR validation, subsampling, nf-core comparison,
-  ChIP-seq or integrative execution was performed in this stage.
+  ChIP-seq or integrative execution is represented by this benchmark.
 
 The supporting small artifacts are in
 [`benchmark/rnaseq/results/gse52778`](../results/gse52778/README.md). Complete
 logs, checksums, failure evidence and recovery identities are retained in the
 cluster audit archive rather than committed to Git.
-

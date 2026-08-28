@@ -6,7 +6,7 @@ Unit, contract and semantic-regression tests:
 python -m unittest tests.molecular_integration.test_molecular_integration -v
 ```
 
-Prepare small Stage 3 evidence bundles, then run the two Stage 4 modules:
+Prepare small evidence bundles, then run the harmonization and molecular-integration modules:
 
 ```bash
 python tests/molecular_integration/prepare_fixture.py --output /tmp/helixforge-integration-fixture

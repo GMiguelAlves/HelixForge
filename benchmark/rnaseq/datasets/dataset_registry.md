@@ -1,6 +1,6 @@
 # RNA-seq benchmark dataset registry
 
-This registry is normative for Stage 9B. Dataset substitutions require a new
+This registry is normative for the frozen RNA-seq baseline. Dataset substitutions require a new
 protocol version and must not silently replace the entries below.
 
 ## Level A — simulated truth
@@ -17,7 +17,7 @@ protocol version and must not silently replace the entries below.
 | Purpose | quantification accuracy, DE truth recovery and reproducibility |
 
 The complete frozen design is in `../configs/synthetic_design.json`. Polyester
-emits paired FASTA reads. Stage 9B converts them deterministically to FASTQ with
+emits paired FASTA reads. The benchmark converts them deterministically to FASTQ with
 constant Phred 40 qualities; simulated sequence errors remain unchanged. This
 level therefore validates quantification and differential expression, not the
 realism of adapter/quality trimming.
@@ -29,7 +29,8 @@ realism of adapter/quality trimming.
 | Dataset ID | `gse52778_airway` |
 | GEO | GSE52778 |
 | SRA/ENA study | SRP033351 / PRJNA229998 |
-| Assay | human airway smooth-muscle cells, 75 bp paired-end RNA-seq |
+| Assay | human airway smooth-muscle cells; study-described 75 bp paired-end RNA-seq |
+| Deposited reads | paired 63+63 bp ENA application reads used without subsampling |
 | Samples | untreated and dexamethasone for each of four donors (8 libraries) |
 | Design | `~ batch + condition`, where `batch` is donor |
 | Contrast | `condition_dexamethasone_vs_untreated` |
@@ -50,7 +51,7 @@ expressed non-differential checks. These are sanity checks, not release gates.
 
 ## Reference bundle
 
-All benchmark levels use the sources in `reference_sources.tsv`. Stage 9B must:
+All benchmark cases use the sources in `reference_sources.tsv`. Reproduction must:
 
 1. download each source exactly once on a Slurm execution node;
 2. record upstream and computed SHA-256 checksums;
