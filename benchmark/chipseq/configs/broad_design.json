@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0",
+  "benchmark_id": "chipseq-synthetic-broad-v1",
+  "reference": {
+    "id": "synthetic_chip_v1",
+    "chromosomes": 3,
+    "chromosome_length_bp": 20000000,
+    "target_gc_fraction": 0.42,
+    "repeat_fraction": 0.10,
+    "seed": 20260900,
+    "effective_genome_size": 54000000
+  },
+  "truth": {
+    "domain_count": 360,
+    "domains_per_width_strength_cell": 40,
+    "minimum_inter_domain_gap_bp": 10000,
+    "width_classes_bp": {
+      "short_broad": [2000, 4999],
+      "medium_broad": [5000, 19999],
+      "long_broad": [20000, 80000]
+    },
+    "signal_classes": {"strong": 0.80, "medium": 0.50, "weak": 0.25},
+    "negative_regions": 360
+  },
+  "simulator": {
+    "name": "ChIPs",
+    "version": "v2.4",
+    "commit": "766c92cbb50783a537c897431b77e6bff8dba506",
+    "mode": "frozen contiguous-domain generator plus ChIPs",
+    "read_layout": "paired-end",
+    "read_length_bp": 75,
+    "read_pairs_per_library": 12000000,
+    "fragment_gamma_shape": 15,
+    "fragment_gamma_scale": 12,
+    "copies": 100,
+    "spot": 0.35,
+    "pcr_rate": 0.85,
+    "noscale": true,
+    "seeds": {"replicate_1": 20260921, "replicate_2": 20260922, "input": 20260923}
+  },
+  "replicates": 2,
+  "matched_input_libraries": 1,
+  "helixforge_run_mode": "consensus",
+  "consensus": {"strategy": "replicate_support", "minimum_replicates": 2},
+  "idr": {"enabled": false, "reason": "Classical narrowPeak IDR is not a broad-domain release gate."}
+}
