@@ -110,9 +110,14 @@ def main() -> None:
     env["JAVA_HOME"] = str(args.java_home.resolve())
     env["NXF_VER"] = "25.10.7"
     env["PATH"] = os.pathsep.join((str(args.runtime.resolve() / "bin"), str(args.idr.resolve() / "bin"), str(args.java_home.resolve() / "bin"), env["PATH"]))
+    nextflow_output = command([str(args.nextflow), "-version"], env)
+    nextflow_version = next(
+        (line.strip() for line in nextflow_output.splitlines() if line.strip().lower().startswith("version ")),
+        "",
+    )
     versions = {
         "java": first_line(command([str(args.java_home / "bin/java"), "-version"], env)),
-        "nextflow": first_line(command([str(args.nextflow), "-version"], env)),
+        "nextflow": nextflow_version,
         "slurm": command(["srun", "--version"], env),
         "python": command([str(args.runtime / "bin/python"), "--version"], env),
         "r": first_line(command([str(args.r_bin), "--version"], env)),
@@ -125,7 +130,7 @@ def main() -> None:
         "multiqc": first_line(command([str(args.runtime / "bin/multiqc"), "--version"], env)),
     }
     expected = {
-        "nextflow": "nextflow version 25.10.7" in command([str(args.nextflow), "-version"], env).lower(),
+        "nextflow": nextflow_version.lower().startswith("version 25.10.7 "),
         "java": "21." in versions["java"],
         "bowtie2": "2.5.4" in versions["bowtie2"],
         "samtools": versions["samtools"] == "samtools 1.20",
