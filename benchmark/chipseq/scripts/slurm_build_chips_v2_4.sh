@@ -31,7 +31,6 @@ compiler=${CXX:-c++}
 
 cmake -S "$source_root" -B "$build_parent/build" \
     -DCMAKE_CXX_COMPILER="$compiler" \
-    -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_CXX_FLAGS=-include\ bits/stdc++.h
 cmake --build "$build_parent/build" --parallel "${SLURM_CPUS_PER_TASK:-2}"
 binary=$(find "$build_parent/build" -type f -name chips -perm -u+x -print -quit)
@@ -47,6 +46,7 @@ install -m 0755 "$binary" "$install_root/bin/chips"
     printf 'compiler_path\t%s\n' "$compiler"
     printf 'compiler\t%s\n' "$("$compiler" --version | head -n 1)"
     printf 'cmake\t%s\n' "$(cmake --version | head -n 1)"
+    printf 'cmake_build_type\t%s\n' 'default (upstream README command)'
     printf 'compatibility_cxx_flags\t%s\n' '-include bits/stdc++.h'
     printf 'slurm_job_id\t%s\n' "$SLURM_JOB_ID"
     printf 'hostname\t%s\n' "$(hostname -f 2>/dev/null || hostname)"
