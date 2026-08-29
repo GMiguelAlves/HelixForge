@@ -6,6 +6,7 @@ repo_root=${1:?repository root is required}
 benchmark_root=${2:?benchmark root is required}
 runtime_prefix=${3:?frozen ChIP runtime is required}
 start_date=${4:?accounting start date is required}
+accounting_source=${5:-}
 
 [[ -n "${SLURM_JOB_ID:-}" ]] || {
     echo "Synthetic broad performance collection must run under Slurm." >&2
@@ -19,9 +20,14 @@ output_root="$benchmark_root/performance"
 export PATH="$runtime_prefix/bin:/usr/bin:/bin"
 mkdir -p "$output_root"
 
-sacct -S "$start_date" -n -P --units=K \
-    --format=JobIDRaw,JobName,State,ExitCode,ElapsedRaw,MaxRSS,AllocCPUS,NodeList \
-    > "$output_root/slurm_accounting.psv"
+if [[ -n "$accounting_source" ]]; then
+    [[ -s "$accounting_source" ]]
+    cp "$accounting_source" "$output_root/slurm_accounting.psv"
+else
+    sacct -S "$start_date" -n -P --units=K \
+        --format=JobIDRaw,JobName,State,ExitCode,ElapsedRaw,MaxRSS,AllocCPUS,NodeList \
+        > "$output_root/slurm_accounting.psv"
+fi
 
 python "$repo_root/benchmark/chipseq/scripts/collect_synthetic_narrow_performance.py" \
     --benchmark-kind broad \
