@@ -42,6 +42,15 @@ def parse_trace(path: Path) -> dict:
     return {"tasks": len(rows), "cached_tasks": sum(row.get("cached") == "true" for row in rows), "processes": sorted({row.get("process", "") for row in rows})}
 
 
+def final_idr_candidates(consensus_root: Path) -> list[Path]:
+    """Return published final IDR sets from current or historical layouts."""
+    return [
+        path
+        for path in consensus_root.rglob("idr_output.narrowPeak")
+        if {"consensus_result", "idr_result"}.intersection(path.parts)
+    ]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--helixforge-run", required=True, type=Path)
@@ -61,7 +70,7 @@ def main() -> None:
         selected[f"helixforge_{sample}"] = hf_peak
         selected[f"independent_{sample}"] = ext_peak
     selected["helixforge_idr"] = require_one(
-        [path for path in (results / "chipseq" / "consensus").rglob("idr_output.narrowPeak") if "consensus_result" in path.parts],
+        final_idr_candidates(results / "chipseq" / "consensus"),
         "HelixForge final IDR peak set",
     )
     selected["independent_idr"] = require_one([independent / "idr" / "idr_output.narrowPeak"], "independent final IDR peak set")
