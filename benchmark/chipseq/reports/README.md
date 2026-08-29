@@ -7,8 +7,9 @@ Required future reports:
 
 - [`synthetic_narrow_benchmark.md`](synthetic_narrow_benchmark.md): completed
   per-replicate and IDR ground-truth benchmark (`PASS_WITH_LIMITATIONS`);
-- `synthetic_broad_benchmark.md`: base accuracy, domain recovery, IoU, boundary
-  error, fragmentation/merging topology and width/signal strata;
+- [`synthetic_broad_benchmark.md`](synthetic_broad_benchmark.md): completed
+  broad-domain ground-truth benchmark (`PASS_WITH_LIMITATIONS`), including
+  exact independent-path concordance and the frozen fragmentation limitation;
 - `real_narrow_benchmark.md`: QC, FRiP, replicate concordance, IDR, CTCF motif
   centrality, reference overlap and declared locus inspection;
 - `real_broad_benchmark.md`: QC, FRiP, coverage concordance, replicate-support
