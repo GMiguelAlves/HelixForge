@@ -38,6 +38,22 @@ copy_path() {
     fi
 }
 
+copy_compact_tree() {
+    local source="$1"
+    local destination="$2"
+    local path relative
+    [[ -d "$source" ]] || return 0
+    while IFS= read -r -d '' path; do
+        case "${path##*/}" in
+            *.json|*.yml|*.yaml|*.tsv|*.txt|*.log|*.done|*.sha256|*.narrowPeak|*.xls|*.bed|*.png|*.html)
+                relative="${path#"$source"/}"
+                mkdir -p "$stage/$destination/$(dirname "$relative")"
+                cp -a "$path" "$stage/$destination/$relative"
+                ;;
+        esac
+    done < <(find "$source" -type f -print0)
+}
+
 cp "$readme_template" "$stage/README.md"
 copy_path "$scratch_root/preflight.json" "preflight/preflight.json"
 copy_path "$scratch_root/dataset/provenance" "dataset/provenance"
@@ -48,15 +64,15 @@ copy_path "$scratch_root/helixforge/trace.tsv" "helixforge/trace.tsv"
 copy_path "$scratch_root/helixforge/report.html" "helixforge/report.html"
 copy_path "$scratch_root/helixforge/timeline.html" "helixforge/timeline.html"
 copy_path "$scratch_root/helixforge/dag.html" "helixforge/dag.html"
-copy_path "$scratch_root/helixforge/results/pipeline_info/native_chipseq" "helixforge/results/pipeline_info/native_chipseq"
-copy_path "$scratch_root/helixforge/results/pipeline_info/native_qc" "helixforge/results/pipeline_info/native_qc"
-copy_path "$scratch_root/helixforge/results/080-peak-calling" "helixforge/results/080-peak-calling"
-copy_path "$scratch_root/helixforge/results/chipseq/consensus" "helixforge/results/chipseq/consensus"
+copy_compact_tree "$scratch_root/helixforge/results/pipeline_info/native_chipseq" "helixforge/results/pipeline_info/native_chipseq"
+copy_compact_tree "$scratch_root/helixforge/results/pipeline_info/native_qc" "helixforge/results/pipeline_info/native_qc"
+copy_compact_tree "$scratch_root/helixforge/results/080-peak-calling" "helixforge/results/080-peak-calling"
+copy_compact_tree "$scratch_root/helixforge/results/chipseq/consensus" "helixforge/results/chipseq/consensus"
 copy_path "$scratch_root/independent/commands" "independent/commands"
 copy_path "$scratch_root/independent/provenance" "independent/provenance"
 copy_path "$scratch_root/independent/qc" "independent/qc"
-copy_path "$scratch_root/independent/peaks" "independent/peaks"
-copy_path "$scratch_root/independent/idr" "independent/idr"
+copy_compact_tree "$scratch_root/independent/peaks" "independent/peaks"
+copy_compact_tree "$scratch_root/independent/idr" "independent/idr"
 copy_path "$scratch_root/evaluation/selected-v3" "evaluation/technical"
 copy_path "$scratch_root/evaluation/metrics" "evaluation/metrics"
 copy_path "$scratch_root/evaluation/figures-v2" "evaluation/figures"
