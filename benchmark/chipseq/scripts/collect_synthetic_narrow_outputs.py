@@ -47,7 +47,7 @@ def final_idr_candidates(consensus_root: Path) -> list[Path]:
     return [
         path
         for path in consensus_root.rglob("idr_output.narrowPeak")
-        if {"consensus_result", "idr_result"}.intersection(path.parts)
+        if any(part.endswith((".consensus_result", ".idr_result")) or part in {"consensus_result", "idr_result"} for part in path.parts)
     ]
 
 
