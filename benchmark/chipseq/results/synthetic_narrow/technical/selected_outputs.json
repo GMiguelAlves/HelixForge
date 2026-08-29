@@ -1,0 +1,71 @@
+{
+  "artifacts": {
+    "helixforge_chip_rep1": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-benchmark-20260828/helixforge/results/080-peak-calling/chip_rep1.synthetic_factor.narrow.macs3.peak_calling/peaks.narrowPeak",
+      "records": 1502,
+      "sha256": "3398ff82cffa9fad61adebfa83c0d20eb8d1a486ba07266589ac5cad7e103d70"
+    },
+    "helixforge_chip_rep2": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-benchmark-20260828/helixforge/results/080-peak-calling/chip_rep2.synthetic_factor.narrow.macs3.peak_calling/peaks.narrowPeak",
+      "records": 1501,
+      "sha256": "cf60555c985fadc84d8b39bc8daccfb7f1c8dd546ce557621725a1b3e494b733"
+    },
+    "helixforge_idr": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-benchmark-20260828/helixforge/results/chipseq/consensus/chipseq-synthetic-narrow-v1.chipseq-synthetic-narrow-v1.synthetic_factor.synthetic_narrow.synthetic_factor.synthetic_chip_v1.narrow/chipseq-synthetic-narrow-v1.chipseq-synthetic-narrow-v1.synthetic_factor.synthetic_narrow.synthetic_factor.synthetic_chip_v1.narrow.idr_result/idr_output.narrowPeak",
+      "records": 813,
+      "sha256": "78e15e32e1efbe7251c059037d145d5e70b41f395b5b9e5a8e6e14f3ba36ae16"
+    },
+    "independent_chip_rep1": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-benchmark-20260828/independent/peaks/chip_rep1/chip_rep1_peaks.narrowPeak",
+      "records": 1502,
+      "sha256": "c5e65f86c8c0c4ce5517f307c97557d0466bb1caa07f1e18b0bfbde30d97008e"
+    },
+    "independent_chip_rep2": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-benchmark-20260828/independent/peaks/chip_rep2/chip_rep2_peaks.narrowPeak",
+      "records": 1501,
+      "sha256": "b1a42d4a5bd57198dd96ee3a54002febe8cc4f071b5ab7014cc0f361fb486aa5"
+    },
+    "independent_idr": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-benchmark-20260828/independent/idr/idr_output.narrowPeak",
+      "records": 813,
+      "sha256": "78e15e32e1efbe7251c059037d145d5e70b41f395b5b9e5a8e6e14f3ba36ae16"
+    }
+  },
+  "frip": [
+    {
+      "fragments_in_peaks": 483346,
+      "frip": 0.06570315737990469,
+      "min_mapq": 30,
+      "sample_id": "chip_rep1",
+      "status": "complete",
+      "total_fragments": 7356511
+    },
+    {
+      "fragments_in_peaks": 483538,
+      "frip": 0.06572861340652311,
+      "min_mapq": 30,
+      "sample_id": "chip_rep2",
+      "status": "complete",
+      "total_fragments": 7356583
+    }
+  ],
+  "multiqc": {
+    "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-benchmark-20260828/helixforge/results/030-qc-fastq/multiqc/raw_fastq_multiqc.html",
+    "sha256": "26acac1867efa2e385a9cd9d0c31c89ac32ea415d45dd11d78a86dc81acf0e49"
+  },
+  "nextflow_report": {
+    "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-benchmark-20260828/helixforge/report.html",
+    "sha256": "4cc275e513845fc3c8bfaea219a49afcc3e835007f51349442614b096aaec1b6"
+  },
+  "schema_version": "1.0",
+  "session_uuid": "cc176e2d-565b-4646-b67a-369dc489e9fe",
+  "status": "TECHNICAL_EXECUTION_PASS",
+  "trace": {
+    "cached_tasks": 0,
+    "processes": [
+      ""
+    ],
+    "tasks": 40
+  },
+  "type": "synthetic_narrow_selected_outputs"
+}

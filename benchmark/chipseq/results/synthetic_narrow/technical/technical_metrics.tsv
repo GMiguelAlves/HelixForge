@@ -1,0 +1,9 @@
+check	status	value
+workflow_completed	PASS	Execution complete -- Goodbye
+expected_samples	PASS	chip_rep1,chip_rep2,input
+replicate_peaks	PASS	2 non-empty narrowPeak sets
+idr	PASS	813 final peaks
+frip	PASS	2 fragment-unit records
+multiqc	PASS	/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-benchmark-20260828/helixforge/results/030-qc-fastq/multiqc/raw_fastq_multiqc.html
+nextflow_report	PASS	/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-benchmark-20260828/helixforge/report.html
+trace	PASS	40 completed tasks

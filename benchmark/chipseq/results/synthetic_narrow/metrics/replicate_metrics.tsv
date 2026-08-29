@@ -1,0 +1,3 @@
+left	right	left_peaks	right_peaks	intersection_bases	union_bases	base_jaccard	left_reciprocal_overlap	right_reciprocal_overlap	one_to_one_matches	rank_spearman
+helixforge_chip_rep1	helixforge_chip_rep2	1502	1501	722918	805321	0.8976768270043871	0.9452565099995424	0.9469044631372683	1500	0.9132393109787836
+independent_chip_rep1	independent_chip_rep2	1502	1501	722918	805321	0.8976768270043871	0.9452565099995424	0.9469044631372683	1500	0.9132393109787836

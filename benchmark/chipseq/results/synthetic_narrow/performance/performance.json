@@ -1,0 +1,237 @@
+{
+  "classification": "DESCRIPTIVE_CLUSTER_PERFORMANCE",
+  "collector_slurm_job_id": "16109",
+  "limitations": [
+    "Shared-cluster measurements include scheduler and NFS effects and are not release gates."
+  ],
+  "schema_version": "1.0",
+  "slurm_jobs": [
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 2,
+      "exit_code": "0:0",
+      "job_id": "16054",
+      "job_name": "hf-chips-wce-default",
+      "max_rss_bytes": 65433600,
+      "node": "srv-slurm-node-04",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 9,
+      "exit_code": "0:0",
+      "job_id": "16055",
+      "job_name": "hf-chip-preflight-final",
+      "max_rss_bytes": 913408,
+      "node": "srv-slurm-node-04",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 416,
+      "exit_code": "0:0",
+      "job_id": "16056",
+      "job_name": "nf-SIMULATE_CHIPS_LIBRARY_(synthetic-narrow_input)",
+      "max_rss_bytes": 3149066240,
+      "node": "srv-slurm-node-04",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 458,
+      "exit_code": "0:0",
+      "job_id": "16057",
+      "job_name": "nf-SIMULATE_CHIPS_LIBRARY_(synthetic-narrow_chip_rep1)",
+      "max_rss_bytes": 4740431872,
+      "node": "srv-slurm-node-04",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 452,
+      "exit_code": "0:0",
+      "job_id": "16058",
+      "job_name": "nf-SIMULATE_CHIPS_LIBRARY_(synthetic-narrow_chip_rep2)",
+      "max_rss_bytes": 3153498112,
+      "node": "srv-slurm-node-04",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 121,
+      "exit_code": "0:0",
+      "job_id": "16059",
+      "job_name": "nf-VALIDATE_SYNTHETIC_NARROW_DATASET_(synthetic-narrow_dataset-validation)",
+      "max_rss_bytes": 10323546112,
+      "node": "srv-slurm-node-04",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 8,
+      "elapsed_seconds": 808,
+      "exit_code": "0:0",
+      "job_id": "16070",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_ALIGNMENT_BOWTIE2_ALIGN_(input)",
+      "max_rss_bytes": 6629359616,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 8,
+      "elapsed_seconds": 838,
+      "exit_code": "0:0",
+      "job_id": "16071",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_ALIGNMENT_BOWTIE2_ALIGN_(chip_rep1)",
+      "max_rss_bytes": 6746009600,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 8,
+      "elapsed_seconds": 839,
+      "exit_code": "0:0",
+      "job_id": "16072",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_ALIGNMENT_BOWTIE2_ALIGN_(chip_rep2)",
+      "max_rss_bytes": 6723633152,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 13,
+      "exit_code": "0:0",
+      "job_id": "16073",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_MULTIQC_(chipseq.raw.multiqc)",
+      "max_rss_bytes": 58941440,
+      "node": "srv-slurm-node-04",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 123,
+      "exit_code": "0:0",
+      "job_id": "16086",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_CALLING_MACS3_CALLPEAK_(chip_rep2.synthetic_factor.narrow.macs3)",
+      "max_rss_bytes": 2479374336,
+      "node": "srv-slurm-node-04",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 124,
+      "exit_code": "0:0",
+      "job_id": "16087",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_CALLING_MACS3_CALLPEAK_(chip_rep1.synthetic_factor.narrow.macs3)",
+      "max_rss_bytes": 2057920512,
+      "node": "srv-slurm-node-04",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 94,
+      "exit_code": "0:0",
+      "job_id": "16094",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_QC_FRIP_(chip_rep2.synthetic_factor.narrow.macs3)",
+      "max_rss_bytes": 4274409472,
+      "node": "srv-slurm-node-04",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 96,
+      "exit_code": "0:0",
+      "job_id": "16095",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_QC_FRIP_(chip_rep1.synthetic_factor.narrow.macs3)",
+      "max_rss_bytes": 4058398720,
+      "node": "srv-slurm-node-04",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 21,
+      "exit_code": "0:0",
+      "job_id": "16098",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CONSENSUS_IDR_IDR_PROVIDER_(chipseq-synthetic-narrow-v1.chipseq-synthetic-narrow-v1.synthetic_factor.synthetic_narrow.synthetic_factor.synthetic_chip_v1.narrow_idr)",
+      "max_rss_bytes": 13537280,
+      "node": "srv-slurm-node-04",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "0:0",
+      "job_id": "16099",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CONSENSUS_IDR_CONSENSUS_AGGREGATE_(chipseq.consensus.aggregate)",
+      "max_rss_bytes": 667648,
+      "node": "srv-slurm-node-04",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 8,
+      "elapsed_seconds": 1809,
+      "exit_code": "0:0",
+      "job_id": "16101",
+      "job_name": "hf-chip-independent",
+      "max_rss_bytes": 16335560704,
+      "node": "srv-slurm-node-02",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "0:0",
+      "job_id": "16105",
+      "job_name": "hf-chip-select",
+      "max_rss_bytes": 6688768,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 21,
+      "exit_code": "0:0",
+      "job_id": "16106",
+      "job_name": "hf-chip-evaluate",
+      "max_rss_bytes": 3088384,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 8,
+      "exit_code": "0:0",
+      "job_id": "16108",
+      "job_name": "hf-chip-figures",
+      "max_rss_bytes": 831488,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    }
+  ],
+  "status": "complete",
+  "storage_bytes": {
+    "dataset": 9579970699,
+    "helixforge": 10013671659,
+    "independent": 4130388527
+  },
+  "traces": [
+    {
+      "label": "helixforge",
+      "path": "trace.tsv",
+      "summary": {
+        "cached": 0,
+        "completed": 40,
+        "failed": 0,
+        "peak_rss_bytes": 4800000000,
+        "peak_vmem_bytes": 8500000000,
+        "read_bytes": 138526485300,
+        "summed_cpu_seconds": 19365.062646000002,
+        "summed_duration_seconds": 4581.900000000001,
+        "summed_realtime_seconds": 3764.0760000000005,
+        "task_count": 40,
+        "write_bytes": 71066822600
+      },
+      "tasks": 40
+    }
+  ],
+  "type": "synthetic_narrow_performance"
+}

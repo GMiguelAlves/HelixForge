@@ -1,13 +1,12 @@
-# Planned ChIP-seq benchmark reports
+# ChIP-seq benchmark reports
 
-No scientific report is generated during design freeze. After execution, each
-arm must produce a compact report assembled only from frozen metric tables and
-the top-level provenance manifest.
+Reports are assembled only from frozen metric tables and provenance evidence.
+An absent report indicates that its benchmark arm has not yet been executed.
 
 Required future reports:
 
-- `synthetic_narrow_benchmark.md`: per-replicate, consensus and IDR truth
-  accuracy, score curves, summit error, signal strata and fragmentation;
+- [`synthetic_narrow_benchmark.md`](synthetic_narrow_benchmark.md): completed
+  per-replicate and IDR ground-truth benchmark (`PASS_WITH_LIMITATIONS`);
 - `synthetic_broad_benchmark.md`: base accuracy, domain recovery, IoU, boundary
   error, fragmentation/merging topology and width/signal strata;
 - `real_narrow_benchmark.md`: QC, FRiP, replicate concordance, IDR, CTCF motif
