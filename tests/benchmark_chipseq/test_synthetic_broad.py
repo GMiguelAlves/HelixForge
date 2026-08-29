@@ -22,6 +22,9 @@ def load_module(name: str, relative_path: str):
 
 PREPARE = load_module("prepare_synthetic_broad_test", "benchmark/chipseq/scripts/prepare_synthetic_broad.py")
 CONSENSUS = load_module("independent_broad_consensus_test", "benchmark/chipseq/scripts/independent_broad_consensus.py")
+EVALUATOR = load_module("evaluate_synthetic_broad_test", "benchmark/chipseq/scripts/evaluate_synthetic_broad.py")
+COVERAGE = load_module("evaluate_broad_coverage_test", "benchmark/chipseq/scripts/evaluate_broad_coverage.py")
+COLLECTOR = load_module("collect_synthetic_broad_outputs_test", "benchmark/chipseq/scripts/collect_synthetic_broad_outputs.py")
 
 
 class SyntheticBroadContractTests(unittest.TestCase):
@@ -96,6 +99,55 @@ class SyntheticBroadContractTests(unittest.TestCase):
                 sys.argv = original
             self.assertEqual(output.read_text(encoding="utf-8"), "chr1\t10\t20\tINDEPENDENT_SUPPORT2_000001\n")
             self.assertEqual(json.loads(statistics.read_text(encoding="utf-8"))["covered_bases"], 10)
+
+    def test_broad_fragmentation_uses_substantial_edges(self):
+        truth = [
+            EVALUATOR.Domain(0, "T1", "chr1", 0, 1000, "SHORT_BROAD", "STRONG", 0.8, 0, 0.0)
+        ]
+        calls = [
+            EVALUATOR.Call(0, "chr1", 0, 600, "C1", 1.0),
+            EVALUATOR.Call(1, "chr1", 400, 1000, "C2", 1.0),
+        ]
+        summary, rows = EVALUATOR.summarize_domains("test", truth, calls, 0, 5000)
+        self.assertEqual(summary["fragmented_domains"], 1)
+        self.assertEqual(summary["fragmentation_excess"], 1)
+        self.assertAlmostEqual(rows[0]["coverage_recall"], 1.0)
+        self.assertAlmostEqual(rows[0]["per_domain_iou"], 1.0)
+
+    def test_broad_merging_counts_one_call_with_two_truth_neighbours(self):
+        truth = [
+            EVALUATOR.Domain(0, "T1", "chr1", 0, 1000, "SHORT_BROAD", "STRONG", 0.8, 0, 0.0),
+            EVALUATOR.Domain(1, "T2", "chr1", 2000, 3000, "SHORT_BROAD", "WEAK", 0.25, 0, 0.0),
+        ]
+        calls = [EVALUATOR.Call(0, "chr1", 0, 2500, "C1", 1.0)]
+        summary, rows = EVALUATOR.summarize_domains("test", truth, calls, 0, 5000)
+        self.assertEqual(summary["merged_calls"], 1)
+        self.assertEqual(summary["merging_excess"], 1)
+        self.assertEqual(sum(row["merging_involved"] for row in rows), 2)
+
+    def test_coverage_parser_accepts_deeptools_raw_counts(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            path = Path(temporary_directory) / "coverage.tsv"
+            path.write_text(
+                "#'chr'\t'start'\t'end'\t'rep1.bw'\t'rep2.bw'\n"
+                "chr1\t0\t500\t1.5\t2.5\n",
+                encoding="utf-8",
+            )
+            coordinates, columns, rows = COVERAGE.read_observed(path)
+            self.assertEqual(coordinates, ["chr", "start", "end"])
+            self.assertEqual(columns, ["rep1.bw", "rep2.bw"])
+            self.assertEqual(rows[0]["rep2.bw"], "2.5")
+
+    def test_broad_consensus_candidates_require_replicate_support_result(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            expected = root / "group" / "group.replicate_support.consensus_result" / "consolidated_peaks.bed"
+            expected.parent.mkdir(parents=True)
+            expected.write_text("chr1\t0\t10\n", encoding="utf-8")
+            unrelated = root / "reports" / "consolidated_peaks.bed"
+            unrelated.parent.mkdir(parents=True)
+            unrelated.write_text("chr1\t0\t10\n", encoding="utf-8")
+            self.assertEqual(COLLECTOR.consensus_candidates(root), [expected])
 
 
 if __name__ == "__main__":
