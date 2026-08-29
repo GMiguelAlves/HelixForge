@@ -114,9 +114,16 @@ def main() -> None:
             and design["simulator"]["read_length_bp"] == 75
             and design["simulator"]["read_layout"] == "paired-end"
         ),
-        "macs3": macs["macs3_version"] == "3.0.4" and macs["arms"]["synthetic_broad"] == {
-            "peak_type": "broad", "format": "BAMPE", "effective_genome_size": 54000000
-        },
+        "macs3": (
+            macs["macs3_version"] == "3.0.4"
+            and macs["common"]["cutoff_type"] == "qvalue"
+            and macs["common"]["cutoff"] == 0.01
+            and macs["common"]["keep_dup"] == "all"
+            and macs["arms"]["synthetic_broad"]["peak_type"] == "broad"
+            and macs["arms"]["synthetic_broad"]["format"] == "BAMPE"
+            and macs["arms"]["synthetic_broad"]["effective_genome_size"] == 54000000
+            and macs["arms"]["synthetic_broad"]["broad_cutoff"] == "MACS3 default (0.1)"
+        ),
         "consensus": design["helixforge_run_mode"] == "consensus" and design["consensus"] == {
             "strategy": "replicate_support", "minimum_replicates": 2
         },
