@@ -1,0 +1,5 @@
+expectation_id	category	predeclared_expectation	measurement	interpretation	source
+H3K27ME3_01	shape	H3K27me3 produces extended domains rather than summit-centred narrow peaks	Width distribution and continuous coverage	A narrow-only call profile is biologically implausible	https://pmc.ncbi.nlm.nih.gov/articles/PMC3177187/
+H3K27ME3_02	replicates	Replicates show positive genome-wide coverage concordance	Binned coverage correlation and replicate-support consensus	Low concordance is reported without substituting narrow IDR	https://www.encodeproject.org/experiments/ENCSR000AKQ/
+H3K27ME3_03	reference	Consensus domains overlap an appreciable subset of ENCODE replicated broad peaks	Base-level overlap against ENCFF049HUP	Descriptive plausibility only; external calls are not truth	https://www.encodeproject.org/files/ENCFF049HUP/
+H3K27ME3_04	biology	Broad H3K27me3 profiles are compatible with Polycomb-associated repression and include gene-associated and intergenic classes	Genome-wide annotation distribution without a post-hoc positive gene list	Descriptive biological context, not a locus-specific release gate	https://pmc.ncbi.nlm.nih.gov/articles/PMC3177187/

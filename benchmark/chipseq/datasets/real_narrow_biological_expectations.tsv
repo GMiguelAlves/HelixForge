@@ -1,0 +1,5 @@
+expectation_id	category	predeclared_expectation	measurement	interpretation	source
+CTCF_01	motif	Canonical CTCF motif is enriched near final narrow-peak summits	Motif enrichment and centrality using JASPAR MA0139.1	Required biological plausibility; absence is a warning or failure according to the frozen criteria	https://jaspar.elixir.no/matrix/MA0139.1/
+CTCF_02	replicates	Biological replicates have positive signal and peak-rank concordance	FRiP, peak overlap, rank correlation and IDR	Discordance is reported; it is not repaired by threshold tuning	https://www.encodeproject.org/experiments/ENCSR000AKO/
+CTCF_03	localization	Final calls remain localized relative to external ENCODE peaks	Reciprocal overlap and summit distance against ENCFF519CXF	Descriptive comparison only; ENCODE peaks are not ground truth	https://www.encodeproject.org/files/ENCFF519CXF/
+CTCF_04	locus	CTCF signal is detectable at documented K562 beta-globin regulatory boundaries	Track inspection at the beta-globin locus	Qualitative positive control, not a release gate by itself	https://pmc.ncbi.nlm.nih.gov/articles/PMC3439919/

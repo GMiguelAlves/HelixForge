@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/GMiguelAlves/HelixForge/benchmark/chipseq/provenance/chipseq_benchmark_manifest.schema.json",
+  "title": "HelixForge ChIP-seq benchmark manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "benchmark_id", "arm", "status", "benchmark_target",
+    "dataset", "reference", "tools", "parameters", "execution", "inputs",
+    "outputs", "metrics", "timestamps"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "benchmark_id": {"type": "string", "minLength": 1},
+    "arm": {"enum": ["synthetic_narrow", "synthetic_broad", "real_narrow", "real_broad"]},
+    "status": {"enum": ["planned", "running", "complete", "failed", "blocked"]},
+    "classification": {"enum": ["PASS", "PASS_WITH_LIMITATIONS", "FAIL", "BLOCKED"]},
+    "benchmark_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "commit"],
+      "properties": {
+        "version": {"type": "string"},
+        "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+      }
+    },
+    "dataset": {"type": "object", "required": ["type", "id"], "properties": {"type": {"enum": ["synthetic", "public"]}, "id": {"type": "string"}}, "additionalProperties": true},
+    "simulator": {"type": ["object", "null"]},
+    "reference": {"type": "object", "required": ["id", "assembly", "effective_genome_size"], "additionalProperties": true},
+    "blacklist": {"type": ["object", "null"]},
+    "tools": {"type": "array", "items": {"type": "object", "required": ["name", "version"], "properties": {"name": {"type": "string"}, "version": {"type": "string"}, "container": {"type": ["string", "null"]}}, "additionalProperties": true}},
+    "parameters": {"type": "object"},
+    "execution": {"type": "object", "required": ["engine", "executor", "nextflow_version", "java_version", "session_id", "slurm_job_ids"], "additionalProperties": true},
+    "inputs": {"type": "array", "items": {"$ref": "#/$defs/artifact"}},
+    "outputs": {"type": "array", "items": {"$ref": "#/$defs/artifact"}},
+    "metrics": {"type": "array", "items": {"type": "object", "required": ["name", "value"], "additionalProperties": true}},
+    "timestamps": {"type": "object", "required": ["started_at", "completed_at"], "additionalProperties": true},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "size_bytes", "sha256"],
+      "properties": {
+        "role": {"type": "string"},
+        "path": {"type": "string"},
+        "size_bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "source_accession": {"type": ["string", "null"]},
+        "source_md5": {"type": ["string", "null"], "pattern": "^[0-9a-f]{32}$"}
+      }
+    }
+  }
+}

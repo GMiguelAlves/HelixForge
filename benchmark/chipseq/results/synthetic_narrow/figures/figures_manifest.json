@@ -1,0 +1,76 @@
+{
+  "inputs": {
+    "matched_peaks.tsv": "59bb8ca45d50e63ac784d675e801ff49d5f0f0ad07a62ab8d3612b116efa689d",
+    "precision_recall_curve.tsv": "bb4506b61e3ac847872e834206527d6e298a5f2d96517eaf5d024582d38cd501",
+    "replicate_metrics.tsv": "994294f10763a004cf4b1928061e532a2393ff7dcab29105c3924afee668d7fe",
+    "signal_class_metrics.tsv": "9b0ae92f43b53d091fce8c94c0e34d95e7b4006ca52c0aa933c4438808af5800",
+    "truth_accuracy.tsv": "119b751d0fc534b66546a1d1a9fd2dfd623cf222dc8a24000265ac6d185a1ffe"
+  },
+  "matplotlib": "3.5.3",
+  "outputs": [
+    {
+      "path": "figure_1_precision_recall.png",
+      "sha256": "7f498efb593a6790aba6f40a1d01698cb89588a30675f9be6493c36ee4fd4871",
+      "size_bytes": 50433
+    },
+    {
+      "path": "figure_1_precision_recall.pdf",
+      "sha256": "920ed078a9ed708c0c083f6765a45a32e14d9df5a4957df2677104fcef4bbd4e",
+      "size_bytes": 13543
+    },
+    {
+      "path": "figure_2_signal_class_recall.png",
+      "sha256": "aeda68600417eca817918197bbfa07835b180b637a89deabb7cd58a19de3e4f2",
+      "size_bytes": 56259
+    },
+    {
+      "path": "figure_2_signal_class_recall.pdf",
+      "sha256": "1812301a31890408eb0ce23f837373fabf3e1d8a82ce326acd459d5b459452cd",
+      "size_bytes": 17191
+    },
+    {
+      "path": "figure_3_summit_distance.png",
+      "sha256": "cbde1cdb16219bb8d55e9aaa88bb3e941780e4d69e09535c459c2ab4d530f6bb",
+      "size_bytes": 44993
+    },
+    {
+      "path": "figure_3_summit_distance.pdf",
+      "sha256": "247a1d3ba026b9c8485842449d31d65ad574b8648287f83c2980be36a71e26cf",
+      "size_bytes": 15725
+    },
+    {
+      "path": "figure_4_signal_ranking.png",
+      "sha256": "41903c3fb308926ff13629a26a1cbdb571ac886a310165b1bbb388a9890b7e8c",
+      "size_bytes": 42915
+    },
+    {
+      "path": "figure_4_signal_ranking.pdf",
+      "sha256": "3aeaa8f9ed57a213e5cc96665dcb16578317ecc5fc3dd52fcb50f2f82964ff19",
+      "size_bytes": 18022
+    },
+    {
+      "path": "figure_5_replicate_concordance.png",
+      "sha256": "7b2b385579ac8daf4bac5cde5c56235d43c47cef0d6df68a2e2d07d991fb532c",
+      "size_bytes": 47526
+    },
+    {
+      "path": "figure_5_replicate_concordance.pdf",
+      "sha256": "25556354807d051360980829e3b6e91185953bbbb1ec505df67f8822031717a5",
+      "size_bytes": 12079
+    },
+    {
+      "path": "figure_6_peak_set_counts.png",
+      "sha256": "9306068f08334a3c4d05d765d1882203b02184464e773f83f91b104855b7a97a",
+      "size_bytes": 69988
+    },
+    {
+      "path": "figure_6_peak_set_counts.pdf",
+      "sha256": "276200b15de317c12b01fe89f06a221c981eb7ed48764a169b3a7ac90afcfac1",
+      "size_bytes": 13897
+    }
+  ],
+  "primary_label": "helixforge_idr",
+  "python": "3.9.23",
+  "schema_version": "1.0",
+  "type": "synthetic_narrow_figures"
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "macs3_version": "3.0.4",
+  "common": {
+    "control_required": true,
+    "keep_dup": "all",
+    "bedgraph": true,
+    "cutoff_type": "qvalue",
+    "cutoff": 0.01,
+    "additional_args": "",
+    "explicitly_absent": [
+      "--nomodel",
+      "--shift",
+      "--extsize",
+      "--call-summits",
+      "--broad-cutoff"
+    ]
+  },
+  "arms": {
+    "synthetic_narrow": {
+      "peak_type": "narrow",
+      "format": "BAMPE",
+      "effective_genome_size": 54000000
+    },
+    "synthetic_broad": {
+      "peak_type": "broad",
+      "format": "BAMPE",
+      "effective_genome_size": 54000000,
+      "broad_cutoff": "MACS3 default (0.1)"
+    },
+    "real_narrow": {
+      "peak_type": "narrow",
+      "format": "BAM",
+      "effective_genome_size": 2913022398
+    },
+    "real_broad": {
+      "peak_type": "broad",
+      "format": "BAM",
+      "effective_genome_size": 2913022398,
+      "broad_cutoff": "MACS3 default (0.1)"
+    }
+  }
+}
