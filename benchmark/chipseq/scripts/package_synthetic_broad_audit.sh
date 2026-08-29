@@ -46,7 +46,7 @@ copy_compact_tree() {
     [[ -d "$source" ]] || return 0
     while IFS= read -r -d '' path; do
         case "${path##*/}" in
-            eligible_500bp_bins.bed|coverage_raw.tsv|expected_signal.tsv|*.npz)
+            eligible_500bp_bins.bed|eligible_units.bed|units_in_peaks.bed|coverage_raw.tsv|expected_signal.tsv|*.npz)
                 continue
                 ;;
             *.json|*.yml|*.yaml|*.tsv|*.psv|*.txt|*.log|*.done|*.sha256|*.broadPeak|*.xls|*.bed|*.png|*.pdf|*.html|*.config|*.nf|*.py|*.sh)
