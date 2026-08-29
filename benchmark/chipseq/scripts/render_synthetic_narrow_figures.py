@@ -125,7 +125,10 @@ def main() -> None:
         "inputs": {path.name: sha256(path) for path in sorted(args.metrics_dir.glob("*.tsv"))},
         "outputs": [{"path": path.name, "sha256": sha256(path), "size_bytes": path.stat().st_size} for path in outputs],
     }
-    (args.output_dir / "figures_manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+    (args.output_dir / "figures_manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
 
 
 if __name__ == "__main__":
