@@ -66,6 +66,18 @@ class SyntheticNarrowEvaluatorTests(unittest.TestCase):
 
             self.assertEqual(set(observed), set(expected))
 
+    def test_multiqc_candidates_prefer_canonical_publication(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            canonical = root / "030-qc-fastq" / "multiqc" / "raw_fastq_multiqc.html"
+            canonical.parent.mkdir(parents=True)
+            canonical.write_text("report", encoding="utf-8")
+            duplicate = root / "pipeline_info" / "multiqc" / "raw_fastq_multiqc.html"
+            duplicate.parent.mkdir(parents=True)
+            duplicate.write_text("report", encoding="utf-8")
+
+            self.assertEqual(COLLECTOR.multiqc_candidates(root), [canonical])
+
 
 if __name__ == "__main__":
     unittest.main()
