@@ -11,6 +11,7 @@ deeptools_runtime=${4:?deepTools runtime is required}
     echo "Synthetic broad evaluation must run under Slurm." >&2
     exit 2
 }
+export PATH="$frozen_runtime/bin:/usr/bin:/bin"
 
 dataset_root="$benchmark_root/dataset"
 helixforge_run="$benchmark_root/helixforge"
@@ -74,4 +75,3 @@ bash "$repo_root/benchmark/chipseq/scripts/slurm_evaluate_broad_coverage.sh" \
 find "$evaluation_root/technical" "$evaluation_root/scientific" "$evaluation_root/coverage" \
     -type f ! -path '*/bigwig/*' ! -name 'coverage.npz' -print0 \
     | sort -z | xargs -0 sha256sum > "$evaluation_root/provenance/checksums.sha256"
-
