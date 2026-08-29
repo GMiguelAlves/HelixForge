@@ -1,0 +1,12 @@
+name: helixforge-chipseq-benchmark-frozen
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.12
+  - bowtie2=2.5.4
+  - samtools=1.20
+  - macs3=3.0.4
+  - fastqc=0.12.1
+  - multiqc=1.35
+  - bedtools=2.31.1
