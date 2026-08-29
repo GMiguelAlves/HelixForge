@@ -1,0 +1,6 @@
+left	right	left_regions	right_regions	left_covered_bases	right_covered_bases	intersection_bases	union_bases	base_jaccard	left_reciprocal_overlap	right_reciprocal_overlap
+helixforge_rep1	helixforge_rep2	957	975	7511176	7497284	7430793	7577667	0.9806175172384851	0.9892982137550764	0.9911313216892944
+independent_rep1	independent_rep2	957	975	7511176	7497284	7430793	7577667	0.9806175172384851	0.9892982137550764	0.9911313216892944
+helixforge_rep1	independent_rep1	957	957	7511176	7511176	7511176	7511176	1.0	1.0	1.0
+helixforge_rep2	independent_rep2	975	975	7497284	7497284	7497284	7497284	1.0	1.0	1.0
+helixforge_consensus	independent_consensus	1026	1026	7430793	7430793	7430793	7430793	1.0	1.0	1.0

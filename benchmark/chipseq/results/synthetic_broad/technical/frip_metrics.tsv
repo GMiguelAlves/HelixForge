@@ -1,0 +1,3 @@
+sample_id	frip	total_fragments	fragments_in_peaks	min_mapq	status
+chip_rep1	0.5415989692826272	11006703	5961219	30	complete
+chip_rep2	0.5414699488510214	11009213	5961158	30	complete
