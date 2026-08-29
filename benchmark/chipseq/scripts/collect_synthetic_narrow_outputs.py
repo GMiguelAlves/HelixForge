@@ -51,6 +51,12 @@ def final_idr_candidates(consensus_root: Path) -> list[Path]:
     ]
 
 
+def multiqc_candidates(results: Path) -> list[Path]:
+    """Prefer the canonical QC publication and retain legacy filename support."""
+    canonical = list((results / "030-qc-fastq" / "multiqc").glob("*_multiqc.html"))
+    return canonical or list(results.rglob("multiqc_report.html"))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--helixforge-run", required=True, type=Path)
@@ -83,7 +89,7 @@ def main() -> None:
 
     trace = require_one([helixforge_run / "trace.tsv"], "Nextflow trace")
     trace_metrics = parse_trace(trace)
-    multiqc = require_one(list(results.rglob("multiqc_report.html")), "MultiQC report")
+    multiqc = require_one(multiqc_candidates(results), "MultiQC report")
     nextflow_report = require_one([helixforge_run / "report.html"], "Nextflow report")
     log = require_one([helixforge_run / "logs/nextflow.log"], "Nextflow log")
     log_text = log.read_text(encoding="utf-8", errors="replace")
