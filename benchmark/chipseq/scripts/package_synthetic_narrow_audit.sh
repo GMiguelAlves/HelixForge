@@ -94,7 +94,11 @@ archive="$home_audit_dir/helixforge-chipseq-synthetic-narrow-audit-20260828.zip"
 rm -f -- "$archive"
 (
     cd "$stage"
-    zip -q -r "$archive" .
+    if command -v zip >/dev/null 2>&1; then
+        zip -q -r "$archive" .
+    else
+        python3 -m zipfile -c "$archive" .
+    fi
 )
 sha256sum "$archive" > "$archive.sha256"
 printf '%s\n' "$archive"
