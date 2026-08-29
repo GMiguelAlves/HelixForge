@@ -28,9 +28,10 @@ tar -xzf "$source_tar" -C "$build_parent"
 source_root=$(find "$build_parent" -mindepth 2 -maxdepth 2 -type f -name CMakeLists.txt -printf '%h\n' | head -n 1)
 [[ -n "$source_root" ]]
 c_compiler=${CC:-/usr/bin/gcc}
-cxx_compiler=${CXX:-/usr/bin/g++}
-[[ -x "$c_compiler" && -x "$cxx_compiler" ]] || {
-    echo "System C/C++ compilers are not executable: $c_compiler $cxx_compiler" >&2
+cxx_compiler=${CHIPS_CXX_COMPILER:-${CXX:-/usr/bin/g++}}
+cxx_linker=${CHIPS_CXX_LINKER:-/usr/bin/g++}
+[[ -x "$c_compiler" && -x "$cxx_compiler" && -x "$cxx_linker" ]] || {
+    echo "C/C++ compiler or linker is not executable: $c_compiler $cxx_compiler $cxx_linker" >&2
     exit 2
 }
 portable_cxx_flags='-march=x86-64 -mtune=generic -include bits/stdc++.h'
@@ -41,6 +42,7 @@ export CXX="$cxx_compiler"
 cmake -S "$source_root" -B "$build_parent/build" \
     -DCMAKE_C_COMPILER="$c_compiler" \
     -DCMAKE_CXX_COMPILER="$cxx_compiler" \
+    -DCMAKE_CXX_LINK_EXECUTABLE="$cxx_linker <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>" \
     -DCMAKE_C_FLAGS="$portable_c_flags" \
     -DCMAKE_CXX_FLAGS="$portable_cxx_flags"
 cmake --build "$build_parent/build" --parallel "${SLURM_CPUS_PER_TASK:-2}"
@@ -73,6 +75,8 @@ fi
     printf 'c_compiler\t%s\n' "$("$c_compiler" --version | head -n 1)"
     printf 'cxx_compiler_path\t%s\n' "$cxx_compiler"
     printf 'cxx_compiler\t%s\n' "$("$cxx_compiler" --version | head -n 1)"
+    printf 'cxx_linker_path\t%s\n' "$cxx_linker"
+    printf 'cxx_linker\t%s\n' "$("$cxx_linker" --version | head -n 1)"
     printf 'cmake\t%s\n' "$(cmake --version | head -n 1)"
     printf 'cmake_build_type\t%s\n' 'default (upstream README command)'
     printf 'compatibility_cxx_flags\t%s\n' "$portable_cxx_flags"
