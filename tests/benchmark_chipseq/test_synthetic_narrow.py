@@ -53,7 +53,7 @@ class SyntheticNarrowEvaluatorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
             expected = []
-            for directory in ("idr_result", "consensus_result"):
+            for directory in ("experiment.idr_result", "consensus_result"):
                 path = root / "experiment" / directory / "idr_output.narrowPeak"
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text("chr1\t0\t10\n", encoding="utf-8")
