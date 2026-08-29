@@ -45,6 +45,9 @@ copy_compact_tree() {
     [[ -d "$source" ]] || return 0
     while IFS= read -r -d '' path; do
         case "${path##*/}" in
+            eligible_units.bed|units_in_peaks.bed)
+                continue
+                ;;
             *.json|*.yml|*.yaml|*.tsv|*.txt|*.log|*.done|*.sha256|*.narrowPeak|*.xls|*.bed|*.png|*.html)
                 relative="${path#"$source"/}"
                 mkdir -p "$stage/$destination/$(dirname "$relative")"
