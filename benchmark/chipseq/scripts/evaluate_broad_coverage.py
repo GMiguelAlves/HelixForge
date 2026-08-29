@@ -64,13 +64,20 @@ def main() -> None:
     coordinate_columns, columns, observed = read_observed(args.observed)
     if len(columns) != len(args.label):
         raise ValueError("BigWig column count does not match labels")
-    if len(expected) != len(observed):
-        raise ValueError("expected and observed bin counts differ")
+    observed_by_coordinate = {}
+    for observed_row in observed:
+        coordinates = tuple(observed_row[column] for column in coordinate_columns)
+        if coordinates in observed_by_coordinate:
+            raise ValueError(f"duplicate observed bin coordinates: {coordinates}")
+        observed_by_coordinate[coordinates] = observed_row
+    expected_coordinates = [tuple(row[column] for column in ("chrom", "start", "end")) for row in expected]
+    if len(expected_coordinates) != len(set(expected_coordinates)):
+        raise ValueError("duplicate expected bin coordinates")
+    if set(expected_coordinates) != set(observed_by_coordinate):
+        raise ValueError("expected and observed bin coordinate sets differ")
     expected_signal, vectors = [], {label: [] for label in args.label}
-    for expected_row, observed_row in zip(expected, observed):
-        coordinates = (expected_row["chrom"], expected_row["start"], expected_row["end"])
-        if coordinates != tuple(observed_row[column] for column in coordinate_columns):
-            raise ValueError("expected and observed bin coordinates differ")
+    for expected_row, coordinates in zip(expected, expected_coordinates):
+        observed_row = observed_by_coordinate[coordinates]
         expected_signal.append(float(expected_row["expected_signal"]))
         for label, column in zip(args.label, columns):
             vectors[label].append(float(observed_row[column]))
