@@ -138,6 +138,43 @@ class SyntheticBroadContractTests(unittest.TestCase):
             self.assertEqual(columns, ["rep1.bw", "rep2.bw"])
             self.assertEqual(rows[0]["rep2.bw"], "2.5")
 
+    def test_coverage_evaluation_matches_bins_by_coordinate(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            expected = root / "expected.tsv"
+            observed = root / "observed.tsv"
+            output_json = root / "coverage.json"
+            output_tsv = root / "coverage.tsv"
+            expected.write_text(
+                "chrom\tstart\tend\tbin_id\texpected_signal\n"
+                "chr1\t0\t500\tB1\t0.0\n"
+                "chr1\t500\t1000\tB2\t1.0\n",
+                encoding="utf-8",
+            )
+            observed.write_text(
+                "#'chr'\t'start'\t'end'\t'rep1.bw'\t'rep2.bw'\n"
+                "chr1\t500\t1000\t2.0\t4.0\n"
+                "chr1\t0\t500\t1.0\t3.0\n",
+                encoding="utf-8",
+            )
+            original = sys.argv
+            try:
+                sys.argv = [
+                    "evaluate_broad_coverage.py",
+                    "--expected", str(expected),
+                    "--observed", str(observed),
+                    "--label", "rep1",
+                    "--label", "rep2",
+                    "--output-json", str(output_json),
+                    "--output-tsv", str(output_tsv),
+                ]
+                COVERAGE.main()
+            finally:
+                sys.argv = original
+            document = json.loads(output_json.read_text(encoding="utf-8"))
+            self.assertEqual(document["bin_count"], 2)
+            self.assertEqual(document["status"], "complete")
+
     def test_broad_consensus_candidates_require_replicate_support_result(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
