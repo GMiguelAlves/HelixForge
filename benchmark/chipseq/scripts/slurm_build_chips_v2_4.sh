@@ -27,17 +27,37 @@ trap 'rm -rf "$build_parent"' EXIT
 tar -xzf "$source_tar" -C "$build_parent"
 source_root=$(find "$build_parent" -mindepth 2 -maxdepth 2 -type f -name CMakeLists.txt -printf '%h\n' | head -n 1)
 [[ -n "$source_root" ]]
-compiler=${CXX:-c++}
+compiler=${CXX:-/usr/bin/g++}
+[[ -x "$compiler" ]] || {
+    echo "C++ compiler is not executable: $compiler" >&2
+    exit 2
+}
+portable_cxx_flags='-march=x86-64 -mtune=generic -include bits/stdc++.h'
 
 cmake -S "$source_root" -B "$build_parent/build" \
     -DCMAKE_CXX_COMPILER="$compiler" \
-    -DCMAKE_CXX_FLAGS=-include\ bits/stdc++.h
+    -DCMAKE_CXX_FLAGS="$portable_cxx_flags"
 cmake --build "$build_parent/build" --parallel "${SLURM_CPUS_PER_TASK:-2}"
 binary=$(find "$build_parent/build" -type f -name chips -perm -u+x -print -quit)
 [[ -n "$binary" ]]
 
 mkdir -p "$install_root/bin" "$install_root/provenance"
 install -m 0755 "$binary" "$install_root/bin/chips"
+readelf -n "$install_root/bin/chips" > "$install_root/provenance/elf-notes.txt"
+if grep -Eq 'x86-64-v[34]' "$install_root/provenance/elf-notes.txt"; then
+    echo "ChIPs binary requires a non-portable x86-64 ISA level" >&2
+    exit 2
+fi
+
+set +e
+"$install_root/bin/chips" > "$install_root/provenance/chips.help.txt" 2>&1
+help_status=$?
+set -e
+if [[ "$help_status" -eq 126 || "$help_status" -eq 127 ]] || \
+    grep -q 'CPU ISA level is lower than required' "$install_root/provenance/chips.help.txt"; then
+    echo "ChIPs binary failed its runtime portability check" >&2
+    exit 2
+fi
 {
     printf 'chips_version\tv2.4\n'
     printf 'chips_commit\t%s\n' "$expected_commit"
@@ -47,9 +67,9 @@ install -m 0755 "$binary" "$install_root/bin/chips"
     printf 'compiler\t%s\n' "$("$compiler" --version | head -n 1)"
     printf 'cmake\t%s\n' "$(cmake --version | head -n 1)"
     printf 'cmake_build_type\t%s\n' 'default (upstream README command)'
-    printf 'compatibility_cxx_flags\t%s\n' '-include bits/stdc++.h'
+    printf 'compatibility_cxx_flags\t%s\n' "$portable_cxx_flags"
+    printf 'runtime_help_exit_status\t%s\n' "$help_status"
     printf 'slurm_job_id\t%s\n' "$SLURM_JOB_ID"
     printf 'hostname\t%s\n' "$(hostname -f 2>/dev/null || hostname)"
 } > "$install_root/provenance/runtime.tsv"
 sha256sum "$install_root/bin/chips" "$source_tar" > "$install_root/provenance/checksums.sha256"
-"$install_root/bin/chips" > "$install_root/provenance/chips.help.txt" 2>&1 || true
