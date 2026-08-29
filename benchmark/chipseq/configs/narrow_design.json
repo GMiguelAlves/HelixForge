@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "benchmark_id": "chipseq-synthetic-narrow-v1",
+  "reference": {
+    "id": "synthetic_chip_v1",
+    "chromosomes": 3,
+    "chromosome_length_bp": 20000000,
+    "target_gc_fraction": 0.42,
+    "repeat_fraction": 0.10,
+    "seed": 20260900,
+    "effective_genome_size": 54000000
+  },
+  "truth": {
+    "peak_count": 1500,
+    "peak_width_bp": 400,
+    "minimum_summit_spacing_bp": 5000,
+    "signal_classes": {
+      "strong": {"count": 500, "score": 0.90},
+      "medium": {"count": 500, "score": 0.60},
+      "weak": {"count": 500, "score": 0.30}
+    },
+    "negative_regions": 1500
+  },
+  "simulator": {
+    "name": "ChIPs",
+    "version": "v2.4",
+    "commit": "766c92cbb50783a537c897431b77e6bff8dba506",
+    "mode": "direct narrow-region model",
+    "read_layout": "paired-end",
+    "read_length_bp": 75,
+    "read_pairs_per_library": 8000000,
+    "fragment_gamma_shape": 15,
+    "fragment_gamma_scale": 12,
+    "copies": 1000,
+    "spot": 0.25,
+    "pcr_rate": 0.85,
+    "noscale": true,
+    "seeds": {"replicate_1": 20260911, "replicate_2": 20260912, "input": 20260913}
+  },
+  "replicates": 2,
+  "matched_input_libraries": 1,
+  "helixforge_run_mode": "idr",
+  "idr": {
+    "version": "2.0.4.2",
+    "rank": "signal_value",
+    "threshold": 0.05,
+    "replicate_mode": "biological",
+    "input_policy": "require_premerged"
+  }
+}

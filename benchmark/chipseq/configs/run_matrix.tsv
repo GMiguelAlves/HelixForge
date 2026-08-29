@@ -1,0 +1,5 @@
+arm	data_type	layout	helixforge_run_mode	peak_type	replicates	input	primary_peak_set
+synthetic_narrow	synthetic	paired-end	idr	narrow	2	matched_WCE	IDR_filtered
+synthetic_broad	synthetic	paired-end	consensus	broad	2	matched_WCE	replicate_support_2
+real_narrow	ENCODE_K562_CTCF	single-end	idr	narrow	2	ENCFF000BWK	IDR_filtered
+real_broad	ENCODE_K562_H3K27me3	single-end	consensus	broad	2	ENCFF000BWK	replicate_support_2

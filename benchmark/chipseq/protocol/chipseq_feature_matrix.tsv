@@ -1,0 +1,30 @@
+feature	implemented	official	experimental	narrow	broad	benchmark_scope	classification	notes
+FastQC	true	true	false	true	true	all	IMPLEMENTED_AND_BENCHMARKED	One task per declared FASTQ; raw reads only.
+MultiQC	true	true	false	true	true	all	IMPLEMENTED_AND_BENCHMARKED	Aggregates compatible QC artifacts; certified OCI exists.
+Trim Galore	false	false	false	false	false	none	NOT_IMPLEMENTED	Native ChIP-seq currently has no trimming branch.
+alignment	true	true	false	true	true	all	IMPLEMENTED_AND_BENCHMARKED	Coordinate-sorted BAM, BAI, statistics and manifests.
+Bowtie2	true	true	false	true	true	all	IMPLEMENTED_AND_BENCHMARKED	Only official ChIP-seq aligner; version 2.5.4.
+BWA	false	false	false	false	false	none	NOT_IMPLEMENTED	Legacy option retired; not an active provider.
+MAPQ filtering	true	true	false	true	true	all	IMPLEMENTED_AND_BENCHMARKED	Explicit samtools selection; frozen benchmark threshold 30.
+duplicate handling	true	true	false	true	true	all	IMPLEMENTED_AND_BENCHMARKED	Modes none/mark/remove; benchmark freezes none and reports the limitation.
+blacklist filtering	true	true	false	true	true	real	IMPLEMENTED_AND_BENCHMARKED	GRCh38 ENCODE exclusion list; fragment policy.
+fragment estimation	partial	false	true	true	false	descriptive	EXPERIMENTAL	No dedicated QC module; MACS3 models single-end and uses observed paired fragments.
+MACS3	true	true	false	true	true	all	IMPLEMENTED_AND_BENCHMARKED	Version 3.0.4; one call per IP replicate.
+narrowPeak	true	true	false	true	false	narrow	IMPLEMENTED_AND_BENCHMARKED	Validated 10-column semantic artifact.
+broadPeak	true	true	false	false	true	broad	IMPLEMENTED_AND_BENCHMARKED	Validated 9-column semantic artifact.
+Input control	true	true	false	true	true	all	IMPLEMENTED_AND_BENCHMARKED	Exact control association; selected datasets use input library.
+IgG control	partial	false	true	true	true	none	EXPERIMENTAL	Representable as control, but semantic suitability is not validated.
+no control	true	true	false	true	true	none	IMPLEMENTED_NOT_BENCHMARKED	MACS3 permits explicit absence; all frozen cases use matched Input.
+biological replicates	true	true	false	true	true	all	IMPLEMENTED_AND_BENCHMARKED	Two replicates per benchmark arm.
+technical replicate merge	false	false	false	false	false	none	NOT_IMPLEMENTED	Require premerged or preserve records; no silent merging.
+interval consensus	true	true	false	true	true	broad_primary	IMPLEMENTED_AND_BENCHMARKED	Union/intersection/replicate-support; broad uses replicate-support=2.
+IDR	true	true	false	true	false	narrow	IMPLEMENTED_AND_BENCHMARKED	IDR 2.0.4.2; exactly two premerged biological narrowPeak inputs.
+FRiP	true	true	false	true	true	all	IMPLEMENTED_AND_BENCHMARKED	Fragment/read unit follows layout; any-base overlap.
+peak annotation	true	true	false	true	true	real_descriptive	IMPLEMENTED_NOT_BENCHMARKED	Reported separately from peak-calling correctness.
+peak-to-gene	partial	true	false	true	true	real_descriptive	IMPLEMENTED_NOT_BENCHMARKED	Deterministic interval priority/first assignment, not causal regulation.
+differential binding	true	true	false	true	true	future	FUTURE_EXTENSION	Needs a two-condition design; not forced into single-condition peak benchmarks.
+tracks	true	true	false	true	true	real_descriptive	IMPLEMENTED_NOT_BENCHMARKED	deepTools CPM BigWig; useful for coverage concordance.
+reporting	true	true	false	true	true	operational	IMPLEMENTED_NOT_BENCHMARKED	Standalone report is optional; full mode couples differential binding.
+terminal manifests	partial	true	false	true	true	provenance	IMPLEMENTED_NOT_BENCHMARKED	Top-level terminal manifest is emitted only by full mode.
+cross-correlation	false	false	false	false	false	none	NOT_IMPLEMENTED	NSC/RSC are not claimed.
+library complexity	partial	false	true	true	true	descriptive	EXPERIMENTAL	Duplicate counts exist; NRF/PBC estimates are not implemented.

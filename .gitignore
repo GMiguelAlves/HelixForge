@@ -8,6 +8,9 @@ results/
 !benchmark/rnaseq/results/README.md
 !benchmark/rnaseq/results/gse52778/
 !benchmark/rnaseq/results/gse52778/**
+!benchmark/chipseq/results/
+!benchmark/chipseq/results/synthetic_narrow/
+!benchmark/chipseq/results/synthetic_narrow/**
 tests/native_chipseq_peak_annotation/fixture_work/
 tests/native_chipseq_peak_annotation/results/
 tests/native_chipseq_peak_annotation/top_level_results/

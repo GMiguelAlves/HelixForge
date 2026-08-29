@@ -1,0 +1,4 @@
+sample_id	condition	replicate	assay_role	experiment_accession	file_accession	layout	read_length_bp	read_count	total_bases	file_size_bytes	md5	content_md5	download_url
+K562_CTCF_R1	CTCF	1	IP	ENCSR000AKO	ENCFF000BWM	single-end	36	19656110	707619960	812284748	ad037f197b2c3222ff43c5f0ba0f911d	a1af6bb88d9ddbe342864a733413953c	https://www.encodeproject.org/files/ENCFF000BWM/@@download/ENCFF000BWM.fastq.gz
+K562_CTCF_R2	CTCF	2	IP	ENCSR000AKO	ENCFF000BWR	single-end	51	16448282	838862382	735849744	4a645fe6896b8520f1c4cc68c8255eda	5c2a5f476e20f67f6bcf620bc62afcbd	https://www.encodeproject.org/files/ENCFF000BWR/@@download/ENCFF000BWR.fastq.gz
+K562_INPUT	INPUT	1	INPUT	ENCSR000AKY	ENCFF000BWK	single-end	36	27579809	992873124	840020086	d5471e71ef5c3b2029311fc0274aa011	7168877490e20f22c026aa948fef33b2	https://www.encodeproject.org/files/ENCFF000BWK/@@download/ENCFF000BWK.fastq.gz

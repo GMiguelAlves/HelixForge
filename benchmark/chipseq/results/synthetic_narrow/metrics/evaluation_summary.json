@@ -1,0 +1,64 @@
+{
+  "acceptance_criteria": {
+    "N1": true,
+    "N2_f1": true,
+    "N2_strong_recall": false,
+    "N3_fdp": true,
+    "N3_summit": true,
+    "N4_nonempty": true
+  },
+  "acceptance_pass": false,
+  "candidate_auprc": {
+    "negatives": 1500,
+    "positives": 1500,
+    "prevalence": 0.5,
+    "score": "maximum_overlapping_MACS3_signalValue_or_zero",
+    "window_bp": 1000
+  },
+  "coordinate_system": "zero-based-half-open",
+  "inputs": {
+    "negative_bed_sha256": "a90c80918736802ac18a7b8f1a2ddbba20436948a2f8c5a7aed0f7524711add3",
+    "truth_strength_sha256": "1d3a1fc33ddbc9e16d96cf1b901b816bd29d27ab723a2696029ec7a7e3f372a0"
+  },
+  "matching": {
+    "minimum_intersection_bp": 100,
+    "minimum_truth_fraction": 0.25,
+    "objective": [
+      "maximum_cardinality",
+      "maximum_total_intersection",
+      "minimum_total_summit_distance",
+      "deterministic_tie_order"
+    ]
+  },
+  "primary_metrics": {
+    "called_peaks": 813,
+    "candidate_auprc": 0.771,
+    "candidate_prevalence": 0.5,
+    "candidate_zero_score_fraction": 0.729,
+    "f1": 0.7029831387808042,
+    "fn": 687,
+    "fp": 0,
+    "fragmentation_rate": 0.0,
+    "fragmented_truth": 0,
+    "matched_truth": 813,
+    "median_absolute_width_error_bp": 164.0,
+    "median_log2_width_ratio": 0.49569516262406876,
+    "observed_fdp": 0.0,
+    "outside_eligible_contigs_removed": 0,
+    "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-benchmark-20260828/helixforge/results/chipseq/consensus/chipseq-synthetic-narrow-v1.chipseq-synthetic-narrow-v1.synthetic_factor.synthetic_narrow.synthetic_factor.synthetic_chip_v1.narrow/chipseq-synthetic-narrow-v1.chipseq-synthetic-narrow-v1.synthetic_factor.synthetic_narrow.synthetic_factor.synthetic_chip_v1.narrow.idr_result/idr_output.narrowPeak",
+    "peak_set": "helixforge_idr",
+    "precision": 1.0,
+    "recall": 0.542,
+    "sha256": "78e15e32e1efbe7251c059037d145d5e70b41f395b5b9e5a8e6e14f3ba36ae16",
+    "summit_iqr_bp": 32.0,
+    "summit_mean_bp": 29.030750307503077,
+    "summit_median_bp": 24.0,
+    "summit_p90_bp": 62.80000000000007,
+    "summit_p95_bp": 74.0,
+    "tp": 813,
+    "truth_signal_called_rank_spearman": 0.830960275536133
+  },
+  "primary_peak_set": "helixforge_idr",
+  "schema_version": "1.0",
+  "type": "synthetic_narrow_ground_truth_evaluation"
+}
