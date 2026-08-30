@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "benchmark_id": "chipseq-real-broad-k562-h3k27me3-v1",
+  "created_date": "2026-08-30",
+  "branch": "benchmark/chipseq-real-broad",
+  "starting_commit": "aa930e6a1c3513dcd51fc08d0845ec12b4154c4c",
+  "scientific_target": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
+  "protocol_commit": "bb8db940ee137fee67fe5f13530521326c96dfc0",
+  "dataset": {
+    "experiment": "ENCSR000AKQ",
+    "target": "H3K27me3",
+    "cell_line": "K562",
+    "replicate_files": ["ENCFF000BXP", "ENCFF000BXN"],
+    "control_experiment": "ENCSR000AKY",
+    "control_file": "ENCFF000BWK",
+    "layout": "single-end",
+    "registry": "benchmark/chipseq/datasets/real_broad_samples.tsv"
+  },
+  "reference": {
+    "assembly": "GRCh38.p14",
+    "gencode_release": 50,
+    "effective_genome_size": 2913022398,
+    "blacklist_experiment": "ENCSR636HFF",
+    "blacklist_file": "ENCFF356LFX"
+  },
+  "processing": {
+    "run_mode": "consensus",
+    "minimum_replicate_support": 2,
+    "bowtie2": {"version": "2.5.4", "preset": "very-sensitive"},
+    "samtools": {"version": "1.20", "minimum_mapq": 30, "exclude_flags": 2308},
+    "duplicates": {"mode": "none", "macs3_keep_dup": "all"},
+    "blacklist_policy": "fragment",
+    "macs3": {
+      "version": "3.0.4",
+      "format": "BAM",
+      "qvalue": 0.01,
+      "broad": true,
+      "broad_cutoff": "MACS3 default (0.1)"
+    },
+    "idr": {"enabled": false, "reason": "BROAD_IDR_OUT_OF_SCOPE"}
+  },
+  "external_references": {
+    "encode_replicated_broad_peaks": "ENCFF049HUP",
+    "encode_signal": "ENCFF366NNJ",
+    "encode_is_ground_truth": false,
+    "use": "descriptive concordance and fragmentation context only"
+  },
+  "evaluation": {
+    "primary_question": "whether high synthetic broad fragmentation also appears in biological K562 H3K27me3",
+    "synthetic_broad_fragmentation_reference": 0.628,
+    "coverage_first": true,
+    "frozen_criteria": ["RB1", "RB2", "RB3", "RB4", "RB5"],
+    "biological_expectations": "benchmark/chipseq/datasets/real_broad_biological_expectations.tsv",
+    "forbidden_changes": [
+      "peak-calling parameter tuning",
+      "post-hoc domain stitching",
+      "custom gap thresholds",
+      "new broad caller",
+      "new consensus algorithm"
+    ]
+  }
+}
