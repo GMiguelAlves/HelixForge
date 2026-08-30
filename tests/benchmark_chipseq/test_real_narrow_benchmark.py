@@ -64,6 +64,7 @@ class RealNarrowBenchmarkTests(unittest.TestCase):
         self.assertIn('CONTROL_SEED = 20261001', evaluator)
         self.assertIn('NULL_SEED = 20261002', evaluator)
         self.assertIn('NULL_SETS = 100', evaluator)
+        self.assertIn('read_peaks(external_path, require_summit=False)', evaluator)
         self.assertIn('max(0, min(a[i][1], b[j][1]) - max(a[i][0], b[j][0]))', evaluator)
 
 
