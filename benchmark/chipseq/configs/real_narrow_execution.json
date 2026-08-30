@@ -83,6 +83,16 @@
         "rn3_calculated": false
       },
       "final_amendment": true,
+      "exact_gc_capacity_preflight": {
+        "slurm_job_id": "16269",
+        "status": "FAIL_NOT_EVALUABLE",
+        "number_of_strata": 31426,
+        "strata_with_M_lt_k": 1511,
+        "observed_peaks_in_infeasible_strata": 1546,
+        "null_sets_generated": false,
+        "rn3_calculated": false,
+        "rn3_status": "NOT_EVALUABLE_UNDER_FROZEN_CONTROL_REQUIREMENTS"
+      },
       "failure_policy": "if exact-GC capacity or structural validation fails, RN3 is NOT_EVALUABLE_UNDER_FROZEN_CONTROL_REQUIREMENTS"
     },
     "motif": {
