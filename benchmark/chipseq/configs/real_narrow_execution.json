@@ -45,17 +45,19 @@
     "encode_overlap_null": {
       "sets": 100,
       "seed": 20261002,
-      "method": "independent chromosome-, width-, and GC-decile-matched random relocation",
-      "gc_class_definition": "deciles [0.0,0.1), [0.1,0.2), ..., [0.9,1.0], computed as floor(10 * (G+C)/(A+C+G+T)) capped at 9",
+      "method": "uniform relocation within chromosome, exact width, and exact GC-base-count strata",
+      "operational_gc_definition": "exact integer count of G plus C bases in the interval",
+      "gc_class_definition": "deciles [0.0,0.1), [0.1,0.2), ..., [0.9,1.0], retained only as descriptive superclasses",
       "ambiguous_bases": "candidate intervals containing non-ACGT bases are ineligible",
       "eligible_genome": "shared comparison contigs excluding ENCFF356LFX blacklist intervals and non-ACGT sequence",
-      "sampling": "two-stage design: deterministic uniform rejection sampling constructs each frozen eligible candidate pool, followed by uniform sampling without replacement within each chromosome-width-GC group per null set",
-      "aggregate_gc_repair": "if required, randomly ordered within-stratum swaps may only move the aggregate GC total toward the frozen tolerance; nearest-GC ranking is forbidden",
+      "sampling": "two-stage design: deterministic uniform rejection sampling constructs each frozen eligible candidate pool, followed by uniform sampling without replacement within each chromosome-width-exact-GC-count stratum per null set",
+      "aggregate_gc_repair": "forbidden; exact per-region GC-base-count preservation makes aggregate GC exact by construction",
       "minimum_candidate_pool": "max(200, 20 * observed peaks in each chromosome-width-GC group)",
       "candidate_sets": 2000,
       "gc_match": "aggregate absolute GC-fraction difference <= 0.005",
       "empirical_p": "(1 + null values >= observed) / 101",
       "validation_phases": [
+        "capacity-only preflight for exact-GC strata; do not generate nulls or calculate RN3",
         "generate and audit nulls without RN3",
         "repeat with the same implementation and seed; require identical null-set SHA-256",
         "freeze null sets and calculate RN3 exactly once"
@@ -72,7 +74,16 @@
         "status": "INVALID_FOR_INFERENCE",
         "reason": "NULL_GENERATOR_DIVERSITY_FAILURE",
         "slurm_job_id": "16266"
-      }
+      },
+      "retired_generator_v2": {
+        "method": "GC-decile-uniform sampling plus aggregate balanced swaps",
+        "status": "INVALID",
+        "reason": "STRATUM_DIVERSITY_FAILURE",
+        "null_sets_sha256": "700d6d2fe9ab9e776f78f61b1b9049240fb61257d8aa5678528149dd01f2d925",
+        "rn3_calculated": false
+      },
+      "final_amendment": true,
+      "failure_policy": "if exact-GC capacity or structural validation fails, RN3 is NOT_EVALUABLE_UNDER_FROZEN_CONTROL_REQUIREMENTS"
     },
     "motif": {
       "database": "JASPAR CORE",

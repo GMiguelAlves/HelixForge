@@ -42,6 +42,7 @@ MAX_POOL_ATTEMPT_MULTIPLIER = 10000
 MIN_EXPECTED_UNIQUE = 50.0
 MIN_UNIQUE_EXPECTATION_RATIO = 0.80
 GLOBAL_MAX_REUSE_ALPHA = 0.01
+V2_SAMPLER_RETIRED = True
 
 
 def deterministic_gzip_text(path: Path):
@@ -106,6 +107,11 @@ def main() -> int:
     args = parser.parse_args()
     if "SLURM_JOB_ID" not in os.environ:
         raise RuntimeError("null validation must run in a Slurm allocation")
+    if V2_SAMPLER_RETIRED:
+        raise RuntimeError(
+            "the GC-decile plus balanced-swap V2 sampler is retired; "
+            "use the exact-GC capacity preflight"
+        )
     root = args.benchmark_root.resolve()
     expected = Path("/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-real-narrow-benchmark-20260830")
     if root != expected or args.output_dir.exists():
