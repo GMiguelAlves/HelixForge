@@ -26,3 +26,25 @@ An illustrative, non-executed record is in
 The run archive stores a checksum list covering the manifest itself and every
 retained evidence file. Credentials, SSH paths, access tokens and unrelated
 cluster details must never enter the manifest.
+
+## Operational hardening during validation
+
+The stricter preflight and runtime guards used by the Real Narrow arm are an
+incremental hardening based on lessons accumulated while validating
+HelixForge. They do not indicate that the earlier benchmark arms were
+inadequate, and they do not retroactively change their classifications or
+evidence.
+
+The current cluster does not provide Git on its compute nodes. For this arm, a
+small, isolated Conda environment supplies a pinned Git executable so that
+commit and source-tree checks still run inside the Slurm allocation. This is a
+safe benchmark-specific workaround, not yet the preferred permanent
+architecture.
+
+Before the next benchmark protocol is frozen, evaluate replacing that helper
+environment with a provenance handoff: the head node records the commit,
+working-tree state, and checksums of the relevant source paths in a signed or
+checksum-linked manifest; the compute node validates the manifest and source
+checksums without requiring Git. The change must preserve the same audit
+guarantees while avoiding a dedicated environment for one administrative
+executable.
