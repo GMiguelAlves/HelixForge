@@ -15,7 +15,7 @@ import random
 import shutil
 import sys
 import tempfile
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 
 import numpy as np
@@ -27,6 +27,10 @@ CONTROL_SEED = 20261001
 NULL_SEED = 20261002
 NULL_SETS = 100
 NULL_CANDIDATES = 2000
+GC_TOLERANCE = 0.005
+MIN_POOL_SIZE = 200
+POOL_MULTIPLIER = 20
+MAX_POOL_ATTEMPT_MULTIPLIER = 2000
 
 
 def sha256(path: Path) -> str:
@@ -104,6 +108,13 @@ def intersection_length(
             else:
                 j += 1
     return total
+
+
+def gc_decile(gc_bases: int, valid_bases: int) -> int:
+    """Return [0, 9] for [0, 0.1), ..., [0.9, 1.0]."""
+    if valid_bases <= 0:
+        raise ValueError("GC class requires at least one valid A/C/G/T base")
+    return min(9, (10 * gc_bases) // valid_bases)
 
 
 def interval_overlaps(merged: list[tuple[int, int]], starts: list[int], start: int, end: int) -> bool:
@@ -213,21 +224,6 @@ def pwm_max_scores(windows: list[bytes], pwm: np.ndarray, batch_size: int = 1000
     return np.concatenate(all_scores), np.concatenate(all_centers)
 
 
-def rotate_intervals(peaks: list[dict[str, object]], lengths: dict[str, int], offsets: dict[str, int]) -> dict[str, list[tuple[int, int]]]:
-    grouped: dict[str, list[tuple[int, int]]] = defaultdict(list)
-    for peak in peaks:
-        chrom = str(peak["chrom"])
-        length, width = lengths[chrom], int(peak["end"]) - int(peak["start"])
-        start = (int(peak["start"]) + offsets[chrom]) % length
-        end = start + width
-        if end <= length:
-            grouped[chrom].append((start, end))
-        else:
-            grouped[chrom].append((start, length))
-            grouped[chrom].append((0, end - length))
-    return {chrom: merge_intervals(values) for chrom, values in grouped.items()}
-
-
 def annotation_distribution(gtf_gz: Path, peaks: list[dict[str, object]]) -> dict[str, int]:
     promoters, exons, genes = defaultdict(list), defaultdict(list), defaultdict(list)
     with gzip.open(gtf_gz, "rt", encoding="utf-8") as handle:
@@ -312,15 +308,11 @@ def main() -> int:
     observed_overlap = intersection_length(observed_union, encode_union)
     observed_jaccard = observed_overlap / (total_length(observed_union) + total_length(encode_union) - observed_overlap)
 
-    rng = random.Random(NULL_SEED)
     sorted_chroms = sorted(shared)
-    candidate_offsets = {
-        chrom: np.asarray([rng.randrange(1, lengths[chrom]) for _ in range(NULL_CANDIDATES)], dtype=np.int64)
-        for chrom in sorted_chroms
-    }
     original_gc = original_valid = 0
-    candidate_gc = np.zeros(NULL_CANDIDATES, dtype=np.int64)
-    candidate_valid = np.zeros(NULL_CANDIDATES, dtype=np.int64)
+    null_rng = random.Random(NULL_SEED)
+    relocation_groups: list[dict[str, object]] = []
+    capacity_rows: list[dict[str, object]] = []
     motif_rng = random.Random(CONTROL_SEED)
     pwm = parse_jaspar(motif_path)
     motif_peak_scores, motif_control_scores, motif_peak_centers = [], [], []
@@ -347,18 +339,65 @@ def main() -> int:
             starts = np.asarray([peak["start"] for peak in chrom_peaks], dtype=np.int64)
             ends = np.asarray([peak["end"] for peak in chrom_peaks], dtype=np.int64)
             widths = ends - starts
-            original_gc += int(np.sum(gc_prefix[ends] - gc_prefix[starts]))
-            original_valid += int(np.sum(valid_prefix[ends] - valid_prefix[starts]))
-            rotated_starts = (starts[None, :] + candidate_offsets[chrom][:, None]) % lengths[chrom]
-            rotated_ends = rotated_starts + widths[None, :]
-            wrapped = rotated_ends > lengths[chrom]
-            clipped = np.minimum(rotated_ends, lengths[chrom])
-            candidate_gc += np.sum(gc_prefix[clipped] - gc_prefix[rotated_starts], axis=1, dtype=np.int64)
-            candidate_valid += np.sum(valid_prefix[clipped] - valid_prefix[rotated_starts], axis=1, dtype=np.int64)
-            if np.any(wrapped):
-                wrapped_ends = np.where(wrapped, rotated_ends - lengths[chrom], 0)
-                candidate_gc += np.sum(gc_prefix[wrapped_ends], axis=1, dtype=np.int64)
-                candidate_valid += np.sum(valid_prefix[wrapped_ends], axis=1, dtype=np.int64)
+            peak_gc = gc_prefix[ends] - gc_prefix[starts]
+            peak_valid = valid_prefix[ends] - valid_prefix[starts]
+            if np.any(peak_valid != widths):
+                raise ValueError(f"observed peak contains non-ACGT bases on {chrom}")
+            original_gc += int(np.sum(peak_gc))
+            original_valid += int(np.sum(peak_valid))
+
+            grouped_peaks: dict[tuple[int, int], list[dict[str, object]]] = defaultdict(list)
+            for peak, width, gc_bases, valid_bases in zip(chrom_peaks, widths, peak_gc, peak_valid):
+                grouped_peaks[(int(width), gc_decile(int(gc_bases), int(valid_bases)))].append(peak)
+
+            blacklist_for_chrom = blacklist_merged.get(chrom, [])
+            blacklist_starts = [start for start, _ in blacklist_for_chrom]
+            for (width, gc_class), group_peaks in sorted(grouped_peaks.items()):
+                pool_target = max(MIN_POOL_SIZE, POOL_MULTIPLIER * len(group_peaks))
+                max_attempts = max(10000, MAX_POOL_ATTEMPT_MULTIPLIER * pool_target)
+                candidates: dict[int, int] = {}
+                attempts = 0
+                while len(candidates) < pool_target and attempts < max_attempts:
+                    attempts += 1
+                    candidate_start = null_rng.randrange(0, lengths[chrom] - width + 1)
+                    if candidate_start in candidates:
+                        continue
+                    candidate_end = candidate_start + width
+                    if interval_overlaps(
+                        blacklist_for_chrom, blacklist_starts, candidate_start, candidate_end
+                    ):
+                        continue
+                    valid_bases = int(valid_prefix[candidate_end] - valid_prefix[candidate_start])
+                    if valid_bases != width:
+                        continue
+                    gc_bases = int(gc_prefix[candidate_end] - gc_prefix[candidate_start])
+                    if gc_decile(gc_bases, valid_bases) != gc_class:
+                        continue
+                    candidates[candidate_start] = gc_bases
+                if len(candidates) < pool_target:
+                    raise RuntimeError(
+                        f"null relocation capacity failed for {chrom}, width={width}, "
+                        f"GC decile={gc_class}: {len(candidates)}/{pool_target} candidates "
+                        f"after {attempts} probes"
+                    )
+                pool = sorted(candidates.items())
+                relocation_groups.append({
+                    "chrom": chrom,
+                    "width": width,
+                    "gc_class": gc_class,
+                    "peaks": group_peaks,
+                    "pool": pool,
+                })
+                capacity_rows.append({
+                    "chrom": chrom,
+                    "width": width,
+                    "gc_class": gc_class,
+                    "observed_peaks": len(group_peaks),
+                    "required_per_null_set": len(group_peaks),
+                    "candidate_pool": len(pool),
+                    "capacity_ratio": len(pool) / len(group_peaks),
+                    "random_probes": attempts,
+                })
 
         excluded = merge_intervals(group_intervals(comparison_idr).get(chrom, []) + blacklist_merged.get(chrom, []))
         excluded_starts = [start for start, _ in excluded]
@@ -371,7 +410,9 @@ def main() -> int:
             if any(base not in b"ACGT" for base in window):
                 raise ValueError(f"summit window contains non-ACGT bases: {peak['name']}")
             peak_windows.append(window)
-            gc_decile = min(9, int(10 * (window.count(b"G") + window.count(b"C")) / len(window)))
+            window_gc_decile = gc_decile(
+                window.count(b"G") + window.count(b"C"), len(window)
+            )
             selected = 0
             for _attempt in range(100000):
                 candidate_start = motif_rng.randrange(0, len(sequence) - len(window) + 1)
@@ -381,8 +422,10 @@ def main() -> int:
                 candidate = sequence[candidate_start:candidate_end]
                 if any(base not in b"ACGT" for base in candidate):
                     continue
-                candidate_decile = min(9, int(10 * (candidate.count(b"G") + candidate.count(b"C")) / len(candidate)))
-                if candidate_decile != gc_decile:
+                candidate_decile = gc_decile(
+                    candidate.count(b"G") + candidate.count(b"C"), len(candidate)
+                )
+                if candidate_decile != window_gc_decile:
                     continue
                 control_windows.append(candidate)
                 selected += 1
@@ -398,25 +441,50 @@ def main() -> int:
             motif_control_scores.extend(control_scores.tolist())
 
     original_fraction = original_gc / original_valid
-    candidate_fractions = candidate_gc / candidate_valid
-    accepted = np.flatnonzero(np.abs(candidate_fractions - original_fraction) <= 0.005)[:NULL_SETS]
-    if len(accepted) != NULL_SETS:
+    accepted_sets: list[dict[str, object]] = []
+    relocation_reuse: Counter[tuple[str, int, int]] = Counter()
+    for candidate_index in range(1, NULL_CANDIDATES + 1):
+        grouped: dict[str, list[tuple[int, int]]] = defaultdict(list)
+        candidate_gc = 0
+        candidate_valid = 0
+        selected_keys = []
+        for group in relocation_groups:
+            chrom = str(group["chrom"])
+            width = int(group["width"])
+            selected = null_rng.sample(group["pool"], len(group["peaks"]))
+            for start, gc_bases in selected:
+                end = int(start) + width
+                grouped[chrom].append((int(start), end))
+                candidate_gc += int(gc_bases)
+                candidate_valid += width
+                selected_keys.append((chrom, int(start), end))
+        candidate_fraction = candidate_gc / candidate_valid
+        if abs(candidate_fraction - original_fraction) <= GC_TOLERANCE:
+            for key in selected_keys:
+                relocation_reuse[key] += 1
+            accepted_sets.append({
+                "candidate_index": candidate_index,
+                "gc_fraction": candidate_fraction,
+                "intervals": {chrom: merge_intervals(values) for chrom, values in grouped.items()},
+            })
+            if len(accepted_sets) == NULL_SETS:
+                break
+    if len(accepted_sets) != NULL_SETS:
         raise RuntimeError(
-            f"only {len(accepted)} of {NULL_CANDIDATES} rotations met GC tolerance; "
-            f"observed={original_fraction:.6f}, closest={np.min(np.abs(candidate_fractions-original_fraction)):.6f}"
+            f"only {len(accepted_sets)} of {NULL_CANDIDATES} matched relocations met "
+            f"aggregate GC tolerance; observed={original_fraction:.6f}"
         )
     null_rows = []
     null_exceed = 0
-    for null_index, candidate_index in enumerate(accepted, start=1):
-        offsets = {chrom: int(candidate_offsets[chrom][candidate_index]) for chrom in sorted_chroms}
-        rotated = rotate_intervals(comparison_idr, lengths, offsets)
-        overlap = intersection_length(rotated, encode_union)
-        jaccard = overlap / (total_length(rotated) + total_length(encode_union) - overlap)
+    for null_index, accepted in enumerate(accepted_sets, start=1):
+        relocated = accepted["intervals"]
+        overlap = intersection_length(relocated, encode_union)
+        jaccard = overlap / (total_length(relocated) + total_length(encode_union) - overlap)
         null_exceed += int(overlap >= observed_overlap)
         null_rows.append({
-            "null_id": null_index, "candidate_index": int(candidate_index),
-            "gc_fraction": float(candidate_fractions[candidate_index]),
-            "gc_absolute_difference": float(abs(candidate_fractions[candidate_index] - original_fraction)),
+            "null_id": null_index, "candidate_index": int(accepted["candidate_index"]),
+            "gc_fraction": float(accepted["gc_fraction"]),
+            "gc_absolute_difference": float(abs(accepted["gc_fraction"] - original_fraction)),
             "overlap_bp": overlap, "jaccard": jaccard,
         })
     empirical_p = (1 + null_exceed) / 101
@@ -441,6 +509,13 @@ def main() -> int:
             "shared_contigs": len(shared), "observed_overlap_bp": observed_overlap,
             "observed_jaccard": observed_jaccard, "idr_gc_fraction": original_fraction,
             "null_sets": NULL_SETS, "null_exceedances": null_exceed, "empirical_p": empirical_p,
+            "null_method": "chromosome-, width-, and GC-decile-matched independent relocation",
+            "gc_deciles": "[0.0,0.1),...,[0.9,1.0]",
+            "aggregate_gc_tolerance": GC_TOLERANCE,
+            "candidate_sets_examined": int(accepted_sets[-1]["candidate_index"]),
+            "minimum_pool_capacity_ratio": min(row["capacity_ratio"] for row in capacity_rows),
+            "unique_relocated_intervals": len(relocation_reuse),
+            "maximum_interval_reuse": max(relocation_reuse.values()),
         },
         "motif": {
             "matrix_id": "MA0139.1", "peak_windows": len(motif_peak_scores),
@@ -469,6 +544,9 @@ def main() -> int:
         with (stage / "null_overlap.tsv").open("w", encoding="utf-8", newline="") as handle:
             writer = csv.DictWriter(handle, fieldnames=list(null_rows[0]), delimiter="\t", lineterminator="\n")
             writer.writeheader(); writer.writerows(null_rows)
+        with (stage / "null_relocation_capacity.tsv").open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=list(capacity_rows[0]), delimiter="\t", lineterminator="\n")
+            writer.writeheader(); writer.writerows(capacity_rows)
         with (stage / "replicate_matches.tsv").open("w", encoding="utf-8", newline="") as handle:
             handle.write("r1_peak\tr2_peak\toverlap_bp\tr1_signal\tr2_signal\n")
             for first, second, overlap in matches:

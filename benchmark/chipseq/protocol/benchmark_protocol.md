@@ -198,6 +198,8 @@ HelixForge runs through `chipseq_run_mode=idr`. Per-replicate narrowPeak,
 FRiP, peak overlap/rank concordance, IDR and the IDR-filtered set are primary.
 ENCODE optimal IDR peaks `ENCFF519CXF` and signal `ENCFF433VSV` are external
 plausibility references, not ground truth and not inputs to HelixForge.
+The ENCODE-overlap null follows the pre-result GC-matched relocation amendment
+in `real_narrow_null_amendment_20260830.md`; RN3 itself remains unchanged.
 
 ## Real broad design
 

@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG = ROOT / "benchmark/chipseq/configs/real_narrow_execution.json"
 CONTIG_AMENDMENT = ROOT / "benchmark/chipseq/protocol/real_narrow_contig_amendment_20260830.md"
+NULL_AMENDMENT = ROOT / "benchmark/chipseq/protocol/real_narrow_null_amendment_20260830.md"
 SNAPSHOT = ROOT / "benchmark/chipseq/results/real_narrow/metadata/encode_metadata_snapshot.json"
 SCRIPT = ROOT / "benchmark/chipseq/scripts/collect_real_narrow_metadata.py"
 HELIXFORGE_RUNNER = ROOT / "benchmark/chipseq/scripts/run_real_narrow_helixforge.sh"
@@ -32,10 +33,16 @@ class RealNarrowBenchmarkTests(unittest.TestCase):
         self.assertEqual(config["processing"]["macs3"]["format"], "BAM")
         self.assertEqual(config["evaluation"]["motif"]["matrix_id"], "MA0139.1")
         self.assertEqual(config["evaluation"]["encode_overlap_null"]["sets"], 100)
+        null = config["evaluation"]["encode_overlap_null"]
+        self.assertEqual(null["seed"], 20261002)
+        self.assertEqual(null["candidate_sets"], 2000)
+        self.assertIn("GC-decile-matched", null["method"])
+        self.assertIn("0.005", null["gc_match"])
         policy = config["external_references"]["contig_policy"]
         self.assertIn("intersection", policy["comparison_universe"])
         self.assertIn("without renaming", policy["absent_external_records"])
         self.assertTrue(CONTIG_AMENDMENT.is_file())
+        self.assertTrue(NULL_AMENDMENT.is_file())
 
     def test_metadata_snapshot_is_validated(self):
         snapshot = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
@@ -64,6 +71,9 @@ class RealNarrowBenchmarkTests(unittest.TestCase):
         self.assertIn('CONTROL_SEED = 20261001', evaluator)
         self.assertIn('NULL_SEED = 20261002', evaluator)
         self.assertIn('NULL_SETS = 100', evaluator)
+        self.assertIn('GC_TOLERANCE = 0.005', evaluator)
+        self.assertIn('POOL_MULTIPLIER = 20', evaluator)
+        self.assertIn('null_relocation_capacity.tsv', evaluator)
         self.assertIn('read_peaks(external_path, require_summit=False)', evaluator)
         self.assertIn('max(0, min(a[i][1], b[j][1]) - max(a[i][0], b[j][0]))', evaluator)
 

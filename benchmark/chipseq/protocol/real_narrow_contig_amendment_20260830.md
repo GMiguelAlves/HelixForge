@@ -34,7 +34,7 @@ contigs, or silently discarding records is prohibited.
 - External records on absent contigs are excluded only from descriptive
   ENCODE overlap, signal, and null-set calculations. They are not renamed.
 - The same shared-contig universe is used for the observed overlap and every
-  chromosome-preserving null rotation.
+  null relocation defined by `real_narrow_null_amendment_20260830.md`.
 - The reference manifest records each excluded contig plus its record count
   and covered bases. The final report must disclose the total exclusion.
 
