@@ -193,6 +193,30 @@ This is the final permitted null-generator methodological amendment for RN3.
 After structural validation and physical freezing, RN3 is calculated once and
 accepted regardless of outcome.
 
+## Final V3 capacity result
+
+The capacity-only preflight ran once as Slurm job `16269`, before any V3 null
+generation or RN3 calculation. It produced the following registered outcome:
+
+```ini
+PREFLIGHT_STATUS = FAIL_NOT_EVALUABLE
+NUMBER_OF_STRATA = 31426
+STRATA_WITH_M_LT_K = 1511
+OBSERVED_PEAKS_IN_INFEASIBLE_STRATA = 1546
+CAPACITY_RATIO_MINIMUM = 0
+CAPACITY_RATIO_P05 = 1
+CAPACITY_RATIO_MEDIAN = 4
+CAPACITY_RATIO_P95 = 9
+NULL_SETS_GENERATED = false
+RN3_CALCULATED = false
+RN3 = NOT_EVALUABLE_UNDER_FROZEN_CONTROL_REQUIREMENTS
+```
+
+The frozen failure policy was therefore activated. No V3 null sets were
+generated, the nominal V1 p-value remains invalid for inference, and no fourth
+ad hoc null generator will be attempted. This is an explicit limitation of the
+Real Narrow benchmark rather than a failure of HelixForge execution.
+
 ## Preserved decisions
 
 The amendment does not change:

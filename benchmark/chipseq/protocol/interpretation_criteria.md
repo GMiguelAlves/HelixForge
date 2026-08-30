@@ -45,6 +45,12 @@ the reason, affected arms, old/new rule and impact on comparability.
 | RN4 | `EXPECTED_RANGE` | Replicate rank correlation is positive and IDR retains a non-zero reproducible subset. |
 | RN5 | `DESCRIPTIVE` | ENCODE QC thresholds, peak count, FRiP and genomic distribution; they are not universal release gates for this legacy-depth dataset. |
 
+RN3 was not evaluated. The final pre-registered exact-GC capacity preflight
+found insufficient capacity in 1,511 of 31,426 operational strata and activated
+the frozen disposition `NOT_EVALUABLE_UNDER_FROZEN_CONTROL_REQUIREMENTS` before
+null generation. The criterion and threshold above remain unchanged; they were
+not relaxed or replaced after observing this limitation.
+
 ## Real broad
 
 | ID | Type | Criterion |

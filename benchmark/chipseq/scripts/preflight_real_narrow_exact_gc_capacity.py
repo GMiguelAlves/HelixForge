@@ -186,11 +186,15 @@ def main() -> int:
             with (stage / filename).open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.DictWriter(handle, fieldnames=list(rows[0]), delimiter="\t", lineterminator="\n")
                 writer.writeheader(); writer.writerows(rows)
-        (stage / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        summary_text = json.dumps(summary, indent=2, sort_keys=True) + "\n"
+        (stage / "summary.json").write_text(summary_text, encoding="utf-8")
+        (stage / "manifest.json").write_text(summary_text, encoding="utf-8")
         with (stage / "checksums.sha256").open("w", encoding="ascii", newline="\n") as handle:
-            for path in sorted(item for item in stage.iterdir() if item.is_file()):
+            for path in sorted(
+                item for item in stage.iterdir()
+                if item.is_file() and item.name != "checksums.sha256"
+            ):
                 handle.write(f"{sha256(path)}  {path.name}\n")
-        (stage / "manifest.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         os.replace(stage, args.output_dir)
     except Exception:
         shutil.rmtree(stage, ignore_errors=True)
@@ -201,4 +205,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
