@@ -68,6 +68,7 @@ for sample in "${samples[@]}"; do
         -o "$output_root/bam/${sample}.selected.bam" "$output_root/bam/${sample}.raw.sorted.bam"
     samtools view -@ "$threads" -b -q 30 -F 2308 \
         -o "$output_root/bam/${sample}.selected.bam" "$output_root/bam/${sample}.raw.sorted.bam"
+    samtools index -@ "$threads" "$output_root/bam/${sample}.selected.bam"
 
     record_command "blacklist_${sample}" samtools view -@ "$threads" -L "$blacklist" \
         "$output_root/bam/${sample}.selected.bam"
