@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "benchmark_id": "chipseq-real-broad-k562-h3k27me3-v1",
+  "current_phase": "PREFLIGHT_PENDING",
+  "download_status": "NOT_STARTED",
+  "metadata_status": "FROZEN_REGISTRY_CONFIRMED_API_RECHECK_PENDING",
+  "download_job_ids": [],
+  "helixforge_job_ids": [],
+  "independent_job_ids": [],
+  "cleanup_job_ids": [],
+  "nextflow_session_uuid": null,
+  "work_dir": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-real-broad-benchmark-20260830/work/helixforge",
+  "benchmark_root": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-real-broad-benchmark-20260830",
+  "expected_outputs": [
+    "preflight/environment.json",
+    "downloads/provenance/download_manifest.json",
+    "helixforge/trace.tsv",
+    "helixforge/results/chipseq/consensus",
+    "independent/consensus",
+    "evaluation/benchmark_summary.json",
+    "audit_archive"
+  ],
+  "last_verified_status": {
+    "timestamp": "2026-08-30T15:00:00-03:00",
+    "status": "BRANCH_INITIALIZED",
+    "starting_commit": "aa930e6a1c3513dcd51fc08d0845ec12b4154c4c",
+    "scientific_target": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
+    "protocol_commit": "bb8db940ee137fee67fe5f13530521326c96dfc0",
+    "encode_api_recheck": "LOCAL_WAF_HUMAN_VERIFICATION; RETRY_DURING_SERVER_PREFLIGHT",
+    "heavy_download_started": false,
+    "scientific_output_observed": false
+  },
+  "resume_condition": "Complete Slurm preflight and public metadata verification before any heavy download",
+  "next_check": "Submit one lightweight Slurm preflight job"
+}
