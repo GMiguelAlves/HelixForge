@@ -1,0 +1,497 @@
+#!/usr/bin/env python3
+"""Evaluate the frozen K562 CTCF Real Narrow benchmark without tuning."""
+
+from __future__ import annotations
+
+import argparse
+import bisect
+import csv
+import gzip
+import hashlib
+import json
+import math
+import os
+import random
+import shutil
+import sys
+import tempfile
+from collections import defaultdict
+from pathlib import Path
+
+import numpy as np
+from scipy.stats import mannwhitneyu, spearmanr
+
+
+SCHEMA_VERSION = "1.0"
+CONTROL_SEED = 20261001
+NULL_SEED = 20261002
+NULL_SETS = 100
+NULL_CANDIDATES = 2000
+
+
+def sha256(path: Path) -> str:
+    value = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            value.update(block)
+    return value.hexdigest()
+
+
+def read_peaks(path: Path) -> list[dict[str, object]]:
+    opener = gzip.open if path.suffix == ".gz" else Path.open
+    kwargs = {"mode": "rt", "encoding": "utf-8"} if path.suffix == ".gz" else {"mode": "r", "encoding": "utf-8"}
+    peaks = []
+    with opener(path, **kwargs) as handle:
+        for number, line in enumerate(handle, start=1):
+            if not line.strip() or line.startswith(("#", "track", "browser")):
+                continue
+            fields = line.rstrip("\n").split("\t")
+            if len(fields) < 10:
+                raise ValueError(f"invalid narrowPeak row {number}: {path}")
+            start, end, summit_offset = int(fields[1]), int(fields[2]), int(float(fields[9]))
+            if start < 0 or end <= start or summit_offset < 0 or start + summit_offset >= end:
+                raise ValueError(f"invalid narrowPeak coordinates at row {number}: {path}")
+            peaks.append({
+                "chrom": fields[0], "start": start, "end": end, "name": fields[3],
+                "signal": float(fields[6]), "summit": start + summit_offset, "fields": fields,
+            })
+    if not peaks:
+        raise ValueError(f"empty peak file: {path}")
+    return peaks
+
+
+def group_intervals(peaks: list[dict[str, object]]) -> dict[str, list[tuple[int, int]]]:
+    grouped: dict[str, list[tuple[int, int]]] = defaultdict(list)
+    for peak in peaks:
+        grouped[str(peak["chrom"])].append((int(peak["start"]), int(peak["end"])))
+    return {chrom: sorted(values) for chrom, values in grouped.items()}
+
+
+def merge_intervals(intervals: list[tuple[int, int]]) -> list[tuple[int, int]]:
+    merged: list[list[int]] = []
+    for start, end in sorted(intervals):
+        if not merged or start > merged[-1][1]:
+            merged.append([start, end])
+        else:
+            merged[-1][1] = max(merged[-1][1], end)
+    return [(start, end) for start, end in merged]
+
+
+def union_by_chrom(peaks: list[dict[str, object]], allowed: set[str] | None = None) -> dict[str, list[tuple[int, int]]]:
+    grouped = group_intervals([peak for peak in peaks if allowed is None or peak["chrom"] in allowed])
+    return {chrom: merge_intervals(values) for chrom, values in grouped.items()}
+
+
+def total_length(grouped: dict[str, list[tuple[int, int]]]) -> int:
+    return sum(end - start for intervals in grouped.values() for start, end in intervals)
+
+
+def intersection_length(
+    left: dict[str, list[tuple[int, int]]], right: dict[str, list[tuple[int, int]]]
+) -> int:
+    total = 0
+    for chrom in left.keys() & right.keys():
+        a, b, i, j = left[chrom], right[chrom], 0, 0
+        while i < len(a) and j < len(b):
+            total += max(0, min(a[i][1], b[j][1]) - max(a[i][0], b[j][0]))
+            if a[i][1] <= b[j][1]:
+                i += 1
+            else:
+                j += 1
+    return total
+
+
+def interval_overlaps(merged: list[tuple[int, int]], starts: list[int], start: int, end: int) -> bool:
+    index = bisect.bisect_left(starts, end) - 1
+    return index >= 0 and merged[index][1] > start
+
+
+def semantic_equal(left: list[dict[str, object]], right: list[dict[str, object]]) -> bool:
+    if len(left) != len(right):
+        return False
+    for first, second in zip(left, right):
+        left_fields, right_fields = list(first["fields"]), list(second["fields"])
+        left_fields[3] = right_fields[3] = "."
+        if left_fields != right_fields:
+            return False
+    return True
+
+
+def replicate_matches(left: list[dict[str, object]], right: list[dict[str, object]]) -> list[tuple[dict, dict, int]]:
+    by_left, by_right = defaultdict(list), defaultdict(list)
+    for peak in left:
+        by_left[peak["chrom"]].append(peak)
+    for peak in right:
+        by_right[peak["chrom"]].append(peak)
+    candidates = []
+    for chrom in by_left.keys() & by_right.keys():
+        first, second = sorted(by_left[chrom], key=lambda p: p["start"]), sorted(by_right[chrom], key=lambda p: p["start"])
+        j = 0
+        for li, lp in enumerate(first):
+            while j < len(second) and second[j]["end"] <= lp["start"]:
+                j += 1
+            k = j
+            while k < len(second) and second[k]["start"] < lp["end"]:
+                overlap = min(lp["end"], second[k]["end"]) - max(lp["start"], second[k]["start"])
+                if overlap > 0:
+                    candidates.append((-overlap, abs(lp["summit"] - second[k]["summit"]), chrom, li, k, lp, second[k]))
+                k += 1
+    matches, used_left, used_right = [], set(), set()
+    for neg_overlap, _distance, chrom, li, ri, lp, rp in sorted(candidates, key=lambda row: row[:5]):
+        left_key, right_key = (chrom, li), (chrom, ri)
+        if left_key in used_left or right_key in used_right:
+            continue
+        used_left.add(left_key)
+        used_right.add(right_key)
+        matches.append((lp, rp, -neg_overlap))
+    return matches
+
+
+class FastaReader:
+    def __init__(self, fasta: Path, fai: Path):
+        self.fasta = fasta
+        self.index = {}
+        for line in fai.read_text(encoding="ascii").splitlines():
+            chrom, length, offset, line_bases, line_width = line.split("\t")[:5]
+            self.index[chrom] = tuple(map(int, (length, offset, line_bases, line_width)))
+
+    def read_chrom(self, chrom: str) -> bytes:
+        length, offset, line_bases, line_width = self.index[chrom]
+        raw_bytes = length + math.ceil(length / line_bases) * (line_width - line_bases) + line_width
+        with self.fasta.open("rb") as handle:
+            handle.seek(offset)
+            sequence = handle.read(raw_bytes).replace(b"\n", b"").replace(b"\r", b"")[:length].upper()
+        if len(sequence) != length:
+            raise ValueError(f"failed to read complete FASTA contig {chrom}")
+        return sequence
+
+
+def parse_jaspar(path: Path) -> np.ndarray:
+    rows = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line or line.startswith(">"):
+            continue
+        base = line[0].upper()
+        values = [float(value) for value in line.split("[", 1)[1].split("]", 1)[0].split()]
+        rows[base] = values
+    if set(rows) != set("ACGT") or len({len(values) for values in rows.values()}) != 1:
+        raise ValueError("invalid JASPAR matrix")
+    counts = np.asarray([rows[base] for base in "ACGT"], dtype=np.float64).T
+    probabilities = (counts + 0.8) / (counts.sum(axis=1, keepdims=True) + 3.2)
+    return np.log2(probabilities / 0.25)
+
+
+def pwm_max_scores(windows: list[bytes], pwm: np.ndarray, batch_size: int = 1000) -> tuple[np.ndarray, np.ndarray]:
+    lookup = np.full(256, -1, dtype=np.int8)
+    for index, base in enumerate(b"ACGT"):
+        lookup[base] = index
+    motif_width = pwm.shape[0]
+    reverse = pwm[::-1][:, [3, 2, 1, 0]]
+    all_scores, all_centers = [], []
+    for offset in range(0, len(windows), batch_size):
+        batch = windows[offset:offset + batch_size]
+        width = len(batch[0])
+        encoded = lookup[np.frombuffer(b"".join(batch), dtype=np.uint8).reshape(len(batch), width)]
+        if np.any(encoded < 0):
+            raise ValueError("motif window contains a non-ACGT base")
+        positions = width - motif_width + 1
+        forward = np.zeros((len(batch), positions), dtype=np.float64)
+        backward = np.zeros_like(forward)
+        for column in range(motif_width):
+            bases = encoded[:, column:column + positions]
+            forward += pwm[column][bases]
+            backward += reverse[column][bases]
+        combined = np.maximum(forward, backward)
+        best = np.argmax(combined, axis=1)
+        all_scores.append(combined[np.arange(len(batch)), best])
+        all_centers.append(best + motif_width / 2.0)
+    return np.concatenate(all_scores), np.concatenate(all_centers)
+
+
+def rotate_intervals(peaks: list[dict[str, object]], lengths: dict[str, int], offsets: dict[str, int]) -> dict[str, list[tuple[int, int]]]:
+    grouped: dict[str, list[tuple[int, int]]] = defaultdict(list)
+    for peak in peaks:
+        chrom = str(peak["chrom"])
+        length, width = lengths[chrom], int(peak["end"]) - int(peak["start"])
+        start = (int(peak["start"]) + offsets[chrom]) % length
+        end = start + width
+        if end <= length:
+            grouped[chrom].append((start, end))
+        else:
+            grouped[chrom].append((start, length))
+            grouped[chrom].append((0, end - length))
+    return {chrom: merge_intervals(values) for chrom, values in grouped.items()}
+
+
+def annotation_distribution(gtf_gz: Path, peaks: list[dict[str, object]]) -> dict[str, int]:
+    promoters, exons, genes = defaultdict(list), defaultdict(list), defaultdict(list)
+    with gzip.open(gtf_gz, "rt", encoding="utf-8") as handle:
+        for line in handle:
+            if line.startswith("#"):
+                continue
+            fields = line.rstrip("\n").split("\t")
+            if len(fields) != 9 or fields[2] not in {"gene", "exon"}:
+                continue
+            chrom, start, end = fields[0], int(fields[3]) - 1, int(fields[4])
+            if fields[2] == "exon":
+                exons[chrom].append((start, end))
+            else:
+                genes[chrom].append((start, end))
+                if fields[6] == "+":
+                    promoters[chrom].append((max(0, start - 2000), start + 500))
+                else:
+                    promoters[chrom].append((max(0, end - 500), end + 2000))
+    merged = {name: {chrom: merge_intervals(values) for chrom, values in source.items()}
+              for name, source in (("promoter", promoters), ("exon", exons), ("gene_body", genes))}
+    starts = {name: {chrom: [start for start, _ in values] for chrom, values in source.items()}
+              for name, source in merged.items()}
+    counts = {"promoter": 0, "exon": 0, "intron_or_gene_body": 0, "intergenic": 0}
+    for peak in peaks:
+        chrom, start, end = str(peak["chrom"]), int(peak["start"]), int(peak["end"])
+        if chrom in merged["promoter"] and interval_overlaps(merged["promoter"][chrom], starts["promoter"][chrom], start, end):
+            counts["promoter"] += 1
+        elif chrom in merged["exon"] and interval_overlaps(merged["exon"][chrom], starts["exon"][chrom], start, end):
+            counts["exon"] += 1
+        elif chrom in merged["gene_body"] and interval_overlaps(merged["gene_body"][chrom], starts["gene_body"][chrom], start, end):
+            counts["intron_or_gene_body"] += 1
+        else:
+            counts["intergenic"] += 1
+    return counts
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--benchmark-root", required=True, type=Path)
+    parser.add_argument("--output-dir", required=True, type=Path)
+    args = parser.parse_args()
+    if "SLURM_JOB_ID" not in os.environ:
+        raise RuntimeError("evaluation must run in a Slurm allocation")
+    root = args.benchmark_root.resolve()
+    expected = Path("/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-real-narrow-benchmark-20260830")
+    if root != expected or args.output_dir.exists():
+        raise ValueError("unexpected benchmark root or existing evaluation output")
+
+    hf_results = root / "helixforge/results"
+    hf_r1_path = hf_results / "080-peak-calling/ENCFF000BWM.CTCF.narrow.macs3.peak_calling/peaks.narrowPeak"
+    hf_r2_path = hf_results / "080-peak-calling/ENCFF000BWR.CTCF.narrow.macs3.peak_calling/peaks.narrowPeak"
+    hf_idr_path = next((hf_results / "chipseq/consensus").glob("*/*/idr_output.narrowPeak"))
+    ind = root / "independent"
+    ind_r1_path = ind / "peaks/ENCFF000BWM/ENCFF000BWM_peaks.narrowPeak"
+    ind_r2_path = ind / "peaks/ENCFF000BWR/ENCFF000BWR_peaks.narrowPeak"
+    ind_idr_path = ind / "idr/idr_output.narrowPeak"
+    external_path = root / "downloads/external/ENCFF519CXF.bed.gz"
+    fasta_path, fai_path = root / "reference/genome.fa", root / "reference/genome.fa.fai"
+    blacklist_path = root / "reference/blacklist.bed"
+    motif_path = root / "downloads/motif/MA0139.1.jaspar"
+    gtf_gz = root / "downloads/reference/gencode.v50.primary_assembly.annotation.gtf.gz"
+
+    hf_r1, hf_r2, hf_idr = map(read_peaks, (hf_r1_path, hf_r2_path, hf_idr_path))
+    ind_r1, ind_r2, ind_idr = map(read_peaks, (ind_r1_path, ind_r2_path, ind_idr_path))
+    external = read_peaks(external_path)
+    reference_manifest = json.loads((root / "reference/reference_manifest.json").read_text(encoding="utf-8"))
+    fasta = FastaReader(fasta_path, fai_path)
+    shared = set(fasta.index) & {str(peak["chrom"]) for peak in external}
+    lengths = {chrom: fasta.index[chrom][0] for chrom in shared}
+    comparison_idr = [peak for peak in hf_idr if peak["chrom"] in shared]
+    external_shared = [peak for peak in external if peak["chrom"] in shared]
+
+    r1_semantic, r2_semantic = semantic_equal(hf_r1, ind_r1), semantic_equal(hf_r2, ind_r2)
+    idr_exact = sha256(hf_idr_path) == sha256(ind_idr_path)
+    matches = replicate_matches(hf_r1, hf_r2)
+    rank = spearmanr([pair[0]["signal"] for pair in matches], [pair[1]["signal"] for pair in matches]).statistic
+    r1_union, r2_union = union_by_chrom(hf_r1), union_by_chrom(hf_r2)
+    replicate_intersection = intersection_length(r1_union, r2_union)
+    replicate_union = total_length(r1_union) + total_length(r2_union) - replicate_intersection
+
+    observed_union, encode_union = union_by_chrom(comparison_idr), union_by_chrom(external_shared)
+    observed_overlap = intersection_length(observed_union, encode_union)
+    observed_jaccard = observed_overlap / (total_length(observed_union) + total_length(encode_union) - observed_overlap)
+
+    rng = random.Random(NULL_SEED)
+    sorted_chroms = sorted(shared)
+    candidate_offsets = {
+        chrom: np.asarray([rng.randrange(1, lengths[chrom]) for _ in range(NULL_CANDIDATES)], dtype=np.int64)
+        for chrom in sorted_chroms
+    }
+    original_gc = original_valid = 0
+    candidate_gc = np.zeros(NULL_CANDIDATES, dtype=np.int64)
+    candidate_valid = np.zeros(NULL_CANDIDATES, dtype=np.int64)
+    motif_rng = random.Random(CONTROL_SEED)
+    pwm = parse_jaspar(motif_path)
+    motif_peak_scores, motif_control_scores, motif_peak_centers = [], [], []
+    # Parse the blacklist directly; it has no summit columns.
+    blacklist_intervals: dict[str, list[tuple[int, int]]] = defaultdict(list)
+    for line in blacklist_path.read_text(encoding="utf-8").splitlines():
+        if line and not line.startswith("#"):
+            chrom, start, end = line.split("\t")[:3]
+            blacklist_intervals[chrom].append((int(start), int(end)))
+    blacklist_merged = {chrom: merge_intervals(values) for chrom, values in blacklist_intervals.items()}
+
+    peaks_by_chrom = defaultdict(list)
+    for peak in comparison_idr:
+        peaks_by_chrom[str(peak["chrom"])].append(peak)
+    for chrom in sorted_chroms:
+        sequence = fasta.read_chrom(chrom)
+        encoded = np.frombuffer(sequence, dtype=np.uint8)
+        valid = np.isin(encoded, np.frombuffer(b"ACGT", dtype=np.uint8))
+        gc = (encoded == ord("G")) | (encoded == ord("C"))
+        valid_prefix = np.concatenate((np.zeros(1, dtype=np.uint64), np.cumsum(valid, dtype=np.uint64)))
+        gc_prefix = np.concatenate((np.zeros(1, dtype=np.uint64), np.cumsum(gc, dtype=np.uint64)))
+        chrom_peaks = peaks_by_chrom.get(chrom, [])
+        if chrom_peaks:
+            starts = np.asarray([peak["start"] for peak in chrom_peaks], dtype=np.int64)
+            ends = np.asarray([peak["end"] for peak in chrom_peaks], dtype=np.int64)
+            widths = ends - starts
+            original_gc += int(np.sum(gc_prefix[ends] - gc_prefix[starts]))
+            original_valid += int(np.sum(valid_prefix[ends] - valid_prefix[starts]))
+            rotated_starts = (starts[None, :] + candidate_offsets[chrom][:, None]) % lengths[chrom]
+            rotated_ends = rotated_starts + widths[None, :]
+            wrapped = rotated_ends > lengths[chrom]
+            clipped = np.minimum(rotated_ends, lengths[chrom])
+            candidate_gc += np.sum(gc_prefix[clipped] - gc_prefix[rotated_starts], axis=1, dtype=np.int64)
+            candidate_valid += np.sum(valid_prefix[clipped] - valid_prefix[rotated_starts], axis=1, dtype=np.int64)
+            if np.any(wrapped):
+                wrapped_ends = np.where(wrapped, rotated_ends - lengths[chrom], 0)
+                candidate_gc += np.sum(gc_prefix[wrapped_ends], axis=1, dtype=np.int64)
+                candidate_valid += np.sum(valid_prefix[wrapped_ends], axis=1, dtype=np.int64)
+
+        excluded = merge_intervals(group_intervals(comparison_idr).get(chrom, []) + blacklist_merged.get(chrom, []))
+        excluded_starts = [start for start, _ in excluded]
+        peak_windows, control_windows = [], []
+        for peak in chrom_peaks:
+            start, end = int(peak["summit"]) - 100, int(peak["summit"]) + 100
+            if start < 0 or end > len(sequence):
+                raise ValueError(f"summit window outside reference: {peak['name']}")
+            window = sequence[start:end]
+            if any(base not in b"ACGT" for base in window):
+                raise ValueError(f"summit window contains non-ACGT bases: {peak['name']}")
+            peak_windows.append(window)
+            gc_decile = min(9, int(10 * (window.count(b"G") + window.count(b"C")) / len(window)))
+            selected = 0
+            for _attempt in range(100000):
+                candidate_start = motif_rng.randrange(0, len(sequence) - len(window) + 1)
+                candidate_end = candidate_start + len(window)
+                if interval_overlaps(excluded, excluded_starts, candidate_start, candidate_end):
+                    continue
+                candidate = sequence[candidate_start:candidate_end]
+                if any(base not in b"ACGT" for base in candidate):
+                    continue
+                candidate_decile = min(9, int(10 * (candidate.count(b"G") + candidate.count(b"C")) / len(candidate)))
+                if candidate_decile != gc_decile:
+                    continue
+                control_windows.append(candidate)
+                selected += 1
+                if selected == 10:
+                    break
+            if selected != 10:
+                raise RuntimeError(f"failed to generate ten matched controls for {peak['name']}")
+        if peak_windows:
+            peak_scores, peak_centers = pwm_max_scores(peak_windows, pwm)
+            control_scores, _ = pwm_max_scores(control_windows, pwm)
+            motif_peak_scores.extend(peak_scores.tolist())
+            motif_peak_centers.extend(peak_centers.tolist())
+            motif_control_scores.extend(control_scores.tolist())
+
+    original_fraction = original_gc / original_valid
+    candidate_fractions = candidate_gc / candidate_valid
+    accepted = np.flatnonzero(np.abs(candidate_fractions - original_fraction) <= 0.005)[:NULL_SETS]
+    if len(accepted) != NULL_SETS:
+        raise RuntimeError(
+            f"only {len(accepted)} of {NULL_CANDIDATES} rotations met GC tolerance; "
+            f"observed={original_fraction:.6f}, closest={np.min(np.abs(candidate_fractions-original_fraction)):.6f}"
+        )
+    null_rows = []
+    null_exceed = 0
+    for null_index, candidate_index in enumerate(accepted, start=1):
+        offsets = {chrom: int(candidate_offsets[chrom][candidate_index]) for chrom in sorted_chroms}
+        rotated = rotate_intervals(comparison_idr, lengths, offsets)
+        overlap = intersection_length(rotated, encode_union)
+        jaccard = overlap / (total_length(rotated) + total_length(encode_union) - overlap)
+        null_exceed += int(overlap >= observed_overlap)
+        null_rows.append({
+            "null_id": null_index, "candidate_index": int(candidate_index),
+            "gc_fraction": float(candidate_fractions[candidate_index]),
+            "gc_absolute_difference": float(abs(candidate_fractions[candidate_index] - original_fraction)),
+            "overlap_bp": overlap, "jaccard": jaccard,
+        })
+    empirical_p = (1 + null_exceed) / 101
+
+    motif_test = mannwhitneyu(motif_peak_scores, motif_control_scores, alternative="greater")
+    motif_width = pwm.shape[0]
+    central = sum(abs(center - 100) <= 25 for center in motif_peak_centers)
+    annotations = annotation_distribution(gtf_gz, comparison_idr)
+    metrics = {
+        "implementation": {
+            "replicate_1_semantic_equal": r1_semantic,
+            "replicate_2_semantic_equal": r2_semantic,
+            "idr_byte_identical": idr_exact,
+        },
+        "counts": {"replicate_1": len(hf_r1), "replicate_2": len(hf_r2), "idr": len(hf_idr)},
+        "replicates": {
+            "matched_peaks": len(matches), "rank_spearman": float(rank),
+            "base_intersection_bp": replicate_intersection,
+            "base_jaccard": replicate_intersection / replicate_union,
+        },
+        "encode_overlap": {
+            "shared_contigs": len(shared), "observed_overlap_bp": observed_overlap,
+            "observed_jaccard": observed_jaccard, "idr_gc_fraction": original_fraction,
+            "null_sets": NULL_SETS, "null_exceedances": null_exceed, "empirical_p": empirical_p,
+        },
+        "motif": {
+            "matrix_id": "MA0139.1", "peak_windows": len(motif_peak_scores),
+            "control_windows": len(motif_control_scores), "controls_per_peak": 10,
+            "peak_score_median": float(np.median(motif_peak_scores)),
+            "control_score_median": float(np.median(motif_control_scores)),
+            "mann_whitney_u": float(motif_test.statistic), "p_value": float(motif_test.pvalue),
+            "bh_adjusted_p": float(motif_test.pvalue),
+            "central_window_fraction": central / len(motif_peak_centers),
+        },
+        "annotation_distribution": annotations,
+    }
+    criteria = {
+        "RN1": {"type": "RELEASE_GATE", "pass": all((len(hf_r1), len(hf_r2), len(hf_idr), r1_semantic, r2_semantic, idr_exact))},
+        "RN2": {"type": "SANITY_CHECK", "pass": motif_test.pvalue < 0.05, "value": float(motif_test.pvalue)},
+        "RN3": {"type": "EXPECTED_RANGE", "pass": empirical_p <= 0.01, "value": empirical_p},
+        "RN4": {"type": "EXPECTED_RANGE", "pass": bool(rank > 0 and len(hf_idr) > 0), "value": float(rank)},
+        "RN5": {"type": "DESCRIPTIVE", "pass": None},
+    }
+
+    args.output_dir.parent.mkdir(parents=True, exist_ok=True)
+    stage = Path(tempfile.mkdtemp(prefix=".real-narrow-evaluation.", dir=args.output_dir.parent))
+    try:
+        (stage / "metrics.json").write_text(json.dumps(metrics, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        (stage / "criteria.json").write_text(json.dumps(criteria, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        with (stage / "null_overlap.tsv").open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=list(null_rows[0]), delimiter="\t", lineterminator="\n")
+            writer.writeheader(); writer.writerows(null_rows)
+        with (stage / "replicate_matches.tsv").open("w", encoding="utf-8", newline="") as handle:
+            handle.write("r1_peak\tr2_peak\toverlap_bp\tr1_signal\tr2_signal\n")
+            for first, second, overlap in matches:
+                handle.write(f"{first['name']}\t{second['name']}\t{overlap}\t{first['signal']}\t{second['signal']}\n")
+        with (stage / "motif_scores.tsv").open("w", encoding="utf-8", newline="") as handle:
+            handle.write("set\tscore\n")
+            for score in motif_peak_scores: handle.write(f"peak\t{score:.10g}\n")
+            for score in motif_control_scores: handle.write(f"control\t{score:.10g}\n")
+        versions = {
+            "python": sys.version.split()[0], "numpy": np.__version__,
+            "scipy": __import__("scipy").__version__, "slurm_job_id": os.environ["SLURM_JOB_ID"],
+        }
+        (stage / "versions.json").write_text(json.dumps(versions, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        files = [path for path in stage.iterdir() if path.is_file()]
+        with (stage / "checksums.sha256").open("w", encoding="ascii", newline="\n") as handle:
+            for path in sorted(files): handle.write(f"{sha256(path)}  {path.name}\n")
+        (stage / "manifest.json").write_text(json.dumps({
+            "schema_version": SCHEMA_VERSION, "type": "real_narrow_evaluation",
+            "status": "complete", "slurm_job_id": os.environ["SLURM_JOB_ID"],
+            "criteria": criteria,
+        }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        os.replace(stage, args.output_dir)
+    except Exception:
+        shutil.rmtree(stage, ignore_errors=True)
+        raise
+    print(json.dumps({"status": "complete", "criteria": criteria}))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

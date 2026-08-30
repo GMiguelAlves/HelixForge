@@ -11,6 +11,7 @@ SNAPSHOT = ROOT / "benchmark/chipseq/results/real_narrow/metadata/encode_metadat
 SCRIPT = ROOT / "benchmark/chipseq/scripts/collect_real_narrow_metadata.py"
 HELIXFORGE_RUNNER = ROOT / "benchmark/chipseq/scripts/run_real_narrow_helixforge.sh"
 INDEPENDENT_RUNNER = ROOT / "benchmark/chipseq/scripts/run_independent_real_narrow.sh"
+EVALUATOR = ROOT / "benchmark/chipseq/scripts/evaluate_real_narrow.py"
 
 
 def load_script():
@@ -57,6 +58,13 @@ class RealNarrowBenchmarkTests(unittest.TestCase):
             self.assertIn(value, helixforge)
         for value in ("-f BAM", "-q 30 -F 2308", "2913022398", "--rank signal.value"):
             self.assertIn(value, independent)
+
+    def test_real_narrow_evaluator_preserves_frozen_seeds(self):
+        evaluator = EVALUATOR.read_text(encoding="utf-8")
+        self.assertIn('CONTROL_SEED = 20261001', evaluator)
+        self.assertIn('NULL_SEED = 20261002', evaluator)
+        self.assertIn('NULL_SETS = 100', evaluator)
+        self.assertIn('max(0, min(a[i][1], b[j][1]) - max(a[i][0], b[j][0]))', evaluator)
 
 
 if __name__ == "__main__":
