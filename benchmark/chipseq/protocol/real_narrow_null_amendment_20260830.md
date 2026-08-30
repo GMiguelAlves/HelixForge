@@ -108,21 +108,62 @@ reason = NULL_GENERATOR_DIVERSITY_FAILURE
 
 No scientific classification may use that p-value.
 
-## Final null-generator contract
+## Retired V2 generator
 
-Candidate pools continue to be produced by deterministic uniform rejection
-sampling of the frozen eligible genome. Within each frozen
-chromosome/exact-width/GC-decile stratum, each null set samples uniformly and
-without replacement. Reuse is allowed only between independently generated
-null sets. Nearest-GC ranking or preferential sampling is forbidden.
+Two pre-inference executions of the GC-decile-uniform plus balanced-swap V2
+generator were performed in Slurm jobs `16267` and `16268`. They produced
+byte-identical null-set SHA-256
+`700d6d2fe9ab9e776f78f61b1b9049240fb61257d8aa5678528149dd01f2d925`.
+Capacity, preservation, aggregate GC and absence of within-null duplicates all
+passed, and RN3 was not calculated. Diversity failed identically:
 
-If a uniformly drawn set misses the separately frozen aggregate GC tolerance,
-randomly ordered within-stratum swaps may replace selected candidates only in
-the direction that reduces the aggregate GC difference. The swaps cannot cross
-strata, change pool membership, use a coordinate twice within a stratum/null,
-or inspect ENCODE overlap. The master seed remains `20261002`; because the
-algorithm changed, it defines a new deterministic sequence rather than claiming
-identity with the invalid sequence.
+```text
+strata                              = 20,503
+unique-occupancy gate failures      = 5
+binomial reuse gate failures        = 1,942
+balanced swaps per null, median     = 2,268
+maximum observed reuse              = 22
+```
+
+Uniform selection inside broad GC deciles targets the pool's within-decile GC
+mean. Enforcing a different observed aggregate mean requires preferential
+selection; the swaps therefore cannot simultaneously preserve the registered
+uniform marginals. V2 is invalid and retired. Its deterministic outputs remain
+audit evidence and are not frozen for inference.
+
+## Final V3 null-generator contract
+
+The operational stratum changes methodologically from:
+
+```text
+chromosome x exact width x GC decile + aggregate balancing
+```
+
+to:
+
+```text
+chromosome x exact width x exact integer GC-base count
+```
+
+The GC decile remains a descriptive superclass only. Candidate pools are
+produced by deterministic uniform rejection sampling of the frozen eligible
+genome and partitioned by exact GC-base count. Within each exact stratum, every
+null samples uniformly and without replacement. Nearest-GC ranking, GC
+optimization and balanced swaps are forbidden. Exact per-region width and GC
+count preservation makes aggregate GC exact by construction.
+
+Before any V3 null is generated, a capacity-only preflight must report `M_g`,
+`k_g`, and `M_g/k_g` for every exact stratum. `M_g` is counted exactly within
+the deterministic operational candidate pool. The preflight reports the number
+of strata, singleton strata, `M_g < k_g`, capacity quantiles, and observed peaks
+across capacity bands. It cannot read ENCODE overlap, generate nulls or calculate
+RN3. If any `M_g < k_g`, RN3 becomes
+`NOT_EVALUABLE_UNDER_FROZEN_CONTROL_REQUIREMENTS`; no fourth ad hoc generator is
+permitted.
+
+The master seed remains `20261002`. Because the algorithm changed, it defines a
+new deterministic sequence rather than claiming identity with either invalid
+sequence.
 
 For stratum `g`, with candidate-pool size `M_g`, demand per null `k_g`, and
 `B=100`, expected occupancy is frozen as:
@@ -138,18 +179,19 @@ family-wise alpha `0.01` across all candidate-pool positions. Exact duplicates
 inside one stratum/null are forbidden. Within-null interval overlap is reported
 descriptively.
 
-Validation is separated from inference:
+If capacity passes, validation remains separated from inference:
 
 1. generate 100 null sets and perform only preservation, capacity, diversity,
-   reuse, duplicate, overlap, and aggregate-GC audits;
+   reuse, duplicate, overlap, and exact-GC audits;
 2. repeat the same implementation with the same seed and require byte-identical
    null-set SHA-256;
 3. freeze the validated null sets and checksums;
 4. calculate RN3 exactly once and accept PASS or FAIL without another
    p-value-motivated sampler change.
 
-The aggregate absolute GC-fraction tolerance remains `0.005`. Up to the frozen
-2,000 candidate sets may be examined to obtain the 100 accepted null sets.
+This is the final permitted null-generator methodological amendment for RN3.
+After structural validation and physical freezing, RN3 is calculated once and
+accepted regardless of outcome.
 
 ## Preserved decisions
 
@@ -160,7 +202,7 @@ The amendment does not change:
 - the external ENCODE accession or contig-intersection policy;
 - `n_null_sets = 100`;
 - random seed `20261002`;
-- aggregate GC tolerance `0.005`;
+- exact per-region and therefore exact aggregate GC preservation;
 - empirical-p calculation;
 - RN3 threshold or interpretation category;
 - any other frozen benchmark criterion.
@@ -169,9 +211,10 @@ If RN3 worsens or fails under the corrected null, that result is retained.
 
 ## Bias assessment
 
-The original correction was triggered by feasibility. The later nearest-GC
-diversity defect was detected by its predeclared audit and invalidated despite a
-nominally passing RN3. The p-value is retained rather than hidden, while the
-final generator is validated without calculating RN3. This separation prevents
-the next inferential result from influencing sampler development. ENCODE remains
-an external plausibility reference, not biological ground truth.
+The amendment bias risk is `LOW_TO_MODERATE`: a nominal RN3 was observed under
+V1, then invalidated by structural criteria independent of its value; V2 failed
+before RN3; and V3 follows directly from that registered incompatibility. V3 is
+fully specified and validated before inference, and its next RN3 must be
+accepted whether PASS or FAIL. The invalid p-value remains visible rather than
+being hidden. ENCODE remains an external plausibility reference, not biological
+ground truth.

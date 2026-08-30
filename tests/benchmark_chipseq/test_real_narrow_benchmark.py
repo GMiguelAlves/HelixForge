@@ -16,6 +16,8 @@ EVALUATOR = ROOT / "benchmark/chipseq/scripts/evaluate_real_narrow.py"
 NULL_VALIDATOR = ROOT / "benchmark/chipseq/scripts/validate_real_narrow_null_generator.py"
 NULL_SLURM = ROOT / "benchmark/chipseq/scripts/slurm_validate_real_narrow_nulls.sh"
 NULL_FREEZER = ROOT / "benchmark/chipseq/scripts/freeze_real_narrow_nulls.py"
+EXACT_GC_PREFLIGHT = ROOT / "benchmark/chipseq/scripts/preflight_real_narrow_exact_gc_capacity.py"
+EXACT_GC_SLURM = ROOT / "benchmark/chipseq/scripts/slurm_preflight_real_narrow_exact_gc.sh"
 
 
 def load_script():
@@ -39,7 +41,8 @@ class RealNarrowBenchmarkTests(unittest.TestCase):
         null = config["evaluation"]["encode_overlap_null"]
         self.assertEqual(null["seed"], 20261002)
         self.assertEqual(null["candidate_sets"], 2000)
-        self.assertIn("GC-decile-matched", null["method"])
+        self.assertIn("exact GC-base-count", null["method"])
+        self.assertTrue(null["final_amendment"])
         self.assertIn("0.005", null["gc_match"])
         self.assertEqual(null["diversity_gates"]["minimum_observed_expected_unique_ratio"], 0.8)
         self.assertEqual(null["invalidated_result"]["status"], "INVALID_FOR_INFERENCE")
@@ -94,12 +97,24 @@ class RealNarrowBenchmarkTests(unittest.TestCase):
         self.assertNotIn('empirical_p', validator)
         self.assertIn('MIN_UNIQUE_EXPECTATION_RATIO = 0.80', validator)
         self.assertIn('GLOBAL_MAX_REUSE_ALPHA = 0.01', validator)
+        self.assertIn('V2_SAMPLER_RETIRED = True', validator)
         self.assertIn('choices=("run_a", "run_b")', validator)
         self.assertIn('null_validation/$run_label', slurm)
         freezer = NULL_FREEZER.read_text(encoding="utf-8")
         self.assertIn('"phase": "VALIDATED_NULL_FREEZE"', freezer)
         self.assertIn('"rn3": {"calculated": False}', freezer)
         self.assertIn('deterministic null-generator outputs are not byte-identical', freezer)
+
+    def test_exact_gc_capacity_preflight_cannot_run_inference(self):
+        preflight = EXACT_GC_PREFLIGHT.read_text(encoding="utf-8")
+        slurm = EXACT_GC_SLURM.read_text(encoding="utf-8")
+        self.assertIn('phase": "EXACT_GC_CAPACITY_PREFLIGHT"', preflight)
+        self.assertIn('"rn3_calculated": False', preflight)
+        self.assertIn('"null_sets_generated": False', preflight)
+        self.assertNotIn('observed_overlap', preflight)
+        self.assertNotIn('empirical_p', preflight)
+        self.assertIn('M >= k', preflight)
+        self.assertIn('null_v3_capacity', slurm)
 
 
 if __name__ == "__main__":
