@@ -31,6 +31,7 @@ GC_TOLERANCE = 0.005
 MIN_POOL_SIZE = 200
 POOL_MULTIPLIER = 20
 MAX_POOL_ATTEMPT_MULTIPLIER = 10000
+RN3_INFERENCE_LOCKED = True
 
 
 def sha256(path: Path) -> str:
@@ -288,6 +289,11 @@ def main() -> int:
     args = parser.parse_args()
     if "SLURM_JOB_ID" not in os.environ:
         raise RuntimeError("evaluation must run in a Slurm allocation")
+    if RN3_INFERENCE_LOCKED:
+        raise RuntimeError(
+            "RN3 inference is locked until two validated null-generator runs "
+            "produce byte-identical frozen null sets"
+        )
     root = args.benchmark_root.resolve()
     expected = Path("/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-real-narrow-benchmark-20260830")
     if root != expected or args.output_dir.exists():

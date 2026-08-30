@@ -13,6 +13,9 @@ SCRIPT = ROOT / "benchmark/chipseq/scripts/collect_real_narrow_metadata.py"
 HELIXFORGE_RUNNER = ROOT / "benchmark/chipseq/scripts/run_real_narrow_helixforge.sh"
 INDEPENDENT_RUNNER = ROOT / "benchmark/chipseq/scripts/run_independent_real_narrow.sh"
 EVALUATOR = ROOT / "benchmark/chipseq/scripts/evaluate_real_narrow.py"
+NULL_VALIDATOR = ROOT / "benchmark/chipseq/scripts/validate_real_narrow_null_generator.py"
+NULL_SLURM = ROOT / "benchmark/chipseq/scripts/slurm_validate_real_narrow_nulls.sh"
+NULL_FREEZER = ROOT / "benchmark/chipseq/scripts/freeze_real_narrow_nulls.py"
 
 
 def load_script():
@@ -38,6 +41,8 @@ class RealNarrowBenchmarkTests(unittest.TestCase):
         self.assertEqual(null["candidate_sets"], 2000)
         self.assertIn("GC-decile-matched", null["method"])
         self.assertIn("0.005", null["gc_match"])
+        self.assertEqual(null["diversity_gates"]["minimum_observed_expected_unique_ratio"], 0.8)
+        self.assertEqual(null["invalidated_result"]["status"], "INVALID_FOR_INFERENCE")
         policy = config["external_references"]["contig_policy"]
         self.assertIn("intersection", policy["comparison_universe"])
         self.assertIn("without renaming", policy["absent_external_records"])
@@ -74,12 +79,27 @@ class RealNarrowBenchmarkTests(unittest.TestCase):
         self.assertIn('GC_TOLERANCE = 0.005', evaluator)
         self.assertIn('POOL_MULTIPLIER = 20', evaluator)
         self.assertIn('MAX_POOL_ATTEMPT_MULTIPLIER = 10000', evaluator)
-        self.assertIn('def sample_gc_conditioned(', evaluator)
-        self.assertIn('group["target_gc_bases"]', evaluator)
+        self.assertIn('RN3_INFERENCE_LOCKED = True', evaluator)
         self.assertIn('"pass": bool(motif_test.pvalue < 0.05)', evaluator)
         self.assertIn('null_relocation_capacity.tsv', evaluator)
         self.assertIn('read_peaks(external_path, require_summit=False)', evaluator)
         self.assertIn('max(0, min(a[i][1], b[j][1]) - max(a[i][0], b[j][0]))', evaluator)
+
+    def test_null_generator_validation_is_separate_from_rn3(self):
+        validator = NULL_VALIDATOR.read_text(encoding="utf-8")
+        slurm = NULL_SLURM.read_text(encoding="utf-8")
+        self.assertIn('phase": "NULL_GENERATOR_VALIDATION"', validator)
+        self.assertIn('"rn3": {"calculated": False}', validator)
+        self.assertNotIn('observed_overlap', validator)
+        self.assertNotIn('empirical_p', validator)
+        self.assertIn('MIN_UNIQUE_EXPECTATION_RATIO = 0.80', validator)
+        self.assertIn('GLOBAL_MAX_REUSE_ALPHA = 0.01', validator)
+        self.assertIn('choices=("run_a", "run_b")', validator)
+        self.assertIn('null_validation/$run_label', slurm)
+        freezer = NULL_FREEZER.read_text(encoding="utf-8")
+        self.assertIn('"phase": "VALIDATED_NULL_FREEZE"', freezer)
+        self.assertIn('"rn3": {"calculated": False}', freezer)
+        self.assertIn('deterministic null-generator outputs are not byte-identical', freezer)
 
 
 if __name__ == "__main__":
