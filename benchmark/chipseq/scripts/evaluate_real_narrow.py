@@ -558,7 +558,7 @@ def main() -> int:
     }
     criteria = {
         "RN1": {"type": "RELEASE_GATE", "pass": all((len(hf_r1), len(hf_r2), len(hf_idr), r1_semantic, r2_semantic, idr_exact))},
-        "RN2": {"type": "SANITY_CHECK", "pass": motif_test.pvalue < 0.05, "value": float(motif_test.pvalue)},
+        "RN2": {"type": "SANITY_CHECK", "pass": bool(motif_test.pvalue < 0.05), "value": float(motif_test.pvalue)},
         "RN3": {"type": "EXPECTED_RANGE", "pass": empirical_p <= 0.01, "value": empirical_p},
         "RN4": {"type": "EXPECTED_RANGE", "pass": bool(rank > 0 and len(hf_idr) > 0), "value": float(rank)},
         "RN5": {"type": "DESCRIPTIVE", "pass": None},
