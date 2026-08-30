@@ -1,0 +1,81 @@
+{
+  "bin_count": 108000,
+  "bin_size_bp": 500,
+  "correlations": [
+    {
+      "bins": 108000,
+      "left": "expected_signal",
+      "pearson": 0.9952700354415348,
+      "right": "helixforge_rep1",
+      "spearman": 0.5964825074187984
+    },
+    {
+      "bins": 108000,
+      "left": "expected_signal",
+      "pearson": 0.9952954447153268,
+      "right": "helixforge_rep2",
+      "spearman": 0.5964986067744228
+    },
+    {
+      "bins": 108000,
+      "left": "expected_signal",
+      "pearson": 0.9952700354415348,
+      "right": "independent_rep1",
+      "spearman": 0.5964825074187984
+    },
+    {
+      "bins": 108000,
+      "left": "expected_signal",
+      "pearson": 0.9952954447153268,
+      "right": "independent_rep2",
+      "spearman": 0.5964986067744228
+    },
+    {
+      "bins": 108000,
+      "left": "helixforge_rep1",
+      "pearson": 0.9907524930205885,
+      "right": "helixforge_rep2",
+      "spearman": 0.3561433331591239
+    },
+    {
+      "bins": 108000,
+      "left": "helixforge_rep1",
+      "pearson": 1.0,
+      "right": "independent_rep1",
+      "spearman": 1.0
+    },
+    {
+      "bins": 108000,
+      "left": "helixforge_rep1",
+      "pearson": 0.9907524930205885,
+      "right": "independent_rep2",
+      "spearman": 0.3561433331591239
+    },
+    {
+      "bins": 108000,
+      "left": "helixforge_rep2",
+      "pearson": 0.9907524930205885,
+      "right": "independent_rep1",
+      "spearman": 0.3561433331591239
+    },
+    {
+      "bins": 108000,
+      "left": "helixforge_rep2",
+      "pearson": 1.0,
+      "right": "independent_rep2",
+      "spearman": 1.0
+    },
+    {
+      "bins": 108000,
+      "left": "independent_rep1",
+      "pearson": 0.9907524930205885,
+      "right": "independent_rep2",
+      "spearman": 0.3561433331591239
+    }
+  ],
+  "eligible_bins": "full 500 bp bins with no repeat overlap",
+  "normalization": "CPM BigWig",
+  "schema_version": "1.0",
+  "status": "complete",
+  "type": "synthetic_broad_coverage_correlation"
+}

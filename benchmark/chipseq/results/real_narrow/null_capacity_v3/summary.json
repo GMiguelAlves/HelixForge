@@ -1,0 +1,31 @@
+{
+  "candidate_universe": "deterministic uniformly sampled eligible parent pool, partitioned by exact GC-base count",
+  "capacity_ratio": {
+    "median": 4.0,
+    "minimum": 0.0,
+    "p01": 0.0,
+    "p05": 1.0,
+    "p95": 9.0
+  },
+  "descriptive_gc_superclass": "decile",
+  "failure_policy": "RN3 = NOT_EVALUABLE_UNDER_FROZEN_CONTROL_REQUIREMENTS if any M_g < k_g",
+  "master_seed": 20261002,
+  "null_sets_generated": false,
+  "number_of_strata": 31426,
+  "observed_peak_capacity_buckets": {
+    "ge_10_lt_20": 1527,
+    "ge_20": 9,
+    "ge_2_lt_5": 14057,
+    "ge_5_lt_10": 11158,
+    "lt_2": 5087
+  },
+  "observed_peaks_in_infeasible_strata": 1546,
+  "operational_stratum": "chromosome x exact width x exact GC-base count",
+  "phase": "EXACT_GC_CAPACITY_PREFLIGHT",
+  "rn3_calculated": false,
+  "schema_version": "1.0",
+  "slurm_job_id": "16269",
+  "status": "FAIL_NOT_EVALUABLE",
+  "strata_with_M_lt_k": 1511,
+  "strata_with_k_1": 31021
+}

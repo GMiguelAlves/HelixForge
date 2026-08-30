@@ -1,0 +1,93 @@
+{
+  "artifacts": {
+    "helixforge_chip_rep1": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/helixforge/results/080-peak-calling/chip_rep1.synthetic_factor.broad.macs3.peak_calling/peaks.broadPeak",
+      "records": 957,
+      "sha256": "c7b65827e4be1fe7b01da157e91c12727491c48143aaf9ae4767f72d476cf847"
+    },
+    "helixforge_chip_rep2": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/helixforge/results/080-peak-calling/chip_rep2.synthetic_factor.broad.macs3.peak_calling/peaks.broadPeak",
+      "records": 975,
+      "sha256": "46a616b6ed94b917ad48d1677579bc5152134e7ac83d7405e99fb332d65f34a7"
+    },
+    "helixforge_consensus": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/helixforge/results/chipseq/consensus/chipseq-synthetic-broad-v1.chipseq-synthetic-broad-v1.synthetic_factor.synthetic_broad.synthetic_factor.synthetic_chip_v1.broad/chipseq-synthetic-broad-v1.chipseq-synthetic-broad-v1.synthetic_factor.synthetic_broad.synthetic_factor.synthetic_chip_v1.broad.replicate_support.consensus_result/consolidated_peaks.bed",
+      "records": 1026,
+      "sha256": "692cf1671cd5ccd5da0ae4ae7b07e7a89aad531a5ddc1ad229071c9bc3bfef7c"
+    },
+    "independent_chip_rep1": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/independent/peaks/chip_rep1/chip_rep1_peaks.broadPeak",
+      "records": 957,
+      "sha256": "05db6b7b66c867e42b8190b7d27b420f7a9cb7d1cf417b821e5a3dd6bc6bd2cc"
+    },
+    "independent_chip_rep2": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/independent/peaks/chip_rep2/chip_rep2_peaks.broadPeak",
+      "records": 975,
+      "sha256": "01d347cf70b8b8613b5797790e5efcbb0eddbe01dc285c6c3aed7b65b1db3168"
+    },
+    "independent_consensus": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/independent/consensus/consolidated_peaks.bed",
+      "records": 1026,
+      "sha256": "5278b692ddc5aea1bceaaee1c46e23de43f8046faeb4d8719ac0e3bc16b2f320"
+    }
+  },
+  "bams": {
+    "helixforge_chip_rep1": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/helixforge/results/060-filtering/chip_rep1/chip_rep1.filtered.bam",
+      "size_bytes": 415823734
+    },
+    "helixforge_chip_rep2": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/helixforge/results/060-filtering/chip_rep2/chip_rep2.filtered.bam",
+      "size_bytes": 415926591
+    },
+    "independent_chip_rep1": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/independent/bam/chip_rep1.final.bam",
+      "size_bytes": 415825302
+    },
+    "independent_chip_rep2": {
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/independent/bam/chip_rep2.final.bam",
+      "size_bytes": 415927426
+    }
+  },
+  "frip": [
+    {
+      "fragments_in_peaks": 5961219,
+      "frip": 0.5415989692826272,
+      "min_mapq": 30,
+      "sample_id": "chip_rep1",
+      "status": "complete",
+      "total_fragments": 11006703
+    },
+    {
+      "fragments_in_peaks": 5961158,
+      "frip": 0.5414699488510214,
+      "min_mapq": 30,
+      "sample_id": "chip_rep2",
+      "status": "complete",
+      "total_fragments": 11009213
+    }
+  ],
+  "multiqc": {
+    "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/helixforge/results/030-qc-fastq/multiqc/raw_fastq_multiqc.html",
+    "sha256": "27dafc4e973239812b6f1251be660d08a032f3cff1037537cbb9a60333ee9f29"
+  },
+  "nextflow_report": {
+    "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/helixforge/report.html",
+    "sha256": "4b0eddea2239a6facf36e1eeaaa19d79ca258ccaffaaefc6e4b072e849bd43f4"
+  },
+  "schema_version": "1.0",
+  "session_uuid": "c3dba511-489c-4851-924a-b84448bfae02",
+  "status": "TECHNICAL_EXECUTION_PASS",
+  "terminal_consensus": {
+    "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/helixforge/results/chipseq/consensus/consolidation_summary.json",
+    "sha256": "5dfeee688e5b35925bba542040e839e84db5ee9b1384eb788b2d94a454a177d7"
+  },
+  "trace": {
+    "cached_tasks": 0,
+    "processes": [
+      ""
+    ],
+    "tasks": 40
+  },
+  "type": "synthetic_broad_selected_outputs"
+}

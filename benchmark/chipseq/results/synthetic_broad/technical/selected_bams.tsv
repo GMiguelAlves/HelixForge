@@ -1,0 +1,5 @@
+role	path	size_bytes
+helixforge_chip_rep1	/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/helixforge/results/060-filtering/chip_rep1/chip_rep1.filtered.bam	415823734
+independent_chip_rep1	/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/independent/bam/chip_rep1.final.bam	415825302
+helixforge_chip_rep2	/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/helixforge/results/060-filtering/chip_rep2/chip_rep2.filtered.bam	415926591
+independent_chip_rep2	/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-broad-benchmark-20260828/independent/bam/chip_rep2.final.bam	415927426

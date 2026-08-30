@@ -1,0 +1,89 @@
+{
+  "inputs": {
+    "coverage_correlations.tsv": "80e9d72d583b911e1473b5e617d16389d46396b2ad2e1cfbc0734a2f0b33e611",
+    "domain_metrics.tsv": "f6613b38c08151ac434bf0a4c71f61bd00e8b8e0c2e81ab5b8618a8e6952bef0",
+    "repeat_overlap_metrics.tsv": "2063242b22dedc2e9690c67fa06aa78fcc910976d50983caf77961db057fb572",
+    "replicate_and_external_metrics.tsv": "ebcd0731d36a28fb5e1d0fca618f86b4cc9af098cca05b27c5c97a4ac56e710d",
+    "signal_class_metrics.tsv": "32d48b75404c6f3a6e5a21f84677f995145c049d837e82649b807e5a22eb1d39",
+    "truth_accuracy.tsv": "c417a1ff71d47fd4b7d30ab67824dbf6f821dfd7cadd82ed552475370ae69dff",
+    "width_class_metrics.tsv": "d93e85559cdbc45df3b1c7ee8ffc3a88c512869d77a0fefcc06c025ebbd6f054",
+    "width_signal_metrics.tsv": "f148f78b40fe5b59ecfb8f0050ae51cabdbb94230c317da7561a9bcc6f7a8c4a"
+  },
+  "matplotlib": "3.11.0",
+  "outputs": [
+    {
+      "path": "figure_1_ground_truth_accuracy.png",
+      "sha256": "0ba7f5123cc9fa0fb61e37d50a1533696dee9a36266b0a84cabf680bfd8cd335",
+      "size_bytes": 43271
+    },
+    {
+      "path": "figure_1_ground_truth_accuracy.pdf",
+      "sha256": "60f9fbcda8cee80b687cf3ae5cf417d6b1da705a0eeed842d07dd7d1f44fd37f",
+      "size_bytes": 15454
+    },
+    {
+      "path": "figure_2_signal_classes.png",
+      "sha256": "849ef58d6ff1adfdfcd72a8c37675cc4af70e2e65f182263e17ec50657a79aea",
+      "size_bytes": 35291
+    },
+    {
+      "path": "figure_2_signal_classes.pdf",
+      "sha256": "a2f541ed0bad0256f8a1b44d9c6e6d73895f1a3ee081ebe7e7c3d6b6ca12b435",
+      "size_bytes": 15809
+    },
+    {
+      "path": "figure_3_width_classes.png",
+      "sha256": "9d9e859f40e0eb023615ba59124020f551bb8f040e813e17b49bea4db3db7019",
+      "size_bytes": 34702
+    },
+    {
+      "path": "figure_3_width_classes.pdf",
+      "sha256": "58a4b933204da8b8b6a0c3f11829e3714bb754fbe290da5aad940a6e6c217bb4",
+      "size_bytes": 15549
+    },
+    {
+      "path": "figure_4_fragmentation_merging.png",
+      "sha256": "3376e9ca9868f24ac63224797a1b1cd0a72c49975b6aeed33c7aa24a30fda331",
+      "size_bytes": 67221
+    },
+    {
+      "path": "figure_4_fragmentation_merging.pdf",
+      "sha256": "9507e11b635e6775e6fc386269c4e73305a3b68100ddc1d785e0921c897f7512",
+      "size_bytes": 13982
+    },
+    {
+      "path": "figure_5_repeat_overlap.png",
+      "sha256": "ae7e6be8960e905f4d64d1b35ac7af7415c3d8733705dcd272ea3437511f1ce7",
+      "size_bytes": 47465
+    },
+    {
+      "path": "figure_5_repeat_overlap.pdf",
+      "sha256": "526ba9413f6358410fb51fa77d309f7fbd70bd602b1da972b530374a07200b97",
+      "size_bytes": 15043
+    },
+    {
+      "path": "figure_6_path_concordance.png",
+      "sha256": "5a2a4530aedb59b13a5bae4c33d071f5cf7c5e0d6a0c5ad5e32d2366dbde9fcb",
+      "size_bytes": 48819
+    },
+    {
+      "path": "figure_6_path_concordance.pdf",
+      "sha256": "22a9d022ff66baf90cb5331efe45035a0db87d19bf8339a5742c0c9526ce0721",
+      "size_bytes": 13633
+    },
+    {
+      "path": "figure_7_coverage_signal.png",
+      "sha256": "92580cc55bd4ba6c2c6deeaffbc77a7a0af5f032a6602ac6d920801aecdc0d22",
+      "size_bytes": 58248
+    },
+    {
+      "path": "figure_7_coverage_signal.pdf",
+      "sha256": "ded3648d1f769cf4be3eea71880f34b353237105ec75aaa063d1d1e3ee7e9787",
+      "size_bytes": 15259
+    }
+  ],
+  "primary_label": "helixforge_consensus",
+  "python": "3.13.14",
+  "schema_version": "1.0",
+  "type": "synthetic_broad_figures"
+}

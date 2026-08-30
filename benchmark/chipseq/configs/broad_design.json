@@ -20,7 +20,15 @@
       "long_broad": [20000, 80000]
     },
     "signal_classes": {"strong": 0.80, "medium": 0.50, "weak": 0.25},
-    "negative_regions": 360
+    "negative_regions": 360,
+    "repeat_traversal": {
+      "interior_allowed": true,
+      "boundary_buffer_bp": 2000,
+      "require_both_boundaries_eligible": true,
+      "negative_regions_follow_same_rule": true,
+      "record_per_interval": ["repeat_overlap_bp", "repeat_overlap_fraction"],
+      "amendment": "protocol/protocol_amendment_20260828.md"
+    }
   },
   "simulator": {
     "name": "ChIPs",

@@ -1,0 +1,748 @@
+{
+  "classification": "DESCRIPTIVE_CLUSTER_PERFORMANCE",
+  "collector_slurm_job_id": "16190",
+  "limitations": [
+    "Shared-cluster measurements include scheduler and NFS effects and are not release gates."
+  ],
+  "schema_version": "1.0",
+  "slurm_jobs": [
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 73,
+      "exit_code": "0:0",
+      "job_id": "16118",
+      "job_name": "hf-br-chips",
+      "max_rss_bytes": 402456576,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "1:0",
+      "job_id": "16119",
+      "job_name": "hf-br-preflight",
+      "max_rss_bytes": 14024704,
+      "node": "srv-slurm-node-03",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 2,
+      "exit_code": "1:0",
+      "job_id": "16120",
+      "job_name": "hf-br-preflight",
+      "max_rss_bytes": 2318336,
+      "node": "srv-slurm-node-03",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 22,
+      "exit_code": "0:0",
+      "job_id": "16121",
+      "job_name": "hf-br-preflight",
+      "max_rss_bytes": 127524864,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 80,
+      "exit_code": "0:0",
+      "job_id": "16122",
+      "job_name": "nf-PREPARE_SYNTHETIC_BROAD_(synthetic-broad_reference-truth)",
+      "max_rss_bytes": 135086080,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 8,
+      "elapsed_seconds": 60,
+      "exit_code": "0:0",
+      "job_id": "16123",
+      "job_name": "nf-BUILD_MAPPABILITY_INDEX_(synthetic-broad_mappability-index)",
+      "max_rss_bytes": 278499328,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 4,
+      "exit_code": "0:0",
+      "job_id": "16124",
+      "job_name": "nf-VALIDATE_TRUTH_MAPPABILITY_(synthetic-broad_truth-mappability)",
+      "max_rss_bytes": 80134144,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "127:0",
+      "job_id": "16125",
+      "job_name": "nf-SIMULATE_CHIPS_LIBRARY_(synthetic-broad_chip_rep2)",
+      "max_rss_bytes": 348160,
+      "node": "srv-slurm-node-03",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "127:0",
+      "job_id": "16126",
+      "job_name": "nf-SIMULATE_CHIPS_LIBRARY_(synthetic-broad_chip_rep1)",
+      "max_rss_bytes": 397312,
+      "node": "srv-slurm-node-03",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "127:0",
+      "job_id": "16127",
+      "job_name": "nf-SIMULATE_CHIPS_LIBRARY_(synthetic-broad_input)",
+      "max_rss_bytes": 204800,
+      "node": "srv-slurm-node-03",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 0,
+      "exit_code": "0:0",
+      "job_id": "16128",
+      "job_name": "hf-br-isa-probe",
+      "max_rss_bytes": 249856,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 50,
+      "exit_code": "0:0",
+      "job_id": "16129",
+      "job_name": "hf-br-chips-portable",
+      "max_rss_bytes": 186191872,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 4,
+      "exit_code": "0:0",
+      "job_id": "16130",
+      "job_name": "nf-SIMULATE_CHIPS_LIBRARY_(synthetic-broad_chip_rep1)",
+      "max_rss_bytes": 573440,
+      "node": "srv-slurm-node-03",
+      "state": "CANCELLED by 433408788"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "124:0",
+      "job_id": "16131",
+      "job_name": "nf-SIMULATE_CHIPS_LIBRARY_(synthetic-broad_input)",
+      "max_rss_bytes": 294912,
+      "node": "srv-slurm-node-03",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 3,
+      "exit_code": "0:0",
+      "job_id": "16132",
+      "job_name": "nf-SIMULATE_CHIPS_LIBRARY_(synthetic-broad_chip_rep2)",
+      "max_rss_bytes": 675840,
+      "node": "srv-slurm-node-03",
+      "state": "CANCELLED by 433408788"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 49,
+      "exit_code": "0:0",
+      "job_id": "16133",
+      "job_name": "hf-br-chips-portable2",
+      "max_rss_bytes": 184598528,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "4:0",
+      "job_id": "16134",
+      "job_name": "hf-br-chips-smoke2",
+      "max_rss_bytes": 151552,
+      "node": "srv-slurm-node-03",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "127:0",
+      "job_id": "16135",
+      "job_name": "hf-br-chips-gdb",
+      "max_rss_bytes": 368640,
+      "node": "srv-slurm-node-03",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 67,
+      "exit_code": "0:0",
+      "job_id": "16136",
+      "job_name": "hf-br-chips-hybrid",
+      "max_rss_bytes": 366342144,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 4,
+      "exit_code": "0:0",
+      "job_id": "16137",
+      "job_name": "hf-br-chips-hybrid-smoke",
+      "max_rss_bytes": 65318912,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 894,
+      "exit_code": "0:0",
+      "job_id": "16138",
+      "job_name": "nf-SIMULATE_CHIPS_LIBRARY_(synthetic-broad_chip_rep1)",
+      "max_rss_bytes": 6435057664,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 876,
+      "exit_code": "0:0",
+      "job_id": "16139",
+      "job_name": "nf-SIMULATE_CHIPS_LIBRARY_(synthetic-broad_chip_rep2)",
+      "max_rss_bytes": 6391107584,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 890,
+      "exit_code": "0:0",
+      "job_id": "16140",
+      "job_name": "nf-SIMULATE_CHIPS_LIBRARY_(synthetic-broad_input)",
+      "max_rss_bytes": 6409523200,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 427,
+      "exit_code": "0:0",
+      "job_id": "16141",
+      "job_name": "nf-VALIDATE_SYNTHETIC_BROAD_DATASET_(synthetic-broad_dataset-validation)",
+      "max_rss_bytes": 28389531648,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "0:0",
+      "job_id": "16142",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CHIPSEQ_CONTEXT_(chipseq_context)",
+      "max_rss_bytes": 233472,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 0,
+      "exit_code": "0:0",
+      "job_id": "16143",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CHIPSEQ_METADATA_(chipseq_metadata)",
+      "max_rss_bytes": 737280,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 0,
+      "exit_code": "0:0",
+      "job_id": "16144",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_CALLING_CONTEXT_(chipseq_peak-context)",
+      "max_rss_bytes": 1146880,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 78,
+      "exit_code": "0:0",
+      "job_id": "16145",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_REFERENCE_INDEX_BOWTIE2_INDEX_(synthetic_chip_v1.bowtie2.index)",
+      "max_rss_bytes": 353755136,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 51,
+      "exit_code": "0:0",
+      "job_id": "16146",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_FASTQC_(input.raw.R1)",
+      "max_rss_bytes": 1378271232,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 51,
+      "exit_code": "0:0",
+      "job_id": "16147",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_FASTQC_(chip_rep2.raw.R1)",
+      "max_rss_bytes": 1377128448,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 50,
+      "exit_code": "0:0",
+      "job_id": "16148",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_FASTQC_(input.raw.R2)",
+      "max_rss_bytes": 1376935936,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 50,
+      "exit_code": "0:0",
+      "job_id": "16149",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_FASTQC_(chip_rep2.raw.R2)",
+      "max_rss_bytes": 1377128448,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 48,
+      "exit_code": "0:0",
+      "job_id": "16150",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_FASTQC_(chip_rep1.raw.R2)",
+      "max_rss_bytes": 1377693696,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 49,
+      "exit_code": "0:0",
+      "job_id": "16151",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_FASTQC_(chip_rep1.raw.R1)",
+      "max_rss_bytes": 1380052992,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 8,
+      "elapsed_seconds": 1229,
+      "exit_code": "0:0",
+      "job_id": "16152",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_ALIGNMENT_BOWTIE2_ALIGN_(input)",
+      "max_rss_bytes": 7755452416,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 8,
+      "elapsed_seconds": 1278,
+      "exit_code": "0:0",
+      "job_id": "16153",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_ALIGNMENT_BOWTIE2_ALIGN_(chip_rep1)",
+      "max_rss_bytes": 7718445056,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 8,
+      "elapsed_seconds": 1272,
+      "exit_code": "0:0",
+      "job_id": "16154",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_ALIGNMENT_BOWTIE2_ALIGN_(chip_rep2)",
+      "max_rss_bytes": 7714729984,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 18,
+      "exit_code": "0:0",
+      "job_id": "16155",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_MULTIQC_(chipseq.raw.multiqc)",
+      "max_rss_bytes": 58396672,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 91,
+      "exit_code": "0:0",
+      "job_id": "16156",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CHIPSEQ_BAM_PROCESSING_BAM_SELECT_(input)",
+      "max_rss_bytes": 459137024,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 95,
+      "exit_code": "0:0",
+      "job_id": "16157",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CHIPSEQ_BAM_PROCESSING_BAM_SELECT_(chip_rep2)",
+      "max_rss_bytes": 423260160,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 94,
+      "exit_code": "0:0",
+      "job_id": "16158",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CHIPSEQ_BAM_PROCESSING_BAM_SELECT_(chip_rep1)",
+      "max_rss_bytes": 423055360,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 37,
+      "exit_code": "0:0",
+      "job_id": "16159",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CHIPSEQ_BAM_PROCESSING_BAM_DUPLICATES_(input)",
+      "max_rss_bytes": 459935744,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 41,
+      "exit_code": "0:0",
+      "job_id": "16160",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CHIPSEQ_BAM_PROCESSING_BAM_DUPLICATES_(chip_rep2)",
+      "max_rss_bytes": 422162432,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 35,
+      "exit_code": "0:0",
+      "job_id": "16161",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CHIPSEQ_BAM_PROCESSING_BAM_DUPLICATES_(chip_rep1)",
+      "max_rss_bytes": 423260160,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 21,
+      "exit_code": "0:0",
+      "job_id": "16162",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CHIPSEQ_BAM_PROCESSING_BAM_BLACKLIST_(input)",
+      "max_rss_bytes": 453595136,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 114,
+      "exit_code": "0:0",
+      "job_id": "16163",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CHIPSEQ_BAM_PROCESSING_BAM_INDEX_QC_(input)",
+      "max_rss_bytes": 460312576,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 21,
+      "exit_code": "0:0",
+      "job_id": "16164",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CHIPSEQ_BAM_PROCESSING_BAM_BLACKLIST_(chip_rep2)",
+      "max_rss_bytes": 417636352,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 21,
+      "exit_code": "0:0",
+      "job_id": "16165",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CHIPSEQ_BAM_PROCESSING_BAM_BLACKLIST_(chip_rep1)",
+      "max_rss_bytes": 417497088,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 135,
+      "exit_code": "0:0",
+      "job_id": "16166",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CHIPSEQ_BAM_PROCESSING_BAM_INDEX_QC_(chip_rep2)",
+      "max_rss_bytes": 425340928,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 142,
+      "exit_code": "0:0",
+      "job_id": "16167",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CHIPSEQ_BAM_PROCESSING_BAM_INDEX_QC_(chip_rep1)",
+      "max_rss_bytes": 424853504,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 272,
+      "exit_code": "0:0",
+      "job_id": "16168",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_CALLING_MACS3_CALLPEAK_(chip_rep2.synthetic_factor.broad.macs3)",
+      "max_rss_bytes": 1625862144,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 268,
+      "exit_code": "0:0",
+      "job_id": "16169",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_CALLING_MACS3_CALLPEAK_(chip_rep1.synthetic_factor.broad.macs3)",
+      "max_rss_bytes": 1583071232,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 38,
+      "exit_code": "0:0",
+      "job_id": "16170",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_CALLING_PEAK_CALLING_AGGREGATE_(chip_rep2.synthetic_factor.broad.macs3)",
+      "max_rss_bytes": 1401384960,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 31,
+      "exit_code": "0:0",
+      "job_id": "16171",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_CALLING_PEAK_CALLING_AGGREGATE_(chip_rep1.synthetic_factor.broad.macs3)",
+      "max_rss_bytes": 1412677632,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 4,
+      "exit_code": "0:0",
+      "job_id": "16172",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_QC_PEAK_QC_CONTEXT_(chip_rep1.synthetic_factor.broad.macs3)",
+      "max_rss_bytes": 397312,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 2,
+      "exit_code": "0:0",
+      "job_id": "16173",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_QC_PEAK_STATISTICS_(chip_rep1.synthetic_factor.broad.macs3)",
+      "max_rss_bytes": 454656,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 193,
+      "exit_code": "0:0",
+      "job_id": "16174",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_QC_FRIP_(chip_rep1.synthetic_factor.broad.macs3)",
+      "max_rss_bytes": 4104908800,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 3,
+      "exit_code": "0:0",
+      "job_id": "16175",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_QC_PEAK_QC_CONTEXT_(chip_rep2.synthetic_factor.broad.macs3)",
+      "max_rss_bytes": 499712,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "0:0",
+      "job_id": "16176",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_QC_PEAK_STATISTICS_(chip_rep2.synthetic_factor.broad.macs3)",
+      "max_rss_bytes": 536576,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 203,
+      "exit_code": "0:0",
+      "job_id": "16177",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_QC_FRIP_(chip_rep2.synthetic_factor.broad.macs3)",
+      "max_rss_bytes": 4063510528,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "0:0",
+      "job_id": "16178",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_PEAK_QC_PEAK_QC_AGGREGATE_(chipseq.peak_qc.aggregate)",
+      "max_rss_bytes": 638976,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "0:0",
+      "job_id": "16179",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CONSENSUS_IDR_CONSENSUS_CONTEXT_(chipseq-synthetic-broad-v1.chipseq-synthetic-broad-v1.synthetic_factor.synthetic_broad.synthetic_factor.synthetic_chip_v1.broad)",
+      "max_rss_bytes": 479232,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 2,
+      "exit_code": "0:0",
+      "job_id": "16180",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CONSENSUS_IDR_CONSENSUS_SUPPORT_(chipseq-synthetic-broad-v1.chipseq-synthetic-broad-v1.synthetic_factor.synthetic_broad.synthetic_factor.synthetic_chip_v1.broad_replicate_support)",
+      "max_rss_bytes": 2191360,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "0:0",
+      "job_id": "16181",
+      "job_name": "nf-CHIPSEQ_CHIPSEQ_NATIVE_FOUNDATION_CONSENSUS_IDR_CONSENSUS_AGGREGATE_(chipseq.consensus.aggregate)",
+      "max_rss_bytes": 614400,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 8,
+      "elapsed_seconds": 4116,
+      "exit_code": "0:0",
+      "job_id": "16182",
+      "job_name": "hf-br-independent",
+      "max_rss_bytes": 9583738880,
+      "node": "srv-slurm-node-03",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 241,
+      "exit_code": "1:0",
+      "job_id": "16184",
+      "job_name": "hf-br-evaluate",
+      "max_rss_bytes": 2139688960,
+      "node": "srv-slurm-node-04",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpus": 4,
+      "elapsed_seconds": 242,
+      "exit_code": "0:0",
+      "job_id": "16185",
+      "job_name": "hf-br-evaluate2",
+      "max_rss_bytes": 434593792,
+      "node": "srv-slurm-node-04",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 7,
+      "exit_code": "0:0",
+      "job_id": "16186",
+      "job_name": "hf-br-figures",
+      "max_rss_bytes": 16019456,
+      "node": "srv-slurm-node-04",
+      "state": "COMPLETED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 0,
+      "exit_code": "1:0",
+      "job_id": "16187",
+      "job_name": "hf-br-performance",
+      "max_rss_bytes": 630784,
+      "node": "srv-slurm-node-04",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "1:0",
+      "job_id": "16188",
+      "job_name": "hf-br-performance2",
+      "max_rss_bytes": 167936,
+      "node": "srv-slurm-node-04",
+      "state": "FAILED"
+    },
+    {
+      "allocated_cpus": 2,
+      "elapsed_seconds": 1,
+      "exit_code": "1:0",
+      "job_id": "16189",
+      "job_name": "hf-br-performance3",
+      "max_rss_bytes": 163840,
+      "node": "srv-slurm-node-04",
+      "state": "FAILED"
+    }
+  ],
+  "status": "complete",
+  "storage_bytes": {
+    "dataset": 14307459769,
+    "evaluation": 25905437,
+    "helixforge": 12036761578,
+    "independent": 4191513148
+  },
+  "traces": [
+    {
+      "label": "helixforge",
+      "path": "trace.tsv",
+      "summary": {
+        "cached": 0,
+        "completed": 40,
+        "failed": 0,
+        "peak_rss_bytes": 7300000000,
+        "peak_vmem_bytes": 10300000000,
+        "read_bytes": 188141359800,
+        "summed_cpu_seconds": 29843.301336,
+        "summed_duration_seconds": 6745.7,
+        "summed_realtime_seconds": 6017.771999999999,
+        "task_count": 40,
+        "write_bytes": 101517591600
+      },
+      "tasks": 40
+    }
+  ],
+  "type": "synthetic_broad_performance"
+}

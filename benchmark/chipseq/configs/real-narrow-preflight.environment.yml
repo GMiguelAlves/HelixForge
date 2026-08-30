@@ -1,0 +1,5 @@
+name: helixforge-chipseq-real-narrow-preflight
+channels:
+  - conda-forge
+dependencies:
+  - git=2.51.0

@@ -11,6 +11,7 @@ frozen protocol.
 | `generate_broad_truth` | reference manifest, broad JSON | broad truth, negatives, manifest | Declare balanced continuous domains before simulation |
 | `simulate_chips` | reference, truth, frozen ChIPs parameters | replicate/Input FASTQs, logs, manifest | Invoke ChIPs v2.4 without embedding scientific logic elsewhere |
 | `download_public_data` | sample/reference registries | immutable source files, receipt | Download only declared URLs and validate size/MD5 |
+| `prepare_real_narrow_reference` | validated GENCODE/ENCODE downloads | decompressed FASTA, FAI, GTF, blacklist, manifest | Preserve contig names, validate cross-artifact contigs and record source/output checksums |
 | `validate_dataset` | registries, files, truth/config | validation TSV/JSON | Fail on missing, extra or inconsistent artifacts |
 | `run_independent_chipseq` | raw FASTQ, reference, frozen parameters | BAMs, peaks, QC, logs, manifest | Execute the separately launched Bash/Python comparison path |
 | `evaluate_narrow` | truth, HelixForge and independent peaks | metrics TSV/JSON, matched pairs | Apply the frozen bipartite matching and AUPRC definitions |

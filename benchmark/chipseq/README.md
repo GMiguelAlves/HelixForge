@@ -85,8 +85,15 @@ to the selected single-condition experiments; the benchmark therefore uses
 - [Provenance contract](provenance/README.md)
 - [Planned reports](reports/README.md)
 
-No FASTQ, BAM, reference, work directory or scientific result is versioned
-here. The next action requires maintainer review; this branch must not start a
-benchmark automatically.
+No FASTQ, BAM, reference or work directory is versioned here. Compact,
+reviewable evidence is retained for completed synthetic arms:
 
-**Design status: `CHIPSEQ_BENCHMARK_DESIGN_FROZEN`.**
+- [synthetic narrow report](reports/synthetic_narrow_benchmark.md)
+  (`PASS_WITH_LIMITATIONS`);
+- [synthetic broad report](reports/synthetic_broad_benchmark.md)
+  (`PASS_WITH_LIMITATIONS`).
+
+Large execution evidence is retained in verified home audit archives and the
+corresponding scratch directories are removed after packaging.
+
+**Design status: `CHIPSEQ_BENCHMARK_DESIGN_FROZEN`; synthetic arms executed.**
