@@ -9,6 +9,8 @@ CONFIG = ROOT / "benchmark/chipseq/configs/real_narrow_execution.json"
 CONTIG_AMENDMENT = ROOT / "benchmark/chipseq/protocol/real_narrow_contig_amendment_20260830.md"
 SNAPSHOT = ROOT / "benchmark/chipseq/results/real_narrow/metadata/encode_metadata_snapshot.json"
 SCRIPT = ROOT / "benchmark/chipseq/scripts/collect_real_narrow_metadata.py"
+HELIXFORGE_RUNNER = ROOT / "benchmark/chipseq/scripts/run_real_narrow_helixforge.sh"
+INDEPENDENT_RUNNER = ROOT / "benchmark/chipseq/scripts/run_independent_real_narrow.sh"
 
 
 def load_script():
@@ -47,6 +49,14 @@ class RealNarrowBenchmarkTests(unittest.TestCase):
         module = load_script()
         observed = module.audit_rows({"audit": {"WARNING": [{"category": "legacy", "detail": "x", "path": "/x"}]}})
         self.assertEqual(observed, [{"level": "WARNING", "category": "legacy", "detail": "x", "path": "/x"}])
+
+    def test_real_narrow_runners_preserve_frozen_parameters(self):
+        helixforge = HELIXFORGE_RUNNER.read_text(encoding="utf-8")
+        independent = INDEPENDENT_RUNNER.read_text(encoding="utf-8")
+        for value in ("--chipseq_peak_format BAM", "--chipseq_min_mapq 30", "2913022398"):
+            self.assertIn(value, helixforge)
+        for value in ("-f BAM", "-q 30 -F 2308", "2913022398", "--rank signal.value"):
+            self.assertIn(value, independent)
 
 
 if __name__ == "__main__":
