@@ -24,10 +24,12 @@ class RealBroadBenchmarkTests(unittest.TestCase):
 
     def test_checkpoint_starts_before_download(self):
         state = json.loads(STATE.read_text(encoding="utf-8"))
-        self.assertEqual(state["current_phase"], "WAITING_FOR_EXTERNAL_JOB")
+        self.assertEqual(state["current_phase"], "RUNTIME_REBUILD_REQUIRED")
         self.assertEqual(state["download_status"], "NOT_STARTED")
         self.assertEqual(state["preflight_job_ids"], ["16273"])
         self.assertEqual(state["runtime_job_ids"], ["16274"])
+        self.assertEqual(state["last_verified_status"]["runtime_job_state"], "TIMEOUT")
+        self.assertEqual(state["last_verified_status"]["runtime_source_status"], "UNSUITABLE_VERSION_DRIFT")
         self.assertFalse(state["last_verified_status"]["heavy_download_started"])
         self.assertFalse(state["last_verified_status"]["scientific_output_observed"])
 
@@ -37,6 +39,7 @@ class RealBroadBenchmarkTests(unittest.TestCase):
         for value in ("25.10.7", "2.5.4", "samtools 1.20", "macs3 3.0.4", "v0.12.1", "1.35", "v2.31.1"):
             self.assertIn(value, source)
         self.assertIn('"broad_idr_disabled"', source)
+        self.assertIn('"--r-bin"', source)
 
 
 if __name__ == "__main__":
