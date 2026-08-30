@@ -65,10 +65,10 @@ def gtf_contigs(path: Path) -> set[str]:
     return contigs
 
 
-def bed_contigs(path: Path, compressed: bool = False) -> set[str]:
+def bed_statistics(path: Path, compressed: bool = False) -> dict[str, dict[str, int]]:
     opener = gzip.open if compressed else Path.open
     kwargs = {"mode": "rt", "encoding": "utf-8"} if compressed else {"mode": "r", "encoding": "utf-8"}
-    contigs = set()
+    contigs: dict[str, dict[str, int]] = {}
     with opener(path, **kwargs) as handle:
         for number, line in enumerate(handle, start=1):
             if not line.strip() or line.startswith(("#", "track", "browser")):
@@ -76,7 +76,15 @@ def bed_contigs(path: Path, compressed: bool = False) -> set[str]:
             fields = line.rstrip("\n").split("\t")
             if len(fields) < 3:
                 raise ValueError(f"invalid BED row {number}: {path.name}")
-            contigs.add(fields[0])
+            try:
+                start, end = int(fields[1]), int(fields[2])
+            except ValueError as error:
+                raise ValueError(f"invalid BED coordinates at row {number}: {path.name}") from error
+            if start < 0 or end <= start:
+                raise ValueError(f"invalid BED interval at row {number}: {path.name}")
+            entry = contigs.setdefault(fields[0], {"records": 0, "covered_bases": 0})
+            entry["records"] += 1
+            entry["covered_bases"] += end - start
     if not contigs:
         raise ValueError(f"BED contains no records: {path.name}")
     return contigs
@@ -153,14 +161,17 @@ def main() -> int:
         fai = Path(f"{genome}.fai")
 
         fasta_names = fai_contigs(fai)
+        blacklist_stats = bed_statistics(blacklist)
+        external_stats = bed_statistics(Path(by_role["narrow_reference_peaks"]["path"]), True)
         sets = {
             "gtf": gtf_contigs(annotation),
-            "blacklist": bed_contigs(blacklist),
-            "encode_reference_peaks": bed_contigs(Path(by_role["narrow_reference_peaks"]["path"]), True),
+            "blacklist": set(blacklist_stats),
         }
         missing = {name: sorted(values.difference(fasta_names)) for name, values in sets.items() if values - fasta_names}
         if missing:
             raise ValueError(f"reference contig mismatch: {missing}")
+        external_absent = sorted(set(external_stats).difference(fasta_names))
+        excluded = {name: external_stats[name] for name in external_absent}
 
         version = subprocess.run(
             [str(args.samtools), "--version"], capture_output=True, text=True, check=True
@@ -178,6 +189,15 @@ def main() -> int:
             "samtools": version,
             "sources": list(by_role.values()),
             "contigs": {"fasta": len(fasta_names), **{name: len(values) for name, values in sets.items()}},
+            "external_reference_contig_policy": {
+                "comparison_universe": "intersection of GENCODE FASTA and external-reference contigs",
+                "renaming": "prohibited",
+                "external_contigs": len(external_stats),
+                "shared_contigs": len(set(external_stats).intersection(fasta_names)),
+                "excluded_contigs": excluded,
+                "excluded_records": sum(value["records"] for value in excluded.values()),
+                "excluded_covered_bases": sum(value["covered_bases"] for value in excluded.values()),
+            },
             "artifacts": [
                 artifact(genome, "genome_fasta", args.output_dir),
                 artifact(fai, "genome_fai", args.output_dir),

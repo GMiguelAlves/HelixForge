@@ -25,7 +25,12 @@
     "encode_optimal_idr_peaks": "ENCFF519CXF",
     "encode_signal": "ENCFF433VSV",
     "encode_is_ground_truth": false,
-    "signal_use": "descriptive genome-wide and preregistered-locus concordance only"
+    "signal_use": "descriptive genome-wide and preregistered-locus concordance only",
+    "contig_policy": {
+      "comparison_universe": "intersection of GENCODE FASTA and external-reference contigs",
+      "absent_external_records": "exclude without renaming and report records plus covered bases",
+      "null_universe": "same shared contigs as the observed comparison"
+    }
   },
   "processing": {
     "run_mode": "idr",

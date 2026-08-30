@@ -34,6 +34,7 @@ PROTOCOL_FILES = (
     "benchmark/chipseq/datasets/reference_sources.tsv",
     "benchmark/chipseq/protocol/cost_estimate.md",
     "benchmark/chipseq/protocol/risks_and_limitations.md",
+    "benchmark/chipseq/protocol/real_narrow_contig_amendment_20260830.md",
     "benchmark/chipseq/provenance/README.md",
 )
 
@@ -102,6 +103,11 @@ def main() -> None:
         },
         "motif": config["evaluation"]["motif"]["matrix_id"] == "MA0139.1",
         "null_sets": config["evaluation"]["encode_overlap_null"]["sets"] == 100,
+        "external_contig_policy": config["external_references"]["contig_policy"] == {
+            "comparison_universe": "intersection of GENCODE FASTA and external-reference contigs",
+            "absent_external_records": "exclude without renaming and report records plus covered bases",
+            "null_universe": "same shared contigs as the observed comparison",
+        },
     }
     if not all(frozen.values()):
         raise ValueError(f"frozen configuration mismatch: {frozen}")
