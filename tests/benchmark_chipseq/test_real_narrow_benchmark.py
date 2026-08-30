@@ -18,6 +18,7 @@ NULL_SLURM = ROOT / "benchmark/chipseq/scripts/slurm_validate_real_narrow_nulls.
 NULL_FREEZER = ROOT / "benchmark/chipseq/scripts/freeze_real_narrow_nulls.py"
 EXACT_GC_PREFLIGHT = ROOT / "benchmark/chipseq/scripts/preflight_real_narrow_exact_gc_capacity.py"
 EXACT_GC_SLURM = ROOT / "benchmark/chipseq/scripts/slurm_preflight_real_narrow_exact_gc.sh"
+FINAL_METRICS = ROOT / "benchmark/chipseq/results/real_narrow/evaluation/final_metrics.json"
 
 
 def load_script():
@@ -115,6 +116,14 @@ class RealNarrowBenchmarkTests(unittest.TestCase):
         self.assertNotIn('empirical_p', preflight)
         self.assertIn('M >= k', preflight)
         self.assertIn('null_v3_capacity', slurm)
+
+    def test_final_classification_preserves_rn3_disposition(self):
+        metrics = json.loads(FINAL_METRICS.read_text(encoding="utf-8"))
+        self.assertEqual(metrics["classification"], "PASS_WITH_LIMITATIONS")
+        self.assertEqual(metrics["criteria"]["RN3"], "NOT_EVALUABLE_UNDER_FROZEN_CONTROL_REQUIREMENTS")
+        self.assertFalse(metrics["rn3"]["null_sets_generated"])
+        self.assertFalse(metrics["rn3"]["rn3_calculated"])
+        self.assertEqual(metrics["rn3"]["invalidated_nominal_p_status"], "INVALID_FOR_INFERENCE")
 
 
 if __name__ == "__main__":

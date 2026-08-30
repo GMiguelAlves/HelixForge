@@ -1,0 +1,52 @@
+{
+  "annotation_distribution": {
+    "exon": 6141,
+    "intergenic": 5818,
+    "intron_or_gene_body": 13571,
+    "promoter": 6308
+  },
+  "counts": {
+    "idr": 31856,
+    "replicate_1": 50904,
+    "replicate_2": 49020
+  },
+  "encode_overlap": {
+    "aggregate_gc_tolerance": 0.005,
+    "candidate_sets_examined": 100,
+    "empirical_p": 0.009900990099009901,
+    "gc_deciles": "[0.0,0.1),...,[0.9,1.0]",
+    "idr_gc_fraction": 0.5050827191488649,
+    "maximum_interval_reuse": 100,
+    "minimum_pool_capacity_ratio": 22.22222222222222,
+    "null_exceedances": 0,
+    "null_method": "chromosome-, width-, and GC-decile-matched independent relocation",
+    "null_sets": 100,
+    "observed_jaccard": 0.435155356798419,
+    "observed_overlap_bp": 10246893,
+    "shared_contigs": 23,
+    "unique_relocated_intervals": 141317
+  },
+  "implementation": {
+    "idr_byte_identical": true,
+    "replicate_1_semantic_equal": true,
+    "replicate_2_semantic_equal": true
+  },
+  "motif": {
+    "bh_adjusted_p": 0.0,
+    "central_window_fraction": 0.7434826308185187,
+    "control_score_median": 1.7248485813296677,
+    "control_windows": 318380,
+    "controls_per_peak": 10,
+    "mann_whitney_u": 9652188699.5,
+    "matrix_id": "MA0139.1",
+    "p_value": 0.0,
+    "peak_score_median": 14.494573489835822,
+    "peak_windows": 31838
+  },
+  "replicates": {
+    "base_intersection_bp": 15164890,
+    "base_jaccard": 0.6120472517627916,
+    "matched_peaks": 41934,
+    "rank_spearman": 0.8791809456644611
+  }
+}
