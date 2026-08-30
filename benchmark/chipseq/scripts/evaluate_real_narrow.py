@@ -37,7 +37,7 @@ def sha256(path: Path) -> str:
     return value.hexdigest()
 
 
-def read_peaks(path: Path) -> list[dict[str, object]]:
+def read_peaks(path: Path, require_summit: bool = True) -> list[dict[str, object]]:
     opener = gzip.open if path.suffix == ".gz" else Path.open
     kwargs = {"mode": "rt", "encoding": "utf-8"} if path.suffix == ".gz" else {"mode": "r", "encoding": "utf-8"}
     peaks = []
@@ -49,11 +49,16 @@ def read_peaks(path: Path) -> list[dict[str, object]]:
             if len(fields) < 10:
                 raise ValueError(f"invalid narrowPeak row {number}: {path}")
             start, end, summit_offset = int(fields[1]), int(fields[2]), int(float(fields[9]))
-            if start < 0 or end <= start or summit_offset < 0 or start + summit_offset >= end:
+            if start < 0 or end <= start:
                 raise ValueError(f"invalid narrowPeak coordinates at row {number}: {path}")
+            summit_valid = 0 <= summit_offset < end - start
+            if require_summit and not summit_valid:
+                raise ValueError(f"invalid narrowPeak summit at row {number}: {path}")
             peaks.append({
                 "chrom": fields[0], "start": start, "end": end, "name": fields[3],
-                "signal": float(fields[6]), "summit": start + summit_offset, "fields": fields,
+                "signal": float(fields[6]),
+                "summit": start + summit_offset if summit_valid else None,
+                "fields": fields,
             })
     if not peaks:
         raise ValueError(f"empty peak file: {path}")
@@ -287,7 +292,7 @@ def main() -> int:
 
     hf_r1, hf_r2, hf_idr = map(read_peaks, (hf_r1_path, hf_r2_path, hf_idr_path))
     ind_r1, ind_r2, ind_idr = map(read_peaks, (ind_r1_path, ind_r2_path, ind_idr_path))
-    external = read_peaks(external_path)
+    external = read_peaks(external_path, require_summit=False)
     reference_manifest = json.loads((root / "reference/reference_manifest.json").read_text(encoding="utf-8"))
     fasta = FastaReader(fasta_path, fai_path)
     shared = set(fasta.index) & {str(peak["chrom"]) for peak in external}
