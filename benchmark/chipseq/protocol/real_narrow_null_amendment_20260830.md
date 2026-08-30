@@ -70,6 +70,14 @@ reported through the number of unique relocated intervals and maximum exact
 interval reuse. Candidate-pool size, capacity ratio, and random-probe count are
 written to `null_relocation_capacity.tsv`.
 
+The first capacity-only pass in Slurm job `16259` stopped at a rare
+`chr10`/259 bp/GC-decile-8 group after finding 189 of the required 200 unique
+candidates in 400,000 uniform probes. This demonstrated ample capacity for the
+single required placement but exposed an overly short search budget. The pool
+requirement was not relaxed: the deterministic probe budget was increased from
+2,000 to 10,000 probes per required pool entry before retrying. No null overlap,
+RN3 value, or evaluation bundle was produced by that pass.
+
 The aggregate absolute GC-fraction tolerance remains `0.005`. Up to the frozen
 2,000 candidate sets may be examined to obtain the 100 accepted null sets.
 
@@ -96,4 +104,3 @@ result. It makes the null more conservative with respect to a relevant genomic
 covariate and was fixed before any alternative-null execution. The residual
 bias risk is therefore low. ENCODE remains an external plausibility reference,
 not biological ground truth.
-
