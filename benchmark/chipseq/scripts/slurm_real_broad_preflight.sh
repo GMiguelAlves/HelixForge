@@ -6,6 +6,7 @@ benchmark_root=${2:?benchmark root is required}
 runtime_prefix=${3:?ChIP-seq runtime prefix is required}
 java_home=${4:?Java 21 home is required}
 nextflow_launcher=${5:?Nextflow 25.10.7 launcher is required}
+r_binary=${6:?R executable is required}
 
 [[ -n "${SLURM_JOB_ID:-}" ]] || {
     echo "The preflight must run in a Slurm allocation." >&2
@@ -18,6 +19,7 @@ nextflow_launcher=${5:?Nextflow 25.10.7 launcher is required}
     --scratch /scratch/Schisto-epigenetics/gustavo \
     --home /home/ra236875@bio.ib.unicamp.br \
     --runtime "$runtime_prefix" \
+    --r-bin "$r_binary" \
     --java-home "$java_home" \
     --nextflow "$nextflow_launcher" \
     --output "$benchmark_root/preflight/environment.json"

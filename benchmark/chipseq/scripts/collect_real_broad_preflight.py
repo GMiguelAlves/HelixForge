@@ -58,6 +58,7 @@ def main() -> int:
     parser.add_argument("--scratch", required=True, type=Path)
     parser.add_argument("--home", required=True, type=Path)
     parser.add_argument("--runtime", required=True, type=Path)
+    parser.add_argument("--r-bin", required=True, type=Path)
     parser.add_argument("--java-home", required=True, type=Path)
     parser.add_argument("--nextflow", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
@@ -104,7 +105,7 @@ def main() -> int:
         "nextflow": nextflow_version,
         "slurm": command(["scontrol", "--version"], env),
         "python": command([str(args.runtime / "bin/python"), "--version"], env),
-        "r": first_line(command([str(args.runtime / "bin/R"), "--version"], env)),
+        "r": first_line(command([str(args.r_bin.resolve()), "--version"], env)),
         "bowtie2": first_line(command([str(args.runtime / "bin/bowtie2"), "--version"], env)),
         "samtools": first_line(command([str(args.runtime / "bin/samtools"), "--version"], env)),
         "macs3": command([str(args.runtime / "bin/macs3"), "--version"], env),
