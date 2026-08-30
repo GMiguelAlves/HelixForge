@@ -78,6 +78,18 @@ requirement was not relaxed: the deterministic probe budget was increased from
 2,000 to 10,000 probes per required pool entry before retrying. No null overlap,
 RN3 value, or evaluation bundle was produced by that pass.
 
+Slurm job `16260` subsequently passed the capacity checks for every group, but
+uniform sampling inside the intentionally broad GC deciles produced zero of
+2,000 sets within the separately frozen aggregate tolerance. This was a sampler
+implementation conflict, not a lack of eligible regions. The decile boundaries,
+pool sizes, aggregate tolerance, and scientific criteria were retained. Within
+each approved chromosome/width/decile pool, the sampler now pairs the multiset
+of observed peak GC counts to the nearest available candidate GC counts and
+randomly chooses coordinates among candidates at equal distance. Coordinates
+remain random, distinct within each group and null set, and constrained to the
+same frozen eligible genome. No overlap statistic, RN3 value, or evaluation
+bundle was produced by job `16260`.
+
 The aggregate absolute GC-fraction tolerance remains `0.005`. Up to the frozen
 2,000 candidate sets may be examined to obtain the 100 accepted null sets.
 

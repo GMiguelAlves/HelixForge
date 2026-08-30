@@ -49,7 +49,7 @@
       "gc_class_definition": "deciles [0.0,0.1), [0.1,0.2), ..., [0.9,1.0], computed as floor(10 * (G+C)/(A+C+G+T)) capped at 9",
       "ambiguous_bases": "candidate intervals containing non-ACGT bases are ineligible",
       "eligible_genome": "shared comparison contigs excluding ENCFF356LFX blacklist intervals and non-ACGT sequence",
-      "sampling": "without replacement within each chromosome-width-GC group per null set; reuse across null sets is audited",
+      "sampling": "without replacement within each chromosome-width-GC group per null set; observed GC counts are paired to nearest available candidate counts within the frozen class; ties are randomized; reuse across null sets is audited",
       "minimum_candidate_pool": "max(200, 20 * observed peaks in each chromosome-width-GC group)",
       "candidate_sets": 2000,
       "gc_match": "aggregate absolute GC-fraction difference <= 0.005",
