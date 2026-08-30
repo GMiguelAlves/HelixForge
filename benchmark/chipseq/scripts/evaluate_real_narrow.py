@@ -117,6 +117,27 @@ def gc_decile(gc_bases: int, valid_bases: int) -> int:
     return min(9, (10 * gc_bases) // valid_bases)
 
 
+def sample_gc_conditioned(
+    pool: list[tuple[int, int]], target_gc_bases: list[int], rng: random.Random
+) -> list[tuple[int, int]]:
+    """Sample distinct positions while matching target GC counts within a class."""
+    available: dict[int, list[int]] = defaultdict(list)
+    for start, gc_bases in pool:
+        available[gc_bases].append(start)
+    for starts in available.values():
+        rng.shuffle(starts)
+    targets = list(target_gc_bases)
+    rng.shuffle(targets)
+    selected = []
+    for target in targets:
+        populated = [gc_bases for gc_bases, starts in available.items() if starts]
+        distance = min(abs(gc_bases - target) for gc_bases in populated)
+        nearest = [gc_bases for gc_bases in populated if abs(gc_bases - target) == distance]
+        selected_gc = rng.choice(nearest)
+        selected.append((available[selected_gc].pop(), selected_gc))
+    return selected
+
+
 def interval_overlaps(merged: list[tuple[int, int]], starts: list[int], start: int, end: int) -> bool:
     index = bisect.bisect_left(starts, end) - 1
     return index >= 0 and merged[index][1] > start
@@ -346,14 +367,18 @@ def main() -> int:
             original_gc += int(np.sum(peak_gc))
             original_valid += int(np.sum(peak_valid))
 
-            grouped_peaks: dict[tuple[int, int], list[dict[str, object]]] = defaultdict(list)
+            grouped_peaks: dict[tuple[int, int], list[tuple[dict[str, object], int]]] = defaultdict(list)
             for peak, width, gc_bases, valid_bases in zip(chrom_peaks, widths, peak_gc, peak_valid):
-                grouped_peaks[(int(width), gc_decile(int(gc_bases), int(valid_bases)))].append(peak)
+                grouped_peaks[(int(width), gc_decile(int(gc_bases), int(valid_bases)))].append(
+                    (peak, int(gc_bases))
+                )
 
             blacklist_for_chrom = blacklist_merged.get(chrom, [])
             blacklist_starts = [start for start, _ in blacklist_for_chrom]
-            for (width, gc_class), group_peaks in sorted(grouped_peaks.items()):
-                pool_target = max(MIN_POOL_SIZE, POOL_MULTIPLIER * len(group_peaks))
+            for (width, gc_class), group_records in sorted(grouped_peaks.items()):
+                group_peaks = [record[0] for record in group_records]
+                target_gc_bases = [record[1] for record in group_records]
+                pool_target = max(MIN_POOL_SIZE, POOL_MULTIPLIER * len(group_records))
                 max_attempts = max(10000, MAX_POOL_ATTEMPT_MULTIPLIER * pool_target)
                 candidates: dict[int, int] = {}
                 attempts = 0
@@ -386,6 +411,7 @@ def main() -> int:
                     "width": width,
                     "gc_class": gc_class,
                     "peaks": group_peaks,
+                    "target_gc_bases": target_gc_bases,
                     "pool": pool,
                 })
                 capacity_rows.append({
@@ -451,7 +477,9 @@ def main() -> int:
         for group in relocation_groups:
             chrom = str(group["chrom"])
             width = int(group["width"])
-            selected = null_rng.sample(group["pool"], len(group["peaks"]))
+            selected = sample_gc_conditioned(
+                group["pool"], group["target_gc_bases"], null_rng
+            )
             for start, gc_bases in selected:
                 end = int(start) + width
                 grouped[chrom].append((int(start), end))

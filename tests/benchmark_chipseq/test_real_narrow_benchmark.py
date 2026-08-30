@@ -74,6 +74,8 @@ class RealNarrowBenchmarkTests(unittest.TestCase):
         self.assertIn('GC_TOLERANCE = 0.005', evaluator)
         self.assertIn('POOL_MULTIPLIER = 20', evaluator)
         self.assertIn('MAX_POOL_ATTEMPT_MULTIPLIER = 10000', evaluator)
+        self.assertIn('def sample_gc_conditioned(', evaluator)
+        self.assertIn('group["target_gc_bases"]', evaluator)
         self.assertIn('null_relocation_capacity.tsv', evaluator)
         self.assertIn('read_peaks(external_path, require_summit=False)', evaluator)
         self.assertIn('max(0, min(a[i][1], b[j][1]) - max(a[i][0], b[j][0]))', evaluator)
