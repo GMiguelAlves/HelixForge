@@ -1,0 +1,122 @@
+{
+  "schema_version": "1.0",
+  "benchmark_id": "chipseq-real-narrow-k562-ctcf-v1",
+  "created_date": "2026-08-30",
+  "branch": "benchmark/chipseq-real-narrow",
+  "starting_commit": "da724a4986e4a5511a6f0e8027b4cc2e3b92d793",
+  "scientific_target": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
+  "protocol_commit": "bb8db940ee137fee67fe5f13530521326c96dfc0",
+  "dataset": {
+    "experiment": "ENCSR000AKO",
+    "target": "CTCF",
+    "cell_line": "K562",
+    "replicate_files": ["ENCFF000BWM", "ENCFF000BWR"],
+    "control_experiment": "ENCSR000AKY",
+    "control_file": "ENCFF000BWK",
+    "layout": "single-end"
+  },
+  "reference": {
+    "assembly": "GRCh38.p14",
+    "gencode_release": 50,
+    "effective_genome_size": 2913022398,
+    "blacklist": "ENCFF356LFX"
+  },
+  "external_references": {
+    "encode_optimal_idr_peaks": "ENCFF519CXF",
+    "encode_signal": "ENCFF433VSV",
+    "encode_is_ground_truth": false,
+    "signal_use": "descriptive genome-wide and preregistered-locus concordance only",
+    "contig_policy": {
+      "comparison_universe": "intersection of GENCODE FASTA and external-reference contigs",
+      "absent_external_records": "exclude without renaming and report records plus covered bases",
+      "null_universe": "same shared contigs as the observed comparison"
+    }
+  },
+  "processing": {
+    "run_mode": "idr",
+    "bowtie2": {"version": "2.5.4", "preset": "very-sensitive"},
+    "samtools": {"version": "1.20", "minimum_mapq": 30, "exclude_flags": 2308},
+    "duplicates": {"mode": "none", "macs3_keep_dup": "all"},
+    "blacklist_policy": "fragment",
+    "macs3": {"version": "3.0.4", "format": "BAM", "qvalue": 0.01},
+    "idr": {"version": "2.0.4.2", "rank": "signal_value", "threshold": 0.05, "seed": 0}
+  },
+  "evaluation": {
+    "encode_overlap_null": {
+      "sets": 100,
+      "seed": 20261002,
+      "method": "uniform relocation within chromosome, exact width, and exact GC-base-count strata",
+      "operational_gc_definition": "exact integer count of G plus C bases in the interval",
+      "gc_class_definition": "deciles [0.0,0.1), [0.1,0.2), ..., [0.9,1.0], retained only as descriptive superclasses",
+      "ambiguous_bases": "candidate intervals containing non-ACGT bases are ineligible",
+      "eligible_genome": "shared comparison contigs excluding ENCFF356LFX blacklist intervals and non-ACGT sequence",
+      "sampling": "two-stage design: deterministic uniform rejection sampling constructs each frozen eligible candidate pool, followed by uniform sampling without replacement within each chromosome-width-exact-GC-count stratum per null set",
+      "aggregate_gc_repair": "forbidden; exact per-region GC-base-count preservation makes aggregate GC exact by construction",
+      "minimum_candidate_pool": "max(200, 20 * observed peaks in each chromosome-width-GC group)",
+      "candidate_sets": 2000,
+      "gc_match": "aggregate absolute GC-fraction difference <= 0.005",
+      "empirical_p": "(1 + null values >= observed) / 101",
+      "validation_phases": [
+        "capacity-only preflight for exact-GC strata; do not generate nulls or calculate RN3",
+        "generate and audit nulls without RN3",
+        "repeat with the same implementation and seed; require identical null-set SHA-256",
+        "freeze null sets and calculate RN3 exactly once"
+      ],
+      "diversity_gates": {
+        "minimum_expected_unique": 50,
+        "minimum_observed_expected_unique_ratio": 0.8,
+        "expected_unique": "M_g * (1 - (1 - k_g/M_g)^100)",
+        "maximum_reuse": "group-specific Binomial(100, k_g/M_g) quantile with global family-wise alpha 0.01",
+        "within_null_exact_duplicates": 0
+      },
+      "invalidated_result": {
+        "empirical_p": 0.009900990099009901,
+        "status": "INVALID_FOR_INFERENCE",
+        "reason": "NULL_GENERATOR_DIVERSITY_FAILURE",
+        "slurm_job_id": "16266"
+      },
+      "retired_generator_v2": {
+        "method": "GC-decile-uniform sampling plus aggregate balanced swaps",
+        "status": "INVALID",
+        "reason": "STRATUM_DIVERSITY_FAILURE",
+        "null_sets_sha256": "700d6d2fe9ab9e776f78f61b1b9049240fb61257d8aa5678528149dd01f2d925",
+        "rn3_calculated": false
+      },
+      "final_amendment": true,
+      "exact_gc_capacity_preflight": {
+        "slurm_job_id": "16269",
+        "status": "FAIL_NOT_EVALUABLE",
+        "number_of_strata": 31426,
+        "strata_with_M_lt_k": 1511,
+        "observed_peaks_in_infeasible_strata": 1546,
+        "null_sets_generated": false,
+        "rn3_calculated": false,
+        "rn3_status": "NOT_EVALUABLE_UNDER_FROZEN_CONTROL_REQUIREMENTS"
+      },
+      "failure_policy": "if exact-GC capacity or structural validation fails, RN3 is NOT_EVALUABLE_UNDER_FROZEN_CONTROL_REQUIREMENTS"
+    },
+    "motif": {
+      "database": "JASPAR CORE",
+      "matrix_id": "MA0139.1",
+      "source": "https://jaspar.elixir.no/api/v1/matrix/MA0139.1.jaspar",
+      "summit_window_bp": 100,
+      "scan_strands": "both",
+      "pseudocount_per_base": 0.8,
+      "background_base_probability": 0.25,
+      "controls_per_peak": 10,
+      "control_match": ["chromosome", "width", "GC decile"],
+      "control_seed": 20261001,
+      "test": "one-sided Mann-Whitney U on maximum PWM log-odds scores",
+      "multiple_testing": "Benjamini-Hochberg across declared motifs",
+      "central_window_bp": 25
+    },
+    "preregistered_locus": {
+      "name": "K562 beta-globin regulatory region",
+      "assembly": "GRCh38",
+      "chrom": "chr11",
+      "start": 5200000,
+      "end": 5320000,
+      "role": "qualitative positive control, not an independent release gate"
+    }
+  }
+}

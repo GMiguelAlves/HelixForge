@@ -98,6 +98,7 @@ def main() -> None:
     parser.add_argument("--trace", action="append", required=True, type=assignment)
     parser.add_argument("--sacct", required=True, type=Path)
     parser.add_argument("--storage", action="append", required=True, type=assignment)
+    parser.add_argument("--benchmark-kind", choices=("narrow", "broad"), default="narrow")
     parser.add_argument("--output-json", required=True, type=Path)
     parser.add_argument("--output-tsv", required=True, type=Path)
     args = parser.parse_args()
@@ -113,7 +114,7 @@ def main() -> None:
         writer.writeheader()
         writer.writerows(process_rows)
     document = {
-        "schema_version": "1.0", "type": "synthetic_narrow_performance", "classification": "DESCRIPTIVE_CLUSTER_PERFORMANCE",
+        "schema_version": "1.0", "type": f"synthetic_{args.benchmark_kind}_performance", "classification": "DESCRIPTIVE_CLUSTER_PERFORMANCE",
         "status": "complete", "collector_slurm_job_id": os.environ["SLURM_JOB_ID"], "traces": traces,
         "slurm_jobs": slurm_summary(args.sacct),
         "storage_bytes": {label: directory_size(path) for label, path in args.storage},

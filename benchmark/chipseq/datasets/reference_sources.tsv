@@ -2,7 +2,7 @@ role	provider	accession_or_release	filename	assembly	md5	download_url
 genome_fasta	GENCODE	release_50	GRCh38.primary_assembly.genome.fa.gz	GRCh38.p14	da1a11258be075cfa7af718162c894e7	https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_50/GRCh38.primary_assembly.genome.fa.gz
 annotation_gtf	GENCODE	release_50	gencode.v50.primary_assembly.annotation.gtf.gz	GRCh38.p14	289b91e5e95e8b0450d223246f10a12e	https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_50/gencode.v50.primary_assembly.annotation.gtf.gz
 blacklist	ENCODE	ENCFF356LFX	ENCFF356LFX.bed.gz	GRCh38	393688b4f06c9ce26165d47433dd8c37	https://www.encodeproject.org/files/ENCFF356LFX/@@download/ENCFF356LFX.bed.gz
-narrow_reference_peaks	ENCODE	ENCFF519CXF	ENCFF519CXF.bed.gz	GRCh38	NA	https://www.encodeproject.org/files/ENCFF519CXF/@@download/ENCFF519CXF.bed.gz
-narrow_reference_signal	ENCODE	ENCFF433VSV	ENCFF433VSV.bigWig	GRCh38	NA	https://www.encodeproject.org/files/ENCFF433VSV/@@download/ENCFF433VSV.bigWig
+narrow_reference_peaks	ENCODE	ENCFF519CXF	ENCFF519CXF.bed.gz	GRCh38	7828af6ccfcb579226ce54757b98f05b	https://www.encodeproject.org/files/ENCFF519CXF/@@download/ENCFF519CXF.bed.gz
+narrow_reference_signal	ENCODE	ENCFF433VSV	ENCFF433VSV.bigWig	GRCh38	ca3f8d32004eae169cdfe298e78dfbc9	https://www.encodeproject.org/files/ENCFF433VSV/@@download/ENCFF433VSV.bigWig
 broad_reference_peaks	ENCODE	ENCFF049HUP	ENCFF049HUP.bed.gz	GRCh38	NA	https://www.encodeproject.org/files/ENCFF049HUP/@@download/ENCFF049HUP.bed.gz
 broad_reference_signal	ENCODE	ENCFF366NNJ	ENCFF366NNJ.bigWig	GRCh38	NA	https://www.encodeproject.org/files/ENCFF366NNJ/@@download/ENCFF366NNJ.bigWig

@@ -1,0 +1,37 @@
+{
+  "inputs": {
+    "final_metrics.json": "77acf2a8ed4dff648eb890f45c0037af1fe2cd4565da043ff71b33faf6ea4d03",
+    "summary.json": "5e11923354eaff86e8f32e695142fa50f2799bcd30424f16c3c178f27dc63520"
+  },
+  "outputs": [
+    {
+      "path": "figure_1_peak_counts.svg",
+      "sha256": "b35ce2230e1740b2a4a9889669238bf0469da30f2dbbc5d6644c3b47d82b57ee",
+      "size_bytes": 2127
+    },
+    {
+      "path": "figure_2_replicate_qc.svg",
+      "sha256": "68a6e13de82c1323cb82ec725921daab7a4f5272ec85e582b5dc4b2813eb5346",
+      "size_bytes": 2338
+    },
+    {
+      "path": "figure_3_ctcf_motif.svg",
+      "sha256": "1055f074128d5a004859e41a95da0512759890eca9a7554cfea21d1eef1813b4",
+      "size_bytes": 2024
+    },
+    {
+      "path": "figure_4_annotation.svg",
+      "sha256": "eb690f23cd01f52e97dea7c2d9671a2b0f942c03e0af70a5aa1f44909693d473",
+      "size_bytes": 2362
+    },
+    {
+      "path": "figure_5_rn3_capacity.svg",
+      "sha256": "4ff2f8b0130d7bd3d18e79d85032a46e5b98a29beea87dd3a00731d5ee8d4f6e",
+      "size_bytes": 2642
+    }
+  ],
+  "python": "3.13.5",
+  "renderer": "dependency-free SVG",
+  "schema_version": "1.0",
+  "type": "real_narrow_figures"
+}
