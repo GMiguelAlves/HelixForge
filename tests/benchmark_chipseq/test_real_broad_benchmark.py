@@ -24,9 +24,10 @@ class RealBroadBenchmarkTests(unittest.TestCase):
 
     def test_checkpoint_starts_before_download(self):
         state = json.loads(STATE.read_text(encoding="utf-8"))
-        self.assertEqual(state["current_phase"], "RUNTIME_RELOCATION_REQUIRED")
+        self.assertEqual(state["current_phase"], "WAITING_FOR_EXTERNAL_JOB")
         self.assertEqual(state["download_status"], "NOT_STARTED")
         self.assertEqual(state["preflight_job_ids"], ["16273"])
+        self.assertEqual(state["runtime_job_ids"], ["16274"])
         self.assertFalse(state["last_verified_status"]["heavy_download_started"])
         self.assertFalse(state["last_verified_status"]["scientific_output_observed"])
 
