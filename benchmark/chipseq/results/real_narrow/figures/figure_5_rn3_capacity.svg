@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560">
+<rect width="100%" height="100%" fill="white"/>
+<style>text{font-family:Arial,sans-serif;fill:#222}.title{font-size:24px;font-weight:bold}.axis{font-size:15px}.value{font-size:15px;font-weight:bold}.note{font-size:14px;fill:#555}</style>
+<text x="450.0" y="38" text-anchor="middle" class="title">RN3 exact-GC capacity preflight</text>
+<line x1="105" y1="78" x2="105" y2="442" stroke="#333"/>
+<line x1="105" y1="442" x2="865" y2="442" stroke="#333"/>
+<text x="24" y="260.0" text-anchor="middle" class="axis" transform="rotate(-90 24 260.0)">Candidate capacity ratio M/k</text>
+<line x1="105" y1="442.0" x2="865" y2="442.0" stroke="#ddd"/>
+<text x="93" y="447.0" text-anchor="end" class="axis">0</text>
+<line x1="105" y1="369.2" x2="865" y2="369.2" stroke="#ddd"/>
+<text x="93" y="374.2" text-anchor="end" class="axis">2</text>
+<line x1="105" y1="296.4" x2="865" y2="296.4" stroke="#ddd"/>
+<text x="93" y="301.4" text-anchor="end" class="axis">4</text>
+<line x1="105" y1="223.6" x2="865" y2="223.6" stroke="#ddd"/>
+<text x="93" y="228.6" text-anchor="end" class="axis">6</text>
+<line x1="105" y1="150.8" x2="865" y2="150.8" stroke="#ddd"/>
+<text x="93" y="155.8" text-anchor="end" class="axis">8</text>
+<line x1="105" y1="78.0" x2="865" y2="78.0" stroke="#ddd"/>
+<text x="93" y="83.0" text-anchor="end" class="axis">10</text>
+<rect x="133.9" y="442.0" width="94.2" height="0.0" fill="#4c78a8"/>
+<text x="181.0" y="434.0" text-anchor="middle" class="value">0</text>
+<text x="181.0" y="469" text-anchor="middle" class="axis">Minimum</text>
+<rect x="285.9" y="442.0" width="94.2" height="0.0" fill="#f58518"/>
+<text x="333.0" y="434.0" text-anchor="middle" class="value">0</text>
+<text x="333.0" y="469" text-anchor="middle" class="axis">P01</text>
+<rect x="437.9" y="405.6" width="94.2" height="36.4" fill="#54a24b"/>
+<text x="485.0" y="397.6" text-anchor="middle" class="value">1</text>
+<text x="485.0" y="469" text-anchor="middle" class="axis">P05</text>
+<rect x="589.9" y="296.4" width="94.2" height="145.6" fill="#b279a2"/>
+<text x="637.0" y="288.4" text-anchor="middle" class="value">4</text>
+<text x="637.0" y="469" text-anchor="middle" class="axis">Median</text>
+<rect x="741.9" y="114.4" width="94.2" height="327.6" fill="#e45756"/>
+<text x="789.0" y="106.4" text-anchor="middle" class="value">9</text>
+<text x="789.0" y="469" text-anchor="middle" class="axis">P95</text>
+<text x="450.0" y="536" text-anchor="middle" class="note">NOT EVALUABLE: 1,511 / 31,426 strata had M &lt; k; no nulls generated</text>
+</svg>

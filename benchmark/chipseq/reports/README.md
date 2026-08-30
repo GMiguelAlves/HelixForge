@@ -10,8 +10,9 @@ Required future reports:
 - [`synthetic_broad_benchmark.md`](synthetic_broad_benchmark.md): completed
   broad-domain ground-truth benchmark (`PASS_WITH_LIMITATIONS`), including
   exact independent-path concordance and the frozen fragmentation limitation;
-- `real_narrow_benchmark.md`: QC, FRiP, replicate concordance, IDR, CTCF motif
-  centrality, reference overlap and declared locus inspection;
+- [`real_narrow_benchmark.md`](real_narrow_benchmark.md): completed K562 CTCF
+  biological benchmark (`PASS_WITH_LIMITATIONS`), including exact independent
+  concordance and the frozen RN3 control-capacity limitation;
 - `real_broad_benchmark.md`: QC, FRiP, coverage concordance, replicate-support
   domains, reference overlap, annotation summary and declared locus views;
 - `performance_report.md`: Slurm accounting, Nextflow trace, storage and

@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "benchmark_id": "chipseq-real-narrow-k562-ctcf-v1",
+  "classification": "PASS_WITH_LIMITATIONS",
+  "scientific_target": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
+  "execution": {
+    "helixforge_tasks_completed": 37,
+    "helixforge_tasks_failed": 0,
+    "helixforge_wall_time": "01:45:40",
+    "helixforge_max_slurm_rss_kib": 10478068,
+    "independent_wall_time": "01:03:24",
+    "independent_max_slurm_rss_kib": 20678948
+  },
+  "peak_qc": {
+    "replicate_1_peaks": 50904,
+    "replicate_2_peaks": 49020,
+    "idr_peaks": 31856,
+    "replicate_1_frip": 0.2969413783455641,
+    "replicate_2_frip": 0.3527480299372561
+  },
+  "replicate_concordance": {
+    "matched_peaks": 41934,
+    "base_jaccard": 0.6120472517627916,
+    "rank_spearman": 0.8791809456644611
+  },
+  "independent_concordance": {
+    "replicate_1_semantic_equal": true,
+    "replicate_2_semantic_equal": true,
+    "idr_byte_identical": true
+  },
+  "motif": {
+    "matrix_id": "MA0139.1",
+    "peak_score_median": 14.494573489835822,
+    "control_score_median": 1.7248485813296677,
+    "central_window_fraction": 0.7434826308185187,
+    "bh_adjusted_p": 0.0
+  },
+  "external_reference": {
+    "encode_accession": "ENCFF519CXF",
+    "observed_overlap_bp": 10246893,
+    "observed_jaccard": 0.435155356798419,
+    "inferential_status": "DESCRIPTIVE_ONLY"
+  },
+  "annotation_distribution": {
+    "promoter": 6308,
+    "exon": 6141,
+    "intron_or_gene_body": 13571,
+    "intergenic": 5818
+  },
+  "criteria": {
+    "RN1": "PASS",
+    "RN2": "PASS",
+    "RN3": "NOT_EVALUABLE_UNDER_FROZEN_CONTROL_REQUIREMENTS",
+    "RN4": "PASS",
+    "RN5": "DESCRIPTIVE"
+  },
+  "rn3": {
+    "null_sets_generated": false,
+    "rn3_calculated": false,
+    "operational_strata": 31426,
+    "infeasible_strata": 1511,
+    "observed_peaks_in_infeasible_strata": 1546,
+    "invalidated_nominal_p": 0.009900990099009901,
+    "invalidated_nominal_p_status": "INVALID_FOR_INFERENCE"
+  }
+}
