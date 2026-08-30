@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0",
   "benchmark_id": "chipseq-real-broad-k562-h3k27me3-v1",
-  "current_phase": "RUNTIME_RELOCATION_REQUIRED",
+  "current_phase": "WAITING_FOR_EXTERNAL_JOB",
   "download_status": "NOT_STARTED",
   "metadata_status": "FROZEN_REGISTRY_CONFIRMED_API_RECHECK_PENDING",
   "preflight_job_ids": ["16273"],
-  "runtime_job_ids": [],
+  "runtime_job_ids": ["16274"],
   "download_job_ids": [],
   "helixforge_job_ids": [],
   "independent_job_ids": [],
@@ -23,17 +23,19 @@
     "audit_archive"
   ],
   "last_verified_status": {
-    "timestamp": "2026-08-30T15:00:00-03:00",
-    "status": "PREFLIGHT_FAILED_ENVIRONMENT",
+    "timestamp": "2026-08-30T15:15:28-03:00",
+    "status": "RUNTIME_RELOCATION_RUNNING",
     "starting_commit": "aa930e6a1c3513dcd51fc08d0845ec12b4154c4c",
     "scientific_target": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
     "protocol_commit": "bb8db940ee137fee67fe5f13530521326c96dfc0",
     "encode_api_recheck": "LOCAL_WAF_HUMAN_VERIFICATION; RETRY_DURING_SERVER_PREFLIGHT",
     "preflight_job_id": "16273",
     "preflight_failure": "HOME_CONDA_PERL_PATH_INTERPOLATES_AT_BIO; RELOCATE_FROZEN_ENVIRONMENT_TO_SCRATCH",
+    "runtime_job_id": "16274",
+    "runtime_job_state": "RUNNING",
     "heavy_download_started": false,
     "scientific_output_observed": false
   },
-  "resume_condition": "Clone the existing frozen ChIP-seq environment to a scratch path without @, then repeat preflight",
-  "next_check": "Submit one Slurm environment-clone job; no package resolution or scientific execution"
+  "resume_condition": "Slurm job 16274 reaches a terminal state",
+  "next_check": "Inspect sacct and runtime logs once, then repeat preflight only if the relocated tool versions pass"
 }
