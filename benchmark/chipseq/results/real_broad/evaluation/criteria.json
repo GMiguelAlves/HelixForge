@@ -1,0 +1,25 @@
+{
+  "RB1": {
+    "pass": true,
+    "type": "RELEASE_GATE"
+  },
+  "RB2": {
+    "pass": true,
+    "rotated_value": 0.03861970227187003,
+    "type": "SANITY_CHECK",
+    "value": 0.45654468386581126
+  },
+  "RB3": {
+    "pass": true,
+    "type": "EXPECTED_RANGE",
+    "value": 0.009900990099009901
+  },
+  "RB4": {
+    "pass": null,
+    "type": "DESCRIPTIVE"
+  },
+  "RB5": {
+    "pass": null,
+    "type": "DESCRIPTIVE"
+  }
+}

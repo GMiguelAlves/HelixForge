@@ -1,0 +1,41 @@
+{
+  "benchmark_id": "chipseq-real-broad-k562-h3k27me3-v1",
+  "classification": "PASS_WITH_LIMITATIONS",
+  "criteria": {
+    "RB1": {
+      "pass": true,
+      "type": "RELEASE_GATE"
+    },
+    "RB2": {
+      "pass": true,
+      "rotated_value": 0.03861970227187003,
+      "type": "SANITY_CHECK",
+      "value": 0.45654468386581126
+    },
+    "RB3": {
+      "pass": true,
+      "type": "EXPECTED_RANGE",
+      "value": 0.009900990099009901
+    },
+    "RB4": {
+      "pass": null,
+      "type": "DESCRIPTIVE"
+    },
+    "RB5": {
+      "pass": null,
+      "type": "DESCRIPTIVE"
+    }
+  },
+  "independent_concordance": "PASS",
+  "limitations": [
+    "ENCODE_NOT_COMPLIANT_INSUFFICIENT_USABLE_READ_DEPTH",
+    "ENCODE_WARNING_LOW_36BP_READ_LENGTH",
+    "ENCODE_WARNING_MIXED_REPLICATE_READ_LENGTHS",
+    "EXTERNAL_BIGWIG_CONCORDANCE_NOT_COMPUTED_NO_FROZEN_BIGWIG_READER"
+  ],
+  "protocol_commit": "bb8db940ee137fee67fe5f13530521326c96dfc0",
+  "schema_version": "1.0",
+  "scientific_target": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
+  "slurm_job_id": "16324",
+  "technical_execution": "PASS"
+}

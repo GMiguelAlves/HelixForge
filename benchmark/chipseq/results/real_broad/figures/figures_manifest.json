@@ -1,0 +1,42 @@
+{
+  "inputs": {
+    "metrics.json": "8c8faddf9b3b57dd3c43ee7e7347b71da6fcc90f01fe89766f4f9b964e6aa8d4",
+    "null_overlap.tsv": "34d398d8080fca2ae5ac26ed3638e2e222bd7313d163aa60e8b2600d938e903d"
+  },
+  "outputs": [
+    {
+      "path": "figure_1_domain_counts.svg",
+      "sha256": "b2854c27d26e9202574f0505df51431204c930439e86b049072d098434adde86",
+      "size_bytes": 2353
+    },
+    {
+      "path": "figure_2_coverage_concordance.svg",
+      "sha256": "4c8f1b46dff90bd1e74c4924b63aa5c75a95330d5be145e5be0c42f53b9f9b29",
+      "size_bytes": 2487
+    },
+    {
+      "path": "figure_3_frip.svg",
+      "sha256": "f33ebd6992594516c534eec9371d512ae1b73ecf77f59cc97c3e7ec25487326d",
+      "size_bytes": 1880
+    },
+    {
+      "path": "figure_4_encode_overlap.svg",
+      "sha256": "ca4c0099f5af587e0346a36b588e7f567c332ca1f6e04d2ea60183b54e5ecd1d",
+      "size_bytes": 2496
+    },
+    {
+      "path": "figure_5_annotation.svg",
+      "sha256": "b4f265530174601bfb0ff232513575858b4971b20c895121fa6d79ad25e731b6",
+      "size_bytes": 2359
+    },
+    {
+      "path": "figure_6_fragmentation_context.svg",
+      "sha256": "65dc37939fd66455254cf372b356befa029e400b19c8591d5b0ca0db534daa7f",
+      "size_bytes": 2305
+    }
+  ],
+  "python": "3.13.5",
+  "renderer": "dependency-free SVG",
+  "schema_version": "1.0",
+  "type": "real_broad_figures"
+}

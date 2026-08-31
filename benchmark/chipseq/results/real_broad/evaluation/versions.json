@@ -1,0 +1,7 @@
+{
+  "bedtools": "bedtools v2.31.1",
+  "numpy": "2.5.2",
+  "python": "3.12.14",
+  "samtools": "samtools 1.20",
+  "scipy": "1.18.0"
+}
