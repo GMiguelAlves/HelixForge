@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "benchmark_id": "chipseq-real-broad-k562-h3k27me3-v1",
-  "current_phase": "EVALUATION_PREPARED",
+  "current_phase": "WAITING_FOR_EXTERNAL_JOB",
   "download_status": "DOWNLOAD_CHECKSUM_VALIDATED",
   "reference_status": "REFERENCE_READY",
   "reference_job_ids": ["16285"],
@@ -13,6 +13,7 @@
   "audit_job_ids": ["16282"],
   "helixforge_job_ids": ["16286", "16287", "16288", "16289", "16290", "16291"],
   "independent_job_ids": ["16323"],
+  "evaluation_job_ids": ["16324"],
   "cleanup_job_ids": ["16275", "16277"],
   "nextflow_session_uuid": null,
   "work_dir": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-real-broad-benchmark-20260830/work/helixforge",
@@ -112,8 +113,10 @@
     "independent_job_elapsed": "01:57:26",
     "independent_job_max_rss_kb": 16799112,
     "independent_consensus_domains": 19711,
+    "evaluation_job_id": "16324",
+    "evaluation_job_state": "RUNNING_AFTER_INITIAL_55S_CHECK",
     "scientific_output_observed": true
   },
-  "resume_condition": "Submit the frozen RB1-RB5 evaluator under Slurm",
-  "next_check": "Commit and synchronize the evaluator, then submit one bounded evaluation job"
+  "resume_condition": "Slurm evaluation job 16324 reaches a terminal state",
+  "next_check": "After user confirmation, inspect job 16324 once; do not poll while evaluation is running"
 }
