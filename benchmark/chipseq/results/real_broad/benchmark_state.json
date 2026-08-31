@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "benchmark_id": "chipseq-real-broad-k562-h3k27me3-v1",
-  "current_phase": "WAITING_FOR_EXTERNAL_JOB",
+  "current_phase": "EVALUATION_PREPARED",
   "download_status": "DOWNLOAD_CHECKSUM_VALIDATED",
   "reference_status": "REFERENCE_READY",
   "reference_job_ids": ["16285"],
@@ -108,9 +108,12 @@
     "queue_size_limit": 5,
     "heavy_download_started": true,
     "independent_job_id": "16323",
-    "independent_job_state": "RUNNING",
+    "independent_job_state": "COMPLETED",
+    "independent_job_elapsed": "01:57:26",
+    "independent_job_max_rss_kb": 16799112,
+    "independent_consensus_domains": 19711,
     "scientific_output_observed": true
   },
-  "resume_condition": "Slurm independent implementation job 16323 reaches a terminal state",
-  "next_check": "After user confirmation, inspect job 16323 once; do not poll while the independent implementation is running"
+  "resume_condition": "Submit the frozen RB1-RB5 evaluator under Slurm",
+  "next_check": "Commit and synchronize the evaluator, then submit one bounded evaluation job"
 }

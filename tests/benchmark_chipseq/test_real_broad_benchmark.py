@@ -19,6 +19,8 @@ REFERENCE_PREPARER = ROOT / "benchmark/chipseq/scripts/prepare_real_broad_refere
 INPUT_PREPARER = ROOT / "benchmark/chipseq/scripts/prepare_helixforge_real_broad_inputs.py"
 HELIXFORGE_RUNNER = ROOT / "benchmark/chipseq/scripts/run_real_broad_helixforge.sh"
 INDEPENDENT_RUNNER = ROOT / "benchmark/chipseq/scripts/run_independent_real_broad.sh"
+EVALUATOR = ROOT / "benchmark/chipseq/scripts/evaluate_real_broad.py"
+EVALUATION_SLURM = ROOT / "benchmark/chipseq/scripts/slurm_evaluate_real_broad.sh"
 
 
 def load_download_validator():
@@ -40,10 +42,14 @@ class RealBroadBenchmarkTests(unittest.TestCase):
         self.assertTrue(config["processing"]["macs3"]["broad"])
         self.assertFalse(config["processing"]["idr"]["enabled"])
         self.assertFalse(config["external_references"]["encode_is_ground_truth"])
+        self.assertEqual(config["evaluation"]["coverage_bin_bp"], 500)
+        self.assertEqual(config["evaluation"]["replicate_rotation_seed"], 20261003)
+        self.assertEqual(config["evaluation"]["encode_rotation_seed"], 20261004)
+        self.assertEqual(config["evaluation"]["encode_rotation_sets"], 100)
 
     def test_checkpoint_starts_before_download(self):
         state = json.loads(STATE.read_text(encoding="utf-8"))
-        self.assertEqual(state["current_phase"], "WAITING_FOR_EXTERNAL_JOB")
+        self.assertEqual(state["current_phase"], "EVALUATION_PREPARED")
         self.assertEqual(state["download_status"], "DOWNLOAD_CHECKSUM_VALIDATED")
         self.assertEqual(state["preflight_job_ids"], ["16273", "16279"])
         self.assertEqual(state["metadata_job_ids"], ["16280"])
@@ -56,6 +62,8 @@ class RealBroadBenchmarkTests(unittest.TestCase):
         self.assertEqual(state["last_verified_status"]["runtime_source_status"], "UNSUITABLE_VERSION_DRIFT")
         self.assertTrue(state["last_verified_status"]["heavy_download_started"])
         self.assertTrue(state["last_verified_status"]["scientific_output_observed"])
+        self.assertEqual(state["last_verified_status"]["independent_job_state"], "COMPLETED")
+        self.assertEqual(state["last_verified_status"]["independent_consensus_domains"], 19711)
 
     def test_preflight_requires_slurm_and_checks_frozen_tools(self):
         source = PREFLIGHT.read_text(encoding="utf-8")
@@ -138,6 +146,25 @@ class RealBroadBenchmarkTests(unittest.TestCase):
         ):
             self.assertIn(value, source)
         self.assertNotIn("idr ", source)
+        self.assertIn("LC_ALL=C awk", source)
+
+    def test_evaluator_implements_frozen_rb_contract(self):
+        source = EVALUATOR.read_text(encoding="utf-8")
+        for value in (
+            '"RB1"', '"RB2"', '"RB3"', '"RB4"', '"RB5"',
+            "chromosome-preserving rigid circular rotation", "(1 + exceedances)",
+            "annotation_distribution", "external_fragmentation",
+            "ENCFF049HUP", "ENCFF366NNJ", "coordinate_equal",
+        ):
+            self.assertIn(value, source)
+        self.assertIn('"DESCRIPTIVE"', source)
+        self.assertNotIn("post-hoc domain stitching", source)
+
+    def test_evaluator_is_slurm_only_and_root_guarded(self):
+        source = EVALUATION_SLURM.read_text(encoding="utf-8")
+        self.assertIn("SLURM_JOB_ID", source)
+        self.assertIn("helixforge-chipseq-real-broad-benchmark-20260830", source)
+        self.assertIn("evaluate_real_broad.py", source)
 
 
 if __name__ == "__main__":

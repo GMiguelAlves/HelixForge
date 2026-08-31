@@ -86,7 +86,7 @@ for sample in ENCFF000BXP ENCFF000BXN; do
     total=$(samtools view -c "$output_root/bam/${sample}.final.bam")
     overlap=$(bedtools intersect -u -abam "$output_root/bam/${sample}.final.bam" \
         -b "$peak_dir/${sample}_peaks.broadPeak" | samtools view -c -)
-    awk -v sample="$sample" -v total="$total" -v overlap="$overlap" \
+    LC_ALL=C awk -v sample="$sample" -v total="$total" -v overlap="$overlap" \
         'BEGIN {printf "%s\t%d\t%d\t%.12g\n", sample, total, overlap, (total ? overlap / total : 0)}' \
         >> "$output_root/qc/frip.tsv"
 done

@@ -49,6 +49,11 @@
     "primary_question": "whether high synthetic broad fragmentation also appears in biological K562 H3K27me3",
     "synthetic_broad_fragmentation_reference": 0.628,
     "coverage_first": true,
+    "coverage_bin_bp": 500,
+    "replicate_rotation_seed": 20261003,
+    "encode_rotation_seed": 20261004,
+    "encode_rotation_sets": 100,
+    "empirical_p_threshold": 0.01,
     "frozen_criteria": ["RB1", "RB2", "RB3", "RB4", "RB5"],
     "biological_expectations": "benchmark/chipseq/datasets/real_broad_biological_expectations.tsv",
     "forbidden_changes": [
