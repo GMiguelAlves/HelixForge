@@ -97,7 +97,7 @@
       }
     ],
     "tracked_file_count": 239,
-    "tracked_total_bytes": 6280736
+    "tracked_total_bytes": 6281198
   },
   "json": {
     "failures": [],
@@ -109,7 +109,8 @@
   },
   "nextflow_lint": {
     "errors": 0,
-    "files_checked": 130,
+    "files_checked": 166,
+    "runtime": "26.04.6",
     "status": "PASS",
     "warnings": 0
   },

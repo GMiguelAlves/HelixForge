@@ -49,7 +49,9 @@ This section is updated from lightweight administrative checks only; no
 scientific process is rerun.
 
 - Global tests: 182 discovered, 177 passed, 5 expected skips, 0 failures.
-- Nextflow lint: 130 files checked, 0 errors and 0 warnings.
+- Nextflow 26.04.6 lint: 166 files checked, 0 errors and 0 warnings. The
+  scientific execution runtime remains the certified Nextflow 25.10.7/Java 21;
+  this newer runtime was used only for the lightweight administrative lint.
 - JSON syntax: 34 benchmark JSON files parsed successfully.
 - TSV consistency: all three consolidated matrices have consistent columns.
 - Local links: passed for the benchmark tree and directly related documents.

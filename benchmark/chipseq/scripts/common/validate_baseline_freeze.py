@@ -206,6 +206,7 @@ def main() -> int:
     parser.add_argument("--tests-skipped", type=int, default=0)
     parser.add_argument("--lint-files", type=int, default=0)
     parser.add_argument("--lint-warnings", type=int, default=0)
+    parser.add_argument("--lint-runtime", default="not-recorded")
     args = parser.parse_args()
 
     tracked = git_paths()
@@ -237,7 +238,13 @@ def main() -> int:
             "failed": 0,
             "skipped": args.tests_skipped,
         },
-        "nextflow_lint": {"status": "PASS", "files_checked": args.lint_files, "errors": 0, "warnings": args.lint_warnings},
+        "nextflow_lint": {
+            "status": "PASS" if args.lint_files > 0 else "FAIL",
+            "runtime": args.lint_runtime,
+            "files_checked": args.lint_files,
+            "errors": 0,
+            "warnings": args.lint_warnings,
+        },
         "heavy_file_audit": file_audit,
         "text_audit": text_audit,
     }
@@ -253,6 +260,8 @@ def main() -> int:
         failures.append("repository hygiene")
     if report["tests"]["status"] != "PASS":
         failures.append("tests")
+    if report["nextflow_lint"]["status"] != "PASS":
+        failures.append("nextflow lint")
     return 1 if failures else 0
 
 
