@@ -66,5 +66,7 @@ The later reduced top-level Slurm pass executed featureCounts and DESeq2 through
 one contrast and final aggregation. The featureCounts 2.0.6 production image
 subsequently returned the expected SAF count in Docker certification run
 `32368534261`; the clean DESeq2 1.0.1 image had already passed its dedicated
-regression. A reviewed biological dataset, legacy statistical comparison and
-production benchmark remain pending.
+regression. The frozen ChIP-seq benchmark validates single-condition narrow and
+broad peak paths but intentionally does not manufacture a contrast. A reviewed
+multi-condition Differential Binding dataset and biological statistical
+benchmark therefore remain pending.

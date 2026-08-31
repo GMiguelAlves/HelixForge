@@ -79,7 +79,8 @@ e o relatório HTML final de 37.472 bytes.
 
 ## Validações posteriores
 
-- regressão com dataset biológico revisado após aposentadoria do legado;
+- regressões K562 CTCF e H3K27me3 concluídas e congeladas no
+  [baseline ChIP-seq](../benchmark/chipseq/reports/chipseq_benchmark_final_report.md);
 - execução top-level com o perfil Docker;
 - execução Apptainer em infraestrutura que disponibilize o runtime.
 
@@ -92,6 +93,6 @@ Uma tentativa posterior em Debian 13 confirmou, pelos jobs Slurm `14748` e
 oferece FUSE e user namespaces, mas não foi feita instalação ad hoc de
 Apptainer no ambiente compartilhado.
 
-A certificação de containers foi encerrada com limitação externa. Os
-dois últimos itens são certificações operacionais futuras e não bloqueiam a
+A certificação de containers foi encerrada com limitação externa. Os itens de
+Docker/Apptainer são certificações operacionais futuras e não bloqueiam a
 release científica.

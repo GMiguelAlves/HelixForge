@@ -7,14 +7,14 @@ import unittest
 from pathlib import Path
 
 
-SCRIPT = Path(__file__).parents[2] / "benchmark/chipseq/scripts/evaluate_synthetic_narrow.py"
+SCRIPT = Path(__file__).parents[2] / "benchmark/chipseq/scripts/synthetic_narrow/evaluate_synthetic_narrow.py"
 SPEC = importlib.util.spec_from_file_location("evaluate_synthetic_narrow", SCRIPT)
 assert SPEC and SPEC.loader
 MODULE = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = MODULE
 SPEC.loader.exec_module(MODULE)
 
-COLLECTOR_SCRIPT = Path(__file__).parents[2] / "benchmark/chipseq/scripts/collect_synthetic_narrow_outputs.py"
+COLLECTOR_SCRIPT = Path(__file__).parents[2] / "benchmark/chipseq/scripts/synthetic_narrow/collect_synthetic_narrow_outputs.py"
 COLLECTOR_SPEC = importlib.util.spec_from_file_location("collect_synthetic_narrow_outputs", COLLECTOR_SCRIPT)
 assert COLLECTOR_SPEC and COLLECTOR_SPEC.loader
 COLLECTOR = importlib.util.module_from_spec(COLLECTOR_SPEC)

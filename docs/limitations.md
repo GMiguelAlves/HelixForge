@@ -30,9 +30,12 @@ outputs invalidates the corresponding cache entries.
 
 ## Scientific scope
 
-- Synthetic and reduced fixtures validate contracts, determinism and provider
-  execution. Large-scale technical and reviewed biological benchmarking is
-  part of the v1 validation cycle and no superiority claim is made.
+- Frozen RNA-seq and ChIP-seq baselines include synthetic and reviewed public
+  biological data. They validate the declared v1 scenarios, not universal
+  performance, and make no superiority claim over other pipelines.
+- The ChIP-seq baseline is `PASS_WITH_LIMITATIONS`: RN3 is not evaluable under
+  its frozen control requirements, synthetic broad fragmentation is a methods
+  follow-up, and the real H3K27me3 dataset has strong replicate asymmetry.
 - RNA-seq batch variables are modeled through an estimable DESeq2 formula.
   Corrected matrices are exploratory only; the planned Batch Effect Assessment
   API is not part of the current workflow.
