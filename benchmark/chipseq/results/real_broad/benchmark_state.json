@@ -2,12 +2,12 @@
   "schema_version": "1.0",
   "benchmark_id": "chipseq-real-broad-k562-h3k27me3-v1",
   "current_phase": "WAITING_FOR_EXTERNAL_JOB",
-  "download_status": "NOT_STARTED",
-  "metadata_status": "OFFICIAL_API_VALIDATION_RUNNING",
+  "download_status": "RUNNING",
+  "metadata_status": "METADATA_VALIDATED",
   "metadata_job_ids": ["16280"],
   "preflight_job_ids": ["16273", "16279"],
   "runtime_job_ids": ["16274", "16278"],
-  "download_job_ids": [],
+  "download_job_ids": ["16281"],
   "helixforge_job_ids": [],
   "independent_job_ids": [],
   "cleanup_job_ids": ["16275", "16277"],
@@ -24,8 +24,8 @@
     "audit_archive"
   ],
   "last_verified_status": {
-    "timestamp": "2026-08-30T23:53:40-03:00",
-    "status": "OFFICIAL_METADATA_VALIDATION_RUNNING",
+    "timestamp": "2026-08-30T23:58:41-03:00",
+    "status": "AUDITABLE_DOWNLOAD_RUNNING",
     "starting_commit": "aa930e6a1c3513dcd51fc08d0845ec12b4154c4c",
     "scientific_target": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
     "protocol_commit": "bb8db940ee137fee67fe5f13530521326c96dfc0",
@@ -67,10 +67,18 @@
     "repeat_preflight_node": "srv-slurm-node-03",
     "preflight_checks_passed": 21,
     "metadata_job_id": "16280",
-    "metadata_job_state": "RUNNING",
-    "heavy_download_started": false,
+    "metadata_job_state": "COMPLETED_VALIDATED",
+    "metadata_checks_passed": 31,
+    "dataset_quality_limitations": [
+      "ENCODE_NOT_COMPLIANT_INSUFFICIENT_USABLE_READ_DEPTH",
+      "ENCODE_WARNING_LOW_36BP_READ_LENGTH",
+      "ENCODE_WARNING_MIXED_REPLICATE_READ_LENGTHS"
+    ],
+    "download_job_id": "16281",
+    "download_job_state": "RUNNING",
+    "heavy_download_started": true,
     "scientific_output_observed": false
   },
-  "resume_condition": "Slurm metadata validation job 16280 reaches a terminal state",
-  "next_check": "Inspect job 16280 once; downloads remain blocked unless the official ENCODE metadata snapshot reports METADATA_VALIDATED"
+  "resume_condition": "Slurm download and checksum-validation job 16281 reaches a terminal state",
+  "next_check": "Inspect job 16281 once; processing remains blocked unless download_manifest.json reports DOWNLOAD_CHECKSUM_VALIDATED"
 }
