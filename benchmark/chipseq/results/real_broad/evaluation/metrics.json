@@ -1,0 +1,158 @@
+{
+  "annotation_distribution": {
+    "exon": 2687,
+    "intergenic": 4101,
+    "intron_or_gene_body": 10466,
+    "promoter": 2457
+  },
+  "counts_and_widths": {
+    "consensus": {
+      "count": 19711,
+      "maximum_bp": 3373,
+      "mean_bp": 217.66125513672569,
+      "median_bp": 185.0,
+      "minimum_bp": 1,
+      "p90_bp": 404.0,
+      "total_bp": 4290321
+    },
+    "encode_reference": {
+      "count": 74264,
+      "maximum_bp": 2809,
+      "mean_bp": 306.6813395454056,
+      "median_bp": 268.0,
+      "minimum_bp": 140,
+      "p90_bp": 487.0,
+      "total_bp": 22775383
+    },
+    "replicate_1": {
+      "count": 37591,
+      "maximum_bp": 6298,
+      "mean_bp": 386.8855843153946,
+      "median_bp": 323.0,
+      "minimum_bp": 229,
+      "p90_bp": 622.0,
+      "total_bp": 14543416
+    },
+    "replicate_2": {
+      "count": 353663,
+      "maximum_bp": 5247,
+      "mean_bp": 269.680591410467,
+      "median_bp": 175.0,
+      "minimum_bp": 171,
+      "p90_bp": 470.0,
+      "total_bp": 95376047
+    }
+  },
+  "dataset_limitations": [
+    "ENCODE_NOT_COMPLIANT_INSUFFICIENT_USABLE_READ_DEPTH",
+    "ENCODE_WARNING_LOW_36BP_READ_LENGTH",
+    "ENCODE_WARNING_MIXED_REPLICATE_READ_LENGTHS",
+    "EXTERNAL_BIGWIG_CONCORDANCE_NOT_COMPUTED_NO_FROZEN_BIGWIG_READER"
+  ],
+  "encode_overlap": {
+    "accession": "ENCFF049HUP",
+    "empirical_p": 0.009900990099009901,
+    "null_exceedances": 0,
+    "null_method": "chromosome-preserving rigid circular rotation",
+    "null_sets": 100,
+    "observed_jaccard": 0.14173155752835964,
+    "observed_overlap_bp": 3359045,
+    "observed_union_bp": 23700050
+  },
+  "external_fragmentation_context": {
+    "external_domains": 74251,
+    "external_domains_fragmented": 182,
+    "external_domains_touched": 15043,
+    "fragmentation_excess": 183,
+    "fragmentation_rate_all_external": 0.002451145439118665,
+    "fragmentation_rate_touched_external": 0.01209865053513262,
+    "interpretation": "descriptive context; ENCODE calls are not ground truth",
+    "substantial_edge_rule": "overlap >=500 bp OR >=10% of external domain"
+  },
+  "external_signal_track": {
+    "accession": "ENCFF366NNJ",
+    "reason": "no BigWig reader in frozen runtime; RB5 is descriptive",
+    "status": "NOT_COMPUTED"
+  },
+  "frip": {
+    "ENCFF000BXN": {
+      "frip": 0.31566719057621745,
+      "reads_in_peaks": 2989314,
+      "total_reads": 9469828
+    },
+    "ENCFF000BXP": {
+      "frip": 0.045046959688542804,
+      "reads_in_peaks": 438122,
+      "total_reads": 9725895
+    }
+  },
+  "implementation": {
+    "consensus": {
+      "base_jaccard": 1.0,
+      "coordinate_equal": true,
+      "helixforge_count": 19711,
+      "independent_count": 19711,
+      "overlap_bp": 4288471,
+      "union_bp": 4288471
+    },
+    "replicate_1": {
+      "base_jaccard": 1.0,
+      "coordinate_equal": true,
+      "helixforge_count": 37591,
+      "independent_count": 37591,
+      "overlap_bp": 14536467,
+      "union_bp": 14536467
+    },
+    "replicate_2": {
+      "base_jaccard": 1.0,
+      "coordinate_equal": true,
+      "helixforge_count": 353663,
+      "independent_count": 353663,
+      "overlap_bp": 95345135,
+      "union_bp": 95345135
+    }
+  },
+  "replicate_coverage": {
+    "bin_bp": 500,
+    "bins": 6176550,
+    "normalization": "CPM",
+    "pearson": 0.45654468386581126,
+    "replicate_1_reads": 9725895,
+    "replicate_2_reads": 9469828,
+    "rotated_pearson": 0.03861970227187003,
+    "rotated_spearman": 0.059441955218698446,
+    "rotation_offsets_bins": {
+      "chr1": 14767,
+      "chr10": 203009,
+      "chr11": 156334,
+      "chr12": 26674,
+      "chr13": 4800,
+      "chr14": 174163,
+      "chr15": 124801,
+      "chr16": 98761,
+      "chr17": 32549,
+      "chr18": 33317,
+      "chr19": 108493,
+      "chr2": 319710,
+      "chr20": 81236,
+      "chr21": 67062,
+      "chr22": 7433,
+      "chr3": 2587,
+      "chr4": 177649,
+      "chr5": 75186,
+      "chr6": 260985,
+      "chr7": 151228,
+      "chr8": 275034,
+      "chr9": 56021,
+      "chrX": 118068,
+      "chrY": 73554
+    },
+    "spearman": 0.39796459847534715
+  },
+  "replicate_peak_overlap": {
+    "jaccard": 0.04061316261187482,
+    "overlap_bp": 4288471,
+    "union_bp": 105593131
+  },
+  "synthetic_broad_fragmentation_reference": 0.628
+}

@@ -21,6 +21,8 @@ HELIXFORGE_RUNNER = ROOT / "benchmark/chipseq/scripts/run_real_broad_helixforge.
 INDEPENDENT_RUNNER = ROOT / "benchmark/chipseq/scripts/run_independent_real_broad.sh"
 EVALUATOR = ROOT / "benchmark/chipseq/scripts/evaluate_real_broad.py"
 EVALUATION_SLURM = ROOT / "benchmark/chipseq/scripts/slurm_evaluate_real_broad.sh"
+FIGURE_RENDERER = ROOT / "benchmark/chipseq/scripts/render_real_broad_figures.py"
+AUDIT_PACKAGER = ROOT / "benchmark/chipseq/scripts/package_real_broad_audit.sh"
 
 
 def load_download_validator():
@@ -49,7 +51,7 @@ class RealBroadBenchmarkTests(unittest.TestCase):
 
     def test_checkpoint_starts_before_download(self):
         state = json.loads(STATE.read_text(encoding="utf-8"))
-        self.assertEqual(state["current_phase"], "EVALUATION_PREPARED")
+        self.assertEqual(state["current_phase"], "EVALUATION_COMPLETED")
         self.assertEqual(state["download_status"], "DOWNLOAD_CHECKSUM_VALIDATED")
         self.assertEqual(state["preflight_job_ids"], ["16273", "16279"])
         self.assertEqual(state["metadata_job_ids"], ["16280"])
@@ -165,6 +167,17 @@ class RealBroadBenchmarkTests(unittest.TestCase):
         self.assertIn("SLURM_JOB_ID", source)
         self.assertIn("helixforge-chipseq-real-broad-benchmark-20260830", source)
         self.assertIn("evaluate_real_broad.py", source)
+
+    def test_final_reporting_is_reproducible_and_auditable(self):
+        renderer = FIGURE_RENDERER.read_text(encoding="utf-8")
+        packager = AUDIT_PACKAGER.read_text(encoding="utf-8")
+        for value in ("figure_2_coverage_concordance.svg", "figure_4_encode_overlap.svg", "figure_6_fragmentation_context.svg"):
+            self.assertIn(value, renderer)
+        self.assertIn("README_PT.md", packager)
+        self.assertIn("SLURM_JOB_ID", packager)
+        self.assertIn("HelixForge_real_broad_K562_H3K27me3_20260831.tar.gz", packager)
+        for excluded in ("downloads/fastq", "independent/bam", "work/helixforge", "runtime/chipseq-frozen"):
+            self.assertNotIn(f'cp -a "$ROOT/{excluded}"', packager)
 
 
 if __name__ == "__main__":
