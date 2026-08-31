@@ -58,7 +58,7 @@ class RealBroadBenchmarkTests(unittest.TestCase):
         self.assertEqual(state["preflight_job_ids"], ["16273", "16279"])
         self.assertEqual(state["metadata_job_ids"], ["16280"])
         self.assertEqual(state["runtime_job_ids"], ["16274", "16278"])
-        self.assertEqual(state["cleanup_job_ids"], ["16275", "16277"])
+        self.assertEqual(state["cleanup_job_ids"], ["16275", "16277", "16327"])
         self.assertEqual(state["last_verified_status"]["cleanup_attempts"]["16277"], "COMPLETED")
         self.assertEqual(state["last_verified_status"]["runtime_build_job_state"], "COMPLETED")
         self.assertEqual(state["last_verified_status"]["repeat_preflight_job_state"], "COMPLETED_PASS")
