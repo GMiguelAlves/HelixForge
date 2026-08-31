@@ -23,6 +23,7 @@ EVALUATOR = ROOT / "benchmark/chipseq/scripts/evaluate_real_broad.py"
 EVALUATION_SLURM = ROOT / "benchmark/chipseq/scripts/slurm_evaluate_real_broad.sh"
 FIGURE_RENDERER = ROOT / "benchmark/chipseq/scripts/render_real_broad_figures.py"
 AUDIT_PACKAGER = ROOT / "benchmark/chipseq/scripts/package_real_broad_audit.sh"
+AUDIT_SNAPSHOT = ROOT / "benchmark/chipseq/scripts/prepare_real_broad_audit_snapshot.sh"
 
 
 def load_download_validator():
@@ -171,11 +172,17 @@ class RealBroadBenchmarkTests(unittest.TestCase):
     def test_final_reporting_is_reproducible_and_auditable(self):
         renderer = FIGURE_RENDERER.read_text(encoding="utf-8")
         packager = AUDIT_PACKAGER.read_text(encoding="utf-8")
+        snapshot = AUDIT_SNAPSHOT.read_text(encoding="utf-8")
         for value in ("figure_2_coverage_concordance.svg", "figure_4_encode_overlap.svg", "figure_6_fragmentation_context.svg"):
             self.assertIn(value, renderer)
         self.assertIn("README_PT.md", packager)
         self.assertIn("SLURM_JOB_ID", packager)
         self.assertIn("HelixForge_real_broad_K562_H3K27me3_20260831.tar.gz", packager)
+        self.assertNotIn("git -C", packager)
+        self.assertIn("sha256sum -c repository_snapshot.tar.sha256", packager)
+        self.assertIn("git -C", snapshot)
+        self.assertIn("SLURM_JOB_ID", snapshot)
+        self.assertIn("head node", snapshot)
         for excluded in ("downloads/fastq", "independent/bam", "work/helixforge", "runtime/chipseq-frozen"):
             self.assertNotIn(f'cp -a "$ROOT/{excluded}"', packager)
 

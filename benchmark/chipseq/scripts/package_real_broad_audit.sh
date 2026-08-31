@@ -2,14 +2,14 @@
 set -euo pipefail
 
 readonly ROOT="/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-real-broad-benchmark-20260830"
-readonly REPO="/home/ra236875@bio.ib.unicamp.br/helixforge-benchmark-chipseq-broad"
 readonly AUDIT_DIR="/home/ra236875@bio.ib.unicamp.br/helixforge-audit/real-broad"
 readonly ARCHIVE="$AUDIT_DIR/HelixForge_real_broad_K562_H3K27me3_20260831.tar.gz"
+readonly SNAPSHOT="$AUDIT_DIR/repository_snapshot"
 
 [[ -n "${SLURM_JOB_ID:-}" ]] || { echo "Audit packaging must run under Slurm." >&2; exit 2; }
 [[ "$(realpath -- "$ROOT")" == "$ROOT" ]]
 [[ -d "$ROOT/evaluation" ]]
-[[ -d "$REPO/.git" ]]
+[[ -s "$SNAPSHOT/repository_snapshot.tar" ]]
 mkdir -p -- "$AUDIT_DIR"
 stage="$(mktemp -d "$ROOT/.audit-stage.XXXXXX")"
 trap 'rm -rf -- "$stage"' EXIT
@@ -66,18 +66,13 @@ while IFS= read -r -d '' source; do
     cp -a "$source" "$stage/evidence/independent/peaks/$relative"
 done < <(find "$ROOT/independent/peaks" -type f ! -name '*.bdg' -print0)
 
-git -C "$REPO" archive --format=tar HEAD \
-    benchmark/chipseq/configs/real_broad_execution.json \
-    benchmark/chipseq/datasets/real_broad_samples.tsv \
-    benchmark/chipseq/datasets/real_broad_biological_expectations.tsv \
-    benchmark/chipseq/protocol \
-    benchmark/chipseq/reports/real_broad_benchmark.md \
-    benchmark/chipseq/results/real_broad \
-    benchmark/chipseq/scripts \
-    tests/benchmark_chipseq/test_real_broad_benchmark.py \
-    | tar -xf - -C "$stage/repository"
-git -C "$REPO" rev-parse HEAD > "$stage/repository_commit.txt"
-git -C "$REPO" status --porcelain > "$stage/repository_status.txt"
+(
+    cd "$SNAPSHOT"
+    sha256sum -c repository_snapshot.tar.sha256
+)
+tar -xf "$SNAPSHOT/repository_snapshot.tar" -C "$stage/repository"
+cp -a "$SNAPSHOT/repository_commit.txt" "$SNAPSHOT/repository_status.txt" \
+    "$SNAPSHOT/repository_snapshot.tar.sha256" "$stage/"
 
 find "$stage" -type f ! -name checksums.sha256 -print0 \
     | sort -z | xargs -0 sha256sum \
