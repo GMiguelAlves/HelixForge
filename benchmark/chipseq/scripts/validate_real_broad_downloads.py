@@ -13,6 +13,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
+EXPECTED_LENGTH_HISTOGRAMS = {
+    "ENCFF000BXP": {51: 19297190},
+    "ENCFF000BXN": {36: 11752939, 47: 11077650},
+    "ENCFF000BWK": {36: 27579809},
+}
+
+
 def digest(path: Path, algorithm: str) -> str:
     value = hashlib.new(algorithm)
     with path.open("rb") as handle:
@@ -21,7 +28,7 @@ def digest(path: Path, algorithm: str) -> str:
     return value.hexdigest()
 
 
-def validate_fastq(path: Path, expected_reads: int, expected_length: int, expected_content_md5: str) -> dict:
+def validate_fastq(path: Path, accession: str, expected_reads: int, expected_content_md5: str) -> dict:
     reads = 0
     minimum = None
     maximum = 0
@@ -45,14 +52,16 @@ def validate_fastq(path: Path, expected_reads: int, expected_length: int, expect
             reads += 1
     if reads != expected_reads:
         raise ValueError(f"read-count mismatch for {path}: {reads} != {expected_reads}")
-    if minimum != expected_length or maximum != expected_length:
-        raise ValueError(f"read-length mismatch for {path}: {minimum}-{maximum} != {expected_length}")
+    histogram = dict(sorted(lengths.items()))
+    if histogram != EXPECTED_LENGTH_HISTOGRAMS[accession]:
+        raise ValueError(f"audited read-length distribution mismatch for {path}: {histogram}")
     if content.hexdigest() != expected_content_md5:
         raise ValueError(f"content MD5 mismatch: {path}")
     return {
         "read_count": reads,
         "minimum_read_length": minimum,
         "maximum_read_length": maximum,
+        "length_histogram": {str(length): count for length, count in histogram.items()},
         "content_md5": content.hexdigest(),
     }
 
@@ -88,7 +97,7 @@ def main() -> None:
         md5 = digest(path, "md5")
         if md5 != row["md5"]:
             raise ValueError(f"MD5 mismatch: {path}")
-        fastq = validate_fastq(path, int(row["read_count"]), int(row["read_length_bp"]), row["content_md5"])
+        fastq = validate_fastq(path, row["file_accession"], int(row["read_count"]), row["content_md5"])
         artifact = {
             "role": row["assay_role"].lower(),
             "sample_id": row["sample_id"],

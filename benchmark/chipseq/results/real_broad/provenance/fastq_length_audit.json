@@ -1,0 +1,41 @@
+{
+  "created_utc": "2026-08-31T03:27:17.421561+00:00",
+  "files": [
+    {
+      "checks": {"compressed_md5": true, "content_md5": true, "file_size": true, "metadata_length_uniform": true, "read_count": true},
+      "compressed_md5": "184f9efa9c83fb61647d32a4781e82a0",
+      "content_md5": "7464bb2d8ec9100cf280199e3c3b1cb8",
+      "declared_read_length": 51,
+      "file_accession": "ENCFF000BXP",
+      "length_histogram": {"51": 19297190},
+      "maximum_read_length": 51,
+      "minimum_read_length": 51,
+      "read_count": 19297190
+    },
+    {
+      "checks": {"compressed_md5": true, "content_md5": true, "file_size": true, "metadata_length_uniform": false, "read_count": true},
+      "compressed_md5": "f168aa92fadb4c3d8e9d053cb9f97cd9",
+      "content_md5": "0e78c604b0f04572b29fa180db43bf4a",
+      "declared_read_length": 36,
+      "file_accession": "ENCFF000BXN",
+      "length_histogram": {"36": 11752939, "47": 11077650},
+      "maximum_read_length": 47,
+      "minimum_read_length": 36,
+      "read_count": 22830589
+    },
+    {
+      "checks": {"compressed_md5": true, "content_md5": true, "file_size": true, "metadata_length_uniform": true, "read_count": true},
+      "compressed_md5": "d5471e71ef5c3b2029311fc0274aa011",
+      "content_md5": "7168877490e20f22c026aa948fef33b2",
+      "declared_read_length": 36,
+      "file_accession": "ENCFF000BWK",
+      "length_histogram": {"36": 27579809},
+      "maximum_read_length": 36,
+      "minimum_read_length": 36,
+      "read_count": 27579809
+    }
+  ],
+  "schema_version": "1.0",
+  "status": "IDENTITY_VALIDATED_LENGTH_METADATA_AUDITED",
+  "type": "real_broad_fastq_length_audit"
+}
