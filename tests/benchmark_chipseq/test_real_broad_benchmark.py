@@ -15,6 +15,7 @@ METADATA = ROOT / "benchmark/chipseq/scripts/collect_real_broad_metadata.py"
 DOWNLOAD_VALIDATOR = ROOT / "benchmark/chipseq/scripts/validate_real_broad_downloads.py"
 FASTQ_AUDITOR = ROOT / "benchmark/chipseq/scripts/audit_real_broad_fastq_lengths.py"
 READ_LENGTH_AMENDMENT = ROOT / "benchmark/chipseq/protocol/real_broad_read_length_amendment_20260831.md"
+REFERENCE_PREPARER = ROOT / "benchmark/chipseq/scripts/prepare_real_broad_reference.py"
 
 
 def load_download_validator():
@@ -104,6 +105,13 @@ class RealBroadBenchmarkTests(unittest.TestCase):
             validator.EXPECTED_LENGTH_HISTOGRAMS["TEST"] = {36: 1, 47: 1}
             observed = validator.validate_fastq(path, "TEST", 2, hashlib.md5(content).hexdigest())
         self.assertEqual(observed["length_histogram"], {"36": 1, "47": 1})
+
+    def test_reference_preparation_uses_broad_external_peaks(self):
+        source = REFERENCE_PREPARER.read_text(encoding="utf-8")
+        self.assertIn('"broad_reference_peaks"', source)
+        self.assertIn('"chipseq_real_broad_reference"', source)
+        self.assertIn('"REFERENCE_READY"', source)
+        self.assertIn('"renaming": "prohibited"', source)
 
 
 if __name__ == "__main__":
