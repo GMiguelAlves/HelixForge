@@ -2,7 +2,9 @@
   "schema_version": "1.0",
   "benchmark_id": "chipseq-real-broad-k562-h3k27me3-v1",
   "current_phase": "WAITING_FOR_EXTERNAL_JOB",
-  "download_status": "REVALIDATING_AFTER_AUDITED_METADATA_AMENDMENT",
+  "download_status": "DOWNLOAD_CHECKSUM_VALIDATED",
+  "reference_status": "PREPARATION_RUNNING",
+  "reference_job_ids": ["16285"],
   "metadata_status": "METADATA_VALIDATED",
   "metadata_job_ids": ["16280"],
   "preflight_job_ids": ["16273", "16279"],
@@ -25,8 +27,8 @@
     "audit_archive"
   ],
   "last_verified_status": {
-    "timestamp": "2026-08-31T00:35:49-03:00",
-    "status": "DOWNLOAD_REVALIDATION_RUNNING",
+    "timestamp": "2026-08-31T00:47:47-03:00",
+    "status": "REFERENCE_PREPARATION_RUNNING",
     "starting_commit": "aa930e6a1c3513dcd51fc08d0845ec12b4154c4c",
     "scientific_target": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
     "protocol_commit": "bb8db940ee137fee67fe5f13530521326c96dfc0",
@@ -83,14 +85,18 @@
     "fastq_audit_elapsed": "00:06:53",
     "read_length_amendment": "RESOLVED_PRE_EXECUTION",
     "download_revalidation_job_id": "16284",
-    "download_revalidation_job_state": "RUNNING",
+    "download_revalidation_job_state": "COMPLETED_VALIDATED",
+    "download_revalidation_elapsed": "00:08:11",
+    "download_total_bytes": 3943031402,
     "download_revalidation_attempts": {
       "16283": "FAILED_VALIDATOR_NAME_ERROR_BEFORE_MANIFEST",
-      "16284": "RUNNING"
+      "16284": "COMPLETED_VALIDATED"
     },
+    "reference_job_id": "16285",
+    "reference_job_state": "RUNNING",
     "heavy_download_started": true,
     "scientific_output_observed": false
   },
-  "resume_condition": "Slurm download revalidation job 16284 reaches a terminal state",
-  "next_check": "Inspect job 16284 once; processing remains blocked unless download_manifest.json reports DOWNLOAD_CHECKSUM_VALIDATED"
+  "resume_condition": "Slurm reference preparation job 16285 reaches a terminal state",
+  "next_check": "Inspect job 16285 once; the scientific workflow remains blocked unless reference_manifest.json reports REFERENCE_READY"
 }
