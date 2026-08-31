@@ -7,7 +7,7 @@
   "metadata_job_ids": ["16280"],
   "preflight_job_ids": ["16273", "16279"],
   "runtime_job_ids": ["16274", "16278"],
-  "download_job_ids": ["16281", "16283"],
+  "download_job_ids": ["16281", "16283", "16284"],
   "audit_job_ids": ["16282"],
   "helixforge_job_ids": [],
   "independent_job_ids": [],
@@ -25,7 +25,7 @@
     "audit_archive"
   ],
   "last_verified_status": {
-    "timestamp": "2026-08-31T00:31:24-03:00",
+    "timestamp": "2026-08-31T00:35:49-03:00",
     "status": "DOWNLOAD_REVALIDATION_RUNNING",
     "starting_commit": "aa930e6a1c3513dcd51fc08d0845ec12b4154c4c",
     "scientific_target": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
@@ -82,11 +82,15 @@
     "fastq_audit_job_state": "COMPLETED_IDENTITY_VALIDATED",
     "fastq_audit_elapsed": "00:06:53",
     "read_length_amendment": "RESOLVED_PRE_EXECUTION",
-    "download_revalidation_job_id": "16283",
+    "download_revalidation_job_id": "16284",
     "download_revalidation_job_state": "RUNNING",
+    "download_revalidation_attempts": {
+      "16283": "FAILED_VALIDATOR_NAME_ERROR_BEFORE_MANIFEST",
+      "16284": "RUNNING"
+    },
     "heavy_download_started": true,
     "scientific_output_observed": false
   },
-  "resume_condition": "Slurm download revalidation job 16283 reaches a terminal state",
-  "next_check": "Inspect job 16283 once; processing remains blocked unless download_manifest.json reports DOWNLOAD_CHECKSUM_VALIDATED"
+  "resume_condition": "Slurm download revalidation job 16284 reaches a terminal state",
+  "next_check": "Inspect job 16284 once; processing remains blocked unless download_manifest.json reports DOWNLOAD_CHECKSUM_VALIDATED"
 }
