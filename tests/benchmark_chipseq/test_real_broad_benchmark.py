@@ -9,6 +9,7 @@ STATE = ROOT / "benchmark/chipseq/results/real_broad/benchmark_state.json"
 PREFLIGHT = ROOT / "benchmark/chipseq/scripts/collect_real_broad_preflight.py"
 METADATA = ROOT / "benchmark/chipseq/scripts/collect_real_broad_metadata.py"
 DOWNLOAD_VALIDATOR = ROOT / "benchmark/chipseq/scripts/validate_real_broad_downloads.py"
+FASTQ_AUDITOR = ROOT / "benchmark/chipseq/scripts/audit_real_broad_fastq_lengths.py"
 
 
 class RealBroadBenchmarkTests(unittest.TestCase):
@@ -64,6 +65,14 @@ class RealBroadBenchmarkTests(unittest.TestCase):
         self.assertIn("expected_content_md5", source)
         self.assertIn('"DOWNLOAD_CHECKSUM_VALIDATED"', source)
         self.assertIn('"real_broad_download_manifest"', source)
+
+    def test_fastq_length_audit_keeps_identity_checks_strict(self):
+        source = FASTQ_AUDITOR.read_text(encoding="utf-8")
+        self.assertIn('"compressed_md5"', source)
+        self.assertIn('"content_md5"', source)
+        self.assertIn('"read_count"', source)
+        self.assertIn('"metadata_length_uniform"', source)
+        self.assertIn('"length_histogram"', source)
 
 
 if __name__ == "__main__":
