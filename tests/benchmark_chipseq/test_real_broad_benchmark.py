@@ -18,6 +18,7 @@ READ_LENGTH_AMENDMENT = ROOT / "benchmark/chipseq/protocol/real_broad_read_lengt
 REFERENCE_PREPARER = ROOT / "benchmark/chipseq/scripts/prepare_real_broad_reference.py"
 INPUT_PREPARER = ROOT / "benchmark/chipseq/scripts/prepare_helixforge_real_broad_inputs.py"
 HELIXFORGE_RUNNER = ROOT / "benchmark/chipseq/scripts/run_real_broad_helixforge.sh"
+INDEPENDENT_RUNNER = ROOT / "benchmark/chipseq/scripts/run_independent_real_broad.sh"
 
 
 def load_download_validator():
@@ -128,6 +129,15 @@ class RealBroadBenchmarkTests(unittest.TestCase):
         ):
             self.assertIn(value, runner)
         self.assertNotIn("--chipseq_idr_threshold", runner)
+
+    def test_independent_runner_preserves_broad_parameters(self):
+        source = INDEPENDENT_RUNNER.read_text(encoding="utf-8")
+        for value in (
+            "--very-sensitive", "-q 30 -F 2308", "--keep-dup all -B -q 0.01 --broad",
+            "bedtools multiinter", "ENCFF000BXP", "ENCFF000BXN", "ENCFF000BWK",
+        ):
+            self.assertIn(value, source)
+        self.assertNotIn("idr ", source)
 
 
 if __name__ == "__main__":
