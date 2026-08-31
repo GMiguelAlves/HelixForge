@@ -1,0 +1,188 @@
+{
+  "artifact_manifest": {
+    "entries": 237,
+    "self_checksum_excluded": true,
+    "status": "PASS"
+  },
+  "checksums": {
+    "failures": [],
+    "historical_absolute_entries_skipped": 3,
+    "status": "PASS",
+    "validated_entries": 25
+  },
+  "heavy_file_audit": {
+    "files_over_10_mb": [],
+    "files_over_50_mb": [],
+    "forbidden_heavy_extensions": [],
+    "largest_20": [
+      {
+        "path": "benchmark/chipseq/results/real_narrow/null_capacity_v3/exact_gc_capacity.tsv",
+        "size_bytes": 1322917
+      },
+      {
+        "path": "benchmark/chipseq/results/synthetic_narrow/metrics/matched_peaks.tsv",
+        "size_bytes": 1317998
+      },
+      {
+        "path": "benchmark/chipseq/results/real_narrow/figures/idr_plot.png",
+        "size_bytes": 612498
+      },
+      {
+        "path": "benchmark/chipseq/results/real_narrow/null_capacity_v3/parent_pool_capacity.tsv",
+        "size_bytes": 596443
+      },
+      {
+        "path": "benchmark/chipseq/results/synthetic_broad/metrics/domain_metrics.tsv",
+        "size_bytes": 362749
+      },
+      {
+        "path": "benchmark/chipseq/results/synthetic_narrow/metrics/precision_recall_curve.tsv",
+        "size_bytes": 272198
+      },
+      {
+        "path": "benchmark/chipseq/results/synthetic_narrow/figures/figure_6_peak_set_counts.png",
+        "size_bytes": 69988
+      },
+      {
+        "path": "benchmark/chipseq/results/synthetic_broad/figures/figure_4_fragmentation_merging.png",
+        "size_bytes": 67221
+      },
+      {
+        "path": "benchmark/chipseq/results/synthetic_broad/figures/figure_7_coverage_signal.png",
+        "size_bytes": 58248
+      },
+      {
+        "path": "benchmark/chipseq/results/synthetic_narrow/figures/figure_2_signal_class_recall.png",
+        "size_bytes": 56259
+      },
+      {
+        "path": "benchmark/chipseq/results/synthetic_narrow/figures/figure_1_precision_recall.png",
+        "size_bytes": 50433
+      },
+      {
+        "path": "benchmark/chipseq/results/synthetic_broad/figures/figure_6_path_concordance.png",
+        "size_bytes": 48819
+      },
+      {
+        "path": "benchmark/chipseq/results/real_narrow/metadata/encode_metadata_snapshot.json",
+        "size_bytes": 47829
+      },
+      {
+        "path": "benchmark/chipseq/results/synthetic_narrow/figures/figure_5_replicate_concordance.png",
+        "size_bytes": 47526
+      },
+      {
+        "path": "benchmark/chipseq/results/synthetic_broad/figures/figure_5_repeat_overlap.png",
+        "size_bytes": 47465
+      },
+      {
+        "path": "benchmark/chipseq/results/synthetic_narrow/figures/figure_3_summit_distance.png",
+        "size_bytes": 44993
+      },
+      {
+        "path": "benchmark/chipseq/results/synthetic_broad/figures/figure_1_ground_truth_accuracy.png",
+        "size_bytes": 43271
+      },
+      {
+        "path": "benchmark/chipseq/results/synthetic_narrow/figures/figure_4_signal_ranking.png",
+        "size_bytes": 42915
+      },
+      {
+        "path": "benchmark/chipseq/provenance/chipseq_artifact_manifest.tsv",
+        "size_bytes": 39112
+      },
+      {
+        "path": "benchmark/chipseq/results/synthetic_broad/figures/figure_2_signal_classes.png",
+        "size_bytes": 35291
+      }
+    ],
+    "tracked_file_count": 239,
+    "tracked_total_bytes": 6280736
+  },
+  "json": {
+    "failures": [],
+    "status": "PASS"
+  },
+  "links": {
+    "failures": [],
+    "status": "PASS"
+  },
+  "nextflow_lint": {
+    "errors": 0,
+    "files_checked": 130,
+    "status": "PASS",
+    "warnings": 0
+  },
+  "required_files": {
+    "missing": [],
+    "status": "PASS"
+  },
+  "scientific_rerun": false,
+  "tests": {
+    "discovered": 182,
+    "failed": 0,
+    "passed": 177,
+    "skipped": 5,
+    "status": "PASS"
+  },
+  "text_audit": {
+    "historical_machine_path_files": [
+      "benchmark/chipseq/protocol/operational_policy.md",
+      "benchmark/chipseq/results/real_broad/benchmark_state.json",
+      "benchmark/chipseq/results/real_broad/evaluation/helixforge_trace.tsv",
+      "benchmark/chipseq/results/real_narrow/evaluation/helixforge_trace.tsv",
+      "benchmark/chipseq/results/synthetic_broad/metrics/evaluation_summary.json",
+      "benchmark/chipseq/results/synthetic_broad/performance/checksums.sha256",
+      "benchmark/chipseq/results/synthetic_broad/technical/selected_bams.tsv",
+      "benchmark/chipseq/results/synthetic_broad/technical/selected_outputs.json",
+      "benchmark/chipseq/results/synthetic_broad/technical/selected_region_sets.tsv",
+      "benchmark/chipseq/results/synthetic_broad/technical/technical_metrics.tsv",
+      "benchmark/chipseq/results/synthetic_narrow/metrics/evaluation_summary.json",
+      "benchmark/chipseq/results/synthetic_narrow/metrics/truth_accuracy.tsv",
+      "benchmark/chipseq/results/synthetic_narrow/technical/selected_outputs.json",
+      "benchmark/chipseq/results/synthetic_narrow/technical/selected_peak_sets.tsv",
+      "benchmark/chipseq/results/synthetic_narrow/technical/technical_metrics.tsv",
+      "benchmark/chipseq/scripts/archive/rn3_null_methods/freeze_real_narrow_nulls.py",
+      "benchmark/chipseq/scripts/archive/rn3_null_methods/slurm_create_real_narrow_preflight_runtime.sh",
+      "benchmark/chipseq/scripts/archive/rn3_null_methods/slurm_freeze_real_narrow_nulls.sh",
+      "benchmark/chipseq/scripts/archive/rn3_null_methods/slurm_validate_real_narrow_nulls.sh",
+      "benchmark/chipseq/scripts/archive/rn3_null_methods/validate_real_narrow_null_generator.py",
+      "benchmark/chipseq/scripts/real_broad/evaluate_real_broad.py",
+      "benchmark/chipseq/scripts/real_broad/package_real_broad_audit.sh",
+      "benchmark/chipseq/scripts/real_broad/prepare_helixforge_real_broad_inputs.py",
+      "benchmark/chipseq/scripts/real_broad/prepare_real_broad_audit_snapshot.sh",
+      "benchmark/chipseq/scripts/real_broad/run_independent_real_broad.sh",
+      "benchmark/chipseq/scripts/real_broad/run_real_broad_helixforge.sh",
+      "benchmark/chipseq/scripts/real_broad/slurm_audit_real_broad_fastq_lengths.sh",
+      "benchmark/chipseq/scripts/real_broad/slurm_build_real_broad_runtime.sh",
+      "benchmark/chipseq/scripts/real_broad/slurm_cleanup_real_broad_benchmark.sh",
+      "benchmark/chipseq/scripts/real_broad/slurm_collect_real_broad_metadata.sh",
+      "benchmark/chipseq/scripts/real_broad/slurm_download_real_broad.sh",
+      "benchmark/chipseq/scripts/real_broad/slurm_evaluate_real_broad.sh",
+      "benchmark/chipseq/scripts/real_broad/slurm_prepare_real_broad_reference.sh",
+      "benchmark/chipseq/scripts/real_broad/slurm_real_broad_preflight.sh",
+      "benchmark/chipseq/scripts/real_narrow/evaluate_real_narrow.py",
+      "benchmark/chipseq/scripts/real_narrow/package_real_narrow_audit.sh",
+      "benchmark/chipseq/scripts/real_narrow/preflight_real_narrow_exact_gc_capacity.py",
+      "benchmark/chipseq/scripts/real_narrow/prepare_helixforge_real_narrow_inputs.py",
+      "benchmark/chipseq/scripts/real_narrow/run_independent_real_narrow.sh",
+      "benchmark/chipseq/scripts/real_narrow/run_real_narrow_helixforge.sh",
+      "benchmark/chipseq/scripts/real_narrow/slurm_create_real_narrow_runtime.sh",
+      "benchmark/chipseq/scripts/real_narrow/slurm_download_real_narrow.sh",
+      "benchmark/chipseq/scripts/real_narrow/slurm_evaluate_real_narrow.sh",
+      "benchmark/chipseq/scripts/real_narrow/slurm_preflight_real_narrow_exact_gc.sh",
+      "benchmark/chipseq/scripts/real_narrow/slurm_prepare_real_narrow_reference.sh",
+      "benchmark/chipseq/scripts/real_narrow/slurm_real_narrow_preflight.sh",
+      "benchmark/chipseq/scripts/synthetic_broad/package_synthetic_broad_audit.sh",
+      "benchmark/chipseq/scripts/synthetic_broad/slurm_synthetic_broad_preflight.sh",
+      "benchmark/chipseq/scripts/synthetic_narrow/package_synthetic_narrow_audit.sh",
+      "benchmark/chipseq/scripts/synthetic_narrow/slurm_synthetic_narrow_preflight.sh"
+    ],
+    "secret_pattern_files": []
+  },
+  "tsv": {
+    "failures": [],
+    "status": "PASS"
+  },
+  "validation_type": "ADMINISTRATIVE_FREEZE"
+}

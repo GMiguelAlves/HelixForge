@@ -26,8 +26,8 @@ checklist passes and the maintainer explicitly approves it.
 - Batch effects enter inference through an estimable model formula. Corrected
   matrices are exploratory only.
 - Data download is outside scientific execution.
-- Synthetic fixtures validate software/contracts but are not biological
-  benchmarks.
+- Synthetic fixtures and public biological datasets have separate evidence and
+  interpretation boundaries in the frozen RNA-seq and ChIP-seq baselines.
 
 ## Upgrade notes
 
@@ -40,5 +40,6 @@ historical audit or semantic comparison.
 - Apptainer/Singularity and Conda are experimental.
 - Externally authored terminal manifests require further interoperability
   certification.
-- Biological benchmark runs are intentionally deferred until after legacy
-  retirement.
+- RNA-seq and ChIP-seq biological benchmark baselines are complete and retain
+  `PASS_WITH_LIMITATIONS`; the Integrative benchmark is the next validation
+  stage.

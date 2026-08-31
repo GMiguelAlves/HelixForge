@@ -58,8 +58,10 @@ processamento científico foi executado diretamente nele.
 
 Esta rodada certifica a composição e a funcionalidade de cada imagem. O DAG
 ChIP-seq completo já passou no Slurm com runtimes Conda controlados, mas ainda
-não foi repetido de ponta a ponta com o perfil Docker ou Apptainer. A regressão
-biológica revisada permanece planejada para depois da aposentadoria do legado.
+não foi repetido de ponta a ponta com o perfil Docker ou Apptainer. As
+regressões biológicas CTCF e H3K27me3 foram posteriormente concluídas com
+runtimes controlados e estão no
+[baseline congelado](../benchmark/chipseq/reports/chipseq_benchmark_final_report.md).
 
 ## Tentativa de validação no Slurm após Debian 13
 

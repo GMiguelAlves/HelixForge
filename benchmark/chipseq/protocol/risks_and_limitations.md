@@ -43,12 +43,12 @@
 - NFS metadata behavior and Nextflow cache persistence may affect `-resume`
   independently of scientific correctness. Cache evidence is reported
   separately.
-- The Real Narrow preflight currently uses a small, isolated Conda environment
+- The Real Narrow preflight used a small, isolated Conda environment
   solely because Git is absent from the compute nodes. This operational
   hardening reflects accumulated validation lessons and does not imply that
-  previous benchmarks were inadequate. It may be replaced in future arms by a
-  head-node provenance manifest whose commit, status, and source checksums are
-  validated on compute nodes without Git.
+  previous benchmarks were inadequate. Real Broad adopted a head-node
+  provenance manifest whose commit, status and source checksums were validated
+  on compute nodes without Git; that is the preferred future pattern.
 
 ## Interpretation risks
 

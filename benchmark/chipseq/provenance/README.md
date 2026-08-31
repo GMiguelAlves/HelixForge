@@ -35,16 +35,14 @@ HelixForge. They do not indicate that the earlier benchmark arms were
 inadequate, and they do not retroactively change their classifications or
 evidence.
 
-The current cluster does not provide Git on its compute nodes. For this arm, a
+The current cluster does not provide Git on its compute nodes. For Real Narrow, a
 small, isolated Conda environment supplies a pinned Git executable so that
 commit and source-tree checks still run inside the Slurm allocation. This is a
 safe benchmark-specific workaround, not yet the preferred permanent
 architecture.
 
-Before the next benchmark protocol is frozen, evaluate replacing that helper
-environment with a provenance handoff: the head node records the commit,
-working-tree state, and checksums of the relevant source paths in a signed or
-checksum-linked manifest; the compute node validates the manifest and source
-checksums without requiring Git. The change must preserve the same audit
-guarantees while avoiding a dedicated environment for one administrative
-executable.
+Real Broad subsequently used the cleaner provenance handoff: the head node
+recorded commit, working-tree state and source checksums, and the compute node
+validated the snapshot without requiring Git. This is the preferred pattern
+for future benchmarks. The earlier Real Narrow helper remains valid historical
+evidence and is not retroactively classified as inadequate.
