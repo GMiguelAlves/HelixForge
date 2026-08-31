@@ -16,6 +16,8 @@ DOWNLOAD_VALIDATOR = ROOT / "benchmark/chipseq/scripts/validate_real_broad_downl
 FASTQ_AUDITOR = ROOT / "benchmark/chipseq/scripts/audit_real_broad_fastq_lengths.py"
 READ_LENGTH_AMENDMENT = ROOT / "benchmark/chipseq/protocol/real_broad_read_length_amendment_20260831.md"
 REFERENCE_PREPARER = ROOT / "benchmark/chipseq/scripts/prepare_real_broad_reference.py"
+INPUT_PREPARER = ROOT / "benchmark/chipseq/scripts/prepare_helixforge_real_broad_inputs.py"
+HELIXFORGE_RUNNER = ROOT / "benchmark/chipseq/scripts/run_real_broad_helixforge.sh"
 
 
 def load_download_validator():
@@ -112,6 +114,20 @@ class RealBroadBenchmarkTests(unittest.TestCase):
         self.assertIn('"chipseq_real_broad_reference"', source)
         self.assertIn('"REFERENCE_READY"', source)
         self.assertIn('"renaming": "prohibited"', source)
+
+    def test_real_broad_runner_preserves_frozen_scientific_parameters(self):
+        inputs = INPUT_PREPARER.read_text(encoding="utf-8")
+        runner = HELIXFORGE_RUNNER.read_text(encoding="utf-8")
+        for accession in ("ENCFF000BXP", "ENCFF000BXN", "ENCFF000BWK"):
+            self.assertIn(accession, inputs)
+        self.assertIn('"PEAK_TYPE": "broad"', inputs)
+        for value in (
+            "--chipseq_run_mode consensus", "--chipseq_peak_type broad",
+            "--chipseq_consensus_method replicate_support", "--chipseq_min_replicates 2",
+            "--chipseq_peak_duplicate_policy all", "--chipseq_min_mapq 30",
+        ):
+            self.assertIn(value, runner)
+        self.assertNotIn("--chipseq_idr_threshold", runner)
 
 
 if __name__ == "__main__":
