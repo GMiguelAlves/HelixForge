@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CONFIG = ROOT / "benchmark/chipseq/configs/real_broad_execution.json"
 STATE = ROOT / "benchmark/chipseq/results/real_broad/benchmark_state.json"
 PREFLIGHT = ROOT / "benchmark/chipseq/scripts/collect_real_broad_preflight.py"
+METADATA = ROOT / "benchmark/chipseq/scripts/collect_real_broad_metadata.py"
 
 
 class RealBroadBenchmarkTests(unittest.TestCase):
@@ -43,6 +44,16 @@ class RealBroadBenchmarkTests(unittest.TestCase):
             self.assertIn(value, source)
         self.assertIn('"broad_idr_disabled"', source)
         self.assertIn('"--r-bin"', source)
+
+    def test_metadata_validation_preserves_frozen_accessions(self):
+        source = METADATA.read_text(encoding="utf-8")
+        for accession in (
+            "ENCFF000BXP", "ENCFF000BXN", "ENCFF000BWK",
+            "ENCFF049HUP", "ENCFF366NNJ", "ENCFF356LFX",
+        ):
+            self.assertIn(accession, source)
+        self.assertIn('"control_experiment"', source)
+        self.assertIn('"h3k27me3_target"', source)
 
 
 if __name__ == "__main__":
