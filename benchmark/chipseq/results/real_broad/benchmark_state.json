@@ -2,12 +2,12 @@
   "schema_version": "1.0",
   "benchmark_id": "chipseq-real-broad-k562-h3k27me3-v1",
   "current_phase": "WAITING_FOR_EXTERNAL_JOB",
-  "download_status": "FILES_PRESENT_LENGTH_VALIDATION_BLOCKED",
+  "download_status": "REVALIDATING_AFTER_AUDITED_METADATA_AMENDMENT",
   "metadata_status": "METADATA_VALIDATED",
   "metadata_job_ids": ["16280"],
   "preflight_job_ids": ["16273", "16279"],
   "runtime_job_ids": ["16274", "16278"],
-  "download_job_ids": ["16281"],
+  "download_job_ids": ["16281", "16283"],
   "audit_job_ids": ["16282"],
   "helixforge_job_ids": [],
   "independent_job_ids": [],
@@ -25,8 +25,8 @@
     "audit_archive"
   ],
   "last_verified_status": {
-    "timestamp": "2026-08-31T00:21:36-03:00",
-    "status": "FASTQ_LENGTH_AUDIT_RUNNING",
+    "timestamp": "2026-08-31T00:31:24-03:00",
+    "status": "DOWNLOAD_REVALIDATION_RUNNING",
     "starting_commit": "aa930e6a1c3513dcd51fc08d0845ec12b4154c4c",
     "scientific_target": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
     "protocol_commit": "bb8db940ee137fee67fe5f13530521326c96dfc0",
@@ -79,10 +79,14 @@
     "download_job_state": "FAILED_DURING_LENGTH_VALIDATION",
     "download_failure": "ENCFF000BXN_DECLARED_36BP_OBSERVED_36_TO_47BP",
     "fastq_audit_job_id": "16282",
-    "fastq_audit_job_state": "RUNNING",
+    "fastq_audit_job_state": "COMPLETED_IDENTITY_VALIDATED",
+    "fastq_audit_elapsed": "00:06:53",
+    "read_length_amendment": "RESOLVED_PRE_EXECUTION",
+    "download_revalidation_job_id": "16283",
+    "download_revalidation_job_state": "RUNNING",
     "heavy_download_started": true,
     "scientific_output_observed": false
   },
-  "resume_condition": "Slurm FASTQ identity and length audit job 16282 reaches a terminal state",
-  "next_check": "Inspect job 16282 once; processing remains blocked until exact file/content MD5 and read counts are confirmed"
+  "resume_condition": "Slurm download revalidation job 16283 reaches a terminal state",
+  "next_check": "Inspect job 16283 once; processing remains blocked unless download_manifest.json reports DOWNLOAD_CHECKSUM_VALIDATED"
 }
