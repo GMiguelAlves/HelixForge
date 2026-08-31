@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "benchmark_id": "chipseq-real-broad-k562-h3k27me3-v1",
-  "current_phase": "RUNTIME_REBUILD_REQUIRED",
+  "current_phase": "WAITING_FOR_EXTERNAL_JOB",
   "download_status": "NOT_STARTED",
   "metadata_status": "FROZEN_REGISTRY_CONFIRMED_API_RECHECK_PENDING",
   "preflight_job_ids": ["16273"],
@@ -9,7 +9,7 @@
   "download_job_ids": [],
   "helixforge_job_ids": [],
   "independent_job_ids": [],
-  "cleanup_job_ids": [],
+  "cleanup_job_ids": ["16275", "16277"],
   "nextflow_session_uuid": null,
   "work_dir": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-real-broad-benchmark-20260830/work/helixforge",
   "benchmark_root": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-real-broad-benchmark-20260830",
@@ -23,8 +23,8 @@
     "audit_archive"
   ],
   "last_verified_status": {
-    "timestamp": "2026-08-30T16:02:00-03:00",
-    "status": "RUNTIME_RELOCATION_TIMED_OUT",
+    "timestamp": "2026-08-30T23:26:00-03:00",
+    "status": "PARTIAL_RUNTIME_CLEANUP_RUNNING",
     "starting_commit": "aa930e6a1c3513dcd51fc08d0845ec12b4154c4c",
     "scientific_target": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
     "protocol_commit": "bb8db940ee137fee67fe5f13530521326c96dfc0",
@@ -44,9 +44,13 @@
       "bowtie2": "2.5.4",
       "samtools": "1.20"
     },
+    "cleanup_attempts": {
+      "16275": "FAILED_BEFORE_CLEANUP_REMOTE_CHECKOUT_STALE",
+      "16277": "RUNNING"
+    },
     "heavy_download_started": false,
     "scientific_output_observed": false
   },
-  "resume_condition": "Remove only the incomplete benchmark prefix, then build the minimal frozen environment",
-  "next_check": "Run cleanup and minimal runtime construction through Slurm; downloads remain blocked until preflight PASS"
+  "resume_condition": "Slurm cleanup job 16277 reaches a terminal state",
+  "next_check": "Inspect job 16277 once; if successful, submit the minimal frozen runtime construction through Slurm"
 }
