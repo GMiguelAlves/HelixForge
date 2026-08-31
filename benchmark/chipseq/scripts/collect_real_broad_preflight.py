@@ -28,6 +28,7 @@ PROTOCOL_FILES = (
     "benchmark/chipseq/protocol/metrics.md",
     "benchmark/chipseq/protocol/interpretation_criteria.md",
     "benchmark/chipseq/protocol/risks_and_limitations.md",
+    "benchmark/chipseq/protocol/real_broad_read_length_amendment_20260831.md",
     "benchmark/chipseq/provenance/real_broad_repository_identity.json",
 )
 

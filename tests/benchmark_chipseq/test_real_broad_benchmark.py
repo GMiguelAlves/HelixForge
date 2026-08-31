@@ -10,6 +10,7 @@ PREFLIGHT = ROOT / "benchmark/chipseq/scripts/collect_real_broad_preflight.py"
 METADATA = ROOT / "benchmark/chipseq/scripts/collect_real_broad_metadata.py"
 DOWNLOAD_VALIDATOR = ROOT / "benchmark/chipseq/scripts/validate_real_broad_downloads.py"
 FASTQ_AUDITOR = ROOT / "benchmark/chipseq/scripts/audit_real_broad_fastq_lengths.py"
+READ_LENGTH_AMENDMENT = ROOT / "benchmark/chipseq/protocol/real_broad_read_length_amendment_20260831.md"
 
 
 class RealBroadBenchmarkTests(unittest.TestCase):
@@ -73,6 +74,13 @@ class RealBroadBenchmarkTests(unittest.TestCase):
         self.assertIn('"read_count"', source)
         self.assertIn('"metadata_length_uniform"', source)
         self.assertIn('"length_histogram"', source)
+
+    def test_read_length_amendment_freezes_observed_distribution(self):
+        source = DOWNLOAD_VALIDATOR.read_text(encoding="utf-8")
+        self.assertIn('"ENCFF000BXN": {36: 11752939, 47: 11077650}', source)
+        amendment = READ_LENGTH_AMENDMENT.read_text(encoding="utf-8")
+        self.assertIn("PROTOCOL_IMPLEMENTATION_CONFLICT = RESOLVED_PRE_EXECUTION", amendment)
+        self.assertIn("PIPELINE_OR_SCIENTIFIC_PARAMETERS_CHANGED = NO", amendment)
 
 
 if __name__ == "__main__":
