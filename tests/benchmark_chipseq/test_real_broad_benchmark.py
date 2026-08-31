@@ -8,6 +8,7 @@ CONFIG = ROOT / "benchmark/chipseq/configs/real_broad_execution.json"
 STATE = ROOT / "benchmark/chipseq/results/real_broad/benchmark_state.json"
 PREFLIGHT = ROOT / "benchmark/chipseq/scripts/collect_real_broad_preflight.py"
 METADATA = ROOT / "benchmark/chipseq/scripts/collect_real_broad_metadata.py"
+DOWNLOAD_VALIDATOR = ROOT / "benchmark/chipseq/scripts/validate_real_broad_downloads.py"
 
 
 class RealBroadBenchmarkTests(unittest.TestCase):
@@ -56,6 +57,13 @@ class RealBroadBenchmarkTests(unittest.TestCase):
             self.assertIn(accession, source)
         self.assertIn('"control_experiment"', source)
         self.assertIn('"h3k27me3_target"', source)
+
+    def test_download_validation_checks_compressed_and_content_md5(self):
+        source = DOWNLOAD_VALIDATOR.read_text(encoding="utf-8")
+        self.assertIn('digest(path, "md5")', source)
+        self.assertIn("expected_content_md5", source)
+        self.assertIn('"DOWNLOAD_CHECKSUM_VALIDATED"', source)
+        self.assertIn('"real_broad_download_manifest"', source)
 
 
 if __name__ == "__main__":
