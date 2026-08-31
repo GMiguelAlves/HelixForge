@@ -1,0 +1,4 @@
+artifact	helixforge_count	independent_count	coordinate_equal	base_jaccard
+replicate_1	37591	37591	true	1
+replicate_2	353663	353663	true	1
+consensus	19711	19711	true	1
