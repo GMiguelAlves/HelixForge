@@ -49,11 +49,22 @@ for item in benchmark_commit.txt protocol_commit.txt scientific_target.txt trace
 done
 cp -a "$ROOT/helixforge/results/chipseq/peak_qc" "$stage/evidence/helixforge/"
 cp -a "$ROOT/helixforge/results/chipseq/consensus" "$stage/evidence/helixforge/"
-cp -a "$ROOT/helixforge/results/080-peak-calling" "$stage/evidence/helixforge/"
+mkdir -p "$stage/evidence/helixforge/080-peak-calling"
+while IFS= read -r -d '' source; do
+    relative="${source#"$ROOT/helixforge/results/080-peak-calling/"}"
+    mkdir -p "$stage/evidence/helixforge/080-peak-calling/$(dirname "$relative")"
+    cp -a "$source" "$stage/evidence/helixforge/080-peak-calling/$relative"
+done < <(find "$ROOT/helixforge/results/080-peak-calling" -type f ! -name '*.bdg' -print0)
 
-for item in commands provenance peaks consensus qc; do
+for item in commands provenance consensus qc; do
     cp -a "$ROOT/independent/$item" "$stage/evidence/independent/"
 done
+mkdir -p "$stage/evidence/independent/peaks"
+while IFS= read -r -d '' source; do
+    relative="${source#"$ROOT/independent/peaks/"}"
+    mkdir -p "$stage/evidence/independent/peaks/$(dirname "$relative")"
+    cp -a "$source" "$stage/evidence/independent/peaks/$relative"
+done < <(find "$ROOT/independent/peaks" -type f ! -name '*.bdg' -print0)
 
 git -C "$REPO" archive --format=tar HEAD \
     benchmark/chipseq/configs/real_broad_execution.json \
