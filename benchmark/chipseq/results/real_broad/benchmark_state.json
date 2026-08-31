@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "benchmark_id": "chipseq-real-broad-k562-h3k27me3-v1",
-  "current_phase": "WAITING_FOR_EXTERNAL_JOB",
+  "current_phase": "COMPLETED",
   "download_status": "DOWNLOAD_CHECKSUM_VALIDATED",
   "reference_status": "REFERENCE_READY",
   "reference_job_ids": ["16285"],
@@ -126,10 +126,13 @@
     "audit_archive_sha256": "112ebe99c5538f71870dba14cbc6a2d559d375e31db73c8debf6615e4049a03a",
     "audit_archive_size": "92M",
     "cleanup_job_id": "16327",
-    "cleanup_job_state": "RUNNING_AFTER_INITIAL_55S_CHECK",
+    "cleanup_job_state": "COMPLETED",
+    "cleanup_job_elapsed": "00:02:07",
     "cleanup_bytes_before": 73977752725,
+    "scratch_benchmark_root_removed": true,
+    "cleanup_receipt": "/home/ra236875@bio.ib.unicamp.br/helixforge-audit/real-broad/cleanup_receipt_20260831.txt",
     "scientific_output_observed": true
   },
-  "resume_condition": "Slurm cleanup job 16327 reaches a terminal state",
-  "next_check": "After user confirmation, inspect job 16327 once and confirm the exact scratch root no longer exists"
+  "resume_condition": "Benchmark arm complete",
+  "next_check": "Review the branch and open the Real Broad pull request"
 }
