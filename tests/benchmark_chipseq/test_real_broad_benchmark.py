@@ -53,7 +53,7 @@ class RealBroadBenchmarkTests(unittest.TestCase):
 
     def test_checkpoint_starts_before_download(self):
         state = json.loads(STATE.read_text(encoding="utf-8"))
-        self.assertEqual(state["current_phase"], "EVALUATION_COMPLETED")
+        self.assertEqual(state["current_phase"], "WAITING_FOR_EXTERNAL_JOB")
         self.assertEqual(state["download_status"], "DOWNLOAD_CHECKSUM_VALIDATED")
         self.assertEqual(state["preflight_job_ids"], ["16273", "16279"])
         self.assertEqual(state["metadata_job_ids"], ["16280"])
@@ -68,6 +68,8 @@ class RealBroadBenchmarkTests(unittest.TestCase):
         self.assertTrue(state["last_verified_status"]["scientific_output_observed"])
         self.assertEqual(state["last_verified_status"]["independent_job_state"], "COMPLETED")
         self.assertEqual(state["last_verified_status"]["independent_consensus_domains"], 19711)
+        self.assertEqual(state["last_verified_status"]["audit_attempts"]["16326"], "COMPLETED")
+        self.assertEqual(state["last_verified_status"]["cleanup_job_state"], "RUNNING_AFTER_INITIAL_55S_CHECK")
 
     def test_preflight_requires_slurm_and_checks_frozen_tools(self):
         source = PREFLIGHT.read_text(encoding="utf-8")

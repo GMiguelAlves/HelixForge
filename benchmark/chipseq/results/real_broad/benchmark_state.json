@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "benchmark_id": "chipseq-real-broad-k562-h3k27me3-v1",
-  "current_phase": "EVALUATION_COMPLETED",
+  "current_phase": "WAITING_FOR_EXTERNAL_JOB",
   "download_status": "DOWNLOAD_CHECKSUM_VALIDATED",
   "reference_status": "REFERENCE_READY",
   "reference_job_ids": ["16285"],
@@ -14,7 +14,8 @@
   "helixforge_job_ids": ["16286", "16287", "16288", "16289", "16290", "16291"],
   "independent_job_ids": ["16323"],
   "evaluation_job_ids": ["16324"],
-  "cleanup_job_ids": ["16275", "16277"],
+  "audit_job_ids": ["16325", "16326"],
+  "cleanup_job_ids": ["16275", "16277", "16327"],
   "nextflow_session_uuid": null,
   "work_dir": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-real-broad-benchmark-20260830/work/helixforge",
   "benchmark_root": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-real-broad-benchmark-20260830",
@@ -120,8 +121,15 @@
     "classification": "PASS_WITH_LIMITATIONS",
     "criteria": {"RB1": "PASS", "RB2": "PASS", "RB3": "PASS", "RB4": "REPORTED", "RB5": "PARTIALLY_REPORTED"},
     "independent_concordance": "PASS_EXACT_COORDINATES",
+    "audit_attempts": {"16325": "FAILED_GIT_UNAVAILABLE_ON_COMPUTE_NODE", "16326": "COMPLETED"},
+    "audit_archive": "/home/ra236875@bio.ib.unicamp.br/helixforge-audit/real-broad/HelixForge_real_broad_K562_H3K27me3_20260831.tar.gz",
+    "audit_archive_sha256": "112ebe99c5538f71870dba14cbc6a2d559d375e31db73c8debf6615e4049a03a",
+    "audit_archive_size": "92M",
+    "cleanup_job_id": "16327",
+    "cleanup_job_state": "RUNNING_AFTER_INITIAL_55S_CHECK",
+    "cleanup_bytes_before": 73977752725,
     "scientific_output_observed": true
   },
-  "resume_condition": "Package the compact audit evidence in home",
-  "next_check": "Synchronize reporting commit, submit one Slurm audit-packaging job, then clean scratch only after archive verification"
+  "resume_condition": "Slurm cleanup job 16327 reaches a terminal state",
+  "next_check": "After user confirmation, inspect job 16327 once and confirm the exact scratch root no longer exists"
 }
