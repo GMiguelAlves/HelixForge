@@ -13,8 +13,9 @@ Required future reports:
 - [`real_narrow_benchmark.md`](real_narrow_benchmark.md): completed K562 CTCF
   biological benchmark (`PASS_WITH_LIMITATIONS`), including exact independent
   concordance and the frozen RN3 control-capacity limitation;
-- `real_broad_benchmark.md`: QC, FRiP, coverage concordance, replicate-support
-  domains, reference overlap, annotation summary and declared locus views;
+- [`real_broad_benchmark.md`](real_broad_benchmark.md): completed K562
+  H3K27me3 biological benchmark (`PASS_WITH_LIMITATIONS`), with exact
+  independent-path concordance and all frozen RB1-RB5 dispositions;
 - `performance_report.md`: Slurm accounting, Nextflow trace, storage and
   independent-path overhead;
 - `chipseq_benchmark_summary.md`: independent arm classifications, deviations,

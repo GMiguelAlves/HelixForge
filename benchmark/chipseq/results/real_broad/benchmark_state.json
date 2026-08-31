@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "benchmark_id": "chipseq-real-broad-k562-h3k27me3-v1",
-  "current_phase": "WAITING_FOR_EXTERNAL_JOB",
+  "current_phase": "EVALUATION_COMPLETED",
   "download_status": "DOWNLOAD_CHECKSUM_VALIDATED",
   "reference_status": "REFERENCE_READY",
   "reference_job_ids": ["16285"],
@@ -114,9 +114,14 @@
     "independent_job_max_rss_kb": 16799112,
     "independent_consensus_domains": 19711,
     "evaluation_job_id": "16324",
-    "evaluation_job_state": "RUNNING_AFTER_INITIAL_55S_CHECK",
+    "evaluation_job_state": "COMPLETED",
+    "evaluation_job_elapsed": "00:02:14",
+    "evaluation_job_max_rss_kb": 1390680,
+    "classification": "PASS_WITH_LIMITATIONS",
+    "criteria": {"RB1": "PASS", "RB2": "PASS", "RB3": "PASS", "RB4": "REPORTED", "RB5": "PARTIALLY_REPORTED"},
+    "independent_concordance": "PASS_EXACT_COORDINATES",
     "scientific_output_observed": true
   },
-  "resume_condition": "Slurm evaluation job 16324 reaches a terminal state",
-  "next_check": "After user confirmation, inspect job 16324 once; do not poll while evaluation is running"
+  "resume_condition": "Package the compact audit evidence in home",
+  "next_check": "Synchronize reporting commit, submit one Slurm audit-packaging job, then clean scratch only after archive verification"
 }
