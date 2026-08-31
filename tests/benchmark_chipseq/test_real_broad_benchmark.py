@@ -24,6 +24,7 @@ EVALUATION_SLURM = ROOT / "benchmark/chipseq/scripts/slurm_evaluate_real_broad.s
 FIGURE_RENDERER = ROOT / "benchmark/chipseq/scripts/render_real_broad_figures.py"
 AUDIT_PACKAGER = ROOT / "benchmark/chipseq/scripts/package_real_broad_audit.sh"
 AUDIT_SNAPSHOT = ROOT / "benchmark/chipseq/scripts/prepare_real_broad_audit_snapshot.sh"
+CLEANUP = ROOT / "benchmark/chipseq/scripts/slurm_cleanup_real_broad_benchmark.sh"
 
 
 def load_download_validator():
@@ -185,6 +186,16 @@ class RealBroadBenchmarkTests(unittest.TestCase):
         self.assertIn("head node", snapshot)
         for excluded in ("downloads/fastq", "independent/bam", "work/helixforge", "runtime/chipseq-frozen"):
             self.assertNotIn(f'cp -a "$ROOT/{excluded}"', packager)
+
+    def test_cleanup_is_guarded_by_verified_home_audit(self):
+        source = CLEANUP.read_text(encoding="utf-8")
+        expected = "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-real-broad-benchmark-20260830"
+        self.assertIn(expected, source)
+        self.assertIn("SLURM_JOB_ID", source)
+        self.assertIn('sha256sum -c "$CHECKSUM"', source)
+        self.assertIn("README_PT.md", source)
+        self.assertIn("cleanup_receipt_20260831.txt", source)
+        self.assertIn('rm -rf -- "$ROOT"', source)
 
 
 if __name__ == "__main__":
