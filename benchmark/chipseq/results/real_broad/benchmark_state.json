@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "benchmark_id": "chipseq-real-broad-k562-h3k27me3-v1",
-  "current_phase": "SCIENTIFIC_WORKFLOW_RUNNING",
+  "current_phase": "WAITING_FOR_EXTERNAL_JOB",
   "download_status": "DOWNLOAD_CHECKSUM_VALIDATED",
   "reference_status": "REFERENCE_READY",
   "reference_job_ids": ["16285"],
@@ -12,7 +12,7 @@
   "download_job_ids": ["16281", "16283", "16284"],
   "audit_job_ids": ["16282"],
   "helixforge_job_ids": ["16286", "16287", "16288", "16289", "16290", "16291"],
-  "independent_job_ids": [],
+  "independent_job_ids": ["16323"],
   "cleanup_job_ids": ["16275", "16277"],
   "nextflow_session_uuid": null,
   "work_dir": "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-real-broad-benchmark-20260830/work/helixforge",
@@ -27,8 +27,8 @@
     "audit_archive"
   ],
   "last_verified_status": {
-    "timestamp": "2026-08-31T00:54:51-03:00",
-    "status": "HELIXFORGE_SCIENTIFIC_WORKFLOW_RUNNING",
+    "timestamp": "2026-08-31T02:44:33-03:00",
+    "status": "INDEPENDENT_IMPLEMENTATION_RUNNING",
     "starting_commit": "aa930e6a1c3513dcd51fc08d0845ec12b4154c4c",
     "scientific_target": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
     "protocol_commit": "bb8db940ee137fee67fe5f13530521326c96dfc0",
@@ -101,11 +101,16 @@
     "nextflow_run_name": "golden_koch",
     "nextflow_driver_pid": 1939837,
     "scientific_workflow_started": true,
+    "helixforge_workflow_state": "COMPLETED",
+    "helixforge_processes": {"completed": 37, "failed": 0},
+    "helixforge_slurm_job_range": "16286-16322",
     "initial_scientific_jobs": ["16289", "16290", "16291"],
     "queue_size_limit": 5,
     "heavy_download_started": true,
-    "scientific_output_observed": false
+    "independent_job_id": "16323",
+    "independent_job_state": "RUNNING",
+    "scientific_output_observed": true
   },
-  "resume_condition": "The Nextflow driver exits and all HelixForge Slurm tasks reach terminal states",
-  "next_check": "After user confirmation, inspect the driver log, trace and Slurm accounting once; do not poll while the workflow is running"
+  "resume_condition": "Slurm independent implementation job 16323 reaches a terminal state",
+  "next_check": "After user confirmation, inspect job 16323 once; do not poll while the independent implementation is running"
 }
