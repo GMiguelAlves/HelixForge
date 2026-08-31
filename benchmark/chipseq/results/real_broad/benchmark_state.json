@@ -5,7 +5,7 @@
   "download_status": "NOT_STARTED",
   "metadata_status": "FROZEN_REGISTRY_CONFIRMED_API_RECHECK_PENDING",
   "preflight_job_ids": ["16273"],
-  "runtime_job_ids": ["16274"],
+  "runtime_job_ids": ["16274", "16278"],
   "download_job_ids": [],
   "helixforge_job_ids": [],
   "independent_job_ids": [],
@@ -23,8 +23,8 @@
     "audit_archive"
   ],
   "last_verified_status": {
-    "timestamp": "2026-08-30T23:26:00-03:00",
-    "status": "PARTIAL_RUNTIME_CLEANUP_RUNNING",
+    "timestamp": "2026-08-30T23:34:34-03:00",
+    "status": "MINIMAL_FROZEN_RUNTIME_BUILD_RUNNING",
     "starting_commit": "aa930e6a1c3513dcd51fc08d0845ec12b4154c4c",
     "scientific_target": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
     "protocol_commit": "bb8db940ee137fee67fe5f13530521326c96dfc0",
@@ -46,11 +46,13 @@
     },
     "cleanup_attempts": {
       "16275": "FAILED_BEFORE_CLEANUP_REMOTE_CHECKOUT_STALE",
-      "16277": "RUNNING"
+      "16277": "COMPLETED"
     },
+    "runtime_build_job_id": "16278",
+    "runtime_build_job_state": "RUNNING",
     "heavy_download_started": false,
     "scientific_output_observed": false
   },
-  "resume_condition": "Slurm cleanup job 16277 reaches a terminal state",
-  "next_check": "Inspect job 16277 once; if successful, submit the minimal frozen runtime construction through Slurm"
+  "resume_condition": "Slurm runtime build job 16278 reaches a terminal state",
+  "next_check": "Inspect job 16278 once; repeat the frozen preflight only if the exact tool versions pass"
 }
