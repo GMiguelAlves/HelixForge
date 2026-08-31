@@ -9,6 +9,7 @@ import gzip
 import hashlib
 import json
 import subprocess
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -32,6 +33,7 @@ def validate_fastq(path: Path, accession: str, expected_reads: int, expected_con
     reads = 0
     minimum = None
     maximum = 0
+    lengths: Counter[int] = Counter()
     content = hashlib.md5()
     with gzip.open(path, "rb") as handle:
         while True:
@@ -49,6 +51,7 @@ def validate_fastq(path: Path, accession: str, expected_reads: int, expected_con
                 raise ValueError(f"sequence/quality length mismatch at read {reads + 1}: {path}")
             minimum = len(sequence) if minimum is None else min(minimum, len(sequence))
             maximum = max(maximum, len(sequence))
+            lengths[len(sequence)] += 1
             reads += 1
     if reads != expected_reads:
         raise ValueError(f"read-count mismatch for {path}: {reads} != {expected_reads}")

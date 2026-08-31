@@ -1,4 +1,8 @@
 import json
+import gzip
+import hashlib
+import importlib.util
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -11,6 +15,13 @@ METADATA = ROOT / "benchmark/chipseq/scripts/collect_real_broad_metadata.py"
 DOWNLOAD_VALIDATOR = ROOT / "benchmark/chipseq/scripts/validate_real_broad_downloads.py"
 FASTQ_AUDITOR = ROOT / "benchmark/chipseq/scripts/audit_real_broad_fastq_lengths.py"
 READ_LENGTH_AMENDMENT = ROOT / "benchmark/chipseq/protocol/real_broad_read_length_amendment_20260831.md"
+
+
+def load_download_validator():
+    spec = importlib.util.spec_from_file_location("real_broad_download_validator", DOWNLOAD_VALIDATOR)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 class RealBroadBenchmarkTests(unittest.TestCase):
@@ -81,6 +92,18 @@ class RealBroadBenchmarkTests(unittest.TestCase):
         amendment = READ_LENGTH_AMENDMENT.read_text(encoding="utf-8")
         self.assertIn("PROTOCOL_IMPLEMENTATION_CONFLICT = RESOLVED_PRE_EXECUTION", amendment)
         self.assertIn("PIPELINE_OR_SCIENTIFIC_PARAMETERS_CHANGED = NO", amendment)
+
+    def test_download_validator_counts_variable_read_lengths(self):
+        validator = load_download_validator()
+        content = b"@r1\n" + b"A" * 36 + b"\n+\n" + b"I" * 36 + b"\n"
+        content += b"@r2\n" + b"C" * 47 + b"\n+\n" + b"I" * 47 + b"\n"
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "test.fastq.gz"
+            with gzip.open(path, "wb") as handle:
+                handle.write(content)
+            validator.EXPECTED_LENGTH_HISTOGRAMS["TEST"] = {36: 1, 47: 1}
+            observed = validator.validate_fastq(path, "TEST", 2, hashlib.md5(content).hexdigest())
+        self.assertEqual(observed["length_histogram"], {"36": 1, "47": 1})
 
 
 if __name__ == "__main__":
