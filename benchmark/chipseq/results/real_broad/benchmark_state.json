@@ -3,7 +3,8 @@
   "benchmark_id": "chipseq-real-broad-k562-h3k27me3-v1",
   "current_phase": "WAITING_FOR_EXTERNAL_JOB",
   "download_status": "NOT_STARTED",
-  "metadata_status": "FROZEN_REGISTRY_CONFIRMED_API_RECHECK_PENDING",
+  "metadata_status": "OFFICIAL_API_VALIDATION_RUNNING",
+  "metadata_job_ids": ["16280"],
   "preflight_job_ids": ["16273", "16279"],
   "runtime_job_ids": ["16274", "16278"],
   "download_job_ids": [],
@@ -23,8 +24,8 @@
     "audit_archive"
   ],
   "last_verified_status": {
-    "timestamp": "2026-08-30T23:49:05-03:00",
-    "status": "FROZEN_PREFLIGHT_RUNNING",
+    "timestamp": "2026-08-30T23:53:40-03:00",
+    "status": "OFFICIAL_METADATA_VALIDATION_RUNNING",
     "starting_commit": "aa930e6a1c3513dcd51fc08d0845ec12b4154c4c",
     "scientific_target": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
     "protocol_commit": "bb8db940ee137fee67fe5f13530521326c96dfc0",
@@ -61,10 +62,15 @@
       "bedtools": "2.31.1"
     },
     "repeat_preflight_job_id": "16279",
-    "repeat_preflight_job_state": "RUNNING",
+    "repeat_preflight_job_state": "COMPLETED_PASS",
+    "repeat_preflight_elapsed": "00:00:11",
+    "repeat_preflight_node": "srv-slurm-node-03",
+    "preflight_checks_passed": 21,
+    "metadata_job_id": "16280",
+    "metadata_job_state": "RUNNING",
     "heavy_download_started": false,
     "scientific_output_observed": false
   },
-  "resume_condition": "Slurm preflight job 16279 reaches a terminal state",
-  "next_check": "Inspect job 16279 once; scientific downloads remain blocked unless environment.json reports PASS"
+  "resume_condition": "Slurm metadata validation job 16280 reaches a terminal state",
+  "next_check": "Inspect job 16280 once; downloads remain blocked unless the official ENCODE metadata snapshot reports METADATA_VALIDATED"
 }
