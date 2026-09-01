@@ -26,6 +26,7 @@ and signal preservation; it is tracked in the [roadmap](roadmap.md).
 - [Differential Binding API](differential_binding_api.md).
 - [Peak Annotation API](peak_annotation_api.md).
 - [Track Generation API](track_generation_api.md).
+- [Frozen ChIP-seq benchmark baseline](../benchmark/chipseq/reports/chipseq_benchmark_final_report.md).
 
 ## Cross-assay integration
 
@@ -44,6 +45,7 @@ Hochberg adjustment; it is interpretation evidence, not proof of mechanism.
 - [Final validation report](final-validation-report.md).
 - [Limitations](limitations.md).
 
-The synthetic fixtures exercise contracts and determinism. Public or reviewed
-biological benchmarks remain a post-retirement validation activity and are not
-silently represented as completed.
+Synthetic fixtures exercise contracts, determinism and controlled truth. The
+completed public biological RNA-seq and ChIP-seq benchmarks are represented
+explicitly by their frozen reports and limitations; no result is generalized
+beyond its registered dataset and acceptance criteria.

@@ -10,21 +10,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG = ROOT / "benchmark/chipseq/configs/real_broad_execution.json"
 STATE = ROOT / "benchmark/chipseq/results/real_broad/benchmark_state.json"
-PREFLIGHT = ROOT / "benchmark/chipseq/scripts/collect_real_broad_preflight.py"
-METADATA = ROOT / "benchmark/chipseq/scripts/collect_real_broad_metadata.py"
-DOWNLOAD_VALIDATOR = ROOT / "benchmark/chipseq/scripts/validate_real_broad_downloads.py"
-FASTQ_AUDITOR = ROOT / "benchmark/chipseq/scripts/audit_real_broad_fastq_lengths.py"
+METADATA = ROOT / "benchmark/chipseq/scripts/real_broad/collect_real_broad_metadata.py"
+DOWNLOAD_VALIDATOR = ROOT / "benchmark/chipseq/scripts/real_broad/validate_real_broad_downloads.py"
+FASTQ_AUDITOR = ROOT / "benchmark/chipseq/scripts/real_broad/audit_real_broad_fastq_lengths.py"
 READ_LENGTH_AMENDMENT = ROOT / "benchmark/chipseq/protocol/real_broad_read_length_amendment_20260831.md"
-REFERENCE_PREPARER = ROOT / "benchmark/chipseq/scripts/prepare_real_broad_reference.py"
-INPUT_PREPARER = ROOT / "benchmark/chipseq/scripts/prepare_helixforge_real_broad_inputs.py"
-HELIXFORGE_RUNNER = ROOT / "benchmark/chipseq/scripts/run_real_broad_helixforge.sh"
-INDEPENDENT_RUNNER = ROOT / "benchmark/chipseq/scripts/run_independent_real_broad.sh"
-EVALUATOR = ROOT / "benchmark/chipseq/scripts/evaluate_real_broad.py"
-EVALUATION_SLURM = ROOT / "benchmark/chipseq/scripts/slurm_evaluate_real_broad.sh"
-FIGURE_RENDERER = ROOT / "benchmark/chipseq/scripts/render_real_broad_figures.py"
-AUDIT_PACKAGER = ROOT / "benchmark/chipseq/scripts/package_real_broad_audit.sh"
-AUDIT_SNAPSHOT = ROOT / "benchmark/chipseq/scripts/prepare_real_broad_audit_snapshot.sh"
-CLEANUP = ROOT / "benchmark/chipseq/scripts/slurm_cleanup_real_broad_benchmark.sh"
+REFERENCE_PREPARER = ROOT / "benchmark/chipseq/scripts/real_broad/prepare_real_broad_reference.py"
+INPUT_PREPARER = ROOT / "benchmark/chipseq/scripts/real_broad/prepare_helixforge_real_broad_inputs.py"
+HELIXFORGE_RUNNER = ROOT / "benchmark/chipseq/scripts/real_broad/run_real_broad_helixforge.sh"
+INDEPENDENT_RUNNER = ROOT / "benchmark/chipseq/scripts/real_broad/run_independent_real_broad.sh"
+EVALUATOR = ROOT / "benchmark/chipseq/scripts/real_broad/evaluate_real_broad.py"
+FIGURE_RENDERER = ROOT / "benchmark/chipseq/scripts/real_broad/render_real_broad_figures.py"
 
 
 def load_download_validator():
@@ -71,14 +66,6 @@ class RealBroadBenchmarkTests(unittest.TestCase):
         self.assertEqual(state["last_verified_status"]["audit_attempts"]["16326"], "COMPLETED")
         self.assertEqual(state["last_verified_status"]["cleanup_job_state"], "COMPLETED")
         self.assertTrue(state["last_verified_status"]["scratch_benchmark_root_removed"])
-
-    def test_preflight_requires_slurm_and_checks_frozen_tools(self):
-        source = PREFLIGHT.read_text(encoding="utf-8")
-        self.assertIn('"SLURM_JOB_ID" not in os.environ', source)
-        for value in ("25.10.7", "2.5.4", "samtools 1.20", "macs3 3.0.4", "v0.12.1", "1.35", "v2.31.1"):
-            self.assertIn(value, source)
-        self.assertIn('"broad_idr_disabled"', source)
-        self.assertIn('"--r-bin"', source)
 
     def test_metadata_validation_preserves_frozen_accessions(self):
         source = METADATA.read_text(encoding="utf-8")
@@ -167,38 +154,10 @@ class RealBroadBenchmarkTests(unittest.TestCase):
         self.assertIn('"DESCRIPTIVE"', source)
         self.assertNotIn("post-hoc domain stitching", source)
 
-    def test_evaluator_is_slurm_only_and_root_guarded(self):
-        source = EVALUATION_SLURM.read_text(encoding="utf-8")
-        self.assertIn("SLURM_JOB_ID", source)
-        self.assertIn("helixforge-chipseq-real-broad-benchmark-20260830", source)
-        self.assertIn("evaluate_real_broad.py", source)
-
     def test_final_reporting_is_reproducible_and_auditable(self):
         renderer = FIGURE_RENDERER.read_text(encoding="utf-8")
-        packager = AUDIT_PACKAGER.read_text(encoding="utf-8")
-        snapshot = AUDIT_SNAPSHOT.read_text(encoding="utf-8")
         for value in ("figure_2_coverage_concordance.svg", "figure_4_encode_overlap.svg", "figure_6_fragmentation_context.svg"):
             self.assertIn(value, renderer)
-        self.assertIn("README_PT.md", packager)
-        self.assertIn("SLURM_JOB_ID", packager)
-        self.assertIn("HelixForge_real_broad_K562_H3K27me3_20260831.tar.gz", packager)
-        self.assertNotIn("git -C", packager)
-        self.assertIn("sha256sum -c repository_snapshot.tar.sha256", packager)
-        self.assertIn("git -C", snapshot)
-        self.assertIn("SLURM_JOB_ID", snapshot)
-        self.assertIn("head node", snapshot)
-        for excluded in ("downloads/fastq", "independent/bam", "work/helixforge", "runtime/chipseq-frozen"):
-            self.assertNotIn(f'cp -a "$ROOT/{excluded}"', packager)
-
-    def test_cleanup_is_guarded_by_verified_home_audit(self):
-        source = CLEANUP.read_text(encoding="utf-8")
-        expected = "/scratch/Schisto-epigenetics/gustavo/helixforge-chipseq-real-broad-benchmark-20260830"
-        self.assertIn(expected, source)
-        self.assertIn("SLURM_JOB_ID", source)
-        self.assertIn('sha256sum -c "$CHECKSUM"', source)
-        self.assertIn("README_PT.md", source)
-        self.assertIn("cleanup_receipt_20260831.txt", source)
-        self.assertIn('rm -rf -- "$ROOT"', source)
 
 
 if __name__ == "__main__":

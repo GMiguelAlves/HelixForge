@@ -1,0 +1,41 @@
+{
+  "manifest_version": "1.0",
+  "benchmark": "chipseq",
+  "helixforge_version": "1.0.0-rc.1",
+  "freeze_date": "2026-08-31",
+  "freeze_type": "ADMINISTRATIVE_FREEZE",
+  "scientific_target_commit": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
+  "administrative_branch_base": "2062f7695bdb16e5ca48674c474a4548c30d454e",
+  "final_administrative_commit": "RESOLVED_BY_ANNOTATED_TAG_AFTER_MERGE",
+  "tag": "chipseq-benchmark-v1.0.0-rc.1",
+  "tag_status": "PENDING_POST_MERGE",
+  "benchmark_arms": [
+    {"id": "synthetic_narrow", "classification": "PASS_WITH_LIMITATIONS", "report": "benchmark/chipseq/reports/synthetic_narrow_benchmark.md", "benchmark_commit": "d5bfa64be972b2f1ef736e2e10a3cb079ea6d568"},
+    {"id": "synthetic_broad", "classification": "PASS_WITH_LIMITATIONS", "report": "benchmark/chipseq/reports/synthetic_broad_benchmark.md", "benchmark_commit": "8abbf11bebcbe22c4af3e367b6ad8306f4b5c5c0"},
+    {"id": "real_narrow", "classification": "PASS_WITH_LIMITATIONS", "report": "benchmark/chipseq/reports/real_narrow_benchmark.md", "benchmark_commit": "f804595b5b912eb87d3f2b4a6217e2f17e40519b", "pull_request": 57},
+    {"id": "real_broad", "classification": "PASS_WITH_LIMITATIONS", "report": "benchmark/chipseq/reports/real_broad_benchmark.md", "benchmark_commit": "759755ace36cb8077297260a7f3262d2fe600670", "pull_request": 59}
+  ],
+  "artifacts": {
+    "benchmark_matrix": "benchmark/chipseq/results/chipseq_benchmark_matrix.tsv",
+    "acceptance_matrix": "benchmark/chipseq/results/chipseq_acceptance_matrix.tsv",
+    "limitations_matrix": "benchmark/chipseq/results/chipseq_limitations.tsv",
+    "summary": "benchmark/chipseq/results/chipseq_benchmark_summary.json",
+    "final_report": "benchmark/chipseq/reports/chipseq_benchmark_final_report.md",
+    "artifact_manifest": "benchmark/chipseq/provenance/chipseq_artifact_manifest.tsv",
+    "dataset_registry": "benchmark/chipseq/datasets/dataset_registry.md",
+    "protocol": "benchmark/chipseq/protocol/benchmark_protocol.md"
+  },
+  "runtime": {"nextflow": "25.10.7", "java": "21", "scheduler": "Slurm"},
+  "tools": {"Bowtie2": "2.5.4", "samtools": "1.20", "MACS3": "3.0.4", "IDR": "2.0.4.2", "FastQC": "0.12.1"},
+  "references": {
+    "synthetic": "ChIPs v2.4; three 20 Mb chromosomes",
+    "real": "GENCODE 50 GRCh38.p14 primary assembly",
+    "blacklist": "ENCODE ENCFF356LFX"
+  },
+  "deferred": {
+    "RN3": "NOT_EVALUABLE_UNDER_FROZEN_CONTROL_REQUIREMENTS",
+    "RN3_METHODS_FOLLOWUP": "DEFERRED",
+    "synthetic_broad_fragmentation": "POST_V1_METHODS_FOLLOWUP",
+    "real_broad_BigWig": "POST_V1_OPTIONAL_EVALUATION"
+  }
+}

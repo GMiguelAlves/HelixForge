@@ -56,8 +56,10 @@ Validated in this development environment:
 
 Subsequent consolidation executed MACS3 in the complete reduced Slurm DAG. The
 pinned BioContainer digest also completed reduced `callpeak` and emitted a
-non-empty narrowPeak in GitHub Actions run `32368534261`. Apptainer execution,
-selective cache invalidation and a production benchmark remain pending.
+non-empty narrowPeak in GitHub Actions run `32368534261`. Apptainer execution
+and selective cache invalidation remain operational follow-ups. Production
+narrow and broad peak-calling benchmarks are complete in the
+[frozen ChIP-seq baseline](../benchmark/chipseq/reports/chipseq_benchmark_final_report.md).
 
 The deterministic paired-end fixture and scripts are ready under `tests/native_chipseq_peaks/`; `run_functional.sh` and `run_cache_tests.sh` exit 77 with the explicit missing-runtime reason instead of downloading software automatically.
 

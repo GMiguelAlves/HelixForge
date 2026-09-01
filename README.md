@@ -192,13 +192,20 @@ on one of them.
 | GEO | Barrett et al. (2013), [*NCBI GEO: archive for functional genomics data sets—update*](https://doi.org/10.1093/nar/gks1193) |
 | European Nucleotide Archive | Harrison et al. (2022), [*The European Nucleotide Archive in 2021*](https://doi.org/10.1093/nar/gkab1051) |
 | GENCODE Human Release 49 | [GENCODE release 49](https://www.gencodegenes.org/human/release_49.html); Frankish et al. (2021), [*GENCODE 2021*](https://doi.org/10.1093/nar/gkaa1087) |
+| ChIPs v2.4 synthetic ChIP-seq benchmark | [ChIPs project](https://github.com/gymreklab/ChIPs); frozen upstream commit and build provenance are recorded in the ChIP-seq reports |
+| ENCODE K562 CTCF (`ENCSR000AKO`) | [ENCODE experiment](https://www.encodeproject.org/experiments/ENCSR000AKO/); used for the frozen Real Narrow benchmark |
+| ENCODE K562 H3K27me3 (`ENCSR000AKQ`) | [ENCODE experiment](https://www.encodeproject.org/experiments/ENCSR000AKQ/); used for the frozen Real Broad benchmark |
+| GENCODE Human Release 50 | [GENCODE release 50](https://www.gencodegenes.org/human/release_50.html); GRCh38.p14 reference used by the real ChIP-seq arms |
+| ENCODE blacklist (`ENCFF356LFX`) | [ENCODE file](https://www.encodeproject.org/files/ENCFF356LFX/); exclusion resource used by the real ChIP-seq arms |
 | GRCh38 | Schneider et al. (2017), [*Evaluation of GRCh38 and de novo haploid genome assemblies*](https://doi.org/10.1101/gr.213611.116) |
 
-The current ChIP-seq validation artifacts use small project-owned synthetic
-fixtures; no third-party biological ChIP-seq dataset is claimed as a completed
-benchmark yet. Exact accessions, source checksums and reuse notes for completed
-RNA-seq benchmarks are preserved in the
-[RNA-seq dataset registry](benchmark/rnaseq/datasets/dataset_registry.md).
+The frozen RNA-seq and ChIP-seq baselines combine controlled synthetic evidence
+with public biological datasets. Exact accessions, checksums, reuse notes and
+interpretation boundaries are preserved in the
+[RNA-seq dataset registry](benchmark/rnaseq/datasets/dataset_registry.md) and
+[ChIP-seq dataset registry](benchmark/chipseq/datasets/dataset_registry.md).
+The consolidated [ChIP-seq benchmark report](benchmark/chipseq/reports/chipseq_benchmark_final_report.md)
+records all four arms as `PASS_WITH_LIMITATIONS`.
 
 ## Citation and license
 
