@@ -58,6 +58,15 @@ if [[ "$mode" == finalize ]]; then
     exit 0
 fi
 
+if [[ "$mode" == validate ]]; then
+    test -n "${SLURM_JOB_ID:-}"
+    python3 -m unittest discover -s tests -p 'test_*.py'
+    python3 "$repo_root/benchmark/integrative/scripts/validate_design.py"
+    python3 -m py_compile "$repo_root"/benchmark/integrative/scripts/*.py
+    git -C "$repo_root" diff --check
+    exit 0
+fi
+
 [[ "$mode" == driver ]] || { echo "unsupported mode: $mode" >&2; exit 2; }
 [[ -z "${SLURM_JOB_ID:-}" ]] || { echo "driver must run on the Slurm management node" >&2; exit 2; }
 test -d "$repo_root/.git"
