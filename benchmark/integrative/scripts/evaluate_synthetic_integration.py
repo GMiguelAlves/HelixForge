@@ -250,7 +250,7 @@ def expected_scores(truth_rows: list[dict[str, str]], peak_groups: dict[tuple[st
         gene_groups = [value for (item_gene, _mark, _context), value in peak_groups.items() if item_gene == gene]
         promoter = sum(item["promoter"] for item in gene_groups)
         marks = {mark for (item_gene, mark, _context) in peak_groups if item_gene == gene}
-        components = {
+        raw_components = {
             "deg_significance_component": min(10.0, -math.log10(max(rna_padj, 1e-300))) if rna_padj < 1 else 0.0,
             "rna_log2fc_component": min(5.0, rna_lfc),
             "promoter_peak_component": 2.0 if promoter else 0.0,
@@ -261,8 +261,9 @@ def expected_scores(truth_rows: list[dict[str, str]], peak_groups: dict[tuple[st
             "multi_mark_component": min(2.0, len(marks) * 0.5),
             "wgcna_component": 0.0, "mfuzz_component": 0.0, "dtu_component": 0.0, "splicing_component": 0.0,
         }
-        components["final_score"] = round(sum(components.values()), 4)
-        components["statistical_support"] = round(components["deg_significance_component"] + components["differential_peak_component"], 4)
+        components = {key: float(f"{value:.4f}") for key, value in raw_components.items()}
+        components["final_score"] = float(f"{sum(raw_components.values()):.4f}")
+        components["statistical_support"] = float(f"{raw_components['deg_significance_component'] + raw_components['differential_peak_component']:.4f}")
         scores[gene] = components
     ranking = sorted(scores, key=lambda gene: (-scores[gene]["final_score"], -scores[gene]["statistical_support"], gene))
     return scores, ranking
@@ -289,16 +290,16 @@ def expected_fisher(truth_rows: list[dict[str, str]], peak_groups: dict[tuple[st
             a, b, c = len(overlap), len(deg - overlap), len(marked - overlap)
             d = len(genes) - a - b - c
             expected = len(deg) * len(marked) / len(genes)
-            pvalue = fisher_right_tail(a, len(deg), len(marked), len(genes))
+            pvalue = float(f"{fisher_right_tail(a, len(deg), len(marked), len(genes)):.8g}")
             rows.append({
                 "test_id": f"fisher|DEG|{scope}|{mark}|{context}", "n11": a, "n10": b, "n01": c, "n00": d,
-                "expected_overlap": expected, "fold_enrichment": a / expected if expected else 0.0,
-                "odds_ratio": ((a + 0.5) * (d + 0.5)) / ((b + 0.5) * (c + 0.5)), "pvalue": pvalue,
+                "expected_overlap": float(f"{expected:.8g}"), "fold_enrichment": float(f"{(a / expected if expected else 0.0):.8g}"),
+                "odds_ratio": float(f"{(((a + 0.5) * (d + 0.5)) / ((b + 0.5) * (c + 0.5))):.8g}"), "pvalue": pvalue,
                 "overlap_gene_ids": ";".join(sorted(overlap, key=lambda gene: (-scores[gene]["final_score"], gene))),
             })
     adjusted = bh([row["pvalue"] for row in rows])
     for row, value in zip(rows, adjusted):
-        row["padj"] = value
+        row["padj"] = float(f"{value:.8g}")
     return {row["test_id"]: row for row in rows}
 
 
@@ -400,6 +401,8 @@ def main() -> None:
     entity_lookup = {(row["source_assay"], row["source_entity_id"]): row["canonical_entity_id"] for row in rows["entities"]}
     for truth in truth_rows:
         for assay, field in (("rnaseq", "source_rna_gene_id"), ("chipseq", "source_chip_gene_id")):
+            if assay == "rnaseq" and truth["rna_evidence_state"] != "MEASURED": continue
+            if assay == "chipseq" and truth["chip_evidence_state"] != "MEASURED": continue
             source = truth[field]
             if source == "NOT_APPLICABLE": continue
             observed = entity_lookup.get((assay, source), "ABSENT")
