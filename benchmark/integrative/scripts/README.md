@@ -18,6 +18,16 @@ import `integration.*` when producing truth or independent-reference results.
 - `run_synthetic_benchmark_slurm.sh` is the auditable Slurm launcher for the
   two official workflow executions and their compute-node evaluations.
 
-These utilities are specific to the synthetic execution arm. They do not run
-manifest re-entry, real biological integration, negative contracts or the
-baseline freeze.
+The manifest/re-entry equivalence utilities are:
+
+- `prepare_reentry_fixture.py` verifies the exact 10B input bytes, relocates
+  the public manifest bundles and validates contracts before execution;
+- `compare_reentry_routes.py` applies the frozen `IR1`–`IR4` comparisons;
+- `finalize_reentry_benchmark.py` creates compact provenance, checksums and
+  the audit package;
+- `validate_reentry_results.py` performs administrative validation without
+  requiring Git on compute nodes;
+- `run_reentry_benchmark_slurm.sh` coordinates the two isolated Slurm routes.
+
+These utilities do not run real biological integration, negative contracts or
+the baseline freeze.
