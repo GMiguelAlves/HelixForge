@@ -56,6 +56,12 @@ caches and operational logs remain outside Git.
 
 - [Synthetic benchmark report](reports/synthetic_integration_benchmark.md)
 - [Synthetic machine-readable results](results/synthetic/benchmark_summary.json)
+- [Manifest re-entry report](reports/reentry_equivalence_benchmark.md)
+- [Manifest re-entry machine-readable results](results/reentry/benchmark_summary.json)
 
-**Status: 10B synthetic integration PASS and ready for the separately scoped
-manifest/re-entry equivalence arm.**
+The relocated manifest re-entry produced the same entities, schemas, missing
+states, regulatory classes, statistics, Candidate Score, ranking and terminal
+lineage as the direct route. All frozen `IR1`–`IR4` release gates passed.
+
+**Status: synthetic integration and manifest re-entry equivalence PASS. Ready
+for the separately scoped real biological integration arm after review.**
