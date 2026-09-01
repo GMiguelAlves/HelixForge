@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -69,7 +70,7 @@ class RealBiologicalPreflightTests(unittest.TestCase):
     def test_validator_rejects_execution_outside_slurm(self):
         with tempfile.TemporaryDirectory() as directory:
             result = subprocess.run(
-                ["python", str(VALIDATOR_PATH), "--selection", str(SELECTION),
+                [sys.executable, str(VALIDATOR_PATH), "--selection", str(SELECTION),
                  "--ena-dir", directory, "--runinfo", str(SELECTION),
                  "--geo-soft", str(SELECTION), "--reference-sources", str(SELECTION),
                  "--scratch-root", directory, "--output-dir", str(Path(directory) / "out")],
