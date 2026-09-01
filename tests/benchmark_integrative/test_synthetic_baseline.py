@@ -1,4 +1,5 @@
 import hashlib
+import csv
 import json
 import unittest
 from pathlib import Path
@@ -25,9 +26,10 @@ class SyntheticIntegrativeBaselineTests(unittest.TestCase):
         self.assertEqual(summary["readiness"], "READY_FOR_REENTRY_EQUIVALENCE")
 
     def test_all_frozen_acceptance_criteria_pass(self):
-        rows = (RESULTS / "acceptance_criteria.tsv").read_text(encoding="utf-8").splitlines()
-        self.assertEqual(len(rows), 13)
-        self.assertTrue(all(row.endswith("\tPASS") for row in rows[1:]))
+        with (RESULTS / "acceptance_criteria.tsv").open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 12)
+        self.assertTrue(all(row["status"] == "PASS" for row in rows))
 
     def test_committed_checksums(self):
         for line in (RESULTS / "SHA256SUMS").read_text(encoding="utf-8").splitlines():
