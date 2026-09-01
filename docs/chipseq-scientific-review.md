@@ -2,7 +2,8 @@
 
 This document records the decisions made during the native migration. Its
 foundation-era validation notes are historical; current retirement evidence is
-in `docs/chipseq-legacy-retirement.md`.
+in `docs/chipseq-legacy-retirement.md`, and current scientific evidence is in
+the [frozen ChIP-seq benchmark report](../benchmark/chipseq/reports/chipseq_benchmark_final_report.md).
 
 ## Decisions retained for the first native foundation
 
@@ -69,7 +70,8 @@ scientifically validated merely because its stub succeeds.
 - The supported alignment provider is Bowtie2; BWA is not exposed as a fallback.
 - FRiP and IDR are implemented. Cross-correlation, library-complexity estimates
   and motif analysis are not currently claimed.
-- Reviewed biological regression remains a post-release milestone.
+- Reviewed K562 CTCF and H3K27me3 regressions are complete. Differential
+  binding still requires a dedicated multi-condition biological benchmark.
 
 ## Development validation
 
@@ -89,7 +91,7 @@ scientifically validated merely because its stub succeeds.
 - Expected failures: reference-length and blacklist-contig incompatibilities
   were both rejected before final BAM publication.
 
-A real Bowtie2 alignment and scientific legacy comparison were not executed:
-the pinned combined Bowtie2 runtime is not installed on this development host.
-The BAM layer was executed with host SAMtools 1.20, but this does not establish
-alignment equivalence or biological peak performance.
+These final paragraphs describe the historical development host only. Later
+Slurm benchmarks executed real Bowtie2, MACS3, IDR/consensus and independent
+comparison paths; their results supersede the earlier environment limitation
+without rewriting this migration record.

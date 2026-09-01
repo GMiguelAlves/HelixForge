@@ -1,10 +1,10 @@
-# HelixForge ChIP-seq benchmark design
+# HelixForge ChIP-seq benchmark baseline
 
-This directory freezes the ChIP-seq benchmark **before any scientific result is
-observed**. It deliberately separates narrow transcription-factor enrichment
-from broad histone-mark enrichment. The design is not a validation result and
-does not change any workflow, module, scientific schema, default or output
-semantic.
+This directory preserves both the preregistered ChIP-seq design and the frozen
+`v1.0.0-rc.1` evidence. It deliberately separates narrow transcription-factor
+enrichment from broad histone-mark enrichment. The administrative consolidation
+does not change any workflow, module, scientific schema, default, threshold or
+output semantic.
 
 ## Frozen scientific subject
 
@@ -80,20 +80,31 @@ to the selected single-condition experiments; the benchmark therefore uses
 - [Cost estimate](protocol/cost_estimate.md)
 - [Risks and limitations](protocol/risks_and_limitations.md)
 - [Dataset registry](datasets/dataset_registry.md)
-- [Future script contracts](scripts/README.md)
+- [Organized benchmark scripts](scripts/README.md)
 - [Truth contracts](truth/README.md)
 - [Provenance contract](provenance/README.md)
-- [Planned reports](reports/README.md)
+- [Benchmark reports](reports/README.md)
 
 No FASTQ, BAM, reference or work directory is versioned here. Compact,
-reviewable evidence is retained for completed synthetic arms:
+reviewable evidence is retained for all four completed arms:
 
 - [synthetic narrow report](reports/synthetic_narrow_benchmark.md)
   (`PASS_WITH_LIMITATIONS`);
 - [synthetic broad report](reports/synthetic_broad_benchmark.md)
+  (`PASS_WITH_LIMITATIONS`);
+- [real narrow K562 CTCF report](reports/real_narrow_benchmark.md)
+  (`PASS_WITH_LIMITATIONS`);
+- [real broad K562 H3K27me3 report](reports/real_broad_benchmark.md)
   (`PASS_WITH_LIMITATIONS`).
+
+The [consolidated final report](reports/chipseq_benchmark_final_report.md),
+[result matrix](results/chipseq_benchmark_matrix.tsv) and
+[freeze manifest](provenance/chipseq_benchmark_freeze_manifest.json) are the
+administrative entry points for the baseline.
 
 Large execution evidence is retained in verified home audit archives and the
 corresponding scratch directories are removed after packaging.
 
-**Design status: `CHIPSEQ_BENCHMARK_DESIGN_FROZEN`; synthetic arms executed.**
+**Status: design frozen; all four scientific arms complete; global
+classification `PASS_WITH_LIMITATIONS`; annotated baseline tag created only
+after the consolidation PR is merged.**

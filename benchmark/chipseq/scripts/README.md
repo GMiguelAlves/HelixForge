@@ -1,26 +1,29 @@
-# Planned benchmark script contracts
+# ChIP-seq benchmark scripts
 
-This directory intentionally contains contracts, not implementations. Scripts
-are added only after this design is approved and must not silently modify the
-frozen protocol.
+The scripts are retained as reproducibility and audit material for the frozen
+v1.0.0-rc.1 benchmark. They are organized by benchmark arm so that the active
+surface no longer mixes dataset construction, evaluators and historical
+methods experiments in one directory.
 
-| Planned command | Inputs | Outputs | Responsibility |
-|---|---|---|---|
-| `prepare_synthetic_reference` | narrow/broad JSON | FASTA, FAI, repeats BED, reference manifest | Deterministic `synthetic_chip_v1` construction and validation |
-| `generate_narrow_truth` | reference manifest, narrow JSON | narrow truth, summits, negatives, manifest | Declare balanced point-like truth before simulation |
-| `generate_broad_truth` | reference manifest, broad JSON | broad truth, negatives, manifest | Declare balanced continuous domains before simulation |
-| `simulate_chips` | reference, truth, frozen ChIPs parameters | replicate/Input FASTQs, logs, manifest | Invoke ChIPs v2.4 without embedding scientific logic elsewhere |
-| `download_public_data` | sample/reference registries | immutable source files, receipt | Download only declared URLs and validate size/MD5 |
-| `prepare_real_narrow_reference` | validated GENCODE/ENCODE downloads | decompressed FASTA, FAI, GTF, blacklist, manifest | Preserve contig names, validate cross-artifact contigs and record source/output checksums |
-| `validate_dataset` | registries, files, truth/config | validation TSV/JSON | Fail on missing, extra or inconsistent artifacts |
-| `run_independent_chipseq` | raw FASTQ, reference, frozen parameters | BAMs, peaks, QC, logs, manifest | Execute the separately launched Bash/Python comparison path |
-| `evaluate_narrow` | truth, HelixForge and independent peaks | metrics TSV/JSON, matched pairs | Apply the frozen bipartite matching and AUPRC definitions |
-| `evaluate_broad` | truth, calls and coverage | metrics TSV/JSON, topology graph | Apply union, IoU, fragmentation and merging definitions |
-| `evaluate_real_data` | declared outputs and external references | plausibility metrics and plots | Evaluate only predeclared biological expectations |
-| `collect_performance` | Nextflow trace, Slurm accounting | performance TSV | Record wall time, CPU, memory and storage without polling heavily |
-| `render_figures` | frozen metrics tables | SVG/PNG figures | Render figures without recalculating scientific statistics |
+| Directory | Purpose |
+|---|---|
+| [`common/`](common/) | Shared manifest aggregation, broad consensus and baseline validation helpers. |
+| [`synthetic_narrow/`](synthetic_narrow/) | Construction, execution, evaluation, figures and audit packaging for Synthetic Narrow. |
+| [`synthetic_broad/`](synthetic_broad/) | Construction, execution, coverage evaluation, figures and audit packaging for Synthetic Broad. |
+| [`real_narrow/`](real_narrow/) | Download validation, reference preparation, execution, CTCF evaluation and audit packaging. |
+| [`real_broad/`](real_broad/) | Download validation, reference preparation, execution, H3K27me3 evaluation and audit packaging. |
+| [`archive/rn3_null_methods/`](archive/rn3_null_methods/) | Frozen, non-active RN3 null-method attempts retained to prevent undocumented repetition. |
 
-Each implementation must support `--help`, validate inputs, use explicit seeds
-where applicable, write atomically, emit software versions and return non-zero
-on a contract violation. Scripts must never submit nested Slurm jobs or delete
-files outside the run-specific scratch directory.
+Slurm launchers, runtime builders, preflight collectors and audit packagers
+were removed after their evidence was captured in the reports and manifests.
+Generated Python bytecode and cache directories are not benchmark artifacts
+and are excluded.
+
+These scripts document the completed benchmark and are not an alternative
+user interface to HelixForge. Site-specific paths in retained evidence are
+historical runtime examples; users should execute the supported pipeline entry
+points documented in the main project documentation.
+
+No active benchmark script submits jobs or performs cleanup. Reproduction uses
+the portable preparation, execution, evaluation and rendering scripts; cluster
+submission is deliberately left to the site-specific operator.

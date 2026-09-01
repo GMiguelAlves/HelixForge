@@ -9,7 +9,7 @@ indexes and work directories are intentionally excluded from Git.
 Figures are rendered from these files with:
 
 ```bash
-python benchmark/chipseq/scripts/render_real_broad_figures.py \
+python benchmark/chipseq/scripts/real_broad/render_real_broad_figures.py \
   --metrics benchmark/chipseq/results/real_broad/evaluation/metrics.json \
   --null-overlap benchmark/chipseq/results/real_broad/evaluation/null_overlap.tsv \
   --output-dir benchmark/chipseq/results/real_broad/figures

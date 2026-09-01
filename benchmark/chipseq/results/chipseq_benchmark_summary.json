@@ -1,0 +1,25 @@
+{
+  "benchmark": "chipseq",
+  "helixforge_version": "1.0.0-rc.1",
+  "scientific_target_commit": "0829c7c154dc634ffd4e13672b95ad4fbdc5957f",
+  "overall_classification": "PASS_WITH_LIMITATIONS",
+  "arms": [
+    {"benchmark_id": "synthetic_narrow", "classification": "PASS_WITH_LIMITATIONS", "primary_metric": {"name": "IDR_F1", "value": 0.7030}},
+    {"benchmark_id": "synthetic_broad", "classification": "PASS_WITH_LIMITATIONS", "primary_metric": {"name": "consensus_base_F1", "value": 0.9622}},
+    {"benchmark_id": "real_narrow", "classification": "PASS_WITH_LIMITATIONS", "primary_metric": {"name": "IDR_peaks", "value": 31856}},
+    {"benchmark_id": "real_broad", "classification": "PASS_WITH_LIMITATIONS", "primary_metric": {"name": "consensus_domains", "value": 19711}}
+  ],
+  "limitations": ["SN_SIGNAL_CLASS", "SB_FRAGMENTATION", "RN3_NULL_MODEL", "RB_HISTORICAL_LIBRARIES", "RB_REPLICATE_ASYMMETRY", "RB_BIGWIG", "APPTAINER_SITE"],
+  "deferred_follow_up": [
+    {"topic": "RN3_null_model_methodology", "status": "DEFERRED_METHODS_INVESTIGATION", "blocks_release": false},
+    {"topic": "synthetic_broad_fragmentation_mechanism", "status": "POST_V1_METHODS_FOLLOWUP", "blocks_release": false},
+    {"topic": "real_broad_external_BigWig_concordance", "status": "POST_V1_OPTIONAL_EVALUATION", "blocks_release": false}
+  ],
+  "validation": {
+    "scientific_execution": "COMPLETE",
+    "independent_reproduction": "SUPPORTED_ALL_ARMS",
+    "administrative_validation": "PENDING_PR_CI_AND_MERGE",
+    "tag": "chipseq-benchmark-v1.0.0-rc.1",
+    "tag_status": "PENDING_POST_MERGE"
+  }
+}

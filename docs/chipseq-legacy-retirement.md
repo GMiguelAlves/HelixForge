@@ -45,5 +45,6 @@ git worktree add ../helixforge-chipseq-legacy chipseq-legacy-v1.0.0
 ```
 
 The current branch accepts only explicit native ChIP-seq modes and providers.
-Reviewed biological regressions remain a post-release validation milestone, as
-decided before retirement.
+After retirement, reviewed K562 CTCF and H3K27me3 regressions were completed
+and consolidated in the
+[frozen ChIP-seq baseline](../benchmark/chipseq/reports/chipseq_benchmark_final_report.md).

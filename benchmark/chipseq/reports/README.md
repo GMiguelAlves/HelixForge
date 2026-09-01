@@ -1,9 +1,8 @@
 # ChIP-seq benchmark reports
 
 Reports are assembled only from frozen metric tables and provenance evidence.
-An absent report indicates that its benchmark arm has not yet been executed.
-
-Required future reports:
+All four scientific arms and the administrative consolidation are complete in
+the source tree.
 
 - [`synthetic_narrow_benchmark.md`](synthetic_narrow_benchmark.md): completed
   per-replicate and IDR ground-truth benchmark (`PASS_WITH_LIMITATIONS`);
@@ -16,10 +15,8 @@ Required future reports:
 - [`real_broad_benchmark.md`](real_broad_benchmark.md): completed K562
   H3K27me3 biological benchmark (`PASS_WITH_LIMITATIONS`), with exact
   independent-path concordance and all frozen RB1-RB5 dispositions;
-- `performance_report.md`: Slurm accounting, Nextflow trace, storage and
-  independent-path overhead;
-- `chipseq_benchmark_summary.md`: independent arm classifications, deviations,
-  limitations, retained evidence and cleanup receipt.
+- [`chipseq_benchmark_final_report.md`](chipseq_benchmark_final_report.md):
+  cross-arm classification, evidence, limitations and release assessment.
 
 Figures must link to their source TSV/JSON and rendering command. A report may
 not recompute or redefine metrics. Missing evidence is displayed as missing or

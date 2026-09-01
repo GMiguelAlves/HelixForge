@@ -20,11 +20,11 @@ def load_module(name: str, relative_path: str):
     return module
 
 
-PREPARE = load_module("prepare_synthetic_broad_test", "benchmark/chipseq/scripts/prepare_synthetic_broad.py")
-CONSENSUS = load_module("independent_broad_consensus_test", "benchmark/chipseq/scripts/independent_broad_consensus.py")
-EVALUATOR = load_module("evaluate_synthetic_broad_test", "benchmark/chipseq/scripts/evaluate_synthetic_broad.py")
-COVERAGE = load_module("evaluate_broad_coverage_test", "benchmark/chipseq/scripts/evaluate_broad_coverage.py")
-COLLECTOR = load_module("collect_synthetic_broad_outputs_test", "benchmark/chipseq/scripts/collect_synthetic_broad_outputs.py")
+PREPARE = load_module("prepare_synthetic_broad_test", "benchmark/chipseq/scripts/synthetic_broad/prepare_synthetic_broad.py")
+CONSENSUS = load_module("independent_broad_consensus_test", "benchmark/chipseq/scripts/common/independent_broad_consensus.py")
+EVALUATOR = load_module("evaluate_synthetic_broad_test", "benchmark/chipseq/scripts/synthetic_broad/evaluate_synthetic_broad.py")
+COVERAGE = load_module("evaluate_broad_coverage_test", "benchmark/chipseq/scripts/synthetic_broad/evaluate_broad_coverage.py")
+COLLECTOR = load_module("collect_synthetic_broad_outputs_test", "benchmark/chipseq/scripts/synthetic_broad/collect_synthetic_broad_outputs.py")
 
 
 class SyntheticBroadContractTests(unittest.TestCase):
