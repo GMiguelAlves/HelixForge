@@ -1,0 +1,5 @@
+role	provider	release_or_accession	filename	assembly	frozen_md5	download_url	verification_status
+genome_fasta	GENCODE	release_50	GRCh38.primary_assembly.genome.fa.gz	GRCh38.p14	da1a11258be075cfa7af718162c894e7	https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_50/GRCh38.primary_assembly.genome.fa.gz	FROZEN_SOURCE_NOT_DOWNLOADED
+annotation_gtf	GENCODE	release_50	gencode.v50.primary_assembly.annotation.gtf.gz	GRCh38.p14	289b91e5e95e8b0450d223246f10a12e	https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_50/gencode.v50.primary_assembly.annotation.gtf.gz	FROZEN_SOURCE_NOT_DOWNLOADED
+transcriptome	GENCODE	release_50	gencode.v50.transcripts.fa.gz	GRCh38.p14	VERIFY_FROM_OFFICIAL_MD5SUMS_BEFORE_EXECUTION	https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_50/gencode.v50.transcripts.fa.gz	FROZEN_SOURCE_NOT_DOWNLOADED
+blacklist	ENCODE	ENCFF356LFX	ENCFF356LFX.bed.gz	GRCh38	393688b4f06c9ce26165d47433dd8c37	https://www.encodeproject.org/files/ENCFF356LFX/@@download/ENCFF356LFX.bed.gz	FROZEN_SOURCE_NOT_DOWNLOADED
