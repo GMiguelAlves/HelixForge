@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "design_id": "helixforge_integrative_synthetic_v1",
+  "seed": 20260901,
+  "entity_count": 1000,
+  "reference": {
+    "reference_id": "synthetic_integrative_v1",
+    "genome_id": "synthetic_integrative_genome_v1",
+    "organism": "synthetic_organism",
+    "assembly": "synthetic_integrative_assembly_v1",
+    "annotation_id": "synthetic_integrative_annotation_v1"
+  },
+  "contrast": {
+    "factor": "condition",
+    "numerator": "treated",
+    "denominator": "control",
+    "rna_contrast_id": "treated_vs_control",
+    "chip_contrast_id": "treatment_effect",
+    "canonical_contrast_id": "condition__treated_vs_control"
+  },
+  "significance": {
+    "rna_padj_max": 0.05,
+    "rna_abs_log2fc_min": 1.0,
+    "chip_padj_max": 0.05,
+    "chip_abs_log2fc_min": 1.0
+  },
+  "effect_tiers": {
+    "EASY": {"absolute_log2fc": 3.0, "padj": 0.000001},
+    "MODERATE": {"absolute_log2fc": 1.75, "padj": 0.001},
+    "HARD": {"absolute_log2fc": 1.1, "padj": 0.04},
+    "BACKGROUND": {"absolute_log2fc": 0.25, "padj": 0.5}
+  },
+  "classes": [
+    {"truth_class": "ACTIVATING_CONCORDANT", "count": 200, "expected_regulatory_pattern": "CONCORDANT_ACTIVATION"},
+    {"truth_class": "REPRESSIVE_CONCORDANT", "count": 200, "expected_regulatory_pattern": "CONCORDANT_REPRESSION"},
+    {"truth_class": "ACTIVATING_DISCORDANT", "count": 100, "expected_regulatory_pattern": "DISCORDANT"},
+    {"truth_class": "REPRESSIVE_DISCORDANT", "count": 100, "expected_regulatory_pattern": "DISCORDANT"},
+    {"truth_class": "RNA_ONLY", "count": 100, "expected_regulatory_pattern": "RNA_ONLY"},
+    {"truth_class": "CHIP_ONLY", "count": 100, "expected_regulatory_pattern": "CHIP_ONLY"},
+    {"truth_class": "NO_CHANGE_BACKGROUND", "count": 200, "expected_regulatory_pattern": "MIXED_BACKGROUND_SUBCASES"}
+  ],
+  "generation_policy": {
+    "primary_input_level": "evidence_provider",
+    "imports_helixforge_code": false,
+    "row_order": "gene_numeric_ascending",
+    "noise": "predefined_effect_tiers_and_missing_observations",
+    "truth_mutation_after_execution": "forbidden"
+  }
+}
