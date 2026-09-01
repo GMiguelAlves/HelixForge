@@ -50,9 +50,12 @@ the exact benchmark target commit.
 - [Negative-contract cases](datasets/negative_contract_cases.tsv)
 - [Scientific target provenance](provenance/scientific_target.json)
 
-No scientific benchmark has been run from this directory. No FASTQ, BAM,
-reference, Nextflow work directory or result was added during the design
-freeze.
+The synthetic ground-truth arm has now completed twice on Slurm. Its compact
+machine-readable results and report are versioned; Nextflow work directories,
+caches and operational logs remain outside Git.
 
-**Status: design and preregistered truth frozen; scientific execution not
-started.**
+- [Synthetic benchmark report](reports/synthetic_integration_benchmark.md)
+- [Synthetic machine-readable results](results/synthetic/benchmark_summary.json)
+
+**Status: 10B synthetic integration PASS and ready for the separately scoped
+manifest/re-entry equivalence arm.**

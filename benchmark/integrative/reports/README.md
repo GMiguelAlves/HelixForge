@@ -1,4 +1,6 @@
 # Reports
 
-No scientific report exists yet. The future directory will contain one compact
-report per arm and a final integrative baseline report.
+The completed synthetic ground-truth report is available at
+[`synthetic_integration_benchmark.md`](synthetic_integration_benchmark.md).
+Future arms retain separate reports; this synthetic result does not execute or
+prejudge manifest re-entry, real biological integration or negative contracts.
