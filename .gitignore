@@ -11,6 +11,8 @@ results/
 !benchmark/chipseq/results/
 !benchmark/chipseq/results/synthetic_narrow/
 !benchmark/chipseq/results/synthetic_narrow/**
+!benchmark/integrative/results/
+!benchmark/integrative/results/README.md
 tests/native_chipseq_peak_annotation/fixture_work/
 tests/native_chipseq_peak_annotation/results/
 tests/native_chipseq_peak_annotation/top_level_results/

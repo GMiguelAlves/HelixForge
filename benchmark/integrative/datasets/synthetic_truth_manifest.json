@@ -1,0 +1,41 @@
+{
+  "class_counts": {
+    "ACTIVATING_CONCORDANT": 200,
+    "ACTIVATING_DISCORDANT": 100,
+    "CHIP_ONLY": 100,
+    "NO_CHANGE_BACKGROUND": 200,
+    "REPRESSIVE_CONCORDANT": 200,
+    "REPRESSIVE_DISCORDANT": 100,
+    "RNA_ONLY": 100
+  },
+  "contrast": {
+    "canonical_contrast_id": "condition__treated_vs_control",
+    "chip_contrast_id": "treatment_effect",
+    "denominator": "control",
+    "factor": "condition",
+    "numerator": "treated",
+    "rna_contrast_id": "treated_vs_control"
+  },
+  "entity_count": 1000,
+  "generated_from": "C:/Users/dilci/Documents/ChatGPT/worflow/benchmark/integrative/configs/synthetic_design.json",
+  "generator": "benchmark/integrative/scripts/generate_synthetic_truth.py",
+  "id": "helixforge_integrative_synthetic_v1",
+  "imports_helixforge_code": false,
+  "mutation_policy": "immutable_after_first_helixforge_execution",
+  "reference": {
+    "annotation_id": "synthetic_integrative_annotation_v1",
+    "assembly": "synthetic_integrative_assembly_v1",
+    "genome_id": "synthetic_integrative_genome_v1",
+    "organism": "synthetic_organism",
+    "reference_id": "synthetic_integrative_v1"
+  },
+  "schema_version": "1.0",
+  "scientific_execution": "not_started",
+  "seed": 20260901,
+  "status": "frozen",
+  "truth_table": {
+    "path": "synthetic_truth.tsv",
+    "sha256": "3112615e1d02ecf3d3f98cb31e84e091b53b37f3ee651f90ad0205f548343540"
+  },
+  "type": "integrative_synthetic_truth"
+}
