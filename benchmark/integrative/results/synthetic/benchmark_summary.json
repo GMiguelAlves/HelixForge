@@ -1,0 +1,130 @@
+{
+  "candidate_score": "PASS",
+  "candidate_score_metrics": {
+    "high_priority_auprc": 0.8743535001204731,
+    "maximum_score_difference": 0.0,
+    "priority_spearman": 0.8117504335221083,
+    "rank_exact": true,
+    "score_component_failures": 0,
+    "score_rows": 1000,
+    "top_100_recovery": 1.0,
+    "top_10_recovery": 1.0,
+    "top_25_recovery": 1.0,
+    "top_50_recovery": 1.0
+  },
+  "classification": {
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "macro_precision": 1.0,
+    "macro_recall": 1.0,
+    "n": 1000,
+    "weighted_f1": 1.0
+  },
+  "determinism": "PASS",
+  "entity_preservation": "PASS",
+  "expected_range_limitations": [],
+  "files": {
+    "classes": {
+      "filename": "regulatory_classes.tsv",
+      "sha256": "196a44ee5af97e8e49efb846e29ef0205f5c010ff87924924c63b2122fea5c63"
+    },
+    "contrasts": {
+      "filename": "contrast_map.tsv",
+      "sha256": "d27b8dbaf438bb39dee309c60b376d0b366d7b970677026fb8e7444716eaba22"
+    },
+    "correlations": {
+      "filename": "correlations.tsv",
+      "sha256": "80c05eb83ab268b11a70cde448f2a54f533dfbcbd707385b36b1e5e780bb138f"
+    },
+    "entities": {
+      "filename": "entity_map.tsv",
+      "sha256": "4e057fabb6cf84a35b05290711477ed1df0e0604265443e270a1fd1adaf754f3"
+    },
+    "fisher": {
+      "filename": "fisher_tests.tsv",
+      "sha256": "de76486f581357b03e83bff664cf1c0351785fb83988d8456d8c7f9280019990"
+    },
+    "long": {
+      "filename": "master_evidence_long.tsv",
+      "sha256": "21b1329d535b95fdebf6f8bbe5e1c48f7e75feceb945eeacd9880226569d0417"
+    },
+    "marks": {
+      "filename": "mark_map.tsv",
+      "sha256": "b79fb741aca6c00f2b81800d40061ce2f26f3d6f97bc7a2ebc8df2fc1314a77f"
+    },
+    "master": {
+      "filename": "master_evidence.tsv",
+      "sha256": "ef6900a29711d6bcd598a078d67d4b9cfcfcbe2d71e779bdcb4afb5de56aabbd"
+    },
+    "peaks": {
+      "filename": "peak_aggregation.tsv",
+      "sha256": "6c9acbbc7afd394b34a34037ce50e0c2b48c626afabf5727c71d503a16d819f4"
+    },
+    "ranking": {
+      "filename": "candidate_ranking.tsv",
+      "sha256": "20c9062de108ba613869069dbee2d148522f30f84faef60d89baf91b89ba1def"
+    },
+    "scores": {
+      "filename": "candidate_score.tsv",
+      "sha256": "5a5375efef221866544e4e34023953117f3a2ffb18ea9935d322b037b946ea32"
+    },
+    "terminal_manifest": {
+      "filename": "integrative_run_manifest.json",
+      "sha256": "7ed63dd9d9429eceec0170389f75e0c1312729a3e992e7b454aa0c06b0dff50c"
+    }
+  },
+  "fixture_validation": "PASS",
+  "full_outer_join": "PASS",
+  "identifier_normalization": "PASS",
+  "independent_concordance": "PASS",
+  "integration_workflow": "d0d1e7499e5b42be8294da3d85e402fa90a1cfe2",
+  "maximum_numerical_difference": 2.220446049250313e-16,
+  "maximum_score_difference": 0.0,
+  "missing_state_correctness": "PASS",
+  "missing_states": {
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "macro_precision": 1.0,
+    "macro_recall": 1.0,
+    "n": 4000,
+    "weighted_f1": 1.0
+  },
+  "performance": [
+    {
+      "completed": 12,
+      "failed": 0,
+      "peak_rss_bytes": 26948403,
+      "peak_vmem_bytes": 41209037,
+      "processes": 12,
+      "result_bytes": 8980871,
+      "run": "A",
+      "task_realtime_seconds": 7.622,
+      "work_bytes": 9860871,
+      "workflow_wall_seconds": 83.535
+    },
+    {
+      "completed": 12,
+      "failed": 0,
+      "peak_rss_bytes": 42467328,
+      "peak_vmem_bytes": 57986253,
+      "processes": 12,
+      "result_bytes": 8980871,
+      "run": "B",
+      "task_realtime_seconds": 7.144,
+      "work_bytes": 9860878,
+      "workflow_wall_seconds": 83.434
+    }
+  ],
+  "readiness": "READY_FOR_REENTRY_EQUIVALENCE",
+  "regulatory_interpretation": "PASS",
+  "release_gate_failures": [],
+  "schema_version": "1.0",
+  "scientific_target": "dc0218ce902302da476910595bb133c82fee927c",
+  "statistical_integration": "PASS",
+  "synthetic_integration_benchmark": "PASS",
+  "technical_execution": "PASS",
+  "truth_commit": "1b7e2fa",
+  "truth_integrity": "PASS",
+  "truth_sha256": "3112615e1d02ecf3d3f98cb31e84e091b53b37f3ee651f90ad0205f548343540",
+  "type": "integrative_synthetic_benchmark_summary"
+}

@@ -1,0 +1,3 @@
+run	processes	completed	failed	workflow_wall_seconds	task_realtime_seconds	peak_rss_bytes	peak_vmem_bytes	result_bytes	work_bytes
+A	12	12	0	83.535	7.622	26948403	41209037	8980871	9860871
+B	12	12	0	83.434	7.144	42467328	57986253	8980871	9860878

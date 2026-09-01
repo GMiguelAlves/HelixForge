@@ -1,0 +1,25 @@
+{
+  "classification": "PASS",
+  "determinism": "PASS",
+  "evaluation_jobs": [
+    16397,
+    16398,
+    16399,
+    16400,
+    16401
+  ],
+  "execution_commit": "be2b833a38df70aae6371a732354836e2d2d1a0d",
+  "integration_workflow": "d0d1e7499e5b42be8294da3d85e402fa90a1cfe2",
+  "nextflow": "25.10.7",
+  "protocol_amendments": [
+    "protocol_amendment_20260901.md",
+    "protocol_amendment_20260901b.md"
+  ],
+  "report_sha256": "09a1dde666d3a9fb8ba8bab186e9d97fa34b65c68da218e27652f7694beba299",
+  "schema_version": "1.0",
+  "scientific_target": "dc0218ce902302da476910595bb133c82fee927c",
+  "slurm_jobs": 24,
+  "truth_commit": "1b7e2fa",
+  "truth_sha256": "3112615e1d02ecf3d3f98cb31e84e091b53b37f3ee651f90ad0205f548343540",
+  "type": "integrative_synthetic_execution_provenance"
+}
