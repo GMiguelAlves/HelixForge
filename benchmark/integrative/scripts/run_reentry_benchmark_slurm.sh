@@ -6,6 +6,7 @@ scratch_root=${HELIXFORGE_BENCHMARK_ROOT:?HELIXFORGE_BENCHMARK_ROOT is required}
 queue=${HELIXFORGE_SLURM_QUEUE:-general}
 conda_root=${HELIXFORGE_CONDA_ROOT:-/home/ra236875@bio.ib.unicamp.br/miniconda3}
 java_bin=${HELIXFORGE_JAVA:-${conda_root}/envs/rna-tools/bin/java}
+contract_python=${HELIXFORGE_CONTRACT_PYTHON:-${conda_root}/envs/rna-tools/bin/python}
 nextflow_jar=${HELIXFORGE_NEXTFLOW_JAR:-/home/ra236875@bio.ib.unicamp.br/helixforge-validation-20260811/.validation-runtimes/nxf-home-25.10.7/framework/25.10.7/nextflow-25.10.7-one.jar}
 baseline_audit=${HELIXFORGE_10B_AUDIT:-/home/ra236875@bio.ib.unicamp.br/helixforge-audits/helixforge-integrative-synthetic-10b-20260901.zip}
 mode=${1:-driver}
@@ -40,7 +41,7 @@ if [[ "$mode" == setup ]]; then
         --truth "$repo_root/benchmark/integrative/datasets/synthetic_truth.tsv" \
         --truth-manifest "$repo_root/benchmark/integrative/datasets/synthetic_truth_manifest.json" \
         --output-dir "$direct"
-    python3 "$repo_root/benchmark/integrative/scripts/prepare_reentry_fixture.py" \
+    "$contract_python" "$repo_root/benchmark/integrative/scripts/prepare_reentry_fixture.py" \
         --repo-root "$repo_root" --direct-root "$direct" --reentry-root "$relocated" \
         --baseline-audit "$baseline_audit" --output-dir "$setup"
     exit 0
@@ -87,13 +88,14 @@ fi
 [[ -z "${SLURM_JOB_ID:-}" ]] || { echo "driver must run on the Slurm management node" >&2; exit 2; }
 test -d "$repo_root/.git"
 test -x "$java_bin"
+test -x "$contract_python"
 test -s "$nextflow_jar"
 test -s "$baseline_audit"
 test ! -e "$scratch_root"
 mkdir -p "$scratch_root" "$results" "$logs" "$work" "$cache" "$nxf_home" "$setup"
 git -C "$repo_root" rev-parse HEAD > "$scratch_root/repository_commit.txt"
 git -C "$repo_root" status --porcelain=v1 > "$scratch_root/repository_status.txt"
-printf 'hostname=%s\nos=%s\njava=%s\npython=%s\nnextflow_jar=%s\n' "$(hostname)" "$(uname -srmo)" "$($java_bin -version 2>&1 | head -1)" "$(python3 --version 2>&1)" "$nextflow_jar" > "$scratch_root/environment.txt"
+printf 'hostname=%s\nos=%s\njava=%s\npython=%s\ncontract_python=%s\nnextflow_jar=%s\n' "$(hostname)" "$(uname -srmo)" "$($java_bin -version 2>&1 | head -1)" "$(python3 --version 2>&1)" "$($contract_python --version 2>&1)" "$nextflow_jar" > "$scratch_root/environment.txt"
 printf '%s\n' \
     'Route A: nextflow run main.nf --workflow integrative with direct frozen terminal manifests' \
     'Route B: nextflow run main.nf --workflow integrative with relocated manifest_relative terminal bundles' \
