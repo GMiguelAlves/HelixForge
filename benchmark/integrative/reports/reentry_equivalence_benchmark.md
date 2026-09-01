@@ -80,6 +80,10 @@ Route A wall time: `82.844` s; Route B wall time: `83.318` s. Performance is des
 | IR3 | PASS |
 | IR4 | PASS |
 
+## Validation
+
+The complete suite executed 190 tests with 185 passes, 5 expected skips and no failures. JSON, TSV, links, manifests, checksums, script syntax, heavy-file and Git-hygiene checks passed.
+
 ## Limitations
 
 This benchmark uses frozen synthetic integration-level evidence and Integration API schema version 1.0. It validates the public manifest contracts and their current scientific outputs, not future schema versions. Runtime metadata and final HTML are compared semantically where byte identity is inappropriate.
