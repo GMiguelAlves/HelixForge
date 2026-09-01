@@ -309,7 +309,15 @@ READY_FOR_REENTRY_EQUIVALENCE
         "report_sha256": sha256(report_path), "determinism": "PASS", "classification": "PASS",
     }
     (output / "provenance.json").write_text(json.dumps(provenance, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    checksum_targets = sorted(path for path in output.iterdir() if path.is_file() and path.name != "SHA256SUMS") + [report_path]
+    # The archive metadata is written only after the archive exists.  Excluding it
+    # avoids a self-referential checksum while keeping every scientific result,
+    # the report and provenance covered by SHA256SUMS.
+    (output / "audit_archive.json").unlink(missing_ok=True)
+    checksum_targets = sorted(
+        path
+        for path in output.iterdir()
+        if path.is_file() and path.name not in {"SHA256SUMS", "audit_archive.json"}
+    ) + [report_path]
     (output / "SHA256SUMS").write_text("\n".join(f"{sha256(path)}  {path.name}" for path in checksum_targets) + "\n", encoding="utf-8")
 
     args.audit_archive.parent.mkdir(parents=True, exist_ok=True)
