@@ -18,6 +18,23 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def matches_frozen_checksum(path: Path, expected: str) -> bool:
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() == expected:
+        return True
+    if path.suffix != ".json":
+        return False
+    # The frozen JSON manifest was first checksummed from a Windows checkout.
+    # Accept the same text with Git's Linux line endings, without normalizing
+    # scientific tables or allowing any semantic JSON change.
+    lf = raw.replace(b"\r\n", b"\n")
+    crlf = lf.replace(b"\n", b"\r\n")
+    return expected in {
+        hashlib.sha256(lf).hexdigest(),
+        hashlib.sha256(crlf).hexdigest(),
+    }
+
+
 def main() -> None:
     for path in ROOT.rglob("*.json"):
         json.loads(path.read_text(encoding="utf-8"))
@@ -49,7 +66,8 @@ def main() -> None:
     assert manifest["status"] == "frozen"
     for line in (ROOT / "datasets/SHA256SUMS").read_text(encoding="utf-8").splitlines():
         expected_checksum, relative = line.split("  ", 1)
-        assert sha256((ROOT / "datasets" / relative).resolve()) == expected_checksum
+        path = (ROOT / "datasets" / relative).resolve()
+        assert matches_frozen_checksum(path, expected_checksum), f"checksum mismatch: {relative}"
     report = (ROOT / "protocol/design_freeze_report.md").read_text(encoding="utf-8")
     for status in (
         "INTEGRATIVE_BENCHMARK_DESIGN = FROZEN",
