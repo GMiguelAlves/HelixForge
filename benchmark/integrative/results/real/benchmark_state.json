@@ -1,19 +1,41 @@
 {
   "benchmark": "GSE133183 real biological integration",
+  "execution_repository_commit": "640be7e0573e012217ac371a51706f38e190d344",
   "expected_outputs": [
     "metadata/dataset_metadata.tsv",
     "metadata/download_manifest.tsv",
     "metadata/metadata_validation.json",
     "metadata/storage_plan.json"
   ],
-  "jobs": [],
-  "last_known_state": "PREPARATION",
-  "operational_stage_order": ["10B", "10C", "10E", "10D"],
-  "phase": "METADATA_PREFLIGHT_PREPARED",
+  "jobs": [
+    {
+      "job_id": "16456",
+      "kind": "metadata_preflight",
+      "last_reported_status": "COMPLETE",
+      "phase": "METADATA_PREFLIGHT_COMPLETE"
+    }
+  ],
+  "last_known_state": "COMPLETE",
+  "operational_stage_order": [
+    "10B",
+    "10C",
+    "10E",
+    "10D"
+  ],
+  "phase": "METADATA_PREFLIGHT_COMPLETE",
   "schema_version": "1.0",
-  "scientific_stage_order": ["10B", "10C", "10D", "10E", "10F"],
+  "scientific_stage_order": [
+    "10B",
+    "10C",
+    "10D",
+    "10E",
+    "10F"
+  ],
   "scientific_target_commit": "dc0218ce902302da476910595bb133c82fee927c",
-  "session_uuid": null,
-  "status": "PREPARED",
-  "workdirs": []
+  "session_uuid": "35a89bf1-362d-40a1-b71b-73459f3c18f0",
+  "status": "COMPLETE",
+  "updated_utc": "2026-09-01T15:00:09Z",
+  "workdirs": [
+    "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901"
+  ]
 }

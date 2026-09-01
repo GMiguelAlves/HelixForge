@@ -11,9 +11,17 @@ planning bounds, not measured performance.
 | Real GSE133183 upstream production | 16 selected libraries | 40–90 | at most 10 when nodes are free | 100–200 GB | 1–3 days on shared infrastructure |
 | Real integration only | compact terminal artifacts | 10–25 | 5 | < 20 GB | < 4 h |
 
-The selected GEO processed archive is 145.1 MB. Raw selected FASTQ transfer is
-provisionally estimated at 20–40 GB and must be replaced with an accession-level
-ENA/SRA audit before download. The benchmark must use the established server
+The accession-level preflight on Slurm job `16456` replaced the provisional
+estimate. The 16 selected runs contain 32 paired ENA FASTQs totaling 228.694
+GiB and 508,495,000,800 deposited bases. A deliberately conservative
+all-at-once envelope is 5,484.848 GiB, including an estimated 1,183.932 GiB of
+uncompressed FASTQ representation, references/indexes, results, workflow work
+and a 25% margin. The preflight observed 7,199.665 GiB free in project scratch.
+
+Execution will be checkpointed by modality and will not retain simultaneous
+full RNA-seq and ChIP-seq work trees. This limits the practical high-water mark
+while preserving the official FASTQs until both upstream terminal manifests
+have been audited. The benchmark must use the established server
 policy: compute only through Slurm, conservative queue occupancy, heavy data in
 the user's project scratch, compact audit evidence in a named home archive and
 removal only of verified benchmark-owned temporary/intermediate data.
