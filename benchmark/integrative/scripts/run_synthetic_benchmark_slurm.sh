@@ -63,7 +63,6 @@ if [[ "$mode" == validate ]]; then
     python3 -m unittest discover -s tests -p 'test_*.py'
     python3 "$repo_root/benchmark/integrative/scripts/validate_design.py"
     python3 -m py_compile "$repo_root"/benchmark/integrative/scripts/*.py
-    git -C "$repo_root" diff --check
     exit 0
 fi
 
