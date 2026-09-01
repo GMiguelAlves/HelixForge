@@ -1,0 +1,19 @@
+{
+  "benchmark": "GSE133183 real biological integration",
+  "expected_outputs": [
+    "metadata/dataset_metadata.tsv",
+    "metadata/download_manifest.tsv",
+    "metadata/metadata_validation.json",
+    "metadata/storage_plan.json"
+  ],
+  "jobs": [],
+  "last_known_state": "PREPARATION",
+  "operational_stage_order": ["10B", "10C", "10E", "10D"],
+  "phase": "METADATA_PREFLIGHT_PREPARED",
+  "schema_version": "1.0",
+  "scientific_stage_order": ["10B", "10C", "10D", "10E", "10F"],
+  "scientific_target_commit": "dc0218ce902302da476910595bb133c82fee927c",
+  "session_uuid": null,
+  "status": "PREPARED",
+  "workdirs": []
+}
