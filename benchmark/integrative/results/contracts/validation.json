@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "type": "integrative_negative_contract_validation_audit",
+  "status": "PASS",
+  "environment": "Slurm compute node",
+  "slurm_job_id": "16452",
+  "tests": {
+    "executed": 195,
+    "passed": 195,
+    "failed": 0,
+    "skipped": 0
+  },
+  "administrative_validation": {
+    "json": "PASS",
+    "tsv": "PASS",
+    "local_links": "PASS",
+    "script_syntax": "PASS",
+    "checksums": "PASS",
+    "fixture_inventory": "PASS",
+    "git_hygiene": "PASS",
+    "heavy_file_audit": "PASS"
+  },
+  "additional_suites": {
+    "native_de_preflight": "PASS",
+    "scientific_input_validation": "PASS",
+    "integrative_benchmark_design": "PASS"
+  }
+}
