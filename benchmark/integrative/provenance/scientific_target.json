@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "type": "integrative_benchmark_scientific_target",
+  "helixforge_version": "1.0.0-rc.1",
+  "scientific_target_commit": "dc0218ce902302da476910595bb133c82fee927c",
+  "current_master_at_freeze": "dc0218ce902302da476910595bb133c82fee927c",
+  "integration_workflow_commit": "d0d1e7499e5b42be8294da3d85e402fa90a1cfe2",
+  "release_candidate_tag": {
+    "name": "v1.0.0-rc.1",
+    "commit": "fc38ada8f592bb57a13467965a718ce0df7fb6ce"
+  },
+  "rnaseq_baseline": {
+    "tag": "rnaseq-benchmark-v1.0.0-rc.1",
+    "commit": "9a4367c3839b4f7f929b14157fcde7011df837e6"
+  },
+  "chipseq_baseline": {
+    "tag": "chipseq-benchmark-v1.0.0-rc.1",
+    "commit": "1679610f7649c0fcaf98a2e132c96bf76cbbe3b1"
+  },
+  "scientific_execution": "not_started",
+  "status": "frozen"
+}

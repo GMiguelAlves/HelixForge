@@ -1,0 +1,15 @@
+negative_test_id	input_condition	expected_disposition	expected_layer	expected_error_or_state	scientific_reason
+IC-REF-01	RNA reference_id differs from ChIP reference_id	FAIL	compatibility	reference_id incompatible	prevents joining unrelated reference identities
+IC-REF-02	RNA genome_id differs from ChIP genome_id	FAIL	compatibility	genome_id incompatible	prevents joining different genome resources under similar labels
+IC-REF-03	RNA assembly differs from ChIP assembly	FAIL	compatibility	assembly incompatible	prevents coordinate-system mismatch
+IC-REF-04	RNA annotation_id differs from ChIP annotation_id	FAIL	compatibility	annotation_id incompatible	prevents gene-model mismatch
+IC-MAN-01	run manifest omits required run object	FAIL	JSON Schema	required property	contract envelope is incomplete
+IC-MAN-02	run or artifact omits required provenance	FAIL	JSON Schema	required property	untraceable artifacts cannot enter the API
+IC-MAN-03	artifact_type is outside Integration API v1 enum	FAIL	JSON Schema	not one of	unknown artifact semantics cannot be inferred
+IC-CON-01	artifact references a contrast_id absent from its manifest	FAIL	semantic validation	unknown contrast	artifact comparison identity is invalid
+IC-CON-02	contrast numerator equals denominator	FAIL	semantic validation	identical numerator and denominator	comparison has no scientific meaning
+IC-CON-03	RNA and ChIP declare different but individually valid semantic contrasts	PRESERVE	harmonization	RNA_ONLY and CHIP_ONLY	v1 retains valid unilateral contrasts rather than inventing a match
+IC-ENT-01	opt-in version stripping maps two distinct source IDs to one assay-level canonical ID	FAIL	harmonization	version stripping causes entity collisions	prevents silent biological entity merging
+IC-MARK-01	HP1 source mark	NORMALIZE	harmonization	SmHP1	uses the explicit supported mark alias
+IC-MARK-02	unlisted non-empty mark	PRESERVE	harmonization	exact mark with UNKNOWN interpretation role	unknown biology remains explicit
+IC-CTX-01	unlisted non-empty context	PRESERVE	harmonization	exact context	unknown context is not guessed or fuzzy-matched

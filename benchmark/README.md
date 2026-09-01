@@ -12,5 +12,8 @@ shared runners.
   subsampling, external-reference concordance and Slurm resource measurement.
 - [`chipseq/`](chipseq/README.md): frozen `v1.0.0-rc.1` baseline covering
   controlled narrow/broad enrichment and public K562 CTCF/H3K27me3 data.
+- [`integrative/`](integrative/README.md): preregistered integration benchmark
+  covering synthetic truth, manifest re-entry, negative contracts and a matched
+  public RNA × ChIP dataset. Scientific execution has not started.
 - [`scenarios/`](scenarios/): focused migration and implementation scenarios.
 - [`reports/`](reports/): compact benchmark reports approved for versioning.
