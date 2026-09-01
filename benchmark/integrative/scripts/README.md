@@ -1,5 +1,11 @@
 # Integrative benchmark scripts
 
+`execute_negative_contract_validation.py` derives the frozen 10E mutations
+from the positive synthetic baseline, exercises the declared validation layer
+twice, compares deterministic outcomes and writes compact contract results.
+`run_negative_contracts_slurm.sh` is the guarded Slurm launcher; it refuses
+scratch roots outside the dedicated HelixForge contract-benchmark namespace.
+
 Only compact, deterministic benchmark utilities belong here. They must not
 import `integration.*` when producing truth or independent-reference results.
 
