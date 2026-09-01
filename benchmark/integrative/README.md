@@ -58,10 +58,17 @@ caches and operational logs remain outside Git.
 - [Synthetic machine-readable results](results/synthetic/benchmark_summary.json)
 - [Manifest re-entry report](reports/reentry_equivalence_benchmark.md)
 - [Manifest re-entry machine-readable results](results/reentry/benchmark_summary.json)
+- [Negative-contract report](reports/negative_contract_validation.md)
+- [Negative-contract machine-readable results](results/contracts/benchmark_summary.json)
 
 The relocated manifest re-entry produced the same entities, schemas, missing
 states, regulatory classes, statistics, Candidate Score, ranking and terminal
-lineage as the direct route. All frozen `IR1`–`IR4` release gates passed.
+lineage as the direct route. All frozen `IR1`–`IR4` release gates passed. The
+14 frozen negative-contract fixtures also passed twice on Slurm: invalid
+references, manifests, contrasts and entity collisions were rejected, while
+supported normalization and valid unmatched contrasts were retained safely.
+All `IC1`–`IC6` criteria passed.
 
-**Status: synthetic integration and manifest re-entry equivalence PASS. Ready
-for the separately scoped real biological integration arm after review.**
+**Status: synthetic integration, manifest re-entry equivalence and negative
+contracts PASS. Ready to return to the separately scoped real biological
+integration arm after review.**

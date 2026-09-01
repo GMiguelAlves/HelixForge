@@ -1,0 +1,7 @@
+criterion_id	test_ids	expected	observed	status	evidence
+IC1	IC-REF-01;IC-REF-02	all frozen behaviors observed	PASS;PASS	PASS	IC-REF-01;IC-REF-02
+IC2	IC-REF-03;IC-REF-04	all frozen behaviors observed	PASS;PASS	PASS	IC-REF-03;IC-REF-04
+IC3	IC-CON-01;IC-CON-02;IC-CON-03	all frozen behaviors observed	PASS;PASS;PASS	PASS	IC-CON-01;IC-CON-02;IC-CON-03
+IC4	IC-ENT-01	all frozen behaviors observed	PASS	PASS	IC-ENT-01
+IC5	IC-MAN-01;IC-MAN-02;IC-MAN-03	all frozen behaviors observed	PASS;PASS;PASS	PASS	IC-MAN-01;IC-MAN-02;IC-MAN-03
+IC6	IC-MARK-01;IC-MARK-02;IC-CTX-01	all frozen behaviors observed	PASS;PASS;PASS;PASS;PASS;PASS;PASS;PASS	PASS	IC-MARK-01;IC-MARK-02;IC-CTX-01
