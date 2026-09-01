@@ -1,0 +1,8 @@
+{
+  "algorithm": "independent frozen-protocol reconstruction of joins, states, patterns, scores, Fisher/BH and correlations",
+  "imports_helixforge_code": false,
+  "language": "Python standard library",
+  "libraries": [],
+  "script": "benchmark/integrative/scripts/evaluate_synthetic_integration.py",
+  "script_sha256": "5a336798cc4db26c040615559fd8ec01c9567ea556bcdaf4bb691b940d667646"
+}

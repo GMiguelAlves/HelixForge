@@ -1,0 +1,13 @@
+criterion_id	metric	observed	expected_threshold	status	evidence
+IS1	exact 1,000 canonical entities	PASS	exact 1,000 canonical entities	PASS	machine-readable metrics in this directory
+IS2	100% exact RNA/ChIP master states	PASS	100% exact RNA/ChIP master states	PASS	machine-readable metrics in this directory
+IS3	100% exact scoped missing states	PASS	100% exact scoped missing states	PASS	machine-readable metrics in this directory
+IS4	precision/recall/F1 1.0 for critical patterns	PASS	precision/recall/F1 1.0 for critical patterns	PASS	machine-readable metrics in this directory
+IS5	accuracy and macro-F1 >= 0.995	PASS	accuracy and macro-F1 >= 0.995	PASS	machine-readable metrics in this directory
+IS6	exact entity/contrast/context/mark maps	PASS	exact entity/contrast/context/mark maps	PASS	machine-readable metrics in this directory
+IS7	exact peak counts and complete ID sets	PASS	exact peak counts and complete ID sets	PASS	machine-readable metrics in this directory
+IS8	Fisher/BH/odds within frozen tolerance	PASS	Fisher/BH/odds within frozen tolerance	PASS	machine-readable metrics in this directory
+IS9	Pearson/Spearman within frozen tolerance	PASS	Pearson/Spearman within frozen tolerance	PASS	machine-readable metrics in this directory
+IS10	all score components and tie order exact	PASS	all score components and tie order exact	PASS	machine-readable metrics in this directory
+IS11	priority Spearman >= 0.60	PASS	priority Spearman >= 0.60	PASS	machine-readable metrics in this directory
+IS12	HIGH-priority top-100 recovery >= 0.80	PASS	HIGH-priority top-100 recovery >= 0.80	PASS	machine-readable metrics in this directory

@@ -1,0 +1,2 @@
+score_rows	score_component_failures	maximum_score_difference	rank_exact	priority_spearman	high_priority_auprc	top_10_recovery	top_25_recovery	top_50_recovery	top_100_recovery
+1000	0	0.0	True	0.8117504335221083	0.8743535001204731	1.0	1.0	1.0	1.0
