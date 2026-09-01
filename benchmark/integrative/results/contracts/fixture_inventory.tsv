@@ -1,0 +1,15 @@
+test_id	category	fixture	mutation	expected_behavior	expected_stage	expected_error_or_state	IC_gate
+IC-REF-01	compatibility	derived:IC-REF-01	RNA reference_id differs from ChIP reference_id	FAIL	compatibility	reference_id incompatible	IC1
+IC-REF-02	compatibility	derived:IC-REF-02	RNA genome_id differs from ChIP genome_id	FAIL	compatibility	genome_id incompatible	IC1
+IC-REF-03	compatibility	derived:IC-REF-03	RNA assembly differs from ChIP assembly	FAIL	compatibility	assembly incompatible	IC2
+IC-REF-04	compatibility	derived:IC-REF-04	RNA annotation_id differs from ChIP annotation_id	FAIL	compatibility	annotation_id incompatible	IC2
+IC-MAN-01	manifest	derived:IC-MAN-01	run manifest omits required run object	FAIL	JSON Schema	required property	IC5
+IC-MAN-02	manifest	derived:IC-MAN-02	run or artifact omits required provenance	FAIL	JSON Schema	required property	IC5
+IC-MAN-03	manifest	derived:IC-MAN-03	artifact_type is outside Integration API v1 enum	FAIL	JSON Schema	not one of	IC5
+IC-CON-01	contrast	derived:IC-CON-01	artifact references a contrast_id absent from its manifest	FAIL	semantic validation	unknown contrast	IC3
+IC-CON-02	contrast	derived:IC-CON-02	contrast numerator equals denominator	FAIL	semantic validation	identical numerator and denominator	IC3
+IC-CON-03	contrast	derived:IC-CON-03	RNA and ChIP declare different but individually valid semantic contrasts	PRESERVE_SEPARATELY	harmonization	RNA_ONLY and CHIP_ONLY	IC3
+IC-ENT-01	entity	derived:IC-ENT-01	opt-in version stripping maps two distinct source IDs to one assay-level canonical ID	FAIL	harmonization	version stripping causes entity collisions	IC4
+IC-MARK-01	mark	derived:IC-MARK-01	HP1 source mark	NORMALIZE	harmonization	SmHP1	IC6
+IC-MARK-02	mark	derived:IC-MARK-02	unlisted non-empty mark	PRESERVE_SEPARATELY	harmonization	exact mark with UNKNOWN interpretation role	IC6
+IC-CTX-01	context	derived:IC-CTX-01	unlisted non-empty context	PRESERVE_SEPARATELY	harmonization	exact context	IC6

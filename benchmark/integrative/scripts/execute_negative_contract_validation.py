@@ -340,7 +340,11 @@ def write_checksums(output: Path) -> None:
 def build_report(output: Path, summary: dict[str, Any], results: list[dict[str, str]], ic: list[dict[str, str]]) -> str:
     result_lines = "\n".join(f"| {row['test_id']} | {row['expected_behavior']} | {row['observed_behavior']} | {row['observed_stage']} | {row['status']} |" for row in results)
     ic_lines = "\n".join(f"| {row['criterion_id']} | {row['status']} | {row['test_ids']} |" for row in ic)
-    dimensions = "\n".join(f"{key} = {value}" for key, value in summary["classification"].items())
+    dimensions = "\n".join(
+        f"{key} = {value}"
+        for key, value in summary["classification"].items()
+        if key != "NEGATIVE_CONTRACT_BENCHMARK"
+    )
     return f"""# Negative contract validation
 
 ## Executive Summary

@@ -1,0 +1,16 @@
+{
+  "10B_commit": "1d65b33",
+  "10C_commit": "9a4529a",
+  "commands": [
+    "execute_negative_contract_validation.py --work-root <scratch> --output-dir benchmark/integrative/results/contracts"
+  ],
+  "comparison_script": "benchmark/integrative/scripts/execute_negative_contract_validation.py",
+  "fixture_inventory_sha256": "ba87581f3f6d8ce5ab58a510f801ad361844e239b2cab3941ccd3692be961014",
+  "helixforge_version": "v1.0.0-rc.1",
+  "hostname": "srv-slurm-node-03",
+  "integration_workflow": "d0d1e7499e5b42be8294da3d85e402fa90a1cfe2",
+  "platform": "Linux-6.12.86+deb13-amd64-x86_64-with-glibc2.41",
+  "python": "3.10.18",
+  "scientific_target": "dc0218ce902302da476910595bb133c82fee927c",
+  "slurm_job_id": "16450"
+}
