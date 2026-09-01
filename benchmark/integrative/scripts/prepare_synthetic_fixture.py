@@ -225,6 +225,16 @@ def build_chip(rows: list[dict[str, str]], root: Path) -> tuple[Path, list[dict[
                     "position_class": relationship, "mark_or_factor": mark, "condition": context,
                     "stage": "adults" if context == "adults" else "", "source_id": f"chip.peaks.{safe_token(mark)}.{safe_token(context)}",
                 })
+        if row["multi_gene_region_id"]:
+            # Evidence Model 1.1 keys differential-binding observations by
+            # region/contrast/artifact, independently of the associated gene.
+            # Keep the shared region exclusively in peak→gene evidence and use
+            # a deterministic, known carrier region for each gene-level DB row.
+            peak_counter += 1
+            primary_peak_id = f"SYN_DB_PEAK_{index:06d}"
+            start = 1000 + peak_counter * 100
+            carrier_context = row["source_context"]
+            beds[(mark, carrier_context)].append(f"chrS\t{start}\t{start + 80}\t{primary_peak_id}\t100\t.\t10\t8\t7\t40")
         if not primary_peak_id:
             primary_peak_id = annotations[-1]["peak_id"]
         missing = row["chip_observation_state"] == "MISSING"
@@ -353,6 +363,9 @@ def fixture_checks(root: Path, truth_rows: list[dict[str, str]], rna_manifest: P
         errors.append("RNA MISSING encoding count differs from frozen truth")
     if Counter(row["chip_observation_state"] for row in truth_rows)["MISSING"] != sum(not row["log2FoldChange"] for row in chip_db):
         errors.append("ChIP MISSING encoding count differs from frozen truth")
+    db_keys = [(row["peak_id"], row["contrast_id"]) for row in chip_db]
+    if len(db_keys) != len(set(db_keys)):
+        errors.append("differential-binding fixture contains duplicate region/contrast observations")
     if any(len(shared_targets[region]) < 2 for region in expected_shared):
         errors.append("one-region-to-multiple-gene relationships were not materialized")
     references = {rna_document["reference"][key] for key in ("reference_id",)} | {chip_document["reference"][key] for key in ("reference_id",)}
