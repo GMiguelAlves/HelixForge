@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 INVENTORY = ROOT / "benchmark/integrative/datasets/negative_contract_cases.tsv"
 REORDER = ROOT / "benchmark/integrative/protocol/operational_stage_reordering_20260901.md"
+HARNESS_CORRECTION = ROOT / "benchmark/integrative/protocol/negative_contract_harness_correction_20260901.md"
 EXPECTED_SHA256 = "ba87581f3f6d8ce5ab58a510f801ad361844e239b2cab3941ccd3692be961014"
 
 
@@ -28,6 +29,13 @@ class NegativeContractDesignTest(unittest.TestCase):
         self.assertIn("10D_SKIPPED_TEMPORARILY = YES", text)
         self.assertIn("10D_CANCELLED = NO", text)
         self.assertIn("No 10D or 10E criteria, fixtures, gates or scientific expectations were", text)
+
+    def test_harness_correction_does_not_change_frozen_science(self):
+        text = HARNESS_CORRECTION.read_text(encoding="utf-8")
+        self.assertIn("CORE_CHANGED = NO", text)
+        self.assertIn("FIXTURES_CHANGED = NO", text)
+        self.assertIn("EXPECTED_BEHAVIORS_CHANGED = NO", text)
+        self.assertIn("IC_GATES_CHANGED = NO", text)
 
 
 if __name__ == "__main__":

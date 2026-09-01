@@ -68,6 +68,23 @@ def sanitize(message: str, run_root: Path) -> str:
     return " ".join(str(message).replace(str(run_root), "<RUN_ROOT>").split())
 
 
+def specific_jsonschema_errors(document: dict[str, Any], schema_name: str) -> list[str]:
+    """Expose field-level diagnostics hidden by the public union schema."""
+    from jsonschema import Draft202012Validator
+    from referencing import Registry, Resource
+
+    schema_root = ROOT / "schemas/integration"
+    resources = []
+    for path in schema_root.rglob("*.json"):
+        value = json.loads(path.read_text(encoding="utf-8"))
+        if value.get("$id"):
+            resources.append((value["$id"], Resource.from_contents(value)))
+    registry = Registry().with_resources(resources)
+    schema = json.loads((schema_root / schema_name).read_text(encoding="utf-8"))
+    validator = Draft202012Validator(schema, registry=registry, format_checker=Draft202012Validator.FORMAT_CHECKER)
+    return [error.message for error in sorted(validator.iter_errors(document), key=lambda item: list(item.path))]
+
+
 def category(test_id: str) -> str:
     return {
         "REF": "compatibility", "MAN": "manifest", "CON": "contrast",
@@ -174,7 +191,6 @@ def execute_iteration(run_root: Path, inventory: list[dict[str, str]]) -> tuple[
     results: list[dict[str, str]] = []
     snapshots = run_root / "fixture_snapshots"
     snapshots.mkdir()
-    schema_root = ROOT / "schemas/integration"
     original_rna = json.loads(baseline["rna_manifest"].read_text(encoding="utf-8"))
     original_chip = json.loads(baseline["chip_manifest"].read_text(encoding="utf-8"))
 
@@ -201,17 +217,17 @@ def execute_iteration(run_root: Path, inventory: list[dict[str, str]]) -> tuple[
     document = copy.deepcopy(original_rna)
     del document["run"]
     dump_json(snapshots / "IC-MAN-01.rnaseq_run_manifest.json", document)
-    results.append(run_expect_failure(cases["IC-MAN-01"], lambda: jsonschema_errors(document, schema_root), "JSON Schema", "required property", run_root))
+    results.append(run_expect_failure(cases["IC-MAN-01"], lambda: specific_jsonschema_errors(document, "rnaseq-run-manifest.schema.json"), "JSON Schema", "required property", run_root))
 
     document = copy.deepcopy(original_rna)
     del document["provenance"]
     dump_json(snapshots / "IC-MAN-02.rnaseq_run_manifest.json", document)
-    results.append(run_expect_failure(cases["IC-MAN-02"], lambda: jsonschema_errors(document, schema_root), "JSON Schema", "required property", run_root))
+    results.append(run_expect_failure(cases["IC-MAN-02"], lambda: specific_jsonschema_errors(document, "rnaseq-run-manifest.schema.json"), "JSON Schema", "required property", run_root))
 
     document = copy.deepcopy(original_rna)
     document["artifacts"][0]["artifact_type"] = "unknown_integration_artifact"
     dump_json(snapshots / "IC-MAN-03.rnaseq_run_manifest.json", document)
-    results.append(run_expect_failure(cases["IC-MAN-03"], lambda: jsonschema_errors(document, schema_root), "JSON Schema", "not one of", run_root))
+    results.append(run_expect_failure(cases["IC-MAN-03"], lambda: specific_jsonschema_errors(document, "rnaseq-run-manifest.schema.json"), "JSON Schema", "not one of", run_root))
 
     document = copy.deepcopy(original_rna)
     document["artifacts"][0]["contrast_id"] = "undeclared_contrast"
@@ -412,6 +428,13 @@ All fixtures were executed twice. Outcome, validation stage, error class/state a
 ## Limitations
 
 This arm is intentionally contract-level and uses the frozen 14-case inventory. Missing-artifact, checksum-mismatch, schema-version, duplicate-artifact and lineage-conflict cases are covered elsewhere by unit tests or remain candidates for a future preregistered contract expansion; they were not inserted into 10E after the freeze. Performance is descriptive on a shared Slurm cluster.
+
+The first technical attempt used the public union schema's top-level diagnostic,
+which correctly rejected all three malformed manifests but hid the frozen
+field-level error substring. Before scientific interpretation, the harness was
+restricted to the manifest's assay-specific schema so it could record the
+underlying diagnostic. This changed neither input, expected behavior, gate nor
+HelixForge core behavior; the first compact attempt was retained for audit.
 
 ## Final Classification
 
