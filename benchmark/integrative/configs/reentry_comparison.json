@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "comparison_id": "integrative_reentry_v1",
+  "route_a": "direct_terminal_manifests",
+  "route_b": "relocated_manifest_relative_reentry",
+  "fixed_inputs": ["rna_manifest", "chip_manifest", "artifact_checksums", "policies", "scientific_target_commit"],
+  "compare": [
+    "harmonization_maps",
+    "master_evidence_long",
+    "master_evidence",
+    "peak_aggregation",
+    "regulatory_classes",
+    "fisher_tests",
+    "correlations",
+    "candidate_score",
+    "candidate_ranking",
+    "functional_analysis_input",
+    "report_source_tables",
+    "integrative_run_manifest"
+  ],
+  "html_byte_identity": false,
+  "deterministic_tsv_sha256_identity": true,
+  "scientific_execution": "not_started",
+  "status": "frozen"
+}
