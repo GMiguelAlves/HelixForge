@@ -25,8 +25,8 @@ class NegativeContractDesignTest(unittest.TestCase):
 
     def test_operational_reordering_does_not_cancel_real_arm(self):
         text = REORDER.read_text(encoding="utf-8")
-        self.assertIn("10D_STATUS = NOT_STARTED", text)
-        self.assertIn("10D_SKIPPED_TEMPORARILY = YES", text)
+        self.assertIn("10D_STATUS = METADATA_PREFLIGHT_COMPLETE", text)
+        self.assertIn("10D_SKIPPED_TEMPORARILY = RESOLVED", text)
         self.assertIn("10D_CANCELLED = NO", text)
         self.assertIn("No 10D or 10E criteria, fixtures, gates or scientific expectations were", text)
 
