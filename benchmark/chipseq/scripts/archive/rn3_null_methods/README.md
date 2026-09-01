@@ -1,6 +1,6 @@
 # Archived RN3 null-method attempts
 
-These scripts record the pre-inference null-model attempts described in the
+These Python scripts record the pre-inference null-model attempts described in the
 [Real Narrow report](../../../reports/real_narrow_benchmark.md). They are kept
 for methodological audit only and are not part of the active benchmark path.
 

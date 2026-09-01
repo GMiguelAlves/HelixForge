@@ -14,10 +14,8 @@ HELIXFORGE_RUNNER = ROOT / "benchmark/chipseq/scripts/real_narrow/run_real_narro
 INDEPENDENT_RUNNER = ROOT / "benchmark/chipseq/scripts/real_narrow/run_independent_real_narrow.sh"
 EVALUATOR = ROOT / "benchmark/chipseq/scripts/real_narrow/evaluate_real_narrow.py"
 NULL_VALIDATOR = ROOT / "benchmark/chipseq/scripts/archive/rn3_null_methods/validate_real_narrow_null_generator.py"
-NULL_SLURM = ROOT / "benchmark/chipseq/scripts/archive/rn3_null_methods/slurm_validate_real_narrow_nulls.sh"
 NULL_FREEZER = ROOT / "benchmark/chipseq/scripts/archive/rn3_null_methods/freeze_real_narrow_nulls.py"
 EXACT_GC_PREFLIGHT = ROOT / "benchmark/chipseq/scripts/real_narrow/preflight_real_narrow_exact_gc_capacity.py"
-EXACT_GC_SLURM = ROOT / "benchmark/chipseq/scripts/real_narrow/slurm_preflight_real_narrow_exact_gc.sh"
 FINAL_METRICS = ROOT / "benchmark/chipseq/results/real_narrow/evaluation/final_metrics.json"
 
 
@@ -91,7 +89,6 @@ class RealNarrowBenchmarkTests(unittest.TestCase):
 
     def test_null_generator_validation_is_separate_from_rn3(self):
         validator = NULL_VALIDATOR.read_text(encoding="utf-8")
-        slurm = NULL_SLURM.read_text(encoding="utf-8")
         self.assertIn('phase": "NULL_GENERATOR_VALIDATION"', validator)
         self.assertIn('"rn3": {"calculated": False}', validator)
         self.assertNotIn('observed_overlap', validator)
@@ -100,7 +97,6 @@ class RealNarrowBenchmarkTests(unittest.TestCase):
         self.assertIn('GLOBAL_MAX_REUSE_ALPHA = 0.01', validator)
         self.assertIn('V2_SAMPLER_RETIRED = True', validator)
         self.assertIn('choices=("run_a", "run_b")', validator)
-        self.assertIn('null_validation/$run_label', slurm)
         freezer = NULL_FREEZER.read_text(encoding="utf-8")
         self.assertIn('"phase": "VALIDATED_NULL_FREEZE"', freezer)
         self.assertIn('"rn3": {"calculated": False}', freezer)
@@ -108,14 +104,12 @@ class RealNarrowBenchmarkTests(unittest.TestCase):
 
     def test_exact_gc_capacity_preflight_cannot_run_inference(self):
         preflight = EXACT_GC_PREFLIGHT.read_text(encoding="utf-8")
-        slurm = EXACT_GC_SLURM.read_text(encoding="utf-8")
         self.assertIn('phase": "EXACT_GC_CAPACITY_PREFLIGHT"', preflight)
         self.assertIn('"rn3_calculated": False', preflight)
         self.assertIn('"null_sets_generated": False', preflight)
         self.assertNotIn('observed_overlap', preflight)
         self.assertNotIn('empirical_p', preflight)
         self.assertIn('M >= k', preflight)
-        self.assertIn('null_v3_capacity', slurm)
 
     def test_final_classification_preserves_rn3_disposition(self):
         metrics = json.loads(FINAL_METRICS.read_text(encoding="utf-8"))
