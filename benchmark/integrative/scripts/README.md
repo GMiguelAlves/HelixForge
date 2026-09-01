@@ -37,3 +37,10 @@ The manifest/re-entry equivalence utilities are:
 
 These utilities do not run real biological integration, negative contracts or
 the baseline freeze.
+
+The real biological arm starts with a download-free metadata and storage
+preflight under `scripts/real/`. Its Slurm launcher freezes the session and job
+in a persistent `benchmark_state.json`; the worker cross-checks the 16 selected
+GSE133183 samples against GEO, ENA and NCBI before any FASTQ transfer. A
+metadata mismatch stops as `DATASET_AVAILABILITY_CONFLICT`, while insufficient
+verified scratch space stops as `RESOURCE_BLOCKED`.
