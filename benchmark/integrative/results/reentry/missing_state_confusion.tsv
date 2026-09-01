@@ -1,0 +1,15 @@
+field	route_a_state	route_b_state	count	status
+chip_evidence_state	MEASURED	MEASURED	1600	PASS
+chip_evidence_state	NO_PEAK	NO_PEAK	400	PASS
+differential_binding_state	MEASURED_NOT_SIGNIFICANT	MEASURED_NOT_SIGNIFICANT	100	PASS
+differential_binding_state	NOT_MEASURED	NOT_MEASURED	200	PASS
+differential_binding_state	SIGNIFICANT	SIGNIFICANT	700	PASS
+measurement_state	MEASURED	MEASURED	9504	PASS
+measurement_state	MISSING	MISSING	80	PASS
+peak_presence_state	NO_PEAK	NO_PEAK	200	PASS
+peak_presence_state	PRESENT	PRESENT	800	PASS
+rna_evidence_state	MEASURED	MEASURED	1800	PASS
+rna_evidence_state	NOT_MEASURED	NOT_MEASURED	200	PASS
+rna_significance_state	MEASURED_NOT_SIGNIFICANT	MEASURED_NOT_SIGNIFICANT	200	PASS
+rna_significance_state	NOT_MEASURED	NOT_MEASURED	100	PASS
+rna_significance_state	SIGNIFICANT	SIGNIFICANT	700	PASS

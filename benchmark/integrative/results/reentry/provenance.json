@@ -1,0 +1,23 @@
+{
+  "baseline_10b_commit": "d4f8347",
+  "benchmark_execution_commit": "c0eacb89724e26c864609c6c6437597319ac2f4b",
+  "classification": "PASS",
+  "comparison_script": "benchmark/integrative/scripts/compare_reentry_routes.py",
+  "comparison_script_sha256": "0a6f15c1e0436a2744f08d6e272880f849ad5ca57a7348271cb2d15809eb2f99",
+  "config": "benchmark/integrative/configs/reentry_slurm.config",
+  "config_sha256": "79d28e7c11fa512fef9070dc27a9dd3fdce0d584533a5c9af1ea2c91da6404c5",
+  "integration_workflow": "d0d1e7499e5b42be8294da3d85e402fa90a1cfe2",
+  "nextflow": "25.10.7",
+  "readiness": "READY_FOR_NEXT_INTEGRATIVE_STAGE",
+  "route_a": {
+    "command_record": "commands.txt",
+    "mode": "direct_terminal_manifests"
+  },
+  "route_b": {
+    "command_record": "commands.txt",
+    "mode": "relocated_manifest_relative_reentry"
+  },
+  "schema_version": "1.0",
+  "scientific_target": "dc0218ce902302da476910595bb133c82fee927c",
+  "type": "integrative_reentry_execution_provenance"
+}

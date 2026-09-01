@@ -1,0 +1,5 @@
+route	assay	manifest	schema_version	manifest_sha256	schema_validation	semantic_validation	filesystem_validation	reference_compatibility	portable_locations	artifacts
+A	rnaseq	rnaseq_run_manifest.json	1.0	ee5988830f42c3292e1bf2b4c495a306e3a67a42549747e278296ff2c41e59d8	PASS	PASS	PASS	PASS	PASS	3
+A	chipseq	chipseq_run_manifest.json	1.0	ba66c768b2848921782fb153d024b5cba344d9c6818a668542bb912e3de31e15	PASS	PASS	PASS	PASS	PASS	23
+B	rnaseq	rnaseq_run_manifest.json	1.0	ee5988830f42c3292e1bf2b4c495a306e3a67a42549747e278296ff2c41e59d8	PASS	PASS	PASS	PASS	PASS	3
+B	chipseq	chipseq_run_manifest.json	1.0	ba66c768b2848921782fb153d024b5cba344d9c6818a668542bb912e3de31e15	PASS	PASS	PASS	PASS	PASS	23
