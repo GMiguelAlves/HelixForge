@@ -58,7 +58,7 @@ def main() -> None:
     reports = [path for path in args.run_a.rglob("integrative_report.html") if path.is_file()]
     result = {
         "schema_version": "1.0", "type": "integrative_synthetic_determinism",
-        "run_a": str(args.run_a.resolve()), "run_b": str(args.run_b.resolve()),
+        "run_a": "run-a", "run_b": "run-b",
         "tables_compared": len(rows), "semantic_identity": bool(rows) and all(row["semantic_identity"] for row in rows),
         "byte_identity_required_tables": all(row["byte_identity"] for row in rows),
         "volatile_json_compared_by_schema_and_scientific_tables": bool(manifests),

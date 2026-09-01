@@ -575,7 +575,7 @@ def main() -> None:
         "synthetic_integration_benchmark": "FAIL" if release_failures else "PASS_WITH_LIMITATIONS" if expected_limitations else "PASS",
     }
     dump_json(output / "benchmark_summary.json", summary)
-    dump_json(output / "independent_reference_provenance.json", {"language": "Python standard library", "libraries": [], "algorithm": "independent frozen-protocol reconstruction of joins, states, patterns, scores, Fisher/BH and correlations", "script": str(Path(__file__).resolve()), "script_sha256": sha256(Path(__file__).resolve()), "imports_helixforge_code": False})
+    dump_json(output / "independent_reference_provenance.json", {"language": "Python standard library", "libraries": [], "algorithm": "independent frozen-protocol reconstruction of joins, states, patterns, scores, Fisher/BH and correlations", "script": "benchmark/integrative/scripts/evaluate_synthetic_integration.py", "script_sha256": sha256(Path(__file__).resolve()), "imports_helixforge_code": False})
     print(json.dumps({"classification": summary["synthetic_integration_benchmark"], "release_gate_failures": release_failures, "expected_range_limitations": expected_limitations}, sort_keys=True))
 
 

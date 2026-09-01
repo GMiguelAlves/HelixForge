@@ -113,6 +113,12 @@ def main() -> None:
     for name in COMPACT_METRICS:
         shutil.copy2(root / "metrics/run-a" / name, output / name)
     shutil.copy2(root / "metrics/determinism_metrics.json", output / "determinism_metrics.json")
+    independent_provenance = load_json(output / "independent_reference_provenance.json")
+    independent_provenance["script"] = "benchmark/integrative/scripts/evaluate_synthetic_integration.py"
+    (output / "independent_reference_provenance.json").write_text(json.dumps(independent_provenance, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    determinism_public = load_json(output / "determinism_metrics.json")
+    determinism_public["run_a"], determinism_public["run_b"] = "run-a", "run-b"
+    (output / "determinism_metrics.json").write_text(json.dumps(determinism_public, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     performance_rows = [performance(root, "a"), performance(root, "b")]
     write_tsv(output / "performance.tsv", list(performance_rows[0]), performance_rows)
 
@@ -135,7 +141,15 @@ def main() -> None:
     marks = read_tsv(output / "mark_metrics.tsv")
     gates = read_tsv(output / "acceptance_criteria.tsv")
     candidate = read_tsv(output / "candidate_score_metrics.tsv")[0]
-    environment = (root / "environment.txt").read_text(encoding="utf-8").strip().replace("\n", "; ")
+    environment_items = {}
+    for line in (root / "environment.txt").read_text(encoding="utf-8").splitlines():
+        if "=" in line:
+            key, value = line.split("=", 1); environment_items[key] = value
+    environment = "; ".join([
+        f"hostname={environment_items.get('hostname', '')}", f"os={environment_items.get('os', '')}",
+        f"java={environment_items.get('java', '')}", f"python={environment_items.get('python', '')}",
+        "nextflow=25.10.7",
+    ])
     report = f"""# Synthetic ground-truth integration benchmark
 
 ## Executive Summary
