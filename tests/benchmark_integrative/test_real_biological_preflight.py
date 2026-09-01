@@ -51,7 +51,20 @@ class RealBiologicalPreflightTests(unittest.TestCase):
         state = json.loads(STATE_PATH.read_text(encoding="utf-8"))
         self.assertEqual(state["scientific_stage_order"], ["10B", "10C", "10D", "10E", "10F"])
         self.assertEqual(state["operational_stage_order"], ["10B", "10C", "10E", "10D"])
-        self.assertEqual(state["phase"], "METADATA_PREFLIGHT_PREPARED")
+        self.assertEqual(state["phase"], "METADATA_PREFLIGHT_COMPLETE")
+        self.assertEqual(state["status"], "COMPLETE")
+        self.assertEqual(state["jobs"][0]["job_id"], "16456")
+
+    def test_accession_preflight_is_complete(self):
+        metadata = ROOT / "benchmark/integrative/results/real/metadata"
+        validation = json.loads((metadata / "metadata_validation.json").read_text(encoding="utf-8"))
+        storage = json.loads((metadata / "storage_plan.json").read_text(encoding="utf-8"))
+        self.assertEqual(validation["status"], "METADATA_VALIDATED")
+        self.assertEqual(len(validation["selected_gsms"]), 16)
+        self.assertEqual(len(validation["selected_runs"]), 16)
+        self.assertEqual(storage["selected_fastq_files"], 32)
+        self.assertEqual(storage["status"], "SPACE_AVAILABLE")
+        self.assertGreater(storage["paired_fastq_download_gib"], 200)
 
     def test_validator_rejects_execution_outside_slurm(self):
         with tempfile.TemporaryDirectory() as directory:
