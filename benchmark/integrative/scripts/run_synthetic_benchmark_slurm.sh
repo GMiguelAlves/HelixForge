@@ -49,6 +49,15 @@ if [[ "$mode" == determinism ]]; then
     exit 0
 fi
 
+if [[ "$mode" == finalize ]]; then
+    test -n "${SLURM_JOB_ID:-}"
+    python3 "$repo_root/benchmark/integrative/scripts/finalize_synthetic_benchmark.py" \
+        --execution-root "$scratch_root" --repo-root "$repo_root" \
+        --output-dir "$repo_root/benchmark/integrative/results/synthetic" \
+        --audit-archive "/home/ra236875@bio.ib.unicamp.br/helixforge-audits/helixforge-integrative-synthetic-10b-20260901.zip"
+    exit 0
+fi
+
 [[ "$mode" == driver ]] || { echo "unsupported mode: $mode" >&2; exit 2; }
 [[ -z "${SLURM_JOB_ID:-}" ]] || { echo "driver must run on the Slurm management node" >&2; exit 2; }
 test -d "$repo_root/.git"
