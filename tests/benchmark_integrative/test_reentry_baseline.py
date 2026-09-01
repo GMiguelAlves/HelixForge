@@ -35,6 +35,7 @@ class ReentryBaselineTests(unittest.TestCase):
 
     def test_report_has_final_classification(self):
         text = REPORT.read_text(encoding="utf-8")
+        self.assertIn("## Validation", text)
         self.assertIn("REENTRY_EQUIVALENCE_BENCHMARK = PASS", text)
         self.assertTrue(text.rstrip().endswith("READY_FOR_NEXT_INTEGRATIVE_STAGE"))
 
