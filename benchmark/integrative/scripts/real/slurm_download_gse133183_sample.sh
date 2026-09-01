@@ -18,6 +18,8 @@ manifest_dir="$scratch_root/download_manifests"
 mkdir -p "$fastq_dir" "$manifest_dir"
 started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 records=0
+files_part="$manifest_dir/${gsm}.files.tsv.part"
+printf 'geo_sample\trun_accession\tmate\tpath\tmd5\tbytes\n' > "$files_part"
 
 download_one() {
     local url=$1 expected_md5=$2 expected_bytes=$3 destination=$4
@@ -47,11 +49,11 @@ while IFS=$'\t' read -r row_gsm run assay mark condition replicate mate url md5 
     destination="$fastq_dir/${gsm}_${run}_R${mate}.fastq.gz"
     download_one "$url" "$md5" "$bytes" "$destination"
     printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$gsm" "$run" "$mate" "$destination" "$md5" "$bytes" \
-        >> "$manifest_dir/${gsm}.files.tsv.part"
+        >> "$files_part"
     records=$((records + 1))
 done < <(tail -n +2 "$manifest")
 [[ "$records" == 2 ]]
-mv -- "$manifest_dir/${gsm}.files.tsv.part" "$manifest_dir/${gsm}.files.tsv"
+mv -- "$files_part" "$manifest_dir/${gsm}.files.tsv"
 ended=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 printf 'geo_sample\tstarted_utc\tended_utc\tslurm_job_id\tarray_task_id\tstatus\n' \
     > "$manifest_dir/${gsm}.execution.tsv"
