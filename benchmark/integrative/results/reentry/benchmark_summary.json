@@ -1,0 +1,53 @@
+{
+  "baseline_10b_commit": "d4f8347",
+  "baseline_10b_compatibility": "PASS",
+  "byte_level_equivalence": "PASS",
+  "candidate_score_equivalence": "PASS",
+  "entity_equivalence": "PASS",
+  "integration_workflow": "d0d1e7499e5b42be8294da3d85e402fa90a1cfe2",
+  "ir_gates": {
+    "IR1": "PASS",
+    "IR2": "PASS",
+    "IR3": "PASS",
+    "IR4": "PASS"
+  },
+  "manifest_validation": "PASS",
+  "maximum_numerical_difference": 0.0,
+  "maximum_relative_difference": 0.0,
+  "missing_state_equivalence": "PASS",
+  "performance": [
+    {
+      "completed": 12,
+      "failed": 0,
+      "peak_rss_bytes": 42677043,
+      "peak_vmem_bytes": 57986253,
+      "processes": 12,
+      "result_bytes": 8980879,
+      "route": "A",
+      "task_realtime_seconds": 7.118,
+      "workflow_wall_seconds": 82.844
+    },
+    {
+      "completed": 12,
+      "failed": 0,
+      "peak_rss_bytes": 42362470,
+      "peak_vmem_bytes": 57986253,
+      "processes": 12,
+      "result_bytes": 8980879,
+      "route": "B",
+      "task_realtime_seconds": 7.671,
+      "workflow_wall_seconds": 83.318
+    }
+  ],
+  "provenance_equivalence": "PASS",
+  "readiness": "READY_FOR_NEXT_INTEGRATIVE_STAGE",
+  "reentry_equivalence_benchmark": "PASS",
+  "reentry_isolation": "PASS",
+  "regulatory_equivalence": "PASS",
+  "schema_equivalence": "PASS",
+  "schema_version": "1.0",
+  "scientific_target": "dc0218ce902302da476910595bb133c82fee927c",
+  "statistical_equivalence": "PASS",
+  "technical_execution": "PASS",
+  "type": "integrative_reentry_equivalence_summary"
+}

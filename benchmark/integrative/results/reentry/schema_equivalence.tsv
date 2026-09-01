@@ -1,0 +1,17 @@
+artifact	route_a_columns	route_b_columns	route_a_rows	route_b_rows	column_order_equal	semantic_types_equal	status
+entity_map.tsv	9	9	1700	1700	YES	YES	PASS
+contrast_map.tsv	8	8	1	1	YES	YES	PASS
+mark_map.tsv	4	4	9	9	YES	YES	PASS
+master_evidence.tsv	13	13	1000	1000	YES	YES	PASS
+master_evidence_long.tsv	27	27	9584	9584	YES	YES	PASS
+peak_aggregation.tsv	9	9	1584	1584	YES	YES	PASS
+regulatory_classes.tsv	29	29	1000	1000	YES	YES	PASS
+fisher_tests.tsv	22	22	37	37	YES	YES	PASS
+correlations.tsv	15	15	3200	3200	YES	YES	PASS
+candidate_score.tsv	37	37	1000	1000	YES	YES	PASS
+candidate_ranking.tsv	8	8	1000	1000	YES	YES	PASS
+gene_sets.tsv	4	4	1100	1100	YES	YES	PASS
+functional_enrichment.tsv	5	5	6	6	YES	YES	PASS
+functional_tests.tsv	14	14	10	10	YES	YES	PASS
+annotation_summary.tsv	5	5	10	10	YES	YES	PASS
+candidate_explorer.tsv	13	13	1000	1000	YES	YES	PASS

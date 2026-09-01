@@ -1,0 +1,2 @@
+maximum_score_difference	rank_identity	rank_spearman	top_10_identity	top_25_identity	top_50_identity	top_100_identity	status
+0.0	YES	1.0	1.0	1.0	1.0	1.0	PASS

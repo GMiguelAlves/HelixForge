@@ -1,0 +1,5 @@
+criterion_id	metric	route_a	route_b	expected_tolerance	status	evidence
+IR1	semantic table equivalence	complete	complete	exact rows, columns, entities, states and classes	PASS	checksum_equivalence.tsv; schema_equivalence.tsv; entity_equivalence.tsv
+IR2	numeric equivalence	max_abs=0	max_abs=0	IS8-IS10 frozen tolerances	PASS	numerical_equivalence.tsv; candidate_score_equivalence.tsv
+IR3	deterministic artifact identity	canonical TSV SHA-256	canonical TSV SHA-256	identical	PASS	checksum_equivalence.tsv
+IR4	terminal lineage	direct frozen manifests	relocated manifest_relative	same scientific manifest/checksum lineage	PASS	provenance_equivalence.tsv; manifest_validation.tsv
