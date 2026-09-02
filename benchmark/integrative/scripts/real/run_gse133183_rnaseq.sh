@@ -4,6 +4,7 @@ set -euo pipefail
 repo=${1:-/home/ra236875@bio.ib.unicamp.br/helixforge-integrative-reentry-20260901}
 root=${2:-/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901}
 queue=${3:-general}
+run_mode=${4:-fresh}
 case_root="$root/cases/rnaseq"
 state="$root/benchmark_state.json"
 nextflow_jar=/home/ra236875@bio.ib.unicamp.br/.nextflow/framework/25.10.7/nextflow-25.10.7-one.jar
@@ -35,8 +36,18 @@ test -x "$rna_runtime/bin/java"
 test -x "$rna_runtime/bin/salmon"
 test -x "$python_runtime/bin/python3"
 test -x "$r_runtime/bin/Rscript"
-test ! -e "$case_root/results"
-test ! -e "$case_root/work"
+resume_args=()
+if [[ "$run_mode" == fresh ]]; then
+    test ! -e "$case_root/results"
+    test ! -e "$case_root/work"
+elif [[ "$run_mode" == resume ]]; then
+    test -d "$case_root/work"
+    test ! -e "$case_root/execution_identity.json"
+    resume_args=(-resume)
+else
+    echo "invalid run mode: $run_mode" >&2
+    exit 2
+fi
 git -C "$repo" diff --quiet "$scientific_target" -- \
     main.nf nextflow.config nextflow_schema.json workflows subworkflows modules schemas pipelines
 "$rna_runtime/bin/java" -jar "$nextflow_jar" -version 2>&1 | grep -Fq 'version 25.10.7'
@@ -44,8 +55,17 @@ git -C "$repo" diff --quiet "$scientific_target" -- \
 mkdir -p "$case_root/logs" "$case_root/nxf-home" "$case_root/nxf-cache"
 runtime_path="$python_runtime/bin:$r_runtime/bin:$rna_runtime/bin:/usr/bin:/bin"
 started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-trap 'update RNASEQ_FAILED FAILED' ERR
-update RNASEQ_SUBMITTED RUNNING
+if [[ "$run_mode" == resume ]]; then
+    submitted_phase=RNASEQ_RETRY_SUBMITTED
+    failed_phase=RNASEQ_RETRY_FAILED
+    complete_phase=RNASEQ_RETRY_COMPLETE
+else
+    submitted_phase=RNASEQ_SUBMITTED
+    failed_phase=RNASEQ_FAILED
+    complete_phase=RNASEQ_COMPLETE
+fi
+trap 'update "$failed_phase" FAILED' ERR
+update "$submitted_phase" RUNNING
 
 cd "$repo"
 env PATH="$runtime_path" \
@@ -57,6 +77,7 @@ env PATH="$runtime_path" \
     "$rna_runtime/bin/java" -Xms128m -Xmx1g -jar "$nextflow_jar" \
     -log "$case_root/logs/nextflow.log" \
     run main.nf \
+    "${resume_args[@]}" \
     -c "$resource_config" \
     -ansi-log false \
     -work-dir "$case_root/work" \
@@ -101,12 +122,12 @@ if manifest.get("quantification_method") != "salmon":
 PY
 
 ended=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-"$python_runtime/bin/python3" - "$case_root/execution_identity.json" "$repo_commit" "$scientific_target" "$started" "$ended" "$queue" <<'PY'
+"$python_runtime/bin/python3" - "$case_root/execution_identity.json" "$repo_commit" "$scientific_target" "$started" "$ended" "$queue" "$run_mode" <<'PY'
 import json
 import sys
 from pathlib import Path
 
-path, commit, target, started, ended, queue = sys.argv[1:]
+path, commit, target, started, ended, queue, run_mode = sys.argv[1:]
 Path(path).write_text(json.dumps({
     "schema_version": "1.0", "status": "COMPLETE", "workflow": "rnaseq",
     "role": "INPUT_GENERATION_FOR_INTEGRATIVE_BENCHMARK",
@@ -114,8 +135,9 @@ Path(path).write_text(json.dumps({
     "core_equal_to_scientific_target": True, "nextflow": "25.10.7", "java_major": 21,
     "queue": queue, "queue_size": 5, "samples": 4,
     "quantification_provider": "salmon", "design": "~ condition",
-    "contrast": "condition__GSK343_vs_DMSO", "started_utc": started, "ended_utc": ended,
+    "contrast": "condition__GSK343_vs_DMSO", "run_mode": run_mode,
+    "started_utc": started, "ended_utc": ended,
 }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY
-update RNASEQ_COMPLETE COMPLETE
+update "$complete_phase" COMPLETE
 trap - ERR
