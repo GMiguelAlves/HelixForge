@@ -44,3 +44,12 @@ in a persistent `benchmark_state.json`; the worker cross-checks the 16 selected
 GSE133183 samples against GEO, ENA and NCBI before any FASTQ transfer. A
 metadata mismatch stops as `DATASET_AVAILABILITY_CONFLICT`, while insufficient
 verified scratch space stops as `RESOURCE_BLOCKED`.
+
+The GSE133183 RNA-seq launcher normally uses the released top-level workflow.
+If a completed and audited native QC boundary cannot be recovered because the
+shared NFS runtime has lost the corresponding Nextflow task-cache entries,
+`real/start_gse133183_rnaseq_post_qc.sh` starts a benchmark-only re-entry. It
+consumes the published QC plan, normalized metadata, reference manifest and
+merged FASTQs, then calls the unchanged Salmon, Import, DESeq2 and Report
+subworkflows. The re-entry workflow does not include any QC process and records
+the operational exception in the terminal manifest provenance.
