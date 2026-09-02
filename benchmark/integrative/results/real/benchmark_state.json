@@ -23,6 +23,12 @@
       "kind": "fastq_download_array",
       "last_reported_status": "COMPLETE",
       "phase": "FASTQ_DOWNLOAD_COMPLETE"
+    },
+    {
+      "job_id": "16503",
+      "kind": "download_validation",
+      "last_reported_status": "COMPLETE",
+      "phase": "FASTQ_DOWNLOAD_COMPLETE"
     }
   ],
   "last_known_state": "COMPLETE",
@@ -44,7 +50,7 @@
   "scientific_target_commit": "dc0218ce902302da476910595bb133c82fee927c",
   "session_uuid": "35a89bf1-362d-40a1-b71b-73459f3c18f0",
   "status": "COMPLETE",
-  "updated_utc": "2026-09-02T05:54:33Z",
+  "updated_utc": "2026-09-02T05:57:23Z",
   "workdirs": [
     "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901",
     "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901/fastq"
