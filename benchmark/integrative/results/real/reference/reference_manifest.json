@@ -1,0 +1,108 @@
+{
+  "artifacts": [
+    {
+      "filename": "genome.fa",
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901/reference/bundle/genome.fa",
+      "relative_path": "genome.fa",
+      "role": "genome_fasta",
+      "sha256": "e49b92b3e4f321bf254c042f25b726d9931c4d74c7523e8b6bb530e63b0cfd4b",
+      "size_bytes": 3151417447
+    },
+    {
+      "filename": "genome.fa.fai",
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901/reference/bundle/genome.fa.fai",
+      "relative_path": "genome.fa.fai",
+      "role": "genome_fai",
+      "sha256": "a2c323ea4cff34d7123ace4578f7e122b2d2f5a22f40dc23eb8b97d17723d169",
+      "size_bytes": 6482
+    },
+    {
+      "filename": "annotation.gtf",
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901/reference/bundle/annotation.gtf",
+      "relative_path": "annotation.gtf",
+      "role": "annotation_gtf",
+      "sha256": "04af7379ad6c214f49758db270938a38c41bebbf7b9dc8e24065d8f3a9f08d0d",
+      "size_bytes": 4688772094
+    },
+    {
+      "filename": "transcriptome.fa",
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901/reference/bundle/transcriptome.fa",
+      "relative_path": "transcriptome.fa",
+      "role": "transcriptome",
+      "sha256": "179bbe798a0e455d05b9456ab5f7ef51bffdcab6118d4697ea3219181c5e7c93",
+      "size_bytes": 1575713375
+    },
+    {
+      "filename": "blacklist.bed",
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901/reference/bundle/blacklist.bed",
+      "relative_path": "blacklist.bed",
+      "role": "blacklist",
+      "sha256": "5d214c58c07f33a4fa1d6bcfe61ff00c666510e8fee5520fc1015c5d3ef16f3b",
+      "size_bytes": 21720
+    }
+  ],
+  "assembly": "GRCh38.p14",
+  "blacklist_accession": "ENCFF356LFX",
+  "bundle_id": "gencode_human_v50_primary",
+  "contigs": {
+    "blacklist": 24,
+    "fasta": 194,
+    "gtf": 70
+  },
+  "release": "GENCODE_50",
+  "samtools": "/home/ra236875@bio.ib.unicamp.br/miniconda3/envs/chipseq/bin/samtools",
+  "schema_version": "1.0",
+  "slurm_job_id": "16505",
+  "sources": [
+    {
+      "assembly": "GRCh38.p14",
+      "download_url": "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_50/GRCh38.primary_assembly.genome.fa.gz",
+      "filename": "GRCh38.primary_assembly.genome.fa.gz",
+      "frozen_md5": "da1a11258be075cfa7af718162c894e7",
+      "observed_md5": "da1a11258be075cfa7af718162c894e7",
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901/reference/sources/GRCh38.primary_assembly.genome.fa.gz",
+      "provider": "GENCODE",
+      "release_or_accession": "release_50",
+      "role": "genome_fasta",
+      "verification_status": "FROZEN_SOURCE_NOT_DOWNLOADED"
+    },
+    {
+      "assembly": "GRCh38.p14",
+      "download_url": "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_50/gencode.v50.primary_assembly.annotation.gtf.gz",
+      "filename": "gencode.v50.primary_assembly.annotation.gtf.gz",
+      "frozen_md5": "289b91e5e95e8b0450d223246f10a12e",
+      "observed_md5": "289b91e5e95e8b0450d223246f10a12e",
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901/reference/sources/gencode.v50.primary_assembly.annotation.gtf.gz",
+      "provider": "GENCODE",
+      "release_or_accession": "release_50",
+      "role": "annotation_gtf",
+      "verification_status": "FROZEN_SOURCE_NOT_DOWNLOADED"
+    },
+    {
+      "assembly": "GRCh38.p14",
+      "download_url": "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_50/gencode.v50.transcripts.fa.gz",
+      "filename": "gencode.v50.transcripts.fa.gz",
+      "frozen_md5": "4d5bd41b247480e12c0b370490f52ddd",
+      "observed_md5": "4d5bd41b247480e12c0b370490f52ddd",
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901/reference/sources/gencode.v50.transcripts.fa.gz",
+      "provider": "GENCODE",
+      "release_or_accession": "release_50",
+      "role": "transcriptome",
+      "verification_status": "OFFICIAL_MD5_VERIFIED_NOT_DOWNLOADED"
+    },
+    {
+      "assembly": "GRCh38",
+      "download_url": "https://www.encodeproject.org/files/ENCFF356LFX/@@download/ENCFF356LFX.bed.gz",
+      "filename": "ENCFF356LFX.bed.gz",
+      "frozen_md5": "393688b4f06c9ce26165d47433dd8c37",
+      "observed_md5": "393688b4f06c9ce26165d47433dd8c37",
+      "path": "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901/reference/sources/ENCFF356LFX.bed.gz",
+      "provider": "ENCODE",
+      "release_or_accession": "ENCFF356LFX",
+      "role": "blacklist",
+      "verification_status": "FROZEN_SOURCE_NOT_DOWNLOADED"
+    }
+  ],
+  "status": "REFERENCE_READY",
+  "type": "helixforge_integrative_real_reference_bundle"
+}

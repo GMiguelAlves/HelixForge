@@ -1,6 +1,6 @@
 {
   "benchmark": "GSE133183 real biological integration",
-  "execution_repository_commit": "640be7e0573e012217ac371a51706f38e190d344",
+  "execution_repository_commit": "1d4c73cab127c7cf29a54df0447e086ccc75c219",
   "expected_outputs": [
     "metadata/dataset_metadata.tsv",
     "metadata/download_manifest.tsv",
@@ -9,7 +9,8 @@
     "download_manifests/GSM4817452.execution.tsv",
     "download_manifests/GSM4817467.execution.tsv",
     "download_validation/download_validation.json",
-    "download_validation/fastq_inventory.tsv"
+    "download_validation/fastq_inventory.tsv",
+    "reference/reference_manifest.json"
   ],
   "jobs": [
     {
@@ -29,6 +30,12 @@
       "kind": "download_validation",
       "last_reported_status": "COMPLETE",
       "phase": "FASTQ_DOWNLOAD_COMPLETE"
+    },
+    {
+      "job_id": "16505",
+      "kind": "reference_preparation",
+      "last_reported_status": "COMPLETE",
+      "phase": "REFERENCE_COMPLETE"
     }
   ],
   "last_known_state": "COMPLETE",
@@ -38,7 +45,7 @@
     "10E",
     "10D"
   ],
-  "phase": "FASTQ_DOWNLOAD_COMPLETE",
+  "phase": "REFERENCE_COMPLETE",
   "schema_version": "1.0",
   "scientific_stage_order": [
     "10B",
@@ -50,9 +57,10 @@
   "scientific_target_commit": "dc0218ce902302da476910595bb133c82fee927c",
   "session_uuid": "35a89bf1-362d-40a1-b71b-73459f3c18f0",
   "status": "COMPLETE",
-  "updated_utc": "2026-09-02T05:57:23Z",
+  "updated_utc": "2026-09-02T06:21:13Z",
   "workdirs": [
     "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901",
-    "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901/fastq"
+    "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901/fastq",
+    "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901/reference"
   ]
 }
