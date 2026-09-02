@@ -67,7 +67,7 @@ mkdir -p "$root/provenance/upstream_inputs"
     --fastq-inventory "$root/download_validation/fastq_inventory.tsv" \
     --reference-manifest "$root/reference/reference_manifest.json" \
     --repo "$repo" --output-root "$cases" \
-    --conda-base /scratch/HELIXFORGE_WORKSPACE/helixforge-rnaseq-benchmark-20260825/envs
+    --conda-base /home/CLUSTER_USER/miniconda3
 
 update "$complete_phase" COMPLETE
 trap - ERR

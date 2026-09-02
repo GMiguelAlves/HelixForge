@@ -125,9 +125,9 @@ def prepare_rnaseq(
         "export RUN_GENE_REPORT=1",
         "export BATCH_COLUMN='batch'",
         "export DEG_DESIGN_COVARIATES=''",
-        "export RNA_TOOLS_ENV='rna-tools-rc'",
-        "export PYTHON_ENV='python-runtime-rc'",
-        "export R_ANALYSIS_ENV='r-analysis-rc'",
+        "export RNA_TOOLS_ENV='rna-tools'",
+        "export PYTHON_ENV='python-list'",
+        "export R_ANALYSIS_ENV='r-analysis'",
         "",
     ]), encoding="utf-8", newline="\n")
     pipeline_config = root / "pipeline_config.sh"
@@ -178,6 +178,7 @@ def prepare_rnaseq(
         "artifacts": {
             "metadata": artifact(metadata_file, declared_root / metadata_file.name),
             "pipeline_config": artifact(pipeline_config, declared_root / pipeline_config.name),
+            "user_settings": artifact(settings, declared_root / settings.name),
             "analysis_spec": artifact(analysis_file, declared_root / analysis_file.name),
             "resolved_parameters": artifact(resolved_file, declared_root / resolved_file.name),
             "reference_manifest": artifact(reference_manifest),
