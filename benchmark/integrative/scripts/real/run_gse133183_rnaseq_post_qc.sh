@@ -151,8 +151,9 @@ env PATH="$runtime_path" \
     --deseq2_contrast_queue "$queue" \
     --rnaseq_report_queue "$queue"
 
-# This run is invalid if the benchmark-only entrypoint ever reaches native QC.
-if grep -Eq 'FASTQC|TRIM_GALORE|MERGE_FASTQ|MULTIQC' "$case_root/logs/post_qc/nextflow.log"; then
+# This run is invalid if the benchmark-only entrypoint ever submits native QC.
+# Unmatched-selector warnings intentionally mention QC names and are not tasks.
+if grep -Eq 'Submitted process > .*:RNASEQ_QC:' "$case_root/logs/post_qc/driver.out"; then
     echo 'post-QC re-entry unexpectedly referenced a QC process' >&2
     exit 3
 fi
