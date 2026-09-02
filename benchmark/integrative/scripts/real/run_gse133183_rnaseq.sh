@@ -5,6 +5,7 @@ repo=${1:-/home/ra236875@bio.ib.unicamp.br/helixforge-integrative-reentry-202609
 root=${2:-/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901}
 queue=${3:-general}
 run_mode=${4:-fresh}
+attempt_label=${5:-initial}
 case_root="$root/cases/rnaseq"
 state="$root/benchmark_state.json"
 nextflow_jar=/home/ra236875@bio.ib.unicamp.br/.nextflow/framework/25.10.7/nextflow-25.10.7-one.jar
@@ -13,7 +14,7 @@ python_runtime=/scratch/Schisto-epigenetics/gustavo/helixforge-rnaseq-benchmark-
 r_runtime=/scratch/Schisto-epigenetics/gustavo/helixforge-rnaseq-benchmark-20260825/envs/r-analysis-rc
 resource_config="$repo/benchmark/integrative/configs/real_upstream_slurm.config"
 scientific_target=dc0218ce902302da476910595bb133c82fee927c
-driver_id="driver-rnaseq-${BASHPID}"
+driver_id="driver-rnaseq-${attempt_label}-${BASHPID}"
 repo_commit=$(git -C "$repo" rev-parse HEAD)
 
 update() {
@@ -55,7 +56,11 @@ git -C "$repo" diff --quiet "$scientific_target" -- \
 mkdir -p "$case_root/logs" "$case_root/nxf-home" "$case_root/nxf-cache"
 runtime_path="$python_runtime/bin:$r_runtime/bin:$rna_runtime/bin:/usr/bin:/bin"
 started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-if [[ "$run_mode" == resume ]]; then
+if [[ "$run_mode" == resume && "$attempt_label" == final ]]; then
+    submitted_phase=RNASEQ_FINAL_RETRY_SUBMITTED
+    failed_phase=RNASEQ_FINAL_RETRY_FAILED
+    complete_phase=RNASEQ_FINAL_RETRY_COMPLETE
+elif [[ "$run_mode" == resume ]]; then
     submitted_phase=RNASEQ_RETRY_SUBMITTED
     failed_phase=RNASEQ_RETRY_FAILED
     complete_phase=RNASEQ_RETRY_COMPLETE
@@ -122,12 +127,12 @@ if manifest.get("quantification_method") != "salmon":
 PY
 
 ended=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-"$python_runtime/bin/python3" - "$case_root/execution_identity.json" "$repo_commit" "$scientific_target" "$started" "$ended" "$queue" "$run_mode" <<'PY'
+"$python_runtime/bin/python3" - "$case_root/execution_identity.json" "$repo_commit" "$scientific_target" "$started" "$ended" "$queue" "$run_mode" "$attempt_label" <<'PY'
 import json
 import sys
 from pathlib import Path
 
-path, commit, target, started, ended, queue, run_mode = sys.argv[1:]
+path, commit, target, started, ended, queue, run_mode, attempt_label = sys.argv[1:]
 Path(path).write_text(json.dumps({
     "schema_version": "1.0", "status": "COMPLETE", "workflow": "rnaseq",
     "role": "INPUT_GENERATION_FOR_INTEGRATIVE_BENCHMARK",
@@ -135,7 +140,7 @@ Path(path).write_text(json.dumps({
     "core_equal_to_scientific_target": True, "nextflow": "25.10.7", "java_major": 21,
     "queue": queue, "queue_size": 5, "samples": 4,
     "quantification_provider": "salmon", "design": "~ condition",
-    "contrast": "condition__GSK343_vs_DMSO", "run_mode": run_mode,
+    "contrast": "condition__GSK343_vs_DMSO", "run_mode": run_mode, "attempt_label": attempt_label,
     "started_utc": started, "ended_utc": ended,
 }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY
