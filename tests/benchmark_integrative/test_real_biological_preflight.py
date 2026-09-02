@@ -52,9 +52,11 @@ class RealBiologicalPreflightTests(unittest.TestCase):
         state = json.loads(STATE_PATH.read_text(encoding="utf-8"))
         self.assertEqual(state["scientific_stage_order"], ["10B", "10C", "10D", "10E", "10F"])
         self.assertEqual(state["operational_stage_order"], ["10B", "10C", "10E", "10D"])
-        self.assertEqual(state["phase"], "METADATA_PREFLIGHT_COMPLETE")
+        self.assertEqual(state["phase"], "REFERENCE_COMPLETE")
         self.assertEqual(state["status"], "COMPLETE")
         self.assertEqual(state["jobs"][0]["job_id"], "16456")
+        self.assertEqual(state["jobs"][-1]["job_id"], "16505")
+        self.assertEqual(state["jobs"][-1]["phase"], "REFERENCE_COMPLETE")
 
     def test_accession_preflight_is_complete(self):
         metadata = ROOT / "benchmark/integrative/results/real/metadata"
