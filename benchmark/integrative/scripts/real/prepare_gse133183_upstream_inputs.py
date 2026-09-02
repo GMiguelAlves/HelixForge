@@ -47,12 +47,17 @@ def write_json(path: Path, value: object) -> None:
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
 
 
-def artifact(path: Path) -> dict[str, object]:
-    return {"path": str(path), "sha256": sha256(path), "size_bytes": path.stat().st_size}
+def artifact(path: Path, declared_path: Path | None = None) -> dict[str, object]:
+    return {
+        "path": str(declared_path or path),
+        "sha256": sha256(path),
+        "size_bytes": path.stat().st_size,
+    }
 
 
 def prepare_rnaseq(
     root: Path,
+    declared_root: Path,
     repo: Path,
     metadata: list[dict[str, str]],
     fastqs: dict[tuple[str, str], Path],
@@ -89,21 +94,21 @@ def prepare_rnaseq(
     metadata_file = root / "metadata.csv"
     write_table(metadata_file, sample_rows, ",")
 
-    pipeline_root = root / "pipeline"
+    pipeline_root = declared_root / "pipeline"
     settings = root / "user_settings.sh"
     settings.write_text("\n".join([
         "#!/usr/bin/env bash",
         "export PIPELINE_NAME='helixforge_rnaseq_gse133183_integrative_input'",
         f"export ORGANISM_NAME='{GENOME_ID}'",
         "export PIPELINE_PROJECTS='gse133183_k562'",
-        f"export SCRATCH_ROOT={quoted(root / 'scratch')}",
+        f"export SCRATCH_ROOT={quoted(declared_root / 'scratch')}",
         f"export CONDA_BASE={quoted(conda_base)}",
         f"export REF_GENOME_FA={quoted(reference['genome_fasta'])}",
         f"export REF_TRANSCRIPTS_FA={quoted(reference['transcriptome'])}",
         f"export REF_GTF={quoted(reference['annotation_gtf'])}",
         "export REF_GFF3=''",
-        f"export METADATA_FINAL={quoted(metadata_file)}",
-        f"export METADATA_FINAL_NEW={quoted(metadata_file)}",
+        f"export METADATA_FINAL={quoted(declared_root / 'metadata.csv')}",
+        f"export METADATA_FINAL_NEW={quoted(declared_root / 'metadata.csv')}",
         f"export SCRIPTS_DIR={quoted(repo / 'pipelines/rnaseq')}",
         f"export SALMON_INDEX_DIR={quoted(pipeline_root / '010-reference/salmon_index')}",
         f"export QUANT_DIR={quoted(pipeline_root / '040-alignment/quants')}",
@@ -129,7 +134,7 @@ def prepare_rnaseq(
     pipeline_config.write_text("\n".join([
         "#!/usr/bin/env bash",
         f"export PROJECT_DIR={quoted(pipeline_root)}",
-        f"export USER_SETTINGS_FILE={quoted(settings)}",
+        f"export USER_SETTINGS_FILE={quoted(declared_root / 'user_settings.sh')}",
         f"source {quoted(repo / 'pipelines/rnaseq/config/pipeline_config.sh')}",
         "",
     ]), encoding="utf-8", newline="\n")
@@ -170,16 +175,20 @@ def prepare_rnaseq(
     write_json(root / "input_manifest.json", {
         "schema_version": "1.0", "type": "gse133183_rnaseq_input", "status": "READY",
         "role": "INPUT_GENERATION_FOR_INTEGRATIVE_BENCHMARK", "samples": [row["sample_id"] for row in sample_rows],
-        "artifacts": {name: artifact(path) for name, path in {
-            "metadata": metadata_file, "pipeline_config": pipeline_config,
-            "analysis_spec": analysis_file, "resolved_parameters": resolved_file,
-            "reference_manifest": reference_manifest, "fastq_inventory": inventory,
-        }.items()},
+        "artifacts": {
+            "metadata": artifact(metadata_file, declared_root / metadata_file.name),
+            "pipeline_config": artifact(pipeline_config, declared_root / pipeline_config.name),
+            "analysis_spec": artifact(analysis_file, declared_root / analysis_file.name),
+            "resolved_parameters": artifact(resolved_file, declared_root / resolved_file.name),
+            "reference_manifest": artifact(reference_manifest),
+            "fastq_inventory": artifact(inventory),
+        },
     })
 
 
 def prepare_chipseq(
     root: Path,
+    declared_root: Path,
     mark: str,
     metadata: list[dict[str, str]],
     fastqs: dict[tuple[str, str], Path],
@@ -214,13 +223,13 @@ def prepare_chipseq(
         })
     metadata_file = root / "metadata.tsv"
     write_table(metadata_file, sample_rows, "\t")
-    results = root / "results"
+    results = declared_root / "results"
     peak_type = "broad" if mark == "H3K27me3" else "narrow"
     values = {
         "FASTQ_DIR": fastqs[(selected[0]["geo_sample"], "1")].parent,
-        "METADATA_FILE": metadata_file, "GENOME_FASTA": reference["genome_fasta"],
+        "METADATA_FILE": declared_root / "metadata.tsv", "GENOME_FASTA": reference["genome_fasta"],
         "ANNOTATION_FILE": reference["annotation_gtf"], "BLACKLIST_BED": reference["blacklist"],
-        "OUTPUT_DIR": results, "WORK_ROOT": root / "work", "REF_DIR": results / "010-reference",
+        "OUTPUT_DIR": results, "WORK_ROOT": declared_root / "work", "REF_DIR": results / "010-reference",
         "QC_DIR": results / "030-qc-fastq", "ALIGN_DIR": results / "050-alignment",
         "FILTER_DIR": results / "060-filtering", "PEAK_DIR": results / "080-peak-calling",
         "BOWTIE2_INDEX_PREFIX": results / "010-reference/bowtie2/genome",
@@ -260,11 +269,14 @@ def prepare_chipseq(
         "schema_version": "1.0", "type": f"gse133183_chipseq_{mark.lower()}_input", "status": "READY",
         "role": "INPUT_GENERATION_FOR_INTEGRATIVE_BENCHMARK", "target": mark,
         "samples": [row["sample_id"] for row in sample_rows],
-        "artifacts": {name: artifact(path) for name, path in {
-            "metadata": metadata_file, "pipeline_config": config, "db_spec": spec_file,
-            "resolved_parameters": resolved_file, "reference_manifest": reference_manifest,
-            "fastq_inventory": inventory,
-        }.items()},
+        "artifacts": {
+            "metadata": artifact(metadata_file, declared_root / metadata_file.name),
+            "pipeline_config": artifact(config, declared_root / config.name),
+            "db_spec": artifact(spec_file, declared_root / spec_file.name),
+            "resolved_parameters": artifact(resolved_file, declared_root / resolved_file.name),
+            "reference_manifest": artifact(reference_manifest),
+            "fastq_inventory": artifact(inventory),
+        },
     })
 
 
@@ -298,11 +310,11 @@ def main() -> int:
     args.output_root.parent.mkdir(parents=True, exist_ok=True)
     stage = Path(tempfile.mkdtemp(prefix=".gse133183-cases.", dir=args.output_root.parent))
     try:
-        prepare_rnaseq(stage / "rnaseq", args.repo.resolve(), metadata, fastqs, reference,
+        prepare_rnaseq(stage / "rnaseq", args.output_root / "rnaseq", args.repo.resolve(), metadata, fastqs, reference,
                        args.reference_manifest.resolve(), args.fastq_inventory.resolve(), args.conda_base.resolve())
-        prepare_chipseq(stage / "chipseq_h3k27me3", "H3K27me3", metadata, fastqs, reference,
+        prepare_chipseq(stage / "chipseq_h3k27me3", args.output_root / "chipseq_h3k27me3", "H3K27me3", metadata, fastqs, reference,
                         args.reference_manifest.resolve(), args.fastq_inventory.resolve())
-        prepare_chipseq(stage / "chipseq_h3k27ac", "H3K27ac", metadata, fastqs, reference,
+        prepare_chipseq(stage / "chipseq_h3k27ac", args.output_root / "chipseq_h3k27ac", "H3K27ac", metadata, fastqs, reference,
                         args.reference_manifest.resolve(), args.fastq_inventory.resolve())
         write_json(stage / "cases_manifest.json", {
             "schema_version": "1.0", "type": "gse133183_upstream_cases", "status": "READY",

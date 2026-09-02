@@ -9,6 +9,8 @@ set -euo pipefail
 
 repo=${1:?repository checkout is required}
 root=${2:?benchmark root is required}
+repo_commit=${3:?repository commit captured on the head node is required}
+attempt=${4:-initial}
 state="$root/benchmark_state.json"
 cases="$root/cases"
 rna_runtime=/scratch/Schisto-epigenetics/gustavo/helixforge-rnaseq-benchmark-20260825/envs/rna-tools-rc
@@ -20,11 +22,20 @@ update() {
     HF_STATE_TIME_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ) \
         python3 "$repo/benchmark/integrative/scripts/real/update_real_benchmark_state.py" \
         --state "$state" --phase "$1" --status "$2" --job-id "$SLURM_JOB_ID" \
-        --job-kind upstream_input_preparation --repo-commit "$(git -C "$repo" rev-parse HEAD)" \
+        --job-kind upstream_input_preparation --repo-commit "$repo_commit" \
         --workdir "$cases" --expected-output cases/cases_manifest.json
 }
-trap 'update UPSTREAM_INPUTS_FAILED FAILED' ERR
-update UPSTREAM_INPUTS_SUBMITTED RUNNING
+if [[ "$attempt" == retry ]]; then
+    submitted_phase=UPSTREAM_INPUTS_RETRY_SUBMITTED
+    failed_phase=UPSTREAM_INPUTS_RETRY_FAILED
+    complete_phase=UPSTREAM_INPUTS_RETRY_COMPLETE
+else
+    submitted_phase=UPSTREAM_INPUTS_SUBMITTED
+    failed_phase=UPSTREAM_INPUTS_FAILED
+    complete_phase=UPSTREAM_INPUTS_COMPLETE
+fi
+trap 'update "$failed_phase" FAILED' ERR
+update "$submitted_phase" RUNNING
 
 test -x "$rna_runtime/bin/salmon"
 test -x "$rna_runtime/bin/trim_galore"
@@ -58,5 +69,5 @@ mkdir -p "$root/provenance/upstream_inputs"
     --repo "$repo" --output-root "$cases" \
     --conda-base /scratch/Schisto-epigenetics/gustavo/helixforge-rnaseq-benchmark-20260825/envs
 
-update UPSTREAM_INPUTS_COMPLETE COMPLETE
+update "$complete_phase" COMPLETE
 trap - ERR
