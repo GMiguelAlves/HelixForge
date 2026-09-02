@@ -6,6 +6,8 @@ root=${2:-/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260
 queue=${3:-general}
 run_mode=${4:-fresh}
 attempt_label=${5:-initial}
+workflow_repo=${6:-$repo}
+resume_session=${7:-}
 case_root="$root/cases/rnaseq"
 state="$root/benchmark_state.json"
 nextflow_jar=/home/ra236875@bio.ib.unicamp.br/.nextflow/framework/25.10.7/nextflow-25.10.7-one.jar
@@ -16,6 +18,7 @@ resource_config="$repo/benchmark/integrative/configs/real_upstream_slurm.config"
 scientific_target=dc0218ce902302da476910595bb133c82fee927c
 driver_id="driver-rnaseq-${attempt_label}-${BASHPID}"
 repo_commit=$(git -C "$repo" rev-parse HEAD)
+workflow_commit=$(git -C "$workflow_repo" rev-parse HEAD)
 
 update() {
     HF_STATE_TIME_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ) \
@@ -44,19 +47,27 @@ if [[ "$run_mode" == fresh ]]; then
 elif [[ "$run_mode" == resume ]]; then
     test -d "$case_root/work"
     test ! -e "$case_root/execution_identity.json"
-    resume_args=(-resume)
+    if [[ -n "$resume_session" ]]; then
+        resume_args=(-resume "$resume_session")
+    else
+        resume_args=(-resume)
+    fi
 else
     echo "invalid run mode: $run_mode" >&2
     exit 2
 fi
-git -C "$repo" diff --quiet "$scientific_target" -- \
+git -C "$workflow_repo" diff --quiet "$scientific_target" -- \
     main.nf nextflow.config nextflow_schema.json workflows subworkflows modules schemas pipelines
 "$rna_runtime/bin/java" -jar "$nextflow_jar" -version 2>&1 | grep -Fq 'version 25.10.7'
 
 mkdir -p "$case_root/logs" "$case_root/nxf-home" "$case_root/nxf-cache"
 runtime_path="$python_runtime/bin:$r_runtime/bin:$rna_runtime/bin:/usr/bin:/bin"
 started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-if [[ "$run_mode" == resume && "$attempt_label" == final ]]; then
+if [[ "$run_mode" == resume && "$attempt_label" == cache_recovery ]]; then
+    submitted_phase=RNASEQ_CACHE_RECOVERY_SUBMITTED
+    failed_phase=RNASEQ_CACHE_RECOVERY_FAILED
+    complete_phase=RNASEQ_CACHE_RECOVERY_COMPLETE
+elif [[ "$run_mode" == resume && "$attempt_label" == final ]]; then
     submitted_phase=RNASEQ_FINAL_RETRY_SUBMITTED
     failed_phase=RNASEQ_FINAL_RETRY_FAILED
     complete_phase=RNASEQ_FINAL_RETRY_COMPLETE
@@ -72,7 +83,7 @@ fi
 trap 'update "$failed_phase" FAILED' ERR
 update "$submitted_phase" RUNNING
 
-cd "$repo"
+cd "$workflow_repo"
 env PATH="$runtime_path" \
     FONTCONFIG_PATH="$rna_runtime/etc/fonts" \
     FONTCONFIG_FILE="$rna_runtime/etc/fonts/fonts.conf" \
@@ -127,20 +138,21 @@ if manifest.get("quantification_method") != "salmon":
 PY
 
 ended=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-"$python_runtime/bin/python3" - "$case_root/execution_identity.json" "$repo_commit" "$scientific_target" "$started" "$ended" "$queue" "$run_mode" "$attempt_label" <<'PY'
+"$python_runtime/bin/python3" - "$case_root/execution_identity.json" "$repo_commit" "$workflow_commit" "$scientific_target" "$started" "$ended" "$queue" "$run_mode" "$attempt_label" "$resume_session" <<'PY'
 import json
 import sys
 from pathlib import Path
 
-path, commit, target, started, ended, queue, run_mode, attempt_label = sys.argv[1:]
+path, commit, workflow_commit, target, started, ended, queue, run_mode, attempt_label, resume_session = sys.argv[1:]
 Path(path).write_text(json.dumps({
     "schema_version": "1.0", "status": "COMPLETE", "workflow": "rnaseq",
     "role": "INPUT_GENERATION_FOR_INTEGRATIVE_BENCHMARK",
-    "repository_commit": commit, "scientific_target_commit": target,
+    "repository_commit": commit, "workflow_commit": workflow_commit, "scientific_target_commit": target,
     "core_equal_to_scientific_target": True, "nextflow": "25.10.7", "java_major": 21,
     "queue": queue, "queue_size": 5, "samples": 4,
     "quantification_provider": "salmon", "design": "~ condition",
     "contrast": "condition__GSK343_vs_DMSO", "run_mode": run_mode, "attempt_label": attempt_label,
+    "resume_session": resume_session or None,
     "started_utc": started, "ended_utc": ended,
 }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY

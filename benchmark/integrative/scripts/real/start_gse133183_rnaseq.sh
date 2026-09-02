@@ -6,6 +6,8 @@ root=${2:-/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260
 queue=${3:-general}
 run_mode=${4:-fresh}
 attempt_label=${5:-initial}
+workflow_repo=${6:-$repo}
+resume_session=${7:-}
 case_root="$root/cases/rnaseq"
 test -s "$case_root/input_manifest.json"
 if [[ -e "$case_root/driver.pid" ]]; then
@@ -25,7 +27,8 @@ if [[ "$run_mode" == resume ]]; then
         [[ ! -e "$case_root/logs/$name" ]] || cp "$case_root/logs/$name" "$archive/$name"
     done
 fi
-nohup bash "$repo/benchmark/integrative/scripts/real/run_gse133183_rnaseq.sh" "$repo" "$root" "$queue" "$run_mode" "$attempt_label" \
+nohup bash "$repo/benchmark/integrative/scripts/real/run_gse133183_rnaseq.sh" \
+    "$repo" "$root" "$queue" "$run_mode" "$attempt_label" "$workflow_repo" "$resume_session" \
     > "$case_root/logs/driver.out" 2> "$case_root/logs/driver.err" < /dev/null &
 pid=$!
 printf '%s\n' "$pid" > "$case_root/driver.pid"
