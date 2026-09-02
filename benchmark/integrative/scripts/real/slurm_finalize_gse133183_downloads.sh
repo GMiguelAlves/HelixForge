@@ -28,3 +28,8 @@ HF_STATE_TIME_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)
     --job-id "$array_job_id" --job-kind fastq_download_array \
     --expected-output download_validation/download_validation.json \
     --expected-output download_validation/fastq_inventory.tsv
+HF_STATE_TIME_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+"$python_bin" "$repo_root/benchmark/integrative/scripts/real/update_real_benchmark_state.py" \
+    --state "$scratch_root/benchmark_state.json" \
+    --phase FASTQ_DOWNLOAD_COMPLETE --status COMPLETE \
+    --job-id "$SLURM_JOB_ID" --job-kind download_validation

@@ -79,17 +79,28 @@ def main() -> int:
         })
 
     task_rows: list[dict[str, str]] = []
+    batch_rss: dict[str, str] = {}
     with args.sacct.open(encoding="utf-8") as handle:
         for raw in handle:
             fields = raw.rstrip("\n").split("|")
-            if len(fields) < 5 or not re.fullmatch(rf"{re.escape(args.array_job_id)}_\d+", fields[0]):
+            if len(fields) < 5:
+                continue
+            batch_match = re.fullmatch(rf"({re.escape(args.array_job_id)}_\d+)\.batch", fields[0])
+            if batch_match:
+                batch_rss[batch_match.group(1)] = fields[4]
+                continue
+            if not re.fullmatch(rf"{re.escape(args.array_job_id)}_\d+", fields[0]):
                 continue
             task_rows.append({
                 "job_id": fields[0], "state": fields[1], "exit_code": fields[2],
-                "elapsed": fields[3], "max_rss": fields[4],
+                "elapsed": fields[3], "max_rss": "",
             })
     if len(task_rows) != 16 or any(row["state"] != "COMPLETED" or row["exit_code"] != "0:0" for row in task_rows):
         raise ValueError("Slurm accounting does not show 16 successful array tasks")
+    for row in task_rows:
+        row["max_rss"] = batch_rss.get(row["job_id"], "")
+    if any(not row["max_rss"] for row in task_rows):
+        raise ValueError("Slurm accounting lacks MaxRSS for one or more array tasks")
 
     success_lines = 0
     transfer_errors = 0

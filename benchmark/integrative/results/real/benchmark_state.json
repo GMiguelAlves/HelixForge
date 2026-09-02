@@ -7,7 +7,9 @@
     "metadata/metadata_validation.json",
     "metadata/storage_plan.json",
     "download_manifests/GSM4817452.execution.tsv",
-    "download_manifests/GSM4817467.execution.tsv"
+    "download_manifests/GSM4817467.execution.tsv",
+    "download_validation/download_validation.json",
+    "download_validation/fastq_inventory.tsv"
   ],
   "jobs": [
     {
@@ -19,18 +21,18 @@
     {
       "job_id": "16459",
       "kind": "fastq_download_array",
-      "last_reported_status": "SUBMITTED",
-      "phase": "FASTQ_DOWNLOAD_SUBMITTED"
+      "last_reported_status": "COMPLETE",
+      "phase": "FASTQ_DOWNLOAD_COMPLETE"
     }
   ],
-  "last_known_state": "SUBMITTED",
+  "last_known_state": "COMPLETE",
   "operational_stage_order": [
     "10B",
     "10C",
     "10E",
     "10D"
   ],
-  "phase": "FASTQ_DOWNLOAD_SUBMITTED",
+  "phase": "FASTQ_DOWNLOAD_COMPLETE",
   "schema_version": "1.0",
   "scientific_stage_order": [
     "10B",
@@ -41,8 +43,8 @@
   ],
   "scientific_target_commit": "dc0218ce902302da476910595bb133c82fee927c",
   "session_uuid": "35a89bf1-362d-40a1-b71b-73459f3c18f0",
-  "status": "SUBMITTED",
-  "updated_utc": "2026-09-01T15:07:56Z",
+  "status": "COMPLETE",
+  "updated_utc": "2026-09-02T05:54:33Z",
   "workdirs": [
     "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901",
     "/scratch/Schisto-epigenetics/gustavo/helixforge-integrative-real-20260901/fastq"
