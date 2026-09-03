@@ -137,4 +137,3 @@ Path(path).write_text(json.dumps({
 PY
 update RNASEQ_REPORT_REENTRY_COMPLETE COMPLETE
 trap - ERR
-
