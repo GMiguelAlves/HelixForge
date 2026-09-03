@@ -9,7 +9,7 @@ state="$root/benchmark_state.json"
 nextflow_jar=/home/ra236875@bio.ib.unicamp.br/.nextflow/framework/25.10.7/nextflow-25.10.7-one.jar
 rna_runtime=/scratch/Schisto-epigenetics/gustavo/helixforge-rnaseq-benchmark-20260825/envs/rna-tools-rc
 python_runtime=/scratch/Schisto-epigenetics/gustavo/helixforge-rnaseq-benchmark-20260825/envs/python-runtime-rc
-r_runtime=/scratch/Schisto-epigenetics/gustavo/helixforge-rnaseq-benchmark-20260825/envs/r-analysis-rc
+r_runtime=/home/ra236875@bio.ib.unicamp.br/miniconda3/envs/r-analysis
 resource_config="$repo/benchmark/integrative/configs/real_upstream_slurm.config"
 entrypoint="$repo/benchmark/integrative/workflows/gse133183_rnaseq_report_reentry.nf"
 driver_id="driver-rnaseq-report-reentry-${BASHPID}"
@@ -128,6 +128,7 @@ Path(path).write_text(json.dumps({
     "repository_commit": commit, "scientific_target_commit": target,
     "core_equal_to_scientific_target": True, "nextflow": "25.10.7", "java_major": 21,
     "queue": queue, "queue_size": 5, "samples": 4,
+    "report_runtime": "/home/ra236875@bio.ib.unicamp.br/miniconda3/envs/r-analysis",
     "quantification_provider": "salmon", "design": "~ condition",
     "contrast": "condition__GSK343_vs_DMSO", "qc_recomputed": False,
     "heavy_session": "irreverent_curran", "terminal_manifest_session": "report_reentry",
