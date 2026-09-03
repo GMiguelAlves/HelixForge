@@ -53,3 +53,9 @@ consumes the published QC plan, normalized metadata, reference manifest and
 merged FASTQs, then calls the unchanged Salmon, Import, DESeq2 and Report
 subworkflows. The re-entry workflow does not include any QC process and records
 the operational exception in the terminal manifest provenance.
+
+If that continuation reaches DESeq2 but stops on a report-input contract,
+`real/start_gse133183_rnaseq_report_reentry.sh` may continue only the native
+Report API and terminal-manifest assembly from the published upstream
+artifacts. The launcher rejects any attempt to submit QC, Salmon, Import or
+DESeq2 again and records the split execution identity.

@@ -161,7 +161,10 @@ def prepare_rnaseq(
     analysis_file = root / "analysis_spec.json"
     write_json(analysis_file, analysis_spec)
     genes = root / "report_genes.txt"
-    genes.write_text("FGF18\nUBTD2\nFBXW11\nIGF2\nHBB\nHBZ\nHBE1\n", encoding="utf-8", newline="\n")
+    genes.write_text(
+        "GSE133183_candidates: FGF18, UBTD2, FBXW11, IGF2, HBB, HBZ, HBE1\n",
+        encoding="utf-8", newline="\n",
+    )
     resolved = {
         "workflow": "rnaseq", "run_mode": "full", "analysis_mode": "quantification",
         "quantification_provider": "salmon", "alignment_provider": "disabled",
@@ -180,6 +183,7 @@ def prepare_rnaseq(
             "pipeline_config": artifact(pipeline_config, declared_root / pipeline_config.name),
             "user_settings": artifact(settings, declared_root / settings.name),
             "analysis_spec": artifact(analysis_file, declared_root / analysis_file.name),
+            "report_genes": artifact(genes, declared_root / genes.name),
             "resolved_parameters": artifact(resolved_file, declared_root / resolved_file.name),
             "reference_manifest": artifact(reference_manifest),
             "fastq_inventory": artifact(inventory),
