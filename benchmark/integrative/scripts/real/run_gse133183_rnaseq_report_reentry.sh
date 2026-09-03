@@ -70,7 +70,7 @@ os.replace(temporary, audit_path)
 PY
 
 mkdir -p "$case_root/logs/report_reentry" "$case_root/report_reentry_nxf_home" "$case_root/report_reentry_nxf_cache"
-runtime_path="$python_runtime/bin:$r_runtime/bin:$rna_runtime/bin:/usr/bin:/bin"
+runtime_path="$repo/bin:$python_runtime/bin:$r_runtime/bin:$rna_runtime/bin:/usr/bin:/bin"
 started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 trap 'update RNASEQ_REPORT_REENTRY_FAILED FAILED' ERR
 update RNASEQ_REPORT_REENTRY_SUBMITTED RUNNING
