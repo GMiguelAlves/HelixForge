@@ -13,6 +13,8 @@ case "$mark" in
         peak_type=broad
         submitted_phase=CHIPSEQ_H3K27ME3_SUBMITTED
         failed_phase=CHIPSEQ_H3K27ME3_FAILED
+        retry_submitted_phase=CHIPSEQ_H3K27ME3_RETRY_SUBMITTED
+        retry_failed_phase=CHIPSEQ_H3K27ME3_RETRY_FAILED
         complete_phase=CHIPSEQ_H3K27ME3_COMPLETE
         ;;
     H3K27ac)
@@ -20,6 +22,8 @@ case "$mark" in
         peak_type=narrow
         submitted_phase=CHIPSEQ_H3K27AC_SUBMITTED
         failed_phase=CHIPSEQ_H3K27AC_FAILED
+        retry_submitted_phase=CHIPSEQ_H3K27AC_RETRY_SUBMITTED
+        retry_failed_phase=CHIPSEQ_H3K27AC_RETRY_FAILED
         complete_phase=CHIPSEQ_H3K27AC_COMPLETE
         ;;
     *)
@@ -73,6 +77,8 @@ elif [[ "$run_mode" == retry ]]; then
     test -d "$case_root/results"
     work_root="$case_root/work-$attempt_label"
     test ! -e "$work_root"
+    submitted_phase=$retry_submitted_phase
+    failed_phase=$retry_failed_phase
 else
     echo "invalid run mode: $run_mode" >&2
     exit 2
