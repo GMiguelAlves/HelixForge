@@ -59,3 +59,10 @@ If that continuation reaches DESeq2 but stops on a report-input contract,
 Report API and terminal-manifest assembly from the published upstream
 artifacts. The launcher rejects any attempt to submit QC, Salmon, Import or
 DESeq2 again and records the split execution identity.
+
+`real/start_gse133183_chipseq.sh` starts one frozen real-data ChIP-seq arm from
+the prepared GSE133183 inputs. `H3K27me3` uses broad peaks and `H3K27ac` uses
+narrow peaks; both retain the preregistered matched IgG controls, union
+consensus, differential-binding contrast and five-job Slurm limit. The paired
+`run_gse133183_chipseq.sh` driver keeps Nextflow on the head node and submits
+all scientific processes through Slurm.
