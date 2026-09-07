@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="helixforge-token" content="__SESSION_TOKEN__">
+  <title>HelixForge · Slurm</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="/" aria-label="HelixForge início"><span class="brand-mark" aria-hidden="true">hƒ</span>helixforge<span class="brand-period">.</span></a>
+    <span class="edition">MONITOR DE EXECUÇÃO <span>/ SLURM</span></span>
+    <span class="read-only">Somente leitura</span>
+  </header>
+  <main>
+    <section class="connection" aria-label="Conexão SSH">
+      <div class="connection-bar" aria-live="polite"><span id="connection-status">Não conectado</span><span id="last-checked">Aguardando primeira consulta</span></div>
+      <details id="connection-settings" open>
+        <summary>Configurar conexão <span aria-hidden="true">↗</span></summary>
+        <div class="connection-body">
+          <div class="connection-intro"><h2>Conexão SSH</h2><p>Use o acesso SSH já configurado neste computador.</p></div>
+          <form id="connection-form">
+            <div class="connection-fields">
+              <label for="host">Servidor ou alias SSH<input id="host" name="host" placeholder="cluster-lab ou localhost" required maxlength="253" autocomplete="off" spellcheck="false"></label>
+              <label for="user">Usuário <small>opcional</small><input id="user" name="user" placeholder="Do SSH config" maxlength="128" autocomplete="off" spellcheck="false"></label>
+              <label for="port">Porta <small>opcional</small><input id="port" name="port" placeholder="Do SSH config" inputmode="numeric" pattern="[0-9]{1,5}" maxlength="5"></label>
+              <label for="control_path">Socket compartilhado <small>opcional</small><input id="control_path" name="control_path" placeholder="/tmp/minha-conexao.sock" maxlength="1024" autocomplete="off" spellcheck="false"></label>
+            </div>
+            <div class="connection-actions"><label class="check"><input id="remember" type="checkbox"> Lembrar conexão neste navegador</label><button id="connect" class="primary" type="submit">Conectar e consultar</button></div>
+          </form>
+          <details class="help"><summary>Como usar um túnel existente</summary><p>Se ele encaminha uma porta local para o SSH do servidor, use <code>localhost</code>, a porta local e seu usuário remoto. Um túnel para uma página web não oferece acesso SSH.</p><p>Para uma conexão master aberta com <code>ssh -S</code>, informe o mesmo alias e o caminho do socket. Execute este painel no mesmo ambiente Linux/WSL da conexão. A autenticação usa suas chaves, agente ou conexão compartilhada; resolva senhas e confirmação de identidade antes no terminal.</p></details>
+        </div>
+      </details>
+    </section>
+    <div id="error" class="error" role="alert" hidden></div>
+    <section class="queue-heading" aria-labelledby="queue-title">
+      <div><span class="eyebrow">SLURM / FILA ATUAL</span><h1 id="queue-title">Jobs</h1></div>
+      <div class="update-controls"><button id="refresh" disabled>Atualizar fila <span aria-hidden="true">↻</span></button><label class="check"><input id="auto" type="checkbox" checked> A cada 30 segundos</label></div>
+    </section>
+    <div class="queue-summary" aria-label="Resumo da última consulta"><span><strong id="total">—</strong> na fila</span><span class="running-count"><strong id="running">—</strong> em execução</span><span><strong id="pending">—</strong> pendentes</span><span><strong id="other">—</strong> em outros estados</span></div>
+    <div class="workspace">
+      <section class="queue" aria-label="Jobs Slurm">
+        <div class="toolbar"><label class="search-label" for="search"><span class="sr-only">Buscar jobs</span><input id="search" type="search" placeholder="Buscar por nome, ID ou partição" autocomplete="off"></label><label for="state"><span class="sr-only">Estado</span><select id="state"><option value="all">Todos os estados</option><option value="RUNNING">Em execução</option><option value="PENDING">Pendentes</option><option value="other">Outros estados</option></select></label></div>
+        <div id="empty" class="empty"><h2>Sem conexão</h2><p>Configure a conexão acima para consultar seus jobs.</p></div>
+        <div id="table-wrap" class="table-wrap" hidden><table><caption class="sr-only">Jobs do usuário autenticado no servidor</caption><thead><tr><th>Processo / job</th><th>Estado</th><th>Partição</th><th>Tempo</th></tr></thead><tbody id="jobs"></tbody></table></div>
+        <footer><span id="result-count">Nenhuma consulta realizada</span><span>Selecione um processo para inspecionar →</span></footer>
+      </section>
+      <aside class="inspector" aria-label="Inspeção do job">
+        <div class="inspector-top"><span class="eyebrow">INSPEÇÃO</span><button id="close-details" hidden>Voltar à fila ↗</button></div>
+        <div id="inspector-empty"><h2>Nenhum job selecionado</h2><p>Os detalhes aparecem aqui quando houver jobs na fila.</p></div>
+        <div id="inspector-content" hidden><p id="job-number" class="job-number"></p><h2 id="job-title" tabindex="-1"></h2><p id="job-snapshot-note" class="snapshot-note" aria-live="polite"></p><dl id="job-details"></dl><p class="inspector-note">Memória solicitada, não medida. O início de um job pendente pode ser uma estimativa.</p></div>
+        <div class="inspector-bottom">HELIXFORGE <span>/ SLURM</span></div>
+      </aside>
+    </div>
+    <div class="page-notes"><p>A fila mostra jobs do usuário autenticado, enviados por qualquer ferramenta.</p><p>Um job sair da fila não confirma sucesso. Logs e resultados ainda não fazem parte desta versão.</p></div>
+  </main>
+</body>
+</html>
