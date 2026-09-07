@@ -38,13 +38,14 @@ resource_config="$repo/benchmark/integrative/configs/real_upstream_slurm.config"
 scientific_target=dc0218ce902302da476910595bb133c82fee927c
 driver_id="driver-${case_name}-${attempt_label}-${BASHPID}"
 repo_commit=$(git -C "$repo" rev-parse HEAD)
+work_root="$case_root/work"
 
 update() {
     HF_STATE_TIME_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ) \
         "$python_runtime/bin/python3" "$repo/benchmark/integrative/scripts/real/update_real_benchmark_state.py" \
         --state "$state" --phase "$1" --status "$2" --job-id "$driver_id" \
         --job-kind "${case_name}_nextflow_driver" --repo-commit "$repo_commit" \
-        --workdir "$case_root/work" \
+        --workdir "$work_root" \
         --expected-output "cases/$case_name/results/chipseq/chipseq_run_manifest.json"
 }
 
@@ -58,6 +59,7 @@ test -x "$java_runtime/bin/java"
 for executable in bowtie2 bowtie2-build samtools macs3 bedtools featureCounts Rscript bamCoverage fastqc multiqc; do
     test -x "$chip_runtime/bin/$executable"
 done
+test -x "$repo/benchmark/integrative/scripts/real/runtime/bowtie2"
 
 resume_args=()
 if [[ "$run_mode" == fresh ]]; then
@@ -66,6 +68,11 @@ if [[ "$run_mode" == fresh ]]; then
 elif [[ "$run_mode" == resume ]]; then
     test -d "$case_root/work"
     resume_args=(-resume)
+elif [[ "$run_mode" == retry ]]; then
+    test -d "$case_root/work"
+    test -d "$case_root/results"
+    work_root="$case_root/work-$attempt_label"
+    test ! -e "$work_root"
 else
     echo "invalid run mode: $run_mode" >&2
     exit 2
@@ -75,15 +82,18 @@ git -C "$repo" diff --quiet "$scientific_target" -- \
     main.nf nextflow.config nextflow_schema.json workflows subworkflows modules schemas pipelines
 "$java_runtime/bin/java" -jar "$nextflow_jar" -version 2>&1 | grep -Fq 'version 25.10.7'
 [[ "$("$chip_runtime/bin/macs3" --version)" == 'macs3 3.0.4' ]]
+HELIXFORGE_BOWTIE2_BIN_DIR="$chip_runtime/bin" \
+    "$repo/benchmark/integrative/scripts/real/runtime/bowtie2" --version 2>&1 | grep -Fq 'version 2.5.5'
 
 mkdir -p "$case_root/logs" "$case_root/nxf-home" "$case_root/nxf-cache"
-runtime_path="$chip_runtime/bin:$python_runtime/bin:/usr/bin:/bin"
+runtime_path="$repo/benchmark/integrative/scripts/real/runtime:$chip_runtime/bin:$python_runtime/bin:/usr/bin:/bin"
 started=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 trap 'update "$failed_phase" FAILED' ERR
 update "$submitted_phase" RUNNING
 
 cd "$repo"
 env PATH="$runtime_path" \
+    HELIXFORGE_BOWTIE2_BIN_DIR="$chip_runtime/bin" \
     NXF_HOME="$case_root/nxf-home" \
     NXF_CACHE_DIR="$case_root/nxf-cache" \
     "$java_runtime/bin/java" -Xms128m -Xmx1g -jar "$nextflow_jar" \
@@ -92,7 +102,7 @@ env PATH="$runtime_path" \
     "${resume_args[@]}" \
     -c "$resource_config" \
     -ansi-log false \
-    -work-dir "$case_root/work" \
+    -work-dir "$work_root" \
     -process.queue="$queue" \
     --workflow chipseq \
     --outdir "$case_root/results" \
@@ -174,6 +184,7 @@ Path(path).write_text(json.dumps({
     "peak_type": peak_type, "peak_caller": "macs3", "peak_q_value": 0.01,
     "consensus_method": "union", "design": "~ condition",
     "contrast": "GSK343_vs_DMSO", "run_mode": run_mode, "attempt_label": attempt,
+    "runtime_correction": "direct Bowtie2 core launcher; scientific arguments unchanged",
     "started_utc": started, "ended_utc": ended,
 }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY

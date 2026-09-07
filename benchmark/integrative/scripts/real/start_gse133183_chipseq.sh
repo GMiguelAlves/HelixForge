@@ -26,7 +26,7 @@ if [[ -e "$pid_file" ]]; then
 fi
 
 mkdir -p "$case_root/logs"
-if [[ "$run_mode" == resume ]]; then
+if [[ "$run_mode" == resume || "$run_mode" == retry ]]; then
     archive="$case_root/logs/attempts/$(date -u +%Y%m%dT%H%M%SZ)-${attempt_label}"
     mkdir -p "$archive"
     for name in nextflow.log driver.out driver.err; do

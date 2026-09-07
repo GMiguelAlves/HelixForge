@@ -66,3 +66,9 @@ narrow peaks; both retain the preregistered matched IgG controls, union
 consensus, differential-binding contrast and five-job Slurm limit. The paired
 `run_gse133183_chipseq.sh` driver keeps Nextflow on the head node and submits
 all scientific processes through Slurm.
+
+The benchmark runtime prepends a minimal Bowtie2 launcher that selects the
+installed `bowtie2-align-s` or `bowtie2-align-l` binary and passes the upstream
+`--wrapper basic-0` contract. This bypasses only the broken Perl launcher whose
+Conda prefix contains the institutional `@bio` account suffix; the Bowtie2
+version, index, arguments and alignment implementation remain unchanged.

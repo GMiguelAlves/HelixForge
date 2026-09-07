@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+bin_dir=${HELIXFORGE_BOWTIE2_BIN_DIR:?HELIXFORGE_BOWTIE2_BIN_DIR is required}
+binary="$bin_dir/bowtie2-align-s"
+
+previous=''
+index_prefix=''
+for argument in "$@"; do
+    if [[ "$previous" == -x ]]; then
+        index_prefix=$argument
+        break
+    fi
+    if [[ "$argument" == -x=* ]]; then
+        index_prefix=${argument#-x=}
+        break
+    fi
+    previous=$argument
+done
+
+if [[ -n "$index_prefix" && -e "${index_prefix}.1.bt2l" ]]; then
+    binary="$bin_dir/bowtie2-align-l"
+fi
+
+test -x "$binary"
+exec "$binary" --wrapper basic-0 "$@"
