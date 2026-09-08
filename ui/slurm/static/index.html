@@ -55,16 +55,31 @@
           <div id="execution-empty" class="empty"><h2>Nenhuma execução registrada</h2><p>Registre o diretório de saída de uma análise para consultar seus processos e arquivos.</p></div>
           <div id="execution-table" class="table-wrap" hidden><table><thead><tr><th>Execução / servidor</th><th>Trace</th><th>Verificado em</th></tr></thead><tbody id="execution-rows"></tbody></table></div>
           <footer><span id="execution-count">0 execuções</span><span>Salvo neste navegador</span></footer>
-          <section id="execution-records" class="execution-records" hidden><h2>Processos registrados</h2><p id="execution-trace-note"></p><div class="table-wrap"><table><thead><tr><th>Processo</th><th>ID Slurm</th><th>Estado no trace</th><th>Duração</th></tr></thead><tbody id="execution-tasks"></tbody></table></div><p id="execution-task-count"></p><h2>Arquivos encontrados</h2><ul id="execution-artifacts"></ul></section>
         </section>
         <aside class="inspector" aria-label="Detalhes da execução">
           <span class="eyebrow">EXECUÇÃO</span>
           <div id="execution-placeholder"><h2>Nenhuma execução selecionada</h2><p>Os detalhes aparecem aqui após o cadastro.</p></div>
-          <div id="execution-detail" hidden><h2 id="execution-detail-title"></h2><p id="execution-note" class="snapshot-note"></p><dl id="execution-info"></dl><div class="execution-detail-actions"><button id="update-execution">Atualizar leitura ↻</button><button id="remove-execution">Remover do histórico</button></div><p class="inspector-note">Remover o cadastro mantém todos os arquivos no servidor.</p></div>
+          <div id="execution-detail" hidden><h2 id="execution-detail-title"></h2><p id="execution-note" class="snapshot-note"></p><dl id="execution-preview"></dl><div class="execution-detail-actions"><button id="open-execution">Abrir detalhes ↗</button></div></div>
           <div class="inspector-bottom">HELIXFORGE <span>/ EXECUÇÕES</span></div>
         </aside>
       </div>
       <div class="page-notes"><p>O trace registra processos da análise. Ele pode estar incompleto durante a execução.</p><p>A presença de um relatório ou manifesto não confirma sucesso nem valida os resultados.</p></div>
+    </section>
+    <section id="execution-screen" aria-labelledby="run-title" hidden>
+      <div class="run-breadcrumb"><a href="#executions">← Execuções</a><span id="run-breadcrumb-name"></span></div>
+      <div class="queue-heading run-heading"><div><span id="run-subtitle" class="eyebrow"></span><h1 id="run-title" tabindex="-1"></h1></div><button id="update-execution">Atualizar leitura ↻</button></div>
+      <p id="run-read-time" class="run-read-time"></p>
+      <div id="run-error" class="error" role="alert" hidden></div>
+      <nav class="screen-nav run-tabs" aria-label="Seções da execução"><button id="run-tab-summary">Resumo</button><button id="run-tab-processes">Processos</button><button id="run-tab-files">Arquivos</button></nav>
+      <section id="run-panel-summary" aria-label="Resumo da execução">
+        <div class="run-summary-grid"><section><h2>Dados da execução</h2><dl id="execution-info" class="run-info"></dl><div class="run-management"><button id="remove-execution">Remover do histórico</button><small>Os arquivos no servidor são mantidos.</small></div></section><aside class="run-status"><span class="eyebrow">TRACE</span><h2 id="run-trace-status"></h2><div id="run-counts"></div><p>O trace descreve processos registrados nesta saída. O estado final da análise ainda não é confirmado por este painel.</p></aside></div>
+      </section>
+      <section id="run-panel-processes" aria-label="Processos da execução" hidden>
+        <p id="execution-trace-note"></p>
+        <div class="toolbar"><label class="search-label"><span class="sr-only">Buscar processos</span><input id="run-task-search" type="search" placeholder="Buscar processo ou ID Slurm"></label><label><span class="sr-only">Estado do processo</span><select id="run-task-state"><option value="all">Todos os estados</option><option value="COMPLETED">Concluídos</option><option value="CACHED">Em cache</option><option value="FAILED">Falhas</option><option value="other">Outros estados</option></select></label></div>
+        <div class="run-process-grid"><div><div class="table-wrap"><table><thead><tr><th>Processo</th><th>ID Slurm</th><th>Estado no trace</th><th>Duração</th></tr></thead><tbody id="execution-tasks"></tbody></table></div><p id="run-tasks-empty" hidden>Nenhum processo corresponde ao filtro.</p><div class="run-pagination"><span id="execution-task-count" aria-live="polite"></span><button id="run-page-prev">Anterior</button><button id="run-page-next">Próxima</button></div></div><aside class="inspector run-task-inspector"><span class="eyebrow">PROCESSO</span><h2 id="run-task-title"></h2><dl id="run-task-info"></dl></aside></div>
+      </section>
+      <section id="run-panel-files" aria-label="Arquivos da execução" hidden><h2>Relatórios e manifestos</h2><p>Arquivos encontrados nos caminhos esperados. A leitura do conteúdo e dos logs será adicionada depois.</p><div id="execution-artifacts" class="run-files"></div><p id="run-copy-status" role="status"></p></section>
     </section>
     <section id="jobs-screen" hidden>
     <section class="queue-heading" aria-labelledby="queue-title">
