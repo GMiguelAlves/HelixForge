@@ -40,7 +40,7 @@ python_runtime=/scratch/HELIXFORGE_WORKSPACE/helixforge-rnaseq-benchmark-2026082
 r_runtime=/scratch/HELIXFORGE_WORKSPACE/helixforge-rnaseq-benchmark-20260825/envs/r-analysis-rc
 chip_runtime=/home/CLUSTER_USER/miniconda3/envs/chipseq
 resource_config="$repo/benchmark/integrative/configs/real_upstream_slurm.config"
-scientific_target=dc0218ce902302da476910595bb133c82fee927c
+scientific_target=60e8486ad86261dfeb681e565b1dbfb84359b700
 driver_id="driver-${case_name}-${attempt_label}-${BASHPID}"
 repo_commit=$(git -C "$repo" rev-parse HEAD)
 work_root="$case_root/work"
@@ -203,7 +203,7 @@ Path(path).write_text(json.dumps({
     "peak_type": peak_type, "peak_caller": "macs3", "peak_q_value": 0.01,
     "consensus_method": "union", "design": "~ condition",
     "contrast": "GSK343_vs_DMSO", "run_mode": run_mode, "attempt_label": attempt,
-    "runtime_correction": "direct Bowtie2 core launcher; scientific arguments unchanged",
+    "runtime_correction": "direct Bowtie2 core launcher, certified R dispatcher and filtered-peak contrast contract; scientific arguments unchanged",
     "started_utc": started, "ended_utc": ended,
 }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY

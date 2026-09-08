@@ -69,3 +69,33 @@ explicit native re-entry at the already published peak-count matrix. This
 re-entry executes only `DESEQ2_DB_MODEL`, `DESEQ2_DB_CONTRAST` and
 `DB_AGGREGATE`; it does not recompute FASTQ QC, alignment, BAM processing, peak
 calling, peak QC or consensus.
+
+## Filtered peak identity contract
+
+The real H3K27me3 model completed successfully with the frozen explicit filter:
+526,451 input peaks were reduced to 467,451 fitted peaks. The contrast then
+stopped because its identity guard required the unfiltered BED and the fitted
+model to contain identical sets, even though filtering is an intentional part
+of `DESEQ2_DB_MODEL`.
+
+The general `DESEQ2_DB_CONTRAST` contract was corrected in commit `60e8486`.
+The input BED may be a superset after model filtering, but it must contain every
+fitted peak exactly once. The contrast deterministically reorders and subsets
+the BED to the fitted model identities before attaching coordinates. Missing
+or duplicate identities still fail. No count, coordinate, model, contrast,
+threshold or statistical parameter changed.
+
+The isolated re-entry completed `DESEQ2_DB_MODEL`, `DESEQ2_DB_CONTRAST` and
+`DB_AGGREGATE` successfully in Slurm jobs 16948-16950. This correction is part
+of the general ChIP-seq module and is therefore the frozen scientific code
+target for the remaining real ChIP-seq arm.
+
+```text
+CONFLICT = POST_FILTER_IDENTITY_CONTRACT_TOO_STRICT
+DISCOVERED = AFTER_MODEL_FIT_AND_BEFORE_CONTRAST_RESULT
+INPUT_PEAKS = 526451
+FITTED_PEAKS = 467451
+SCIENTIFIC_PARAMETERS_CHANGED = NO
+GENERAL_MODULE_FIX = 60e8486
+STATUS = RESOLVED_AND_VALIDATED
+```
