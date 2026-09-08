@@ -185,6 +185,15 @@ class HTTPTests(unittest.TestCase):
         self.assertFalse(json.loads(body)["trace_found"])
         self.assertEqual(self.request("GET", "/executions.js")[0], 200)
 
+    def test_profile_validation_never_connects_to_remote(self):
+        headers = {"X-HelixForge-Token": self.server.token, "Content-Type": "application/json"}
+        with patch.object(monitor.subprocess, "run", side_effect=AssertionError("Must not connect")):
+            status, _, body = self.request("POST", "/api/connection", json.dumps({**CONFIG, "port": "022"}), headers)
+            self.assertEqual(status, 200)
+            self.assertEqual(json.loads(body)["connection"]["port"], "22")
+            self.assertEqual(self.request("POST", "/api/connection", json.dumps({**CONFIG, "host": "-oProxyCommand=bad"}), headers)[0], 400)
+            self.assertEqual(self.request("POST", "/api/connection", json.dumps(CONFIG))[0], 403)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -242,6 +242,7 @@ class Handler(BaseHTTPRequestHandler):
                  "/app.js": ("app.js", "text/javascript; charset=utf-8"),
                  "/executions.js": ("executions.js", "text/javascript; charset=utf-8"),
                  "/new-execution.js": ("new-execution.js", "text/javascript; charset=utf-8"),
+                 "/connections.js": ("connections.js", "text/javascript; charset=utf-8"),
                  "/styles.css": ("styles.css", "text/css; charset=utf-8")}
         if self.path not in files:
             return self.send_body(404, {"error": "Recurso não encontrado."})
@@ -255,7 +256,7 @@ class Handler(BaseHTTPRequestHandler):
                 or origin not in (None, "http://" + self.headers.get("Host", ""))
                 or self.headers.get("X-HelixForge-Token") != self.server.token):
             return self.send_body(403, {"error": "Sessão local inválida. Recarregue a página."})
-        if self.path not in ("/api/jobs", "/api/execution"):
+        if self.path not in ("/api/jobs", "/api/execution", "/api/connection"):
             return self.send_body(404, {"error": "Recurso não encontrado."})
         try:
             if self.headers.get("Content-Type", "").split(";")[0] != "application/json":
@@ -264,7 +265,9 @@ class Handler(BaseHTTPRequestHandler):
             if not 0 < size <= 4096:
                 raise MonitorError("Tamanho de configuração inválido.", 400)
             value = json.loads(self.rfile.read(size))
-            if self.path == "/api/execution":
+            if self.path == "/api/connection":
+                self.send_body(200, {"connection": connection_config(value)})
+            elif self.path == "/api/execution":
                 self.send_body(200, self.server.executions.get({"request": json.dumps(value, sort_keys=True)}))
             else:
                 self.send_body(200, self.server.monitor.get(connection_config(value)))

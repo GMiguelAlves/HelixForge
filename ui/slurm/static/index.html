@@ -9,6 +9,7 @@
   <script src="/app.js" defer></script>
   <script src="/executions.js" defer></script>
   <script src="/new-execution.js" defer></script>
+  <script src="/connections.js" defer></script>
 </head>
 <body>
   <header class="masthead">
@@ -17,7 +18,7 @@
     <span class="read-only">Somente leitura</span>
   </header>
   <main>
-    <nav class="screen-nav" aria-label="Navegação principal"><button id="nav-executions" aria-current="page">Execuções</button><button id="nav-jobs">Jobs</button></nav>
+    <nav class="screen-nav" aria-label="Navegação principal"><button id="nav-executions" aria-current="page">Execuções</button><button id="nav-jobs">Jobs</button><button id="nav-connections">Conexões</button></nav>
     <section class="connection" aria-label="Conexão SSH">
       <div class="connection-bar" aria-live="polite"><span id="connection-status">Não conectado</span><span id="last-checked">Aguardando primeira consulta</span></div>
       <details id="connection-settings" open>
@@ -95,6 +96,13 @@
         </div><aside class="run-status"><span class="eyebrow">DESTINO</span><h2 id="new-server"></h2><p>Usa a conexão SSH configurada no topo da página.</p><hr><h3>Preparação</h3><p>Os arquivos devem existir no servidor. O nó de execução precisa ter acesso ao Nextflow, Java e ao ambiente da análise.</p><p>Esta tela prepara o comando. Nenhum job é enviado pela UI.</p></aside></div>
       </form>
       <section id="new-review" hidden aria-labelledby="new-review-title"><h2 id="new-review-title">Revisar execução</h2><dl id="new-review-info" class="run-info"></dl><p>Os caminhos e os recursos ainda não foram verificados no servidor. O comando abaixo deve ser executado em uma sessão SSH no destino indicado.</p><pre id="new-command" tabindex="0"></pre><div class="form-actions new-actions"><button id="new-copy" class="primary">Copiar comando de envio</button><button id="new-edit">Voltar e editar</button></div><p>O envio direto pela UI ainda não está disponível. Após enviar pelo terminal, use “Registrar existente” para acompanhar a saída.</p></section>
+    </section>
+    <section id="connections-screen" aria-labelledby="connections-title" hidden>
+      <div class="queue-heading"><div><span class="eyebrow">SSH / PERFIS LOCAIS</span><h1 id="connections-title">Conexões</h1></div><button id="profile-new" class="primary">Nova conexão +</button></div>
+      <p id="profile-message" role="status"></p>
+      <div class="workspace"><section class="queue" aria-label="Conexões salvas"><div id="profiles-list"></div><div id="profiles-empty" class="empty" hidden><h2>Nenhuma conexão salva</h2><p>Adicione um alias SSH ou um endereço e uma porta de túnel.</p></div><footer>Perfis salvos neste navegador. Senhas e chaves privadas não são armazenadas.</footer></section>
+      <aside class="inspector"><span class="eyebrow">ACESSO AO SERVIDOR</span><h2>SSH existente</h2><p class="inspector-note">Use um alias configurado no ambiente que executa o painel. Para um túnel, informe localhost e a porta encaminhada para o SSH.</p><p class="inspector-note">O teste identifica o usuário autenticado e consulta apenas seus jobs no Slurm. Não envia nem cancela jobs.</p><p class="inspector-note">As execuções registradas mantêm sua própria conexão. Trocar o destino aqui não altera esses cadastros.</p></aside></div>
+      <form id="profile-form" class="execution-form" hidden><h2 id="profile-form-title">Nova conexão</h2><div class="connection-fields"><label>Nome da conexão<input id="profile-name" required maxlength="80" placeholder="Ex.: Laboratório · Unicamp"></label><label>Servidor ou alias<input id="profile-host" required maxlength="253" spellcheck="false" placeholder="cluster-lab"></label><label>Usuário remoto <small>opcional</small><input id="profile-user" maxlength="128" spellcheck="false"></label><label>Porta SSH <small>opcional</small><input id="profile-port" maxlength="5" inputmode="numeric" pattern="[0-9]{1,5}"></label></div><label class="profile-socket">Socket SSH compartilhado <small>opcional</small><input id="profile-control_path" maxlength="1024" spellcheck="false" placeholder="/tmp/minha-conexao.sock"></label><div class="form-actions new-actions"><button id="profile-save" type="submit" class="primary">Salvar conexão</button><button id="profile-cancel" type="button">Cancelar</button></div></form>
     </section>
     <section id="jobs-screen" hidden>
     <section class="queue-heading" aria-labelledby="queue-title">

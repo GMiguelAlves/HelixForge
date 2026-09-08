@@ -8,6 +8,16 @@
   --dark: #272d29;
   --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
 }
+.profile-row { padding: 24px 16px; border-bottom: 1px solid var(--line); }
+.profile-selected { background: #eee9dc; border-left: 2px solid var(--accent); }
+.profile-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.profile-heading h2 { font: 25px Georgia, serif; margin: 0; }
+.profile-address { font: 14px var(--mono); color: var(--ink); overflow-wrap: anywhere; }
+.profile-meta, .profile-result, #profile-message { font-size: 13px; overflow-wrap: anywhere; }
+.profile-row .form-actions { margin-top: 22px; }
+.profile-row button { font-size: 13px; }
+.profile-socket { margin-top: 20px; }
+#profile-form h2, #connections-screen .inspector h2 { font: 25px Georgia, serif; }
 .button-link { display: inline-block; padding: 10px 17px; border: 1px solid var(--ink); border-radius: 2px; text-decoration: none; }
 .draft-label { font: 12px var(--mono); color: var(--muted); }
 .new-layout { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 55px; }

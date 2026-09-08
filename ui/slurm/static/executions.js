@@ -40,13 +40,15 @@
     $("jobs-screen").hidden = screen !== "jobs";
     $("execution-screen").hidden = screen !== "execution";
     $("new-execution-screen").hidden = screen !== "new";
-    for (const name of ["executions", "jobs"]) {
+    $("connections-screen").hidden = screen !== "connections";
+    for (const name of ["executions", "jobs", "connections"]) {
       if (name === screen || (name === "executions" && ["execution", "new"].includes(screen))) $("nav-" + name).setAttribute("aria-current", "page");
       else $("nav-" + name).removeAttribute("aria-current");
     }
   }
   $("nav-executions").addEventListener("click", () => { location.hash = "executions"; });
   $("nav-jobs").addEventListener("click", () => { location.hash = "jobs"; });
+  $("nav-connections").addEventListener("click", () => { location.hash = "connections"; });
   function route() {
     const parts = location.hash.slice(1).split("/");
     const previous = detailId;
@@ -56,7 +58,7 @@
       taskPage = 0; taskIndex = null;
       $("run-task-search").value = ""; $("run-task-state").value = "all";
     }
-    showScreen(detailId ? "execution" : ["jobs", "new"].includes(parts[0]) ? parts[0] : "executions");
+    showScreen(detailId ? "execution" : ["jobs", "new", "connections"].includes(parts[0]) ? parts[0] : "executions");
     for (const section of ["summary", "processes", "files"]) {
       $("run-panel-" + section).hidden = section !== detailSection;
       if (section === detailSection) $("run-tab-" + section).setAttribute("aria-current", "page");

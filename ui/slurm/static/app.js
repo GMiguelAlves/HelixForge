@@ -93,9 +93,26 @@ function renderDetails() {
 
 function scheduleRefresh() {
   clearTimeout(timer);
-  if (connection && $("auto").checked && !document.hidden && !busy) {
+  if (connection && $("auto").checked && location.hash === "#jobs" && !document.hidden && !busy) {
     timer = setTimeout(refresh, 30000);
   }
+}
+
+function selectConnection(config) {
+  if (busy) return false;
+  clearTimeout(timer);
+  connection = null; snapshot = null; selectedJob = null;
+  for (const id of ["host", "user", "port", "control_path"]) {
+    $(id).value = config ? config[id] || "" : "";
+    $(id).dispatchEvent(new Event("input", {bubbles:true}));
+  }
+  $("error").hidden = true;
+  $("refresh").disabled = true;
+  $("connection-status").textContent = config ? `Destino selecionado · ${config.host}` : "Não conectado";
+  $("last-checked").textContent = "Aguardando consulta";
+  document.querySelector(".connection-bar").className = "connection-bar";
+  renderJobs(); renderDetails();
+  return true;
 }
 
 async function refresh(collapseSettings = false) {
@@ -134,6 +151,7 @@ async function refresh(collapseSettings = false) {
     $("connect").textContent = "Conectar e consultar";
     $("refresh").disabled = false;
     scheduleRefresh();
+    document.dispatchEvent(new Event("connection-updated"));
   }
 }
 
@@ -165,6 +183,7 @@ $("search").addEventListener("input", renderJobs);
 $("state").addEventListener("change", renderJobs);
 $("auto").addEventListener("change", scheduleRefresh);
 document.addEventListener("visibilitychange", scheduleRefresh);
+window.addEventListener("hashchange", scheduleRefresh);
 $("close-details").addEventListener("click", () => {
   const previousId = selectedJob && selectedJob.id;
   const target = $("job-" + previousId) || $("search");
