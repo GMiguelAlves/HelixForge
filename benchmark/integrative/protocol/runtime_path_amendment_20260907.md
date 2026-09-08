@@ -45,6 +45,11 @@ model, contrast, filter or parameter changed. The retry resumes the same
 Nextflow work directory so eligible completed tasks can be recovered without
 deliberately resubmitting the heavy upstream branch.
 
+Because two diagnostic resume attempts were stopped before heavy processing,
+the launcher also accepts `HELIXFORGE_RESUME_SESSION`. The recovery selects the
+original partial execution (`serene_edison`) explicitly instead of implicitly
+selecting the most recent cancelled session.
+
 ```text
 CONFLICT = DECLARED_R_DEPENDENCY_NOT_SELECTED
 DISCOVERED = BEFORE_DIFFERENTIAL_BINDING_MODEL

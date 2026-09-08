@@ -81,6 +81,9 @@ elif [[ "$run_mode" == resume ]]; then
     test -d "$case_root/work"
     test -d "$work_root"
     resume_args=(-resume)
+    if [[ -n "${HELIXFORGE_RESUME_SESSION:-}" ]]; then
+        resume_args+=("$HELIXFORGE_RESUME_SESSION")
+    fi
 elif [[ "$run_mode" == retry ]]; then
     test -d "$case_root/work"
     test -d "$case_root/results"
