@@ -9,6 +9,17 @@
   let detailSection = "summary";
   let taskPage = 0;
   let taskIndex = null;
+  let logRequest = 0;
+  let logController = null;
+  let logRun = null;
+  function clearLog() {
+    logRequest++; logController?.abort(); logController = null;
+    $("log-content").textContent = "Nenhum log carregado.";
+    $("log-path").textContent = "";
+    $("log-status").textContent = "Selecione um processo e leia o log.";
+    $("log-read").textContent = "Ler log ↻";
+    $("log-read").disabled = !$("log-task").options.length;
+  }
   const error = (message) => {
     $("execution-error").textContent = message;
     $("execution-error").hidden = !message;
@@ -53,13 +64,13 @@
     const parts = location.hash.slice(1).split("/");
     const previous = detailId;
     detailId = parts[0] === "execution" && runs.some((run) => run.id === parts[1]) ? parts[1] : null;
-    detailSection = ["summary", "processes", "files"].includes(parts[2]) ? parts[2] : "summary";
+    detailSection = ["summary", "processes", "logs", "files"].includes(parts[2]) ? parts[2] : "summary";
     if (previous !== detailId) {
       taskPage = 0; taskIndex = null;
       $("run-task-search").value = ""; $("run-task-state").value = "all";
     }
     showScreen(detailId ? "execution" : ["jobs", "new", "connections"].includes(parts[0]) ? parts[0] : "executions");
-    for (const section of ["summary", "processes", "files"]) {
+    for (const section of ["summary", "processes", "logs", "files"]) {
       $("run-panel-" + section).hidden = section !== detailSection;
       if (section === detailSection) $("run-tab-" + section).setAttribute("aria-current", "page");
       else $("run-tab-" + section).removeAttribute("aria-current");
@@ -68,7 +79,7 @@
     if (detailId && previous !== detailId) $("run-title").focus({preventScroll:true});
   }
   window.addEventListener("hashchange", route);
-  for (const section of ["summary", "processes", "files"]) $("run-tab-" + section).addEventListener("click", () => {
+  for (const section of ["summary", "processes", "logs", "files"]) $("run-tab-" + section).addEventListener("click", () => {
     location.hash = `execution/${detailId}/${section}`;
   });
   $("open-execution").addEventListener("click", () => { if (selected) location.hash = `execution/${selected}/summary`; });
@@ -102,6 +113,16 @@
     $("execution-detail").hidden = !run;
     if (!run) return;
     const data = run.data;
+    const logKey = run.id + ":" + data.checked_at;
+    if (logRun !== logKey) {
+      logRun = logKey;
+      $("log-task").replaceChildren(...data.tasks.map((task, index) => {
+        const option = element("option", `${task.name} · ${task.native_id || task.task_id || "sem ID Slurm"}`);
+        option.value = String(index); return option;
+      }));
+      clearLog();
+      if (!data.tasks.length) $("log-status").textContent = "Nenhum processo no trace. Atualize a execução para consultar os registros disponíveis.";
+    }
     $("run-title").textContent = run.name;
     $("run-breadcrumb-name").textContent = run.name;
     $("run-subtitle").textContent = `${workflows[run.workflow]} / ${run.connection.host}`;
@@ -169,11 +190,49 @@
     const task = data.tasks[taskIndex];
     $("run-task-title").textContent = task ? task.name : "Nenhum processo selecionado";
     $("run-task-info").replaceChildren();
+    $("task-open-logs").disabled = !task;
     if (task) for (const [label, value] of Object.entries({"ID tarefa":task.task_id, "ID Slurm":task.native_id, Estado:task.status, "Código de saída":task.exit, Duração:task.duration, "Tempo em execução":task.realtime})) $("run-task-info").append(element("dt",label),element("dd",value || "—"));
   }
   for (const id of ["run-task-search", "run-task-state"]) $(id).addEventListener(id.endsWith("search") ? "input" : "change", () => { taskPage = 0; render(); });
   $("run-page-prev").addEventListener("click", () => { taskPage--; render(); });
   $("run-page-next").addEventListener("click", () => { taskPage++; render(); });
+  $("task-open-logs").addEventListener("click", () => {
+    if (taskIndex == null) return;
+    $("log-task").value = String(taskIndex); clearLog();
+    location.hash = `execution/${detailId}/logs`;
+  });
+  $("log-task").addEventListener("change", clearLog);
+  $("log-file").addEventListener("change", clearLog);
+  $("log-read").addEventListener("click", async () => {
+    const run = runs.find((item) => item.id === detailId);
+    const task = run?.data.tasks[Number($("log-task").value)];
+    if (!task) return;
+    const requestId = ++logRequest;
+    logController?.abort(); logController = new AbortController();
+    const controller = logController;
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    $("log-read").disabled = true; $("log-read").textContent = "Lendo…";
+    $("log-status").textContent = "Consultando o log no servidor…";
+    try {
+      const response = await fetch("/api/execution", {method:"POST", headers:{"Content-Type":"application/json", "X-HelixForge-Token":token},
+        body:JSON.stringify({connection:run.connection, directory:run.data.directory, log:{task_id:task.task_id, native_id:task.native_id, name:task.name, file:$("log-file").value}}), signal:controller.signal});
+      const data = await response.json();
+      if (requestId !== logRequest || detailId !== run.id) return;
+      if (!response.ok) throw new Error(data.error || "Não foi possível ler o log.");
+      $("log-content").textContent = data.content || "Arquivo vazio.";
+      $("log-path").textContent = data.path;
+      $("connection-status").textContent = `Leitura de log realizada · ${run.connection.host}`;
+      document.querySelector(".connection-bar").className = "connection-bar connected";
+      $("last-checked").textContent = `Última leitura de log: ${date(data.checked_at)}`;
+      $("log-status").textContent = `Leitura: ${date(data.checked_at)} · ${data.size} bytes no arquivo${data.truncated ? " · exibindo somente o trecho final" : " · conteúdo completo"}.`;
+    } catch (error) {
+      if (requestId !== logRequest || detailId !== run.id) return;
+      $("log-status").textContent = (error.name === "AbortError" ? "A leitura excedeu o tempo limite." : error instanceof TypeError ? "O serviço local não respondeu." : error.message) + " O conteúdo exibido, se houver, é da leitura anterior.";
+    } finally {
+      clearTimeout(timeout);
+      if (requestId === logRequest) { $("log-read").disabled = false; $("log-read").textContent = "Ler log ↻"; }
+    }
+  });
 
   async function inspectRun(config, directory) {
     const controller = new AbortController();

@@ -140,9 +140,15 @@ def query_jobs(config):
 
 
 def query_execution(value):
-    if not isinstance(value, dict) or set(value) != {"connection", "directory"}:
+    if not isinstance(value, dict) or set(value) not in ({"connection", "directory"}, {"connection", "directory", "log"}):
         raise MonitorError("Cadastro de execução inválido.", 400)
     config = connection_config(value["connection"])
+    if "log" in value:
+        selection = value["log"]
+        if (not isinstance(selection, dict) or set(selection) != {"task_id", "native_id", "name", "file"}
+                or any(not isinstance(item, str) or len(item) > 512 for item in selection.values())
+                or selection["file"] not in (".command.out", ".command.err", ".command.log")):
+            raise MonitorError("Seleção de log inválida.", 400)
     directory = value["directory"]
     if (not isinstance(directory, str) or not directory.startswith("/") or len(directory) > 2048
             or any(ord(char) < 32 for char in directory)):
@@ -151,7 +157,10 @@ def query_execution(value):
     command = "import base64;exec(base64.b64decode(" + repr(base64.b64encode(script).decode()) + "))"
     args = ssh_arguments(config)[:-1] + ["python3 -c " + shlex.quote(command)]
     try:
-        result = subprocess.run(args, input=json.dumps({"directory": directory}), capture_output=True,
+        request = {"directory": directory}
+        if "log" in value:
+            request["log"] = value["log"]
+        result = subprocess.run(args, input=json.dumps(request), capture_output=True,
                                 encoding="utf-8", errors="replace", timeout=25,
                                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
     except (FileNotFoundError, subprocess.TimeoutExpired) as exc:

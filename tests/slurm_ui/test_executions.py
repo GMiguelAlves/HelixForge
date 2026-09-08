@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import subprocess
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -15,6 +16,10 @@ SPEC.loader.exec_module(probe)
 
 
 class ExecutionAPITests(unittest.TestCase):
+    def test_log_selection_is_validated_before_ssh(self):
+        with patch.object(monitor.subprocess, "run", side_effect=AssertionError("Must not connect")):
+            with self.assertRaises(monitor.MonitorError):
+                monitor.query_execution({"connection": CONFIG, "directory": "/scratch/run", "log": {"task_id": "1", "native_id": "123", "name": "step", "file": "../secret"}})
     def test_directory_is_stdin_data_never_shell_code(self):
         directory = "/scratch/my run/$(touch danger); 'quoted'"
         result = subprocess.CompletedProcess([], 0, 'banner\nHELIXFORGE_EXECUTION_V1:{"tasks":[],"directory":"/scratch/run"}\n', '')
@@ -81,3 +86,54 @@ class ProbeTests(unittest.TestCase):
             self.trace.write_text(content)
             with self.assertRaises(ValueError):
                 probe.inspect(self.root)
+
+    def log_fixture(self):
+        work = self.root / "work"
+        work.mkdir()
+        self.trace.write_text("task_id\tnative_id\tname\tstatus\tworkdir\n1\t123\tstep\tCOMPLETED\t" + str(work) + "\n")
+        return work, {"task_id": "1", "native_id": "123", "name": "step", "file": ".command.out"}
+
+    def test_log_tail_limits_and_empty_file(self):
+        work, selection = self.log_fixture()
+        path = work / ".command.out"
+        path.write_text("")
+        self.assertEqual(probe.read_log(self.root, selection)["content"], "")
+        path.write_text("line\n" * 20000 + "<script>literal</script>\n")
+        result = probe.read_log(self.root, selection)
+        self.assertTrue(result["truncated"])
+        self.assertLessEqual(len(result["content"].splitlines()), 400)
+        self.assertTrue(result["content"].endswith("<script>literal</script>\n"))
+
+    def test_log_identity_and_file_allowlist(self):
+        work, selection = self.log_fixture()
+        (work / ".command.out").write_text("hello")
+        for changes in ({"file": "../secret"}, {"task_id": "2"}, {"native_id": "456"}):
+            with self.assertRaises(ValueError):
+                probe.read_log(self.root, {**selection, **changes})
+
+    def test_log_symlink_escape_and_fifo(self):
+        work, selection = self.log_fixture()
+        path = work / ".command.out"
+        outside = self.root / "outside"
+        outside.write_text("private")
+        path.symlink_to(outside)
+        with self.assertRaises(ValueError):
+            probe.read_log(self.root, selection)
+        path.unlink()
+        os.mkfifo(path)
+        with self.assertRaises(ValueError):
+            probe.read_log(self.root, selection)
+
+    def test_log_foreign_file_owner_is_rejected(self):
+        work, selection = self.log_fixture()
+        (work / ".command.out").write_text("private")
+        original = os.fstat
+        def stat_file(fd):
+            result = original(fd)
+            # inspect() first reads the trace; change ownership only for the log.
+            if result.st_ino == (work / ".command.out").stat().st_ino:
+                return SimpleNamespace(st_mode=result.st_mode, st_uid=os.getuid() + 1)
+            return result
+        with patch.object(probe.os, "fstat", side_effect=stat_file):
+            with self.assertRaises(ValueError):
+                probe.read_log(self.root, selection)

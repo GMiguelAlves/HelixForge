@@ -8,6 +8,11 @@
   --dark: #272d29;
   --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
 }
+.log-controls { display: grid; grid-template-columns: minmax(0,1fr) 280px auto; gap: 22px; align-items: end; }
+.log-controls select { margin-top: 8px; }
+#run-panel-logs p { font-size: 13px; }
+#log-path { font-family: var(--mono); overflow-wrap: anywhere; }
+#log-content { background: var(--dark); color: #eeeade; padding: 25px; min-height: 320px; max-height: 600px; overflow: auto; font: 13px/1.7 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
 .profile-row { padding: 24px 16px; border-bottom: 1px solid var(--line); }
 .profile-selected { background: #eee9dc; border-left: 2px solid var(--accent); }
 .profile-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
