@@ -40,7 +40,6 @@ python_runtime=/scratch/HELIXFORGE_WORKSPACE/helixforge-rnaseq-benchmark-2026082
 r_runtime=/scratch/HELIXFORGE_WORKSPACE/helixforge-rnaseq-benchmark-20260825/envs/r-analysis-rc
 chip_runtime=/home/CLUSTER_USER/miniconda3/envs/chipseq
 resource_config="$repo/benchmark/integrative/configs/real_upstream_slurm.config"
-r_runtime_config="$repo/benchmark/integrative/configs/real_r_analysis_runtime.config"
 scientific_target=dc0218ce902302da476910595bb133c82fee927c
 driver_id="driver-${case_name}-${attempt_label}-${BASHPID}"
 repo_commit=$(git -C "$repo" rev-parse HEAD)
@@ -60,7 +59,6 @@ test -s "$case_root/input_manifest.json"
 test -s "$case_root/pipeline_config.sh"
 test -s "$case_root/db_spec.json"
 test -s "$resource_config"
-test -s "$r_runtime_config"
 test -s "$nextflow_jar"
 test -x "$java_runtime/bin/java"
 test -x "$r_runtime/bin/Rscript"
@@ -68,6 +66,7 @@ for executable in bowtie2 bowtie2-build samtools macs3 bedtools featureCounts Rs
     test -x "$chip_runtime/bin/$executable"
 done
 test -x "$repo/benchmark/integrative/scripts/real/runtime/bowtie2"
+test -x "$repo/benchmark/integrative/scripts/real/runtime/Rscript"
 
 resume_args=()
 if [[ "$run_mode" == fresh ]]; then
@@ -121,7 +120,6 @@ env PATH="$runtime_path" \
     run main.nf \
     "${resume_args[@]}" \
     -c "$resource_config" \
-    -c "$r_runtime_config" \
     -ansi-log false \
     -work-dir "$work_root" \
     -process.queue="$queue" \

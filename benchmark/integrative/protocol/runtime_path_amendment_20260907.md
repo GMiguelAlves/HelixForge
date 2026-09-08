@@ -38,11 +38,12 @@ contain `jsonlite`, which is a declared dependency of `DESEQ2_DB_MODEL`. The
 benchmark already retained the certified analysis runtime used by HelixForge:
 R 4.3.3, Bioconductor 3.18.1, DESeq2 1.42.0 and jsonlite 1.8.8.
 
-The launcher verifies all four versions before Nextflow starts, while a
-benchmark-only Nextflow configuration selects the runtime exclusively for
-`DESEQ2_DB_MODEL` and `DESEQ2_DB_CONTRAST`. The global task environment remains
-unchanged so upstream process hashes are not invalidated. No package was
-installed, no environment was modified and no scientific input, model,
+The launcher verifies all four versions before Nextflow starts. A minimal
+`Rscript` dispatcher is placed in the benchmark runtime directory that was
+already first in the frozen global `PATH`; the `PATH` value and the Nextflow
+configuration therefore remain byte-for-byte unchanged. The dispatcher
+selects the certified R runtime only when an R script is invoked. No package
+was installed, no environment was modified and no scientific input, model,
 contrast, filter or parameter changed. The retry resumes the same Nextflow work
 directory so eligible completed tasks can be recovered without deliberately
 resubmitting the heavy upstream branch.
