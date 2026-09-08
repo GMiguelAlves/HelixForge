@@ -28,3 +28,27 @@ SCIENTIFIC_PARAMETERS_CHANGED = NO
 BIAS_RISK = NONE
 STATUS = RESOLVED_FOR_RETRY
 ```
+
+## R runtime selection for differential binding
+
+The corrected H3K27me3 run completed the upstream scientific path through peak
+counting, then stopped before fitting the differential-binding model. The
+general ChIP-seq environment exposed R 4.5.3 and DESeq2 1.50.2 but did not
+contain `jsonlite`, which is a declared dependency of `DESEQ2_DB_MODEL`. The
+benchmark already retained the certified analysis runtime used by HelixForge:
+R 4.3.3, Bioconductor 3.18.1, DESeq2 1.42.0 and jsonlite 1.8.8.
+
+The launcher now places that existing certified R runtime before the general
+ChIP-seq tools and verifies all four versions before Nextflow starts. No
+package was installed, no environment was modified and no scientific input,
+model, contrast, filter or parameter changed. The retry resumes the same
+Nextflow work directory so eligible completed tasks can be recovered without
+deliberately resubmitting the heavy upstream branch.
+
+```text
+CONFLICT = DECLARED_R_DEPENDENCY_NOT_SELECTED
+DISCOVERED = BEFORE_DIFFERENTIAL_BINDING_MODEL
+SCIENTIFIC_PARAMETERS_CHANGED = NO
+RUNTIME_REUSED = CERTIFIED_R_ANALYSIS_RC
+STATUS = RESOLVED_FOR_RESUME
+```

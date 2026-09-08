@@ -37,6 +37,7 @@ state="$root/benchmark_state.json"
 nextflow_jar=/home/CLUSTER_USER/.nextflow/framework/25.10.7/nextflow-25.10.7-one.jar
 java_runtime=/scratch/HELIXFORGE_WORKSPACE/helixforge-rnaseq-benchmark-20260825/envs/rna-tools-rc
 python_runtime=/scratch/HELIXFORGE_WORKSPACE/helixforge-rnaseq-benchmark-20260825/envs/python-runtime-rc
+r_runtime=/scratch/HELIXFORGE_WORKSPACE/helixforge-rnaseq-benchmark-20260825/envs/r-analysis-rc
 chip_runtime=/home/CLUSTER_USER/miniconda3/envs/chipseq
 resource_config="$repo/benchmark/integrative/configs/real_upstream_slurm.config"
 scientific_target=dc0218ce902302da476910595bb133c82fee927c
@@ -60,17 +61,25 @@ test -s "$case_root/db_spec.json"
 test -s "$resource_config"
 test -s "$nextflow_jar"
 test -x "$java_runtime/bin/java"
+test -x "$r_runtime/bin/Rscript"
 for executable in bowtie2 bowtie2-build samtools macs3 bedtools featureCounts Rscript bamCoverage fastqc multiqc; do
     test -x "$chip_runtime/bin/$executable"
 done
 test -x "$repo/benchmark/integrative/scripts/real/runtime/bowtie2"
+test -x "$repo/benchmark/integrative/scripts/real/runtime/Rscript"
 
 resume_args=()
 if [[ "$run_mode" == fresh ]]; then
     test ! -e "$case_root/results"
     test ! -e "$case_root/work"
 elif [[ "$run_mode" == resume ]]; then
+    if [[ "$attempt_label" != initial ]]; then
+        work_root="$case_root/work-$attempt_label"
+        submitted_phase=$retry_submitted_phase
+        failed_phase=$retry_failed_phase
+    fi
     test -d "$case_root/work"
+    test -d "$work_root"
     resume_args=(-resume)
 elif [[ "$run_mode" == retry ]]; then
     test -d "$case_root/work"
@@ -88,6 +97,7 @@ git -C "$repo" diff --quiet "$scientific_target" -- \
     main.nf nextflow.config nextflow_schema.json workflows subworkflows modules schemas pipelines
 "$java_runtime/bin/java" -jar "$nextflow_jar" -version 2>&1 | grep -Fq 'version 25.10.7'
 [[ "$("$chip_runtime/bin/macs3" --version)" == 'macs3 3.0.4' ]]
+"$r_runtime/bin/Rscript" -e 'stopifnot(as.character(getRversion()) == "4.3.3", as.character(packageVersion("BiocVersion")) == "3.18.1", as.character(packageVersion("DESeq2")) == "1.42.0", as.character(packageVersion("jsonlite")) == "1.8.8")'
 HELIXFORGE_BOWTIE2_BIN_DIR="$chip_runtime/bin" \
     "$repo/benchmark/integrative/scripts/real/runtime/bowtie2" --version 2>&1 | grep -Fq 'version 2.5.5'
 
