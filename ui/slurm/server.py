@@ -241,6 +241,7 @@ class Handler(BaseHTTPRequestHandler):
         files = {"/": ("index.html", "text/html; charset=utf-8"),
                  "/app.js": ("app.js", "text/javascript; charset=utf-8"),
                  "/executions.js": ("executions.js", "text/javascript; charset=utf-8"),
+                 "/new-execution.js": ("new-execution.js", "text/javascript; charset=utf-8"),
                  "/styles.css": ("styles.css", "text/css; charset=utf-8")}
         if self.path not in files:
             return self.send_body(404, {"error": "Recurso não encontrado."})

@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
   <script src="/executions.js" defer></script>
+  <script src="/new-execution.js" defer></script>
 </head>
 <body>
   <header class="masthead">
@@ -38,7 +39,7 @@
     </section>
     <div id="error" class="error" role="alert" hidden></div>
     <section id="executions-screen" aria-labelledby="executions-title">
-      <div class="queue-heading"><div><span class="eyebrow">HELIXFORGE / HISTÓRICO LOCAL</span><h1 id="executions-title">Execuções</h1></div><button id="register-execution" class="primary">Registrar execução +</button></div>
+      <div class="queue-heading"><div><span class="eyebrow">HELIXFORGE / HISTÓRICO LOCAL</span><h1 id="executions-title">Execuções</h1></div><div class="form-actions"><button id="register-execution">Registrar existente</button><a class="button-link primary" href="#new">Nova execução +</a></div></div>
       <form id="execution-form" class="execution-form" hidden>
         <div class="execution-fields">
           <label>Nome da execução<input id="execution-name" required maxlength="120" placeholder="Ex.: ChIP-seq · amostra 01"></label>
@@ -80,6 +81,20 @@
         <div class="run-process-grid"><div><div class="table-wrap"><table><thead><tr><th>Processo</th><th>ID Slurm</th><th>Estado no trace</th><th>Duração</th></tr></thead><tbody id="execution-tasks"></tbody></table></div><p id="run-tasks-empty" hidden>Nenhum processo corresponde ao filtro.</p><div class="run-pagination"><span id="execution-task-count" aria-live="polite"></span><button id="run-page-prev">Anterior</button><button id="run-page-next">Próxima</button></div></div><aside class="inspector run-task-inspector"><span class="eyebrow">PROCESSO</span><h2 id="run-task-title"></h2><dl id="run-task-info"></dl></aside></div>
       </section>
       <section id="run-panel-files" aria-label="Arquivos da execução" hidden><h2>Relatórios e manifestos</h2><p>Arquivos encontrados nos caminhos esperados. A leitura do conteúdo e dos logs será adicionada depois.</p><div id="execution-artifacts" class="run-files"></div><p id="run-copy-status" role="status"></p></section>
+    </section>
+    <section id="new-execution-screen" aria-labelledby="new-title" hidden>
+      <div class="run-breadcrumb"><a href="#executions">← Execuções</a><span>Nova execução</span></div>
+      <div class="queue-heading"><div><span class="eyebrow">HELIXFORGE / SLURM</span><h1 id="new-title">Nova execução</h1></div><span class="draft-label">Rascunho local</span></div>
+      <p id="new-message" role="status"></p>
+      <form id="new-form">
+        <div class="new-layout"><div>
+          <section class="new-section"><h2><span>01</span> Análise</h2><div class="execution-fields"><label>Nome<input id="new-name" required maxlength="80" placeholder="Ex.: RNA-seq · experimento 02"></label><label>Workflow<select id="new-workflow"><option value="rnaseq">RNA-seq</option><option value="chipseq">ChIP-seq</option><option value="integrative">Integrativo</option><option value="all">RNA-seq + ChIP-seq + Integrativo</option></select></label></div><p id="new-workflow-note"></p></section>
+          <section class="new-section"><h2><span>02</span> Arquivos no servidor</h2><div class="execution-fields"><label class="directory-field">Diretório do HelixForge<input id="new-repo" required placeholder="/caminho/HelixForge"></label><label class="directory-field">Configuração Nextflow da análise e do cluster<input id="new-config" required placeholder="/caminho/analise.config"></label><label class="directory-field">Diretório de lançamento<input id="new-launch" required placeholder="/scratch/seu-usuario/nova-analise"></label><label>Diretório de saída<input id="new-output" required placeholder="/scratch/seu-usuario/nova-analise/results"></label><label>Diretório de trabalho<input id="new-work" required placeholder="/scratch/seu-usuario/nova-analise/work"></label></div><p>A configuração deve conter entradas, referências, parâmetros científicos e recursos dos processos. Use diretórios exclusivos para esta análise.</p></section>
+          <section class="new-section"><h2><span>03</span> Job de coordenação</h2><div class="execution-fields"><label>Partição<input id="new-partition" required placeholder="Partição autorizada"></label><label>Ambiente<select id="new-runtime"><option value="slurm">Configurado no servidor</option><option value="slurm,apptainer">Apptainer</option><option value="slurm,singularity">Singularity</option></select></label><label>Memória (GB)<input id="new-memory" required type="number" min="1" max="1024" step="1"></label><label>Limite de tempo (horas)<input id="new-hours" required type="number" min="1" max="720" step="1"></label><label>Conta <small>opcional</small><input id="new-account" maxlength="80"></label></div><p>Esses recursos são para o coordenador Nextflow, com 1 CPU. Os processos da análise usam os recursos definidos na configuração.</p></section>
+          <div class="form-actions new-actions"><button type="submit" class="primary">Revisar execução →</button><button type="button" id="new-save">Salvar rascunho</button><button type="button" id="new-clear">Limpar rascunho</button></div>
+        </div><aside class="run-status"><span class="eyebrow">DESTINO</span><h2 id="new-server"></h2><p>Usa a conexão SSH configurada no topo da página.</p><hr><h3>Preparação</h3><p>Os arquivos devem existir no servidor. O nó de execução precisa ter acesso ao Nextflow, Java e ao ambiente da análise.</p><p>Esta tela prepara o comando. Nenhum job é enviado pela UI.</p></aside></div>
+      </form>
+      <section id="new-review" hidden aria-labelledby="new-review-title"><h2 id="new-review-title">Revisar execução</h2><dl id="new-review-info" class="run-info"></dl><p>Os caminhos e os recursos ainda não foram verificados no servidor. O comando abaixo deve ser executado em uma sessão SSH no destino indicado.</p><pre id="new-command" tabindex="0"></pre><div class="form-actions new-actions"><button id="new-copy" class="primary">Copiar comando de envio</button><button id="new-edit">Voltar e editar</button></div><p>O envio direto pela UI ainda não está disponível. Após enviar pelo terminal, use “Registrar existente” para acompanhar a saída.</p></section>
     </section>
     <section id="jobs-screen" hidden>
     <section class="queue-heading" aria-labelledby="queue-title">

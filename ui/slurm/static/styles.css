@@ -8,6 +8,18 @@
   --dark: #272d29;
   --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
 }
+.button-link { display: inline-block; padding: 10px 17px; border: 1px solid var(--ink); border-radius: 2px; text-decoration: none; }
+.draft-label { font: 12px var(--mono); color: var(--muted); }
+.new-layout { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 55px; }
+.new-section { border-top: 1px solid var(--line); padding: 16px 0 28px; }
+.new-section h2 { font: 25px Georgia, serif; margin: 8px 0 24px; }
+.new-section h2 span { font: 12px var(--mono); color: var(--accent); margin-right: 16px; }
+.new-section p, #new-review > p, #new-message { font-size: 13px; }
+.new-layout .run-status h2 { font: 25px Georgia, serif; overflow-wrap: anywhere; }
+.new-layout .run-status h3 { font-size: 15px; font-weight: 500; }
+.new-layout hr { border: 0; border-top: 1px solid #4d564b; margin: 24px 0; }
+.new-actions { margin: 24px 0; }
+#new-command { padding: 24px; color: #eeeade; background: var(--dark); font: 13px/1.8 var(--mono); overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
 .run-breadcrumb { display: flex; gap: 18px; align-items: center; margin-top: 24px; font-size: 13px; color: var(--muted); }
 .run-breadcrumb a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
 .run-heading { padding-top: 22px; }
