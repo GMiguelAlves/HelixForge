@@ -60,3 +60,12 @@ SCIENTIFIC_PARAMETERS_CHANGED = NO
 RUNTIME_REUSED = CERTIFIED_R_ANALYSIS_RC
 STATUS = RESOLVED_FOR_RESUME
 ```
+
+The original task cache remained unavailable even when the original session,
+project directory, commit, command, configuration and `PATH` were restored.
+Diagnostic attempts were cancelled after context/reference submission and
+before any repeated alignment. The benchmark therefore continues through an
+explicit native re-entry at the already published peak-count matrix. This
+re-entry executes only `DESEQ2_DB_MODEL`, `DESEQ2_DB_CONTRAST` and
+`DB_AGGREGATE`; it does not recompute FASTQ QC, alignment, BAM processing, peak
+calling, peak QC or consensus.
