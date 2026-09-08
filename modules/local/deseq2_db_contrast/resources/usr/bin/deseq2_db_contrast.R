@@ -26,7 +26,14 @@ if (!all(c(contrast$numerator, contrast$denominator) %in% levels_available)) sto
 peaks <- read.delim(peak_bed_file, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
 if (ncol(peaks) < 4) stop("peak BED must contain stable BED4 identity")
 colnames(peaks)[1:4] <- c("chrom", "start", "end", "peak_id")
-if (anyDuplicated(peaks$peak_id) || !setequal(peaks$peak_id, rownames(dds))) stop("peak BED and fitted model identities disagree")
+if (anyDuplicated(peaks$peak_id)) stop("peak BED contains duplicate identities")
+model_peak_ids <- rownames(dds)
+if (!all(model_peak_ids %in% peaks$peak_id)) stop("peak BED is missing fitted model identities")
+# The model applies the explicit count filter before fitting. The input BED is
+# therefore allowed to be a superset, but every fitted peak must retain its
+# original stable identity and coordinates.
+peaks <- peaks[match(model_peak_ids, peaks$peak_id), , drop = FALSE]
+if (!identical(peaks$peak_id, model_peak_ids)) stop("peak BED and fitted model identities disagree")
 
 alpha <- as.numeric(contrast$alpha)
 lfc_threshold <- as.numeric(contrast$lfc_threshold)
