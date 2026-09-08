@@ -8,6 +8,26 @@
   --dark: #272d29;
   --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
 }
+.screen-nav { display: flex; gap: 28px; border-bottom: 1px solid var(--line); }
+.screen-nav button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 17px 0; font-size: 14px; }
+.screen-nav button[aria-current] { border-bottom-color: var(--accent); color: var(--accent); }
+.execution-form { border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line); padding: 24px 0; margin-bottom: 25px; }
+.execution-fields { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; }
+.directory-field { grid-column: 1 / -1; }
+.execution-fields select { margin-top: 7px; }
+.execution-form p { font-size: 13px; }
+.form-actions, .execution-detail-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.execution-detail-actions { margin-top: 24px; }
+.execution-detail-actions button { color: #f1eee3; border-color: #7b8575; font-size: 12px; }
+.execution-detail-actions button:hover:not(:disabled) { background: #414b3f; }
+#execution-detail-title, #execution-placeholder h2 { font: 26px/1.25 Georgia, serif; overflow-wrap: anywhere; }
+#execution-placeholder p { color: #b5bdae; font-size: 13px; }
+.execution-records { border-top: 2px solid var(--ink); margin-top: 32px; padding-top: 12px; }
+.execution-records h2 { font: 24px Georgia, serif; }
+.execution-records p { font-size: 13px; }
+.execution-records li { font: 13px/1.8 var(--mono); overflow-wrap: anywhere; }
+.execution-records td { overflow-wrap: anywhere; }
+@media (max-width: 480px) { .execution-fields { grid-template-columns: 1fr; } }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.55 system-ui, sans-serif; }
 button, input, select { font: inherit; }

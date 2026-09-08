@@ -175,6 +175,16 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(self.request("POST", "/api/jobs", "not json", {
             "X-HelixForge-Token": self.server.token, "Content-Type": "application/json"})[0], 400)
 
+    def test_execution_endpoint_requires_session_and_returns_inspection(self):
+        payload = json.dumps({"connection": CONFIG, "directory": "/scratch/run"})
+        self.assertEqual(self.request("POST", "/api/execution", payload)[0], 403)
+        with patch.object(self.server.executions, "query", return_value={"tasks": [], "trace_found": False}):
+            status, _, body = self.request("POST", "/api/execution", payload, {
+                "X-HelixForge-Token": self.server.token, "Content-Type": "application/json"})
+        self.assertEqual(status, 200)
+        self.assertFalse(json.loads(body)["trace_found"])
+        self.assertEqual(self.request("GET", "/executions.js")[0], 200)
+
 
 if __name__ == "__main__":
     unittest.main()

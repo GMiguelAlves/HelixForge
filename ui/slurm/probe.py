@@ -1,0 +1,68 @@
+"""Bounded, read-only inspection of an explicitly supplied output directory."""
+import csv
+import io
+import json
+import os
+from pathlib import Path
+import stat
+import sys
+
+
+def inspect(directory):
+    root = Path(directory).resolve(strict=True)
+    uid = os.getuid()
+    if not root.is_dir() or root.stat().st_uid != uid:
+        raise ValueError("Informe um diretório de saída pertencente ao usuário autenticado.")
+
+    def owned_file(relative):
+        path = root / relative
+        if not path.exists():
+            return None
+        path = path.resolve(strict=True)
+        if root not in path.parents or path.stat().st_uid != uid or not path.is_file():
+            raise ValueError("Um arquivo está fora do diretório ou não pertence ao usuário autenticado.")
+        return path
+
+    trace = owned_file("pipeline_info/execution_trace.tsv")
+    tasks = []
+    modified = None
+    if trace:
+        # Nonblocking open and fstat also guard against special files replaced during inspection.
+        fd = os.open(trace, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW)
+        with os.fdopen(fd, "rb") as handle:
+            info = os.fstat(handle.fileno())
+            if not stat.S_ISREG(info.st_mode) or info.st_uid != uid:
+                raise ValueError("Trace inválido.")
+            raw = handle.read(2 * 1024 * 1024 + 1)
+        if len(raw) > 2 * 1024 * 1024:
+            raise ValueError("O trace excede o limite de 2 MB desta versão.")
+        # An active writer may not have finished its last record yet.
+        text = raw.decode("utf-8", errors="replace")
+        text = text[:text.rfind("\n") + 1]
+        reader = csv.DictReader(io.StringIO(text), delimiter="\t")
+        if not reader.fieldnames or not {"name", "status", "native_id"}.issubset(reader.fieldnames):
+            raise ValueError("O arquivo não contém um trace compatível do HelixForge.")
+        fields = ("task_id", "native_id", "name", "status", "exit", "duration", "realtime")
+        for row in reader:
+            if None in row or any(value is None for value in row.values()):
+                raise ValueError("O trace contém uma linha incompleta. Tente atualizar novamente.")
+            tasks.append({key: row.get(key, "")[:512] for key in fields})
+            if len(tasks) > 2000:
+                raise ValueError("O trace excede o limite de 2.000 registros desta versão.")
+        modified = info.st_mtime
+    artifacts = []
+    for relative in ("pipeline_info/execution_report.html", "pipeline_info/execution_timeline.html",
+                     "rnaseq/rnaseq_run_manifest.json", "chipseq/chipseq_run_manifest.json",
+                     "integration/integrative_run_manifest.json"):
+        if owned_file(relative):
+            artifacts.append(relative)
+    return {"directory": str(root), "trace_found": bool(trace), "trace_modified": modified,
+            "tasks": tasks, "artifacts": artifacts}
+
+
+if __name__ == "__main__":
+    try:
+        result = inspect(json.loads(sys.stdin.read(4096))["directory"])
+    except (ValueError, OSError, KeyError) as exc:
+        result = {"error": str(exc) if isinstance(exc, ValueError) else "Diretório indisponível ou sem permissão de leitura."}
+    print("HELIXFORGE_EXECUTION_V1:" + json.dumps(result))

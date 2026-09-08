@@ -7,6 +7,7 @@
   <title>HelixForge · Slurm</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
+  <script src="/executions.js" defer></script>
 </head>
 <body>
   <header class="masthead">
@@ -15,6 +16,7 @@
     <span class="read-only">Somente leitura</span>
   </header>
   <main>
+    <nav class="screen-nav" aria-label="Navegação principal"><button id="nav-executions" aria-current="page">Execuções</button><button id="nav-jobs">Jobs</button></nav>
     <section class="connection" aria-label="Conexão SSH">
       <div class="connection-bar" aria-live="polite"><span id="connection-status">Não conectado</span><span id="last-checked">Aguardando primeira consulta</span></div>
       <details id="connection-settings" open>
@@ -35,6 +37,36 @@
       </details>
     </section>
     <div id="error" class="error" role="alert" hidden></div>
+    <section id="executions-screen" aria-labelledby="executions-title">
+      <div class="queue-heading"><div><span class="eyebrow">HELIXFORGE / HISTÓRICO LOCAL</span><h1 id="executions-title">Execuções</h1></div><button id="register-execution" class="primary">Registrar execução +</button></div>
+      <form id="execution-form" class="execution-form" hidden>
+        <div class="execution-fields">
+          <label>Nome da execução<input id="execution-name" required maxlength="120" placeholder="Ex.: ChIP-seq · amostra 01"></label>
+          <label>Workflow<select id="execution-workflow"><option value="chipseq">ChIP-seq</option><option value="rnaseq">RNA-seq</option><option value="integrative">Integrativo</option><option value="all">Todos</option></select></label>
+          <label class="directory-field">Diretório de saída no servidor<input id="execution-directory" required maxlength="2048" placeholder="/caminho/absoluto/resultados" spellcheck="false"></label>
+        </div>
+        <p>Usa a conexão configurada acima. O nome, os caminhos e a configuração SSH ficam salvos neste navegador. Nenhum processo é iniciado.</p>
+        <div class="form-actions"><button type="submit" id="save-execution" class="primary">Verificar e registrar</button><button type="button" id="cancel-execution">Cancelar</button></div>
+      </form>
+      <div id="execution-error" class="error" role="alert" hidden></div>
+      <div class="workspace">
+        <section class="queue" aria-label="Lista de execuções">
+          <div class="toolbar"><label class="search-label"><span class="sr-only">Buscar execuções</span><input id="execution-search" type="search" placeholder="Buscar por nome, workflow ou servidor"></label><label><span class="sr-only">Filtrar workflow</span><select id="execution-filter"><option value="all">Todos os workflows</option><option value="chipseq">ChIP-seq</option><option value="rnaseq">RNA-seq</option><option value="integrative">Integrativo</option></select></label></div>
+          <div id="execution-empty" class="empty"><h2>Nenhuma execução registrada</h2><p>Registre o diretório de saída de uma análise para consultar seus processos e arquivos.</p></div>
+          <div id="execution-table" class="table-wrap" hidden><table><thead><tr><th>Execução / servidor</th><th>Trace</th><th>Verificado em</th></tr></thead><tbody id="execution-rows"></tbody></table></div>
+          <footer><span id="execution-count">0 execuções</span><span>Salvo neste navegador</span></footer>
+          <section id="execution-records" class="execution-records" hidden><h2>Processos registrados</h2><p id="execution-trace-note"></p><div class="table-wrap"><table><thead><tr><th>Processo</th><th>ID Slurm</th><th>Estado no trace</th><th>Duração</th></tr></thead><tbody id="execution-tasks"></tbody></table></div><p id="execution-task-count"></p><h2>Arquivos encontrados</h2><ul id="execution-artifacts"></ul></section>
+        </section>
+        <aside class="inspector" aria-label="Detalhes da execução">
+          <span class="eyebrow">EXECUÇÃO</span>
+          <div id="execution-placeholder"><h2>Nenhuma execução selecionada</h2><p>Os detalhes aparecem aqui após o cadastro.</p></div>
+          <div id="execution-detail" hidden><h2 id="execution-detail-title"></h2><p id="execution-note" class="snapshot-note"></p><dl id="execution-info"></dl><div class="execution-detail-actions"><button id="update-execution">Atualizar leitura ↻</button><button id="remove-execution">Remover do histórico</button></div><p class="inspector-note">Remover o cadastro mantém todos os arquivos no servidor.</p></div>
+          <div class="inspector-bottom">HELIXFORGE <span>/ EXECUÇÕES</span></div>
+        </aside>
+      </div>
+      <div class="page-notes"><p>O trace registra processos da análise. Ele pode estar incompleto durante a execução.</p><p>A presença de um relatório ou manifesto não confirma sucesso nem valida os resultados.</p></div>
+    </section>
+    <section id="jobs-screen" hidden>
     <section class="queue-heading" aria-labelledby="queue-title">
       <div><span class="eyebrow">SLURM / FILA ATUAL</span><h1 id="queue-title">Jobs</h1></div>
       <div class="update-controls"><button id="refresh" disabled>Atualizar fila <span aria-hidden="true">↻</span></button><label class="check"><input id="auto" type="checkbox" checked> A cada 30 segundos</label></div>
@@ -55,6 +87,7 @@
       </aside>
     </div>
     <div class="page-notes"><p>A fila mostra jobs do usuário autenticado, enviados por qualquer ferramenta.</p><p>Um job sair da fila não confirma sucesso. Logs e resultados ainda não fazem parte desta versão.</p></div>
+    </section>
   </main>
 </body>
 </html>

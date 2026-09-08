@@ -2,6 +2,7 @@
 """Local, single-user Slurm monitor. Python 3.10+ and an existing SSH setup."""
 
 import argparse
+import base64
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import ipaddress
@@ -138,6 +139,36 @@ def query_jobs(config):
     return {"user": user, "jobs": jobs, "checked_at": datetime.now(timezone.utc).isoformat()}
 
 
+def query_execution(value):
+    if not isinstance(value, dict) or set(value) != {"connection", "directory"}:
+        raise MonitorError("Cadastro de execução inválido.", 400)
+    config = connection_config(value["connection"])
+    directory = value["directory"]
+    if (not isinstance(directory, str) or not directory.startswith("/") or len(directory) > 2048
+            or any(ord(char) < 32 for char in directory)):
+        raise MonitorError("Informe o caminho absoluto do diretório de saída no servidor.", 400)
+    script = (Path(__file__).parent / "probe.py").read_bytes()
+    command = "import base64;exec(base64.b64decode(" + repr(base64.b64encode(script).decode()) + "))"
+    args = ssh_arguments(config)[:-1] + ["python3 -c " + shlex.quote(command)]
+    try:
+        result = subprocess.run(args, input=json.dumps({"directory": directory}), capture_output=True,
+                                encoding="utf-8", errors="replace", timeout=25,
+                                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
+        raise MonitorError("Não foi possível consultar o diretório. Verifique o SSH e tente novamente.") from exc
+    lines = [line for line in result.stdout.split("\n") if line.startswith("HELIXFORGE_EXECUTION_V1:")]
+    if result.returncode or len(lines) != 1:
+        raise MonitorError("A leitura remota falhou. Verifique o SSH e a disponibilidade de Python 3 no servidor.")
+    try:
+        data = json.loads(lines[0].split(":", 1)[1])
+    except ValueError as exc:
+        raise MonitorError("Resposta remota inválida.") from exc
+    if "error" in data:
+        raise MonitorError(data["error"], 400)
+    data["checked_at"] = datetime.now(timezone.utc).isoformat()
+    return data
+
+
 class QueueMonitor:
     """One in-flight query; cache both successes and errors to bound Slurm calls."""
     def __init__(self, query=query_jobs, clock=time.monotonic):
@@ -175,6 +206,7 @@ class MonitorServer(ThreadingHTTPServer):
     def __init__(self, address, monitor=None):
         super().__init__(address, Handler)
         self.monitor = monitor or QueueMonitor()
+        self.executions = QueueMonitor(query=lambda config: query_execution(json.loads(config["request"])))
         self.token = secrets.token_urlsafe(32)
 
 
@@ -208,6 +240,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_body(403, {"error": "Host local inválido."})
         files = {"/": ("index.html", "text/html; charset=utf-8"),
                  "/app.js": ("app.js", "text/javascript; charset=utf-8"),
+                 "/executions.js": ("executions.js", "text/javascript; charset=utf-8"),
                  "/styles.css": ("styles.css", "text/css; charset=utf-8")}
         if self.path not in files:
             return self.send_body(404, {"error": "Recurso não encontrado."})
@@ -221,7 +254,7 @@ class Handler(BaseHTTPRequestHandler):
                 or origin not in (None, "http://" + self.headers.get("Host", ""))
                 or self.headers.get("X-HelixForge-Token") != self.server.token):
             return self.send_body(403, {"error": "Sessão local inválida. Recarregue a página."})
-        if self.path != "/api/jobs":
+        if self.path not in ("/api/jobs", "/api/execution"):
             return self.send_body(404, {"error": "Recurso não encontrado."})
         try:
             if self.headers.get("Content-Type", "").split(";")[0] != "application/json":
@@ -229,8 +262,11 @@ class Handler(BaseHTTPRequestHandler):
             size = int(self.headers.get("Content-Length", "0"))
             if not 0 < size <= 4096:
                 raise MonitorError("Tamanho de configuração inválido.", 400)
-            config = connection_config(json.loads(self.rfile.read(size)))
-            self.send_body(200, self.server.monitor.get(config))
+            value = json.loads(self.rfile.read(size))
+            if self.path == "/api/execution":
+                self.send_body(200, self.server.executions.get({"request": json.dumps(value, sort_keys=True)}))
+            else:
+                self.send_body(200, self.server.monitor.get(connection_config(value)))
         except (ValueError, UnicodeError):
             self.send_body(400, {"error": "Configuração JSON inválida."})
         except MonitorError as exc:

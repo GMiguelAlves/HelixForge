@@ -26,3 +26,4 @@ jobs:
           node-version: '22'
       - run: python -m unittest discover -s tests/slurm_ui -v
       - run: node --check ui/slurm/static/app.js
+      - run: node --check ui/slurm/static/executions.js
