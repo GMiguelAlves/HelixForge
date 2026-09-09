@@ -28,6 +28,7 @@ from integration_contract import (  # noqa: E402
     semantic_errors,
     sha256_path,
 )
+from validate_integration_manifest import jsonschema_errors  # noqa: E402
 
 
 EXPECTED_MARKS = ("H3K27ac", "H3K27me3")
@@ -201,6 +202,7 @@ def main() -> int:
     parser.add_argument("--h3k27ac-manifest", required=True, type=Path)
     parser.add_argument("--h3k27me3-manifest", required=True, type=Path)
     parser.add_argument("--output-dir", required=True, type=Path)
+    parser.add_argument("--rna-manifest", required=True, type=Path)
     parser.add_argument("--git-commit", required=True)
     args = parser.parse_args()
     job_id = os.environ.get("SLURM_JOB_ID")
@@ -216,6 +218,12 @@ def main() -> int:
         documents["H3K27ac"], documents["H3K27me3"], git_commit=args.git_commit,
         job_id=job_id, source_checksums=source_checksums,
     )
+    rna_path = args.rna_manifest.resolve()
+    rna_document = load_json(rna_path)
+    schema_errors = jsonschema_errors(document, ROOT / "schemas" / "integration")
+    compatibility = compatibility_errors(rna_document, document)
+    if schema_errors or compatibility:
+        raise ValueError("composite integration gate failed: " + "; ".join(schema_errors + compatibility))
     args.output_dir.mkdir(parents=True, exist_ok=True)
     materialize_artifacts(document, source_paths, args.output_dir)
     manifest_path = args.output_dir / "chipseq_run_manifest.json"
@@ -228,6 +236,7 @@ def main() -> int:
         "status": "PASS", "adapter": "GSE133183 multi-mark terminal-manifest composition",
         "manifest_id": COMPOSITE_ID, "manifest_sha256": sha256(manifest_path),
         "source_manifest_checksums": source_checksums, "marks_or_factors": list(EXPECTED_MARKS),
+        "rna_manifest_sha256": sha256(rna_path), "rna_compatibility": "PASS", "json_schema": "PASS",
         "input_sample_records": sum(len(item["samples"]) for item in documents.values()),
         "output_sample_records": len(document["samples"]),
         "deduplicated_control_record_ids": duplicate_records,

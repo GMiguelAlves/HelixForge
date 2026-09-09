@@ -110,7 +110,7 @@ class RealMultimarkManifestTests(unittest.TestCase):
 
     def test_slurm_launcher_is_parameterized(self):
         text = SLURM_LAUNCHER.read_text(encoding="utf-8")
-        self.assertIn('[[ "$#" -ne 5 ]]', text)
+        self.assertIn('[[ "$#" -ne 6 ]]', text)
         self.assertNotIn("/scratch/", text)
         self.assertNotIn("/home/", text)
 

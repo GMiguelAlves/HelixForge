@@ -86,4 +86,5 @@ environment.
 validated H3K27ac and H3K27me3 terminal manifests into the single multi-mark
 ChIP-seq contract consumed by the Integration API. It must run through Slurm,
 deduplicates shared IgG records, preserves scientific artifacts byte-for-byte,
-and records source checksums plus an adapter audit.
+records source checksums plus an adapter audit, and gates the composite against
+the Integration API schema and the paired RNA-seq reference identity.
