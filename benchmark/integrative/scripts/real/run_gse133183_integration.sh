@@ -31,7 +31,7 @@ nxf_home="$case_root/nxf-home"
 cache="$case_root/cache"
 
 [[ -d "$repo_root/.git" ]] || { echo "Repository checkout is missing .git" >&2; exit 2; }
-[[ -x "$python_runtime/python3" ]] || { echo "Python runtime is not executable" >&2; exit 2; }
+[[ -x "$python_runtime/bin/python3" ]] || { echo "Python runtime is not executable" >&2; exit 2; }
 [[ -x "$java_bin" ]] || { echo "Java runtime is not executable" >&2; exit 2; }
 [[ -s "$nextflow_jar" ]] || { echo "Nextflow runtime is missing or empty" >&2; exit 2; }
 [[ -s "$rna_manifest" ]] || { echo "RNA terminal manifest is missing or empty" >&2; exit 2; }
@@ -74,7 +74,7 @@ printf 'python=%s\njava=%s\nnextflow_jar_sha256=%s\n' \
   "$($java_bin -version 2>&1 | head -1)" \
   "$(sha256sum "$nextflow_jar" | awk '{print $1}')" > "$case_root/environment.txt"
 
-export PATH="$python_runtime:$PATH"
+export PATH="$python_runtime/bin:$PATH"
 export NXF_HOME="$nxf_home"
 export NXF_CACHE_DIR="$cache"
 
