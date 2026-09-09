@@ -15,6 +15,7 @@ entrypoint="$repo/benchmark/integrative/workflows/gse133183_rnaseq_report_reentr
 driver_id="driver-rnaseq-report-reentry-${BASHPID}"
 repo_commit=$(git -C "$repo" rev-parse HEAD)
 scientific_target=dc0218ce902302da476910595bb133c82fee927c
+terminal_manifest_target=cb5b388
 
 update() {
     HF_STATE_TIME_UTC=$(date -u +%Y-%m-%dT%H:%M:%SZ) \
@@ -32,8 +33,9 @@ test -s "$case_root/results/pipeline_info/native_import/tximport/import_manifest
 test -s "$case_root/results/pipeline_info/native_de/aggregate/de_manifest.json"
 test -s "$case_root/results/pipeline_info/native_de/aggregate/DEGs_all_results.tsv"
 test -s "$case_root/results/pipeline_info/native_de/aggregate/normalized_counts_condition.tsv"
-git -C "$repo" diff --quiet "$scientific_target" -- \
+git -C "$repo" diff --quiet "$terminal_manifest_target" -- \
     main.nf nextflow.config nextflow_schema.json workflows subworkflows modules schemas pipelines
+test -s "$case_root/logs/reference_identity_correction/reference_identity_correction.json"
 
 # Correct only the benchmark input serialization. The candidate set itself is
 # unchanged and the original invalid content is retained in the audit record.
@@ -116,17 +118,21 @@ if manifest.get("quantification_method") != "salmon":
 PY
 
 ended=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-"$python_runtime/bin/python3" - "$case_root/post_qc_execution_identity.json" "$repo_commit" "$scientific_target" "$started" "$ended" "$queue" <<'PY'
+"$python_runtime/bin/python3" - "$case_root/post_qc_execution_identity.json" "$repo_commit" "$scientific_target" "$terminal_manifest_target" "$started" "$ended" "$queue" <<'PY'
 import json
 import sys
 from pathlib import Path
 
-path, commit, target, started, ended, queue = sys.argv[1:]
+path, commit, scientific_target, terminal_target, started, ended, queue = sys.argv[1:]
 Path(path).write_text(json.dumps({
     "schema_version": "1.0", "status": "COMPLETE", "workflow": "rnaseq",
     "role": "INPUT_GENERATION_FOR_INTEGRATIVE_BENCHMARK",
-    "repository_commit": commit, "scientific_target_commit": target,
-    "core_equal_to_scientific_target": True, "nextflow": "25.10.7", "java_major": 21,
+    "repository_commit": commit, "scientific_target_commit": scientific_target,
+    "terminal_manifest_target_commit": terminal_target,
+    "core_equal_to_scientific_target": False,
+    "scientific_artifacts_reused": True,
+    "reference_identity_correction": "metadata_only",
+    "nextflow": "25.10.7", "java_major": 21,
     "queue": queue, "queue_size": 5, "samples": 4,
     "report_runtime": "/home/CLUSTER_USER/miniconda3/envs/r-analysis",
     "quantification_provider": "salmon", "design": "~ condition",
