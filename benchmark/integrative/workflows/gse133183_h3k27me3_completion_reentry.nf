@@ -51,7 +51,7 @@ workflow GSE133183_H3K27ME3_COMPLETION_REENTRY {
         promoter_upstream: params.chipseq_annotation_promoter_upstream as Integer,
         promoter_downstream: params.chipseq_annotation_promoter_downstream as Integer,
         max_tss_distance: params.chipseq_annotation_max_tss_distance,
-        feature_priority: params.chipseq_annotation_feature_priority.toString().split(',').collect { it.trim() },
+        feature_priority: params.chipseq_annotation_feature_priority.toString().split(',').collect { value -> value.trim() },
         gene_assignment: params.chipseq_annotation_gene_assignment,
         strand_aware: params.chipseq_annotation_strand_aware.toString().toBoolean(),
         intergenic_policy: params.chipseq_annotation_intergenic_policy,
@@ -70,10 +70,10 @@ workflow GSE133183_H3K27ME3_COMPLETION_REENTRY {
     dmso_meta = [
         id: "aggregate.gse133183_h3k27me3.DMSO.H3K27me3.${genome_id}.bigwig",
         track_role: 'aggregate', record_id: null, record_ids: dmso_ids,
-        sample_ids: dmso_documents.collect { it.sample_id.toString() }, dataset: 'gse133183_h3k27me3',
+        sample_ids: dmso_documents.collect { document -> document.sample_id.toString() }, dataset: 'gse133183_h3k27me3',
         condition: 'DMSO', target: 'H3K27me3', is_control: false,
-        biological_replicates: dmso_documents.collect { (it.biological_replicate ?: '').toString() },
-        technical_replicates: dmso_documents.collect { (it.technical_replicate ?: '1').toString() },
+        biological_replicates: dmso_documents.collect { document -> (document.biological_replicate ?: '').toString() },
+        technical_replicates: dmso_documents.collect { document -> (document.technical_replicate ?: '1').toString() },
         genome_id: genome_id, build: build,
     ]
     track_spec = [provider: 'deeptools_bamcoverage_v1', track_format: 'bigwig', bin_size: 10,
@@ -112,8 +112,8 @@ workflow GSE133183_H3K27ME3_COMPLETION_REENTRY {
             tuple(meta, directory, manifest, statistics, statistics_manifest)
         }
     aggregate_track_input = channel.fromList(existing_track_records).mix(new_track_record).toList().map { records ->
-        tuple([id: 'chipseq.tracks.aggregate'], records.collect { it[1] }, records.collect { it[2] },
-            records.collect { it[3] }, records.collect { it[4] })
+        tuple([id: 'chipseq.tracks.aggregate'], records.collect { record -> record[1] }, records.collect { record -> record[2] },
+            records.collect { record -> record[3] }, records.collect { record -> record[4] })
     }
     TRACK_AGGREGATE(aggregate_track_input)
 
