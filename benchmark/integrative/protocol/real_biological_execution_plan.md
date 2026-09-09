@@ -8,7 +8,7 @@ HELIXFORGE_RELEASE = v1.0.0-rc.1
 
 OPERATIONAL_STAGE_REORDERING = COMPLETE
 10D_SKIPPED_TEMPORARILY = RESOLVED
-SCIENTIFIC_EXECUTION = NOT_STARTED
+SCIENTIFIC_EXECUTION = INPUT_MANIFESTS_READY
 ```
 
 The real arm uses the 16 preregistered GEO samples in
@@ -35,6 +35,16 @@ reporting. STAR is excluded. The ChIP-seq route uses the frozen H3K27me3 broad
 and H3K27ac narrow settings and the matched IgG libraries. Whenever possible,
 the Integration API is entered from terminal manifests rather than upstream
 work directories.
+
+The two mark-specific ChIP-seq terminal manifests are composed before
+integration into one portable multi-mark terminal manifest. This benchmark
+adapter deduplicates the four identical shared IgG records, normalizes only the
+dataset label, and carries forward exactly the three integration artifacts per
+mark (`consensus_peaks`, `differential_binding` and
+`peak_gene_annotation`). Every source and copied artifact is SHA-256 verified;
+scientific table contents, contrasts and mark identities are not transformed.
+This clarification was fixed before integrated biological results were
+generated.
 
 No biological result was inspected while preparing this execution plan. The
 expectations and criteria remain those in

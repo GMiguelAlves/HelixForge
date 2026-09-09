@@ -81,3 +81,9 @@ version, index, arguments and alignment implementation remain unchanged.
 The same runtime directory selects the previously certified R analysis runtime
 for R scripts without modifying the frozen global `PATH` value or either Conda
 environment.
+
+`real/prepare_gse133183_multimark_manifest.py` composes the independently
+validated H3K27ac and H3K27me3 terminal manifests into the single multi-mark
+ChIP-seq contract consumed by the Integration API. It must run through Slurm,
+deduplicates shared IgG records, preserves scientific artifacts byte-for-byte,
+and records source checksums plus an adapter audit.
