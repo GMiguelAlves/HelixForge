@@ -113,6 +113,23 @@ class RealBiologicalPreflightTests(unittest.TestCase):
         for module in ("report_context", "report_aggregate", "report_generator"):
             self.assertIn(f"modules/local/{module}/resources/usr/bin", runner)
 
+    def test_h3k27me3_completion_reentry_is_downstream_only(self):
+        workflow = (
+            ROOT / "benchmark/integrative/workflows/gse133183_h3k27me3_completion_reentry.nf"
+        ).read_text(encoding="utf-8")
+        runner = (
+            ROOT / "benchmark/integrative/scripts/real/run_gse133183_h3k27me3_completion_reentry.sh"
+        ).read_text(encoding="utf-8")
+        for expected in ("PEAK_ANNOTATION(", "TRACK_AGGREGATE(", "CHIPSEQ_FULL_REPORT_INPUT("):
+            self.assertIn(expected, workflow)
+        for upstream in (
+            "FASTQC(", "BOWTIE2_INDEX(", "BOWTIE2_ALIGN(", "MACS3_CALLPEAK(",
+            "PEAK_QC(", "CONSENSUS_IDR(", "DESEQ2_DB_MODEL(",
+        ):
+            self.assertNotIn(upstream, workflow)
+        self.assertIn('test ! -e "$case_root/results/chipseq/chipseq_run_manifest.json"', runner)
+        self.assertIn("completion re-entry unexpectedly submitted an upstream scientific process", runner)
+
 
 if __name__ == "__main__":
     unittest.main()
