@@ -3,6 +3,7 @@ set -euo pipefail
 
 repo_root=${HELIXFORGE_REPO_ROOT:?HELIXFORGE_REPO_ROOT is required}
 benchmark_root=${HELIXFORGE_BENCHMARK_ROOT:?HELIXFORGE_BENCHMARK_ROOT is required}
+allowed_scratch_root=${HELIXFORGE_ALLOWED_SCRATCH_ROOT:?HELIXFORGE_ALLOWED_SCRATCH_ROOT is required}
 rna_manifest=${HELIXFORGE_RNA_MANIFEST:?HELIXFORGE_RNA_MANIFEST is required}
 chip_manifest=${HELIXFORGE_CHIP_MANIFEST:?HELIXFORGE_CHIP_MANIFEST is required}
 python_runtime=${HELIXFORGE_PYTHON_RUNTIME:?HELIXFORGE_PYTHON_RUNTIME is required}
@@ -11,10 +12,14 @@ nextflow_jar=${HELIXFORGE_NEXTFLOW_JAR:?HELIXFORGE_NEXTFLOW_JAR is required}
 expected_commit=${HELIXFORGE_EXECUTION_COMMIT:?HELIXFORGE_EXECUTION_COMMIT is required}
 
 [[ -z "${SLURM_JOB_ID:-}" ]] || { echo "Nextflow driver must run on the Slurm management node" >&2; exit 2; }
-case "$benchmark_root" in
-  /scratch/HELIXFORGE_WORKSPACE/helixforge-integrative-real-*) ;;
-  *) echo "Refusing unexpected benchmark root: $benchmark_root" >&2; exit 2 ;;
-esac
+[[ "$(dirname "$benchmark_root")" == "$allowed_scratch_root" ]] || {
+  echo "Refusing benchmark root outside the declared runtime scope" >&2
+  exit 2
+}
+[[ "$(basename "$benchmark_root")" == helixforge-integrative-real-* ]] || {
+  echo "Refusing unexpected benchmark directory name" >&2
+  exit 2
+}
 
 case_root="$benchmark_root/cases/integration"
 results="$case_root/results"

@@ -141,6 +141,7 @@ class RealBiologicalPreflightTests(unittest.TestCase):
         self.assertIn("--workflow integrative", runner)
         self.assertIn('--rna_manifest "$rna_manifest"', runner)
         self.assertIn('--chip_manifest "$chip_manifest"', runner)
+        self.assertIn("HELIXFORGE_ALLOWED_SCRATCH_ROOT", runner)
         self.assertIn("test ! -e \"$case_root\"", runner)
         self.assertIn("queueSize = 5", config)
         for forbidden in ("--workflow rnaseq", "--workflow chipseq", "FASTQC", "SALMON", "BOWTIE2", "MACS3"):
