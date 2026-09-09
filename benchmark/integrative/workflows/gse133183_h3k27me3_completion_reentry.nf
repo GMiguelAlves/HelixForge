@@ -9,7 +9,10 @@ include { CHIPSEQ_FULL_REPORT_INPUT } from '../../../modules/local/chipseq_full_
 
 def matchedFiles(pattern) {
     def matches = file(pattern, checkIfExists: true)
-    matches instanceof List ? matches : [matches]
+    if (matches instanceof List) {
+        return matches
+    }
+    return [matches]
 }
 
 workflow GSE133183_H3K27ME3_COMPLETION_REENTRY {
