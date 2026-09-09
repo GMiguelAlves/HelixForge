@@ -142,7 +142,8 @@ class RealBiologicalPreflightTests(unittest.TestCase):
         self.assertIn('--rna_manifest "$rna_manifest"', runner)
         self.assertIn('--chip_manifest "$chip_manifest"', runner)
         self.assertIn("HELIXFORGE_ALLOWED_SCRATCH_ROOT", runner)
-        self.assertIn("test ! -e \"$case_root\"", runner)
+        self.assertIn('[[ ! -e "$case_root" ]]', runner)
+        self.assertIn("integration-driver.exit", runner)
         self.assertIn("queueSize = 5", config)
         for forbidden in ("--workflow rnaseq", "--workflow chipseq", "FASTQC", "SALMON", "BOWTIE2", "MACS3"):
             self.assertNotIn(forbidden, runner)

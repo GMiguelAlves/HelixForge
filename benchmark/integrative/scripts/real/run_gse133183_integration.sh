@@ -10,6 +10,8 @@ python_runtime=${HELIXFORGE_PYTHON_RUNTIME:?HELIXFORGE_PYTHON_RUNTIME is require
 java_bin=${HELIXFORGE_JAVA:?HELIXFORGE_JAVA is required}
 nextflow_jar=${HELIXFORGE_NEXTFLOW_JAR:?HELIXFORGE_NEXTFLOW_JAR is required}
 expected_commit=${HELIXFORGE_EXECUTION_COMMIT:?HELIXFORGE_EXECUTION_COMMIT is required}
+mkdir -p "$benchmark_root/logs"
+trap 'rc=$?; printf "%s\n" "$rc" > "$benchmark_root/logs/integration-driver.exit"' EXIT
 
 [[ -z "${SLURM_JOB_ID:-}" ]] || { echo "Nextflow driver must run on the Slurm management node" >&2; exit 2; }
 [[ "$(dirname "$benchmark_root")" == "$allowed_scratch_root" ]] || {
@@ -28,13 +30,13 @@ work="$case_root/work"
 nxf_home="$case_root/nxf-home"
 cache="$case_root/cache"
 
-test -d "$repo_root/.git"
-test -x "$python_runtime/python3"
-test -x "$java_bin"
-test -s "$nextflow_jar"
-test -s "$rna_manifest"
-test -s "$chip_manifest"
-test ! -e "$case_root"
+[[ -d "$repo_root/.git" ]] || { echo "Repository checkout is missing .git" >&2; exit 2; }
+[[ -x "$python_runtime/python3" ]] || { echo "Python runtime is not executable" >&2; exit 2; }
+[[ -x "$java_bin" ]] || { echo "Java runtime is not executable" >&2; exit 2; }
+[[ -s "$nextflow_jar" ]] || { echo "Nextflow runtime is missing or empty" >&2; exit 2; }
+[[ -s "$rna_manifest" ]] || { echo "RNA terminal manifest is missing or empty" >&2; exit 2; }
+[[ -s "$chip_manifest" ]] || { echo "ChIP terminal manifest is missing or empty" >&2; exit 2; }
+[[ ! -e "$case_root" ]] || { echo "Integration case directory already exists" >&2; exit 2; }
 
 actual_commit=$(git -C "$repo_root" rev-parse HEAD)
 [[ "$actual_commit" == "$expected_commit" ]] || {
