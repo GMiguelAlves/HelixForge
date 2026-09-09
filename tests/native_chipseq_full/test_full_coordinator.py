@@ -58,7 +58,8 @@ class FullCoordinatorManifestTest(unittest.TestCase):
             root = Path(directory)
             types = [
                 "chipseq_metadata", "reference_bundle", "alignment", "bam_final", "peak_calling",
-                "peak_qc_summary", "consensus_idr", "differential_binding", "peak_annotation_aggregate", "track_aggregate",
+                "peak_qc_summary", "consensus_idr", "differential_binding",
+                "differential_binding_contrast", "peak_annotation_aggregate", "track_aggregate",
             ]
             manifests = []
             artifacts = []
@@ -101,6 +102,10 @@ class FullCoordinatorManifestTest(unittest.TestCase):
             inventory = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(set(inventory["required_components"]), {entry["component"] for entry in inventory["components"]})
             self.assertEqual(sum(len(entry["artifacts"]) for entry in inventory["components"]), 5)
+            self.assertEqual(
+                2,
+                sum(entry["component"] == "differential_binding" for entry in inventory["components"]),
+            )
 
 
 class FullCoordinatorTopologyTest(unittest.TestCase):

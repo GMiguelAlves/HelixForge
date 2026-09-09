@@ -16,6 +16,7 @@ TYPE_COMPONENT = {
     "peak_qc": "peak_qc", "peak_qc_summary": "peak_qc",
     "consensus_idr": "consensus_idr", "consensus_idr_summary": "consensus_idr", "idr": "consensus_idr",
     "differential_binding": "differential_binding",
+    "differential_binding_contrast": "differential_binding",
     "peak_annotation": "annotation", "peak_annotation_aggregate": "annotation",
     "track_generation": "tracks", "track_aggregate": "tracks",
 }
