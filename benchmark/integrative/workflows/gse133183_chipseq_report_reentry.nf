@@ -126,8 +126,8 @@ workflow GSE133183_CHIPSEQ_REPORT_REENTRY {
         .mix(peak_qc_records).mix(consensus_records).mix(report_records)
     terminal_record_bundle = terminal_records.toList().map { records ->
         def ordered = records.sort { left, right -> left[0].artifact_id <=> right[0].artifact_id }
-        tuple('terminal_manifest', ordered.collect { it[1] },
-            groovy.json.JsonOutput.toJson(ordered.collect { it[0] }).bytes.encodeBase64().toString())
+        tuple('terminal_manifest', ordered.collect { record -> record[1] },
+            groovy.json.JsonOutput.toJson(ordered.collect { record -> record[0] }).bytes.encodeBase64().toString())
     }
     terminal_source_manifests = channel.fromList(manifest_files)
         .mix(CHIPSEQ_REPORT.out.manifest.map { _meta, manifest -> manifest })
