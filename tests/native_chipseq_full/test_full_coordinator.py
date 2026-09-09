@@ -122,6 +122,9 @@ class FullCoordinatorTopologyTest(unittest.TestCase):
         for module in (bam_select, bam_duplicates, bam_blacklist, bam_index_qc):
             self.assertNotIn(" > '${meta.id}.manifest.json'", module)
         self.assertIn("set -o pipefail", report_input)
+        self.assertIn("pattern: 'manifests??'", report_input)
+        self.assertIn("pattern: 'artifacts??'", report_input)
+        self.assertIn("emit: input_bundle", report_input)
 
     def test_full_mode_is_native_and_single_session(self):
         workflow = (ROOT / "workflows/chipseq.nf").read_text(encoding="utf-8")

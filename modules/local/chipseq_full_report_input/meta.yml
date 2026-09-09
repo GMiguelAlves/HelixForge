@@ -7,6 +7,7 @@ input:
   - semantic_artifacts: Checksum-declared summaries used by the report.
 output:
   - artifacts: Report input inventory.
+  - input_bundle: Persisted manifests and semantic artifacts referenced by the inventory.
   - reports: Construction log.
   - versions: Python version.
   - status: Completion record.
