@@ -96,8 +96,18 @@ else
     exit 2
 fi
 
-git -C "$repo" diff --quiet "$scientific_target" -- \
-    main.nf nextflow.config nextflow_schema.json workflows subworkflows modules schemas pipelines
+mapfile -t core_changes < <(
+    git -C "$repo" diff --name-only "$scientific_target" -- \
+        main.nf nextflow.config nextflow_schema.json workflows subworkflows modules schemas pipelines
+)
+allowed_core_patch=${HELIXFORGE_ALLOWED_CORE_PATCH:-}
+if (( ${#core_changes[@]} > 0 )); then
+    [[ ${#core_changes[@]} -eq 1 && "${core_changes[0]}" == "$allowed_core_patch" ]] || {
+        printf 'Unexpected scientific-core changes relative to %s:\n%s\n' \
+            "$scientific_target" "${core_changes[*]}" >&2
+        exit 3
+    }
+fi
 "$java_runtime/bin/java" -jar "$nextflow_jar" -version 2>&1 | grep -Fq 'version 25.10.7'
 [[ "$("$chip_runtime/bin/macs3" --version)" == 'macs3 3.0.4' ]]
 "$r_runtime/bin/Rscript" -e 'stopifnot(as.character(getRversion()) == "4.3.3", as.character(packageVersion("BiocVersion")) == "3.18.1", as.character(packageVersion("DESeq2")) == "1.42.0", as.character(packageVersion("jsonlite")) == "1.8.8")'

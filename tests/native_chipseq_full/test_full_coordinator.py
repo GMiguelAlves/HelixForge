@@ -152,8 +152,10 @@ class FullCoordinatorTopologyTest(unittest.TestCase):
         for variable in (
             "HELIXFORGE_NEXTFLOW_JAR", "HELIXFORGE_JAVA_RUNTIME",
             "HELIXFORGE_PYTHON_RUNTIME", "HELIXFORGE_R_RUNTIME", "HELIXFORGE_CHIP_RUNTIME",
+            "HELIXFORGE_ALLOWED_CORE_PATCH",
         ):
             self.assertIn(variable, real_harness)
+        self.assertIn("Unexpected scientific-core changes", real_harness)
 
         validator = (ROOT / "tests/slurm/validate_chipseq_production.py").read_text(encoding="utf-8")
         self.assertIn('bam_final/*.bam_final.manifest.json', validator)
