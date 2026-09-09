@@ -20,15 +20,13 @@ test -s "$config"
 test -s "$nextflow_jar"
 test -x "$java_runtime/bin/java"
 test -x "$python_runtime/bin/python3"
-test -x "$chip_runtime/bin/samtools"
-test -x "$chip_runtime/bin/bamCoverage"
 test ! -e "$work"
 test ! -e "$case_root/results/chipseq/chipseq_run_manifest.json"
 test ! -e "$case_root/results/chipseq/peak_annotation/peak_annotation_aggregate"
 test ! -e "$case_root/results/chipseq/tracks/track_aggregate"
 mkdir -p "$work" "$logs" "$case_root/completion_reentry_nxf_home" "$case_root/completion_reentry_nxf_cache"
 
-runtime_path="$repo/modules/local/peak_annotation_context/resources/usr/bin:$repo/modules/local/peak_annotator/resources/usr/bin:$repo/modules/local/peak_annotation_statistics/resources/usr/bin:$repo/modules/local/peak_annotation_aggregate/resources/usr/bin:$repo/modules/local/track_context/resources/usr/bin:$repo/modules/local/track_provider/resources/usr/bin:$repo/modules/local/track_statistics/resources/usr/bin:$repo/modules/local/track_aggregate/resources/usr/bin:$chip_runtime/bin:$python_runtime/bin:/usr/bin:/bin"
+runtime_path="$repo/modules/local/peak_annotation_context/resources/usr/bin:$repo/modules/local/peak_annotator/resources/usr/bin:$repo/modules/local/peak_annotation_statistics/resources/usr/bin:$repo/modules/local/peak_annotation_aggregate/resources/usr/bin:$repo/modules/local/track_aggregate/resources/usr/bin:$chip_runtime/bin:$python_runtime/bin:/usr/bin:/bin"
 
 cd "$repo"
 env PATH="$runtime_path" NXF_HOME="$case_root/completion_reentry_nxf_home" \

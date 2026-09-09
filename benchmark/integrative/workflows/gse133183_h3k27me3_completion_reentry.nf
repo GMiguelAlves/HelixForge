@@ -1,9 +1,6 @@
 nextflow.enable.dsl = 2
 
 include { PEAK_ANNOTATION } from '../../../subworkflows/local/chipseq/peak_annotation'
-include { TRACK_CONTEXT } from '../../../modules/local/track_context/main'
-include { TRACK_PROVIDER } from '../../../modules/local/track_provider/main'
-include { TRACK_STATISTICS } from '../../../modules/local/track_statistics/main'
 include { TRACK_AGGREGATE } from '../../../modules/local/track_aggregate/main'
 include { CHIPSEQ_FULL_REPORT_INPUT } from '../../../modules/local/chipseq_full_report_input/main'
 
@@ -54,57 +51,19 @@ workflow GSE133183_H3K27ME3_COMPLETION_REENTRY {
     })
     PEAK_ANNOTATION(annotation_inputs)
 
-    dmso_ids = ['SRR12773440', 'SRR12773441']
-    dmso_bams = dmso_ids.collect { id -> file("${results}/060-filtering/${id}/${id}.filtered.bam", checkIfExists: true) }
-    dmso_bais = dmso_ids.collect { id -> file("${results}/060-filtering/${id}/${id}.filtered.bam.bai", checkIfExists: true) }
-    dmso_manifests = dmso_ids.collect { id -> file("${results}/pipeline_info/native_chipseq/bam_final/${id}.bam_final.manifest.json", checkIfExists: true) }
-    dmso_documents = dmso_manifests.collect { manifest -> new groovy.json.JsonSlurper().parse(manifest.toFile()) }
-    dmso_meta = [
-        id: "aggregate.gse133183_h3k27me3.DMSO.H3K27me3.${genome_id}.bigwig",
-        track_role: 'aggregate', record_id: null, record_ids: dmso_ids,
-        sample_ids: dmso_documents.collect { document -> document.sample_id.toString() }, dataset: 'gse133183_h3k27me3',
-        condition: 'DMSO', target: 'H3K27me3', is_control: false,
-        biological_replicates: dmso_documents.collect { document -> (document.biological_replicate ?: '').toString() },
-        technical_replicates: dmso_documents.collect { document -> (document.technical_replicate ?: '1').toString() },
-        genome_id: genome_id, build: build,
-    ]
-    track_spec = [provider: 'deeptools_bamcoverage_v1', track_format: 'bigwig', bin_size: 10,
-        normalization: 'CPM', effective_genome_size: null, scale_factor: 1.0,
-        extend_reads: false, fragment_mode: 'reads', strand: 'unstranded', additional_filters: 'none']
-    track_spec_base64 = groovy.json.JsonOutput.toJson(track_spec).bytes.encodeBase64().toString()
-    TRACK_CONTEXT(channel.value(tuple(dmso_meta, dmso_bams, dmso_bais, dmso_manifests,
-        reference, reference_manifest, track_spec_base64)))
-    missing_track_sources = channel.value(tuple(dmso_meta.id, dmso_meta, dmso_bams, dmso_bais))
-    missing_track_provider = TRACK_CONTEXT.out.artifacts.map { meta, request -> tuple(meta.id, request) }
-        .join(missing_track_sources)
-        .map { _id, request, meta, bams, bais -> tuple(meta, bams, bais, request) }
-    TRACK_PROVIDER(missing_track_provider)
-    missing_track_statistics = TRACK_PROVIDER.out.artifacts.map { meta, directory -> tuple(meta.id, meta, directory) }
-        .join(TRACK_PROVIDER.out.manifest.map { meta, manifest -> tuple(meta.id, manifest) })
-        .map { _id, meta, directory, manifest -> tuple(meta, directory, manifest) }
-    TRACK_STATISTICS(missing_track_statistics)
-
     record_ids = ['SRR12773440', 'SRR12773441', 'SRR12773444', 'SRR12773445',
         'SRR12773446', 'SRR12773447', 'SRR12773450', 'SRR12773451']
     existing_track_ids = record_ids.collect { id -> "${id}.bigwig" } +
-        ["aggregate.gse133183_h3k27me3.GSK343.H3K27me3.${genome_id}.bigwig"]
+        ["aggregate.gse133183_h3k27me3.DMSO.H3K27me3.${genome_id}.bigwig",
+         "aggregate.gse133183_h3k27me3.GSK343.H3K27me3.${genome_id}.bigwig"]
     existing_track_records = existing_track_ids.collect { id ->
         def directory = file("${results}/chipseq/tracks/${id}.track_result", checkIfExists: true)
-        def manifest = file("${directory}/manifest.json", checkIfExists: true)
-        def document = new groovy.json.JsonSlurper().parse(manifest.toFile())
-        if (document.id.toString() != id) error "Track directory and manifest disagree for ${id}"
+        def manifest = file("${results}/pipeline_info/native_chipseq/tracks/provider/${id}.track_provider.manifest.json", checkIfExists: true)
         tuple([id: id], directory, manifest,
             file("${results}/pipeline_info/native_chipseq/tracks/statistics/${id}.track_statistics.json", checkIfExists: true),
             file("${results}/pipeline_info/native_chipseq/tracks/statistics/${id}.track_statistics.manifest.json", checkIfExists: true))
     }
-    new_track_record = TRACK_PROVIDER.out.artifacts.map { meta, directory -> tuple(meta.id, meta, directory) }
-        .join(TRACK_PROVIDER.out.manifest.map { meta, manifest -> tuple(meta.id, manifest) })
-        .join(TRACK_STATISTICS.out.artifacts.map { meta, statistics, _table -> tuple(meta.id, statistics) })
-        .join(TRACK_STATISTICS.out.manifest.map { meta, manifest -> tuple(meta.id, manifest) })
-        .map { _id, meta, directory, manifest, statistics, statistics_manifest ->
-            tuple(meta, directory, manifest, statistics, statistics_manifest)
-        }
-    aggregate_track_input = channel.fromList(existing_track_records).mix(new_track_record).toList().map { records ->
+    aggregate_track_input = channel.value(existing_track_records).map { records ->
         tuple([id: 'chipseq.tracks.aggregate'], records.collect { record -> record[1] }, records.collect { record -> record[2] },
             records.collect { record -> record[3] }, records.collect { record -> record[4] })
     }

@@ -124,9 +124,10 @@ class RealBiologicalPreflightTests(unittest.TestCase):
             self.assertIn(expected, workflow)
         for upstream in (
             "FASTQC(", "BOWTIE2_INDEX(", "BOWTIE2_ALIGN(", "MACS3_CALLPEAK(",
-            "PEAK_QC(", "CONSENSUS_IDR(", "DESEQ2_DB_MODEL(",
+            "PEAK_QC(", "CONSENSUS_IDR(", "DESEQ2_DB_MODEL(", "TRACK_PROVIDER(",
         ):
             self.assertNotIn(upstream, workflow)
+        self.assertIn(".track_provider.manifest.json", workflow)
         self.assertIn('test ! -e "$case_root/results/chipseq/chipseq_run_manifest.json"', runner)
         self.assertIn("completion re-entry unexpectedly submitted an upstream scientific process", runner)
 
