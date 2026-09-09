@@ -7,14 +7,6 @@ include { TRACK_STATISTICS } from '../../../modules/local/track_statistics/main'
 include { TRACK_AGGREGATE } from '../../../modules/local/track_aggregate/main'
 include { CHIPSEQ_FULL_REPORT_INPUT } from '../../../modules/local/chipseq_full_report_input/main'
 
-def matchedFiles(pattern) {
-    def matches = file(pattern, checkIfExists: true)
-    if (matches instanceof List) {
-        return matches
-    }
-    return [matches]
-}
-
 workflow GSE133183_H3K27ME3_COMPLETION_REENTRY {
     main:
     required = [case_root: params.case_root, benchmark_root: params.benchmark_root]
@@ -92,17 +84,18 @@ workflow GSE133183_H3K27ME3_COMPLETION_REENTRY {
         .map { _id, meta, directory, manifest -> tuple(meta, directory, manifest) }
     TRACK_STATISTICS(missing_track_statistics)
 
-    existing_track_dirs = matchedFiles("${results}/chipseq/tracks/*.track_result")
-    existing_track_records = existing_track_dirs.collect { directory ->
+    record_ids = ['SRR12773440', 'SRR12773441', 'SRR12773444', 'SRR12773445',
+        'SRR12773446', 'SRR12773447', 'SRR12773450', 'SRR12773451']
+    existing_track_ids = record_ids.collect { id -> "${id}.bigwig" } +
+        ["aggregate.gse133183_h3k27me3.GSK343.H3K27me3.${genome_id}.bigwig"]
+    existing_track_records = existing_track_ids.collect { id ->
+        def directory = file("${results}/chipseq/tracks/${id}.track_result", checkIfExists: true)
         def manifest = file("${directory}/manifest.json", checkIfExists: true)
         def document = new groovy.json.JsonSlurper().parse(manifest.toFile())
-        def id = document.id.toString()
+        if (document.id.toString() != id) error "Track directory and manifest disagree for ${id}"
         tuple([id: id], directory, manifest,
             file("${results}/pipeline_info/native_chipseq/tracks/statistics/${id}.track_statistics.json", checkIfExists: true),
             file("${results}/pipeline_info/native_chipseq/tracks/statistics/${id}.track_statistics.manifest.json", checkIfExists: true))
-    }
-    if (existing_track_records.size() != 9) {
-        error "Expected 9 completed H3K27me3 track providers before re-entry; observed ${existing_track_records.size()}"
     }
     new_track_record = TRACK_PROVIDER.out.artifacts.map { meta, directory -> tuple(meta.id, meta, directory) }
         .join(TRACK_PROVIDER.out.manifest.map { meta, manifest -> tuple(meta.id, manifest) })
@@ -125,9 +118,15 @@ workflow GSE133183_H3K27ME3_COMPLETION_REENTRY {
         file("${case_root}/db_reentry_results/pipeline_info/native_chipseq/differential_binding/aggregate/db_manifest.json", checkIfExists: true),
         file("${case_root}/db_reentry_results/differential_binding/differential_binding_results/contrasts/${consensus_prefix}.H3K27me3.${genome_id}.broad/GSK343_vs_DMSO/contrast_manifest.json", checkIfExists: true),
     ]
-    base_manifests.addAll(matchedFiles("${results}/pipeline_info/native_alignment/bowtie2_align/*.manifest.json"))
-    base_manifests.addAll(matchedFiles("${results}/pipeline_info/native_chipseq/bam_final/*.manifest.json"))
-    base_manifests.addAll(matchedFiles("${results}/pipeline_info/native_chipseq/peak_calling/*.manifest.json"))
+    base_manifests.addAll(record_ids.collect { id ->
+        file("${results}/pipeline_info/native_alignment/bowtie2_align/${id}.manifest.json", checkIfExists: true)
+    })
+    base_manifests.addAll(record_ids.collect { id ->
+        file("${results}/pipeline_info/native_chipseq/bam_final/${id}.bam_final.manifest.json", checkIfExists: true)
+    })
+    base_manifests.addAll(['SRR12773440', 'SRR12773441', 'SRR12773446', 'SRR12773447'].collect { id ->
+        file("${results}/pipeline_info/native_chipseq/peak_calling/aggregate/${id}.H3K27me3.broad.macs3.manifest.json", checkIfExists: true)
+    })
     full_manifests = channel.fromList(base_manifests)
         .mix(PEAK_ANNOTATION.out.manifest.map { _meta, manifest -> manifest })
         .mix(TRACK_AGGREGATE.out.manifest.map { _meta, manifest -> manifest })

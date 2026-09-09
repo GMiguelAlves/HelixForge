@@ -15,6 +15,13 @@ if [[ -e "$pid_file" ]]; then
     rm -f "$pid_file"
 fi
 mkdir -p "$case_root/logs/completion_reentry"
+if [[ -e "$case_root/logs/completion_reentry/driver.out" || -e "$case_root/logs/completion_reentry/driver.err" ]]; then
+    archive="$case_root/logs/completion_reentry/attempts/$(date -u +%Y%m%dT%H%M%SZ)"
+    mkdir -p "$archive"
+    for name in driver.out driver.err nextflow.log; do
+        [[ ! -e "$case_root/logs/completion_reentry/$name" ]] || cp "$case_root/logs/completion_reentry/$name" "$archive/$name"
+    done
+fi
 nohup bash "$repo/benchmark/integrative/scripts/real/run_gse133183_h3k27me3_completion_reentry.sh" \
     "$repo" "$root" "$queue" \
     > "$case_root/logs/completion_reentry/driver.out" \
