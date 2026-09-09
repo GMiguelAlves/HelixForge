@@ -146,6 +146,14 @@ class FullCoordinatorTopologyTest(unittest.TestCase):
         self.assertIn('if [[ "$mode" == "recovery-driver" ]]', harness)
         self.assertIn('resume_args=(-resume)', harness)
         self.assertIn('"${resume_args[@]}"', harness)
+        real_harness = (
+            ROOT / "benchmark/integrative/scripts/real/run_gse133183_chipseq.sh"
+        ).read_text(encoding="utf-8")
+        for variable in (
+            "HELIXFORGE_NEXTFLOW_JAR", "HELIXFORGE_JAVA_RUNTIME",
+            "HELIXFORGE_PYTHON_RUNTIME", "HELIXFORGE_R_RUNTIME", "HELIXFORGE_CHIP_RUNTIME",
+        ):
+            self.assertIn(variable, real_harness)
 
         validator = (ROOT / "tests/slurm/validate_chipseq_production.py").read_text(encoding="utf-8")
         self.assertIn('bam_final/*.bam_final.manifest.json', validator)

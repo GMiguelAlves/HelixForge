@@ -34,11 +34,11 @@ esac
 
 case_root="$root/cases/$case_name"
 state="$root/benchmark_state.json"
-nextflow_jar=/home/CLUSTER_USER/.nextflow/framework/25.10.7/nextflow-25.10.7-one.jar
-java_runtime=/scratch/HELIXFORGE_WORKSPACE/helixforge-rnaseq-benchmark-20260825/envs/rna-tools-rc
-python_runtime=/scratch/HELIXFORGE_WORKSPACE/helixforge-rnaseq-benchmark-20260825/envs/python-runtime-rc
-r_runtime=/scratch/HELIXFORGE_WORKSPACE/helixforge-rnaseq-benchmark-20260825/envs/r-analysis-rc
-chip_runtime=/home/CLUSTER_USER/miniconda3/envs/chipseq
+nextflow_jar=${HELIXFORGE_NEXTFLOW_JAR:-/home/CLUSTER_USER/.nextflow/framework/25.10.7/nextflow-25.10.7-one.jar}
+java_runtime=${HELIXFORGE_JAVA_RUNTIME:-/scratch/HELIXFORGE_WORKSPACE/helixforge-rnaseq-benchmark-20260825/envs/rna-tools-rc}
+python_runtime=${HELIXFORGE_PYTHON_RUNTIME:-/scratch/HELIXFORGE_WORKSPACE/helixforge-rnaseq-benchmark-20260825/envs/python-runtime-rc}
+r_runtime=${HELIXFORGE_R_RUNTIME:-/scratch/HELIXFORGE_WORKSPACE/helixforge-rnaseq-benchmark-20260825/envs/r-analysis-rc}
+chip_runtime=${HELIXFORGE_CHIP_RUNTIME:-/home/CLUSTER_USER/miniconda3/envs/chipseq}
 resource_config="$repo/benchmark/integrative/configs/real_upstream_slurm.config"
 scientific_target=${HELIXFORGE_SCIENTIFIC_TARGET:-2cd894bf3d4166f578331423b274ed450dc79f63}
 driver_id="driver-${case_name}-${attempt_label}-${BASHPID}"
