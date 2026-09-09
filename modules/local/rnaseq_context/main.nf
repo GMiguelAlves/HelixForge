@@ -43,7 +43,7 @@ process RNASEQ_CONTEXT {
     printf 'NATIVE_RUN_MODE\t%s\n' '${params.rnaseq_run_mode}' >> rnaseq_context/settings.tsv
     printf 'NATIVE_ANALYSIS_MODE\t%s\n' '${params.rnaseq_analysis_mode}' >> rnaseq_context/settings.tsv
     for key in \
-        PIPELINE_PROJECTS SCRATCH_ROOT ORGANISM_NAME QUANT_METHOD \
+        PIPELINE_PROJECTS SCRATCH_ROOT ORGANISM_NAME REFERENCE_ID QUANT_METHOD \
         REF_GENOME_FA REF_TRANSCRIPTS_FA REF_GTF REF_GFF3 \
         SALMON_INDEX_DIR STAR_QUANT_INDEX_DIR QUANT_DIR STAR_QUANT_DIR \
         SALMON_KMER_SIZE STAR_GENECOUNT_COLUMN STAR_READ_FILES_COMMAND \
@@ -72,7 +72,7 @@ process RNASEQ_CONTEXT {
     printf 'dataset,sample_id,file_prefix,run_accession,condition,batch,fastq_1,fastq_2\nSTUB,stub,stub,RUN1,control,B1,%s/rnaseq_context/fastq/stub_RUN1_R1.fastq,%s/rnaseq_context/fastq/stub_RUN1_R2.fastq\n' \
         "\$PWD" "\$PWD" > rnaseq_context/source_metadata.csv
     printf 'key\tvalue\n' > rnaseq_context/settings.tsv
-    printf 'NATIVE_RUN_MODE\tfull\nNATIVE_ANALYSIS_MODE\tquantification\nPIPELINE_PROJECTS\tSTUB\nSCRATCH_ROOT\t%s/rnaseq_context\nORGANISM_NAME\tstub\nQUANT_METHOD\tsalmon\n' "\$PWD" >> rnaseq_context/settings.tsv
+    printf 'NATIVE_RUN_MODE\tfull\nNATIVE_ANALYSIS_MODE\tquantification\nPIPELINE_PROJECTS\tSTUB\nSCRATCH_ROOT\t%s/rnaseq_context\nORGANISM_NAME\tstub organism\nREFERENCE_ID\tstub_v1\nQUANT_METHOD\tsalmon\n' "\$PWD" >> rnaseq_context/settings.tsv
     printf 'REF_GENOME_FA\t%s/rnaseq_context/reference/genome.fa\nREF_TRANSCRIPTS_FA\t%s/rnaseq_context/reference/transcriptome.fa\nREF_GTF\t%s/rnaseq_context/reference/annotation.gtf\nREF_GFF3\t\n' "\$PWD" "\$PWD" "\$PWD" >> rnaseq_context/settings.tsv
     printf 'SALMON_INDEX_DIR\t${params.outdir}/stub/salmon_index\nSTAR_QUANT_INDEX_DIR\t${params.outdir}/stub/star_index\nQUANT_DIR\t${params.outdir}/stub/quants\nSTAR_QUANT_DIR\t${params.outdir}/stub/star_quant\nSALMON_KMER_SIZE\t3\nSTAR_GENECOUNT_COLUMN\tunstranded\nSTAR_READ_FILES_COMMAND\tcat\nSTAR_EXTRA_ARGS\t\nSTAR_GTF_GENOME_SA_INDEX_NBASES\t2\nSTAR_LIMIT_GENOME_GENERATE_RAM\t100000000\nTRIM_QUALITY\t20\nTRIM_LENGTH\t20\n' >> rnaseq_context/settings.tsv
     printf '[STUB] RNA-seq context\n' > rnaseq.context.log

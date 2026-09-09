@@ -235,7 +235,7 @@ def main() -> int:
 
         references = validate_reference(settings, args.run_mode.lower())
         write_tsv(args.reference_plan, [{
-            "reference_id": clean(settings.get("ORGANISM_NAME")) or "rnaseq-reference",
+            "reference_id": clean(settings.get("REFERENCE_ID")) or clean(settings.get("ORGANISM_NAME")) or "rnaseq-reference",
             "organism": clean(settings.get("ORGANISM_NAME")),
             **references,
         }], ["reference_id", "organism", "genome", "transcriptome", "annotation"])

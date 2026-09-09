@@ -109,6 +109,8 @@ def main() -> int:
             "schema_version": "1.0",
             "type": "reference_bundle",
             "id": args.reference_id,
+            "genome_id": args.reference_id,
+            "build": args.reference_id,
             "organism": args.organism,
             "status": "complete",
             "artifacts": artifacts,
@@ -116,6 +118,7 @@ def main() -> int:
         args.manifest.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         report = {
             "schema_version": "1.0", "status": "valid", "reference_id": args.reference_id,
+            "genome_id": args.reference_id, "build": args.reference_id,
             "transcript_sequences": transcripts, "genome_sequences": sequences,
             "annotation_features": features,
         }

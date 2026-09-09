@@ -47,8 +47,8 @@ process REFERENCE_BUNDLE {
 
     stub:
     """
-    printf '{"schema_version":"1.0","type":"reference_bundle","id":"%s","organism":"%s","artifacts":[],"status":"stub"}\n' \
-        '${meta.id}' '${meta.organism ?: 'unknown'}' > reference_bundle.manifest.json
+    printf '{"schema_version":"1.0","type":"reference_bundle","id":"%s","genome_id":"%s","build":"%s","organism":"%s","artifacts":[],"status":"stub"}\n' \
+        '${meta.id}' '${meta.id}' '${meta.id}' '${meta.organism ?: 'unknown'}' > reference_bundle.manifest.json
     printf '{"schema_version":"1.0","status":"stub"}\n' > reference_bundle.validation.json
     printf '[STUB] Reference Bundle\n' > reference_bundle.log
     printf '"REFERENCE_BUNDLE":\n    python: stub\n' > reference_bundle.versions.yml

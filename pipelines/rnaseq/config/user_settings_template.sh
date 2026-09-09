@@ -6,6 +6,7 @@
 # 1) Name your analysis.
 export PIPELINE_NAME="rnaseq_project"
 export ORGANISM_NAME="My organism"
+export REFERENCE_ID="assembly_or_reference_release"
 
 # 2) List the ENA/SRA projects to process.
 # Use spaces or commas.

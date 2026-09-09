@@ -99,7 +99,8 @@ def prepare_rnaseq(
     settings.write_text("\n".join([
         "#!/usr/bin/env bash",
         "export PIPELINE_NAME='helixforge_rnaseq_gse133183_integrative_input'",
-        f"export ORGANISM_NAME='{GENOME_ID}'",
+        "export ORGANISM_NAME='Homo_sapiens'",
+        f"export REFERENCE_ID='{GENOME_ID}'",
         "export PIPELINE_PROJECTS='gse133183_k562'",
         f"export SCRATCH_ROOT={quoted(declared_root / 'scratch')}",
         f"export CONDA_BASE={quoted(conda_base)}",

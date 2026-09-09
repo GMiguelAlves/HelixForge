@@ -36,6 +36,9 @@ fi
 # ---------------------------------------------------------------------------
 export PIPELINE_NAME="${PIPELINE_NAME:-rnaseq_pipeline}"
 export ORGANISM_NAME="${ORGANISM_NAME:-custom_organism}"
+# Stable reference/build identity. Existing configurations remain compatible:
+# when omitted, the historical ORGANISM_NAME value is used as the fallback.
+export REFERENCE_ID="${REFERENCE_ID:-$ORGANISM_NAME}"
 
 # Space- or comma-separated ENA/SRA project accessions, for example:
 #   export PIPELINE_PROJECTS="PRJNA000001 PRJEB000002"
