@@ -147,6 +147,14 @@ class RealBiologicalPreflightTests(unittest.TestCase):
         for forbidden in ("--workflow rnaseq", "--workflow chipseq", "FASTQC", "SALMON", "BOWTIE2", "MACS3"):
             self.assertNotIn(forbidden, runner)
 
+        starter = (
+            ROOT / "benchmark/integrative/scripts/real/start_gse133183_integration.sh"
+        ).read_text(encoding="utf-8")
+        self.assertIn("nohup env", starter)
+        self.assertIn("integration-driver.pid", starter)
+        self.assertNotIn("/scratch/", starter)
+        self.assertNotIn("/home/", starter)
+
 
 if __name__ == "__main__":
     unittest.main()

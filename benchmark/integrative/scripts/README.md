@@ -93,3 +93,5 @@ the Integration API schema and the paired RNA-seq reference identity.
 the real integration. It accepts only terminal manifests, pins a clean Git
 commit and runtime checksums, keeps all work under the dedicated scratch case,
 and delegates every scientific process to Slurm with a five-job queue limit.
+`real/start_gse133183_integration.sh` starts that management-node driver in a
+detached session and records its PID without persisting runtime paths in Git.
