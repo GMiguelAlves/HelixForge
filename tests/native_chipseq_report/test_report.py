@@ -67,6 +67,26 @@ class ReportContextTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "build conflict"):
                 CONTEXT.validate(inventory, [manifest])
 
+    def test_differential_binding_contrast_is_supported(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = self.write(root, "contrast.json", {
+                "schema_version": "1.0", "type": "differential_binding_contrast",
+                "id": "contrast1", "status": "complete",
+            })
+            inventory = {
+                "schema_version": "1.0", "type": "chipseq_report_input",
+                "project": self.project, "required_components": ["differential_binding"],
+                "components": [{"component": "differential_binding", "manifest": "contrast.json"}],
+            }
+            result = CONTEXT.validate(inventory, [manifest])
+            self.assertEqual(result["components"]["differential_binding"]["status"], "available")
+
+            aggregate = AGGREGATE.aggregate(result, [json.loads(manifest.read_text())], [])
+            differential_binding = aggregate["sections"]["differential_binding"]
+            self.assertEqual(differential_binding["status"], "available")
+            self.assertEqual(differential_binding["data"]["manifests"][0]["type"], "differential_binding_contrast")
+
 
 class ReportPresentationTest(unittest.TestCase):
     def test_missing_and_idr_status_are_explicit_and_html_is_self_contained(self):

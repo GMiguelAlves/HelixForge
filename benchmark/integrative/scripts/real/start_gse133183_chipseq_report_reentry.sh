@@ -22,6 +22,13 @@ if [[ -e "$pid_file" ]]; then
     rm -f "$pid_file"
 fi
 mkdir -p "$case_root/logs/report_reentry"
+if [[ -e "$case_root/logs/report_reentry/driver.out" || -e "$case_root/logs/report_reentry/driver.err" ]]; then
+    archive="$case_root/logs/report_reentry/attempts/$(date -u +%Y%m%dT%H%M%SZ)"
+    mkdir -p "$archive"
+    for name in driver.out driver.err nextflow.log; do
+        [[ ! -e "$case_root/logs/report_reentry/$name" ]] || cp "$case_root/logs/report_reentry/$name" "$archive/$name"
+    done
+fi
 nohup bash "$repo/benchmark/integrative/scripts/real/run_gse133183_chipseq_report_reentry.sh" \
     "$repo" "$root" "$mark" "$queue" "$inventory" \
     > "$case_root/logs/report_reentry/driver.out" \
