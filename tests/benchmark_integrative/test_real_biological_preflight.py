@@ -94,6 +94,23 @@ class RealBiologicalPreflightTests(unittest.TestCase):
         self.assertEqual([item["mate"] for item in files], ["1", "2"])
         self.assertEqual(sum(item["bytes"] for item in files), 30)
 
+    def test_chipseq_report_reentry_is_terminal_only(self):
+        workflow = (
+            ROOT / "benchmark/integrative/workflows/gse133183_chipseq_report_reentry.nf"
+        ).read_text(encoding="utf-8")
+        runner = (
+            ROOT / "benchmark/integrative/scripts/real/run_gse133183_chipseq_report_reentry.sh"
+        ).read_text(encoding="utf-8")
+        self.assertIn("CHIPSEQ_REPORT(channel.value", workflow)
+        self.assertIn("RUN_MANIFEST(terminal_inputs)", workflow)
+        for upstream in (
+            "FASTQC(", "BOWTIE2_INDEX(", "BOWTIE2_ALIGN(", "MACS3_CALLPEAK(",
+            "DESEQ2_DB_MODEL(",
+        ):
+            self.assertNotIn(upstream, workflow)
+        self.assertIn("report re-entry unexpectedly submitted an upstream scientific process", runner)
+        self.assertIn("HELIXFORGE_NEXTFLOW_JAR", runner)
+
 
 if __name__ == "__main__":
     unittest.main()
