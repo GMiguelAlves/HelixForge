@@ -131,6 +131,21 @@ class RealBiologicalPreflightTests(unittest.TestCase):
         self.assertIn('test ! -e "$case_root/results/chipseq/chipseq_run_manifest.json"', runner)
         self.assertIn("completion re-entry unexpectedly submitted an upstream scientific process", runner)
 
+    def test_real_integration_uses_only_terminal_manifests(self):
+        runner = (
+            ROOT / "benchmark/integrative/scripts/real/run_gse133183_integration.sh"
+        ).read_text(encoding="utf-8")
+        config = (
+            ROOT / "benchmark/integrative/configs/real_integration_slurm.config"
+        ).read_text(encoding="utf-8")
+        self.assertIn("--workflow integrative", runner)
+        self.assertIn('--rna_manifest "$rna_manifest"', runner)
+        self.assertIn('--chip_manifest "$chip_manifest"', runner)
+        self.assertIn("test ! -e \"$case_root\"", runner)
+        self.assertIn("queueSize = 5", config)
+        for forbidden in ("--workflow rnaseq", "--workflow chipseq", "FASTQC", "SALMON", "BOWTIE2", "MACS3"):
+            self.assertNotIn(forbidden, runner)
+
 
 if __name__ == "__main__":
     unittest.main()

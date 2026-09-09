@@ -88,3 +88,8 @@ ChIP-seq contract consumed by the Integration API. It must run through Slurm,
 deduplicates shared IgG records, preserves scientific artifacts byte-for-byte,
 records source checksums plus an adapter audit, and gates the composite against
 the Integration API schema and the paired RNA-seq reference identity.
+
+`real/run_gse133183_integration.sh` is the management-node Nextflow driver for
+the real integration. It accepts only terminal manifests, pins a clean Git
+commit and runtime checksums, keeps all work under the dedicated scratch case,
+and delegates every scientific process to Slurm with a five-job queue limit.
