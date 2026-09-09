@@ -69,6 +69,10 @@ The initial provider is `python_interval_v1`. It implements the explicit legacy
 overlap model with Python standard-library interval indexing. It does not
 invoke the legacy R wrapper and does not submit scheduler jobs.
 
+The index design, complexity, real broad-peak performance evidence, semantic
+equivalence checks, and operational limits are recorded in
+[Peak annotation interval-index optimization](peak_annotation_optimization.md).
+
 ## Statistics contract
 
 `PEAK_ANNOTATION_STATISTICS` derives metrics exclusively from the provider
