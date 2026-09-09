@@ -1,7 +1,6 @@
 nextflow.enable.dsl = 2
 
 include { PEAK_ANNOTATION } from '../../../subworkflows/local/chipseq/peak_annotation'
-include { TRACK_AGGREGATE } from '../../../modules/local/track_aggregate/main'
 include { CHIPSEQ_FULL_REPORT_INPUT } from '../../../modules/local/chipseq_full_report_input/main'
 
 workflow GSE133183_H3K27ME3_COMPLETION_REENTRY {
@@ -53,21 +52,10 @@ workflow GSE133183_H3K27ME3_COMPLETION_REENTRY {
 
     record_ids = ['SRR12773440', 'SRR12773441', 'SRR12773444', 'SRR12773445',
         'SRR12773446', 'SRR12773447', 'SRR12773450', 'SRR12773451']
-    existing_track_ids = record_ids.collect { id -> "${id}.bigwig" } +
-        ["aggregate.gse133183_h3k27me3.DMSO.H3K27me3.${genome_id}.bigwig",
-         "aggregate.gse133183_h3k27me3.GSK343.H3K27me3.${genome_id}.bigwig"]
-    existing_track_records = existing_track_ids.collect { id ->
-        def directory = file("${results}/chipseq/tracks/${id}.track_result", checkIfExists: true)
-        def manifest = file("${results}/pipeline_info/native_chipseq/tracks/provider/${id}.track_provider.manifest.json", checkIfExists: true)
-        tuple([id: id], directory, manifest,
-            file("${results}/pipeline_info/native_chipseq/tracks/statistics/${id}.track_statistics.json", checkIfExists: true),
-            file("${results}/pipeline_info/native_chipseq/tracks/statistics/${id}.track_statistics.manifest.json", checkIfExists: true))
-    }
-    aggregate_track_input = channel.value(existing_track_records).map { records ->
-        tuple([id: 'chipseq.tracks.aggregate'], records.collect { record -> record[1] }, records.collect { record -> record[2] },
-            records.collect { record -> record[3] }, records.collect { record -> record[4] })
-    }
-    TRACK_AGGREGATE(aggregate_track_input)
+    track_aggregate_directory = file("${results}/chipseq/tracks/track_aggregate", checkIfExists: true)
+    track_aggregate_manifest = file("${results}/pipeline_info/native_chipseq/tracks/aggregate/track_aggregate.manifest.json", checkIfExists: true)
+    track_aggregate_table = file("${track_aggregate_directory}/tracks.tsv", checkIfExists: true)
+    completed_tracks = channel.value(tuple([id: 'chipseq.tracks.aggregate'], track_aggregate_directory))
 
     base_manifests = [
         file("${results}/pipeline_info/native_chipseq/metadata/chipseq_metadata.manifest.json", checkIfExists: true),
@@ -88,13 +76,13 @@ workflow GSE133183_H3K27ME3_COMPLETION_REENTRY {
     })
     full_manifests = channel.fromList(base_manifests)
         .mix(PEAK_ANNOTATION.out.manifest.map { _meta, manifest -> manifest })
-        .mix(TRACK_AGGREGATE.out.manifest.map { _meta, manifest -> manifest })
+        .mix(channel.value(track_aggregate_manifest))
     semantic_artifacts = channel.fromList([
         file("${results}/pipeline_info/native_chipseq/peak_qc/aggregate/peak_qc_summary.json", checkIfExists: true),
         file("${results}/pipeline_info/native_chipseq/consensus/aggregate/consolidation_summary.json", checkIfExists: true),
         file("${case_root}/db_reentry_results/differential_binding/differential_binding_results/differential_binding_summary.tsv", checkIfExists: true),
+        track_aggregate_table,
     ]).mix(PEAK_ANNOTATION.out.artifacts.map { _meta, directory -> file("${directory}/statistics.tsv", checkIfExists: true) })
-      .mix(TRACK_AGGREGATE.out.artifacts.map { _meta, directory -> file("${directory}/tracks.tsv", checkIfExists: true) })
     report_materials = full_manifests.toList().map { manifests -> tuple('report', manifests.sort { a, b -> a.name <=> b.name }) }
         .join(semantic_artifacts.toList().map { artifacts -> tuple('report', artifacts.sort { a, b -> a.name <=> b.name }) })
     report_meta = [id: 'gse133183_h3k27me3.chipseq_report', project_id: 'gse133183_h3k27me3',
@@ -107,7 +95,7 @@ workflow GSE133183_H3K27ME3_COMPLETION_REENTRY {
     completed = CHIPSEQ_FULL_REPORT_INPUT.out.status
     report_inventory = CHIPSEQ_FULL_REPORT_INPUT.out.artifacts
     annotation = PEAK_ANNOTATION.out.artifacts
-    tracks = TRACK_AGGREGATE.out.artifacts
+    tracks = completed_tracks
 }
 
 workflow { GSE133183_H3K27ME3_COMPLETION_REENTRY() }

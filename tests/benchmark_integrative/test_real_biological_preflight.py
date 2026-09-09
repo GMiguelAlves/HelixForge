@@ -120,14 +120,14 @@ class RealBiologicalPreflightTests(unittest.TestCase):
         runner = (
             ROOT / "benchmark/integrative/scripts/real/run_gse133183_h3k27me3_completion_reentry.sh"
         ).read_text(encoding="utf-8")
-        for expected in ("PEAK_ANNOTATION(", "TRACK_AGGREGATE(", "CHIPSEQ_FULL_REPORT_INPUT("):
+        for expected in ("PEAK_ANNOTATION(", "CHIPSEQ_FULL_REPORT_INPUT("):
             self.assertIn(expected, workflow)
         for upstream in (
             "FASTQC(", "BOWTIE2_INDEX(", "BOWTIE2_ALIGN(", "MACS3_CALLPEAK(",
-            "PEAK_QC(", "CONSENSUS_IDR(", "DESEQ2_DB_MODEL(", "TRACK_PROVIDER(",
+            "PEAK_QC(", "CONSENSUS_IDR(", "DESEQ2_DB_MODEL(", "TRACK_PROVIDER(", "TRACK_AGGREGATE(",
         ):
             self.assertNotIn(upstream, workflow)
-        self.assertIn(".track_provider.manifest.json", workflow)
+        self.assertIn("track_aggregate.manifest.json", workflow)
         self.assertIn('test ! -e "$case_root/results/chipseq/chipseq_run_manifest.json"', runner)
         self.assertIn("completion re-entry unexpectedly submitted an upstream scientific process", runner)
 
