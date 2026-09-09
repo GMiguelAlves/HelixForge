@@ -43,7 +43,7 @@ test -x "$python_runtime/bin/python3"
 test ! -e "$work"
 test ! -e "$case_root/results/chipseq/chipseq_run_manifest.json"
 mkdir -p "$work" "$logs" "$case_root/report_reentry_nxf_home" "$case_root/report_reentry_nxf_cache"
-runtime_path="$repo/bin:$chip_runtime/bin:$python_runtime/bin:/usr/bin:/bin"
+runtime_path="$repo/modules/local/report_context/resources/usr/bin:$repo/modules/local/report_aggregate/resources/usr/bin:$repo/modules/local/report_generator/resources/usr/bin:$repo/bin:$chip_runtime/bin:$python_runtime/bin:/usr/bin:/bin"
 
 cd "$repo"
 env PATH="$runtime_path" NXF_HOME="$case_root/report_reentry_nxf_home" \

@@ -110,6 +110,8 @@ class RealBiologicalPreflightTests(unittest.TestCase):
             self.assertNotIn(upstream, workflow)
         self.assertIn("report re-entry unexpectedly submitted an upstream scientific process", runner)
         self.assertIn("HELIXFORGE_NEXTFLOW_JAR", runner)
+        for module in ("report_context", "report_aggregate", "report_generator"):
+            self.assertIn(f"modules/local/{module}/resources/usr/bin", runner)
 
 
 if __name__ == "__main__":
