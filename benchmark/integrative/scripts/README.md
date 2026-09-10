@@ -89,6 +89,15 @@ deduplicates shared IgG records, preserves scientific artifacts byte-for-byte,
 records source checksums plus an adapter audit, and gates the composite against
 the Integration API schema and the paired RNA-seq reference identity.
 
+`real/prepare_differential_binding_evidence.py` closes the explicit identity
+link between Differential Binding and peak annotation before real integration.
+It projects `peak_id`, `chrom`, `start` and `end` losslessly from each frozen
+Differential Binding table and annotates those exact regions with the certified
+`python_interval_v1` provider and its frozen parameters. Its parameterized
+Slurm launcher records the derived peak universe, native annotation provenance
+and a portable terminal manifest; it does not modify the Differential Binding
+table or its statistics.
+
 `real/run_gse133183_integration.sh` is the management-node Nextflow driver for
 the real integration. It accepts only terminal manifests, pins a clean Git
 commit and runtime checksums, keeps all work under the dedicated scratch case,

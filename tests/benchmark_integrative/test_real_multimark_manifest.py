@@ -88,7 +88,10 @@ class RealMultimarkManifestTests(unittest.TestCase):
         self.assertEqual(len(document["samples"]), 3)
         self.assertEqual(duplicates, ["SHARED.IGG"])
         self.assertEqual(len(document["artifacts"]), 6)
-        self.assertEqual({item["artifact_type"] for item in document["artifacts"]}, adapter.INTEGRATION_TYPES)
+        self.assertEqual(
+            {item["artifact_type"] for item in document["artifacts"]},
+            {"consensus_peaks", "differential_binding", "peak_gene_annotation"},
+        )
         declared_names = [Path(item["location"]["path"]).name for item in document["artifacts"]]
         self.assertEqual(len(declared_names), len(set(declared_names)))
         self.assertTrue(all(item["metadata"]["benchmark_adapter_source_location"] for item in document["artifacts"]))

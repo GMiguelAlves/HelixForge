@@ -8,7 +8,7 @@ HELIXFORGE_RELEASE = v1.0.0-rc.1
 
 OPERATIONAL_STAGE_REORDERING = COMPLETE
 10D_SKIPPED_TEMPORARILY = RESOLVED
-SCIENTIFIC_EXECUTION = INPUT_MANIFESTS_READY
+SCIENTIFIC_EXECUTION = DIFFERENTIAL_REGION_CONTRACT_CORRECTION
 ```
 
 The real arm uses the 16 preregistered GEO samples in
@@ -53,6 +53,19 @@ basename, so the adapter assigns a mark-qualified portable filename while
 preserving the original relative location in metadata. File contents and
 SHA-256 checksums remain unchanged. This is a pre-result transport correction,
 not a scientific transformation.
+
+The following contract-gated launch exposed a second pre-result mismatch. The
+terminal ChIP manifests carried condition-specific consensus peak IDs, an
+aggregate annotation spanning both conditions, and Differential Binding region
+IDs from the comparison universe. Those three namespaces are individually
+valid but cannot form a verifiable gene-level differential evidence graph.
+The benchmark therefore projects the Differential Binding table's own
+`peak_id`, `chrom`, `start` and `end` columns to a one-to-one BED catalog and
+annotates those exact regions with the frozen native provider. Row order,
+region identity, Differential Binding values and statistical results remain
+unchanged. The adapter records checksums, row counts, the annotation policy and
+Slurm provenance. Relaxing the unknown-peak validation or silently dropping
+unmatched rows is explicitly prohibited.
 
 No biological result was inspected while preparing this execution plan. The
 expectations and criteria remain those in

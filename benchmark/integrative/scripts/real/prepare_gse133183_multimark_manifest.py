@@ -32,7 +32,8 @@ from validate_integration_manifest import jsonschema_errors  # noqa: E402
 
 
 EXPECTED_MARKS = ("H3K27ac", "H3K27me3")
-INTEGRATION_TYPES = {"consensus_peaks", "differential_binding", "peak_gene_annotation"}
+PEAK_UNIVERSE_TYPES = {"peak_set", "consensus_peaks", "idr_peaks"}
+INTEGRATION_TYPES = PEAK_UNIVERSE_TYPES | {"differential_binding", "peak_gene_annotation"}
 COMPOSITE_ID = "gse133183_k562.multimark.chipseq"
 COMPOSITE_DATASET = "gse133183_multimark"
 
@@ -107,8 +108,8 @@ def select_artifacts(document: dict[str, Any], expected_mark: str) -> list[dict[
             raise ValueError(f"{expected_mark} artifact has inconsistent mark: {artifact['artifact_id']}")
         if (artifact.get("location") or {}).get("kind") != "manifest_relative":
             raise ValueError(f"integration artifact is not portable: {artifact['artifact_id']}")
-    if any(count != 1 for count in counts.values()):
-        raise ValueError(f"{expected_mark} must expose exactly one artifact of each integration type: {counts}")
+    if sum(counts[kind] for kind in PEAK_UNIVERSE_TYPES) != 1 or counts["differential_binding"] != 1 or counts["peak_gene_annotation"] != 1:
+        raise ValueError(f"{expected_mark} must expose one peak universe, one differential-binding table and one annotation: {counts}")
     return sorted(selected, key=lambda item: item["artifact_id"])
 
 
