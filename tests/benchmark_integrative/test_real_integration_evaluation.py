@@ -8,7 +8,6 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "benchmark/integrative/scripts/real/evaluate_gse133183_integration.py"
-LAUNCHER = ROOT / "benchmark/integrative/scripts/real/slurm_evaluate_gse133183_integration.sh"
 
 
 def load_evaluator():
@@ -55,14 +54,6 @@ class RealIntegrationEvaluationTests(unittest.TestCase):
             [row["canonical_entity_id"] for row in selected["CONCORDANT_ACTIVATION"]],
             ["gene.high", "gene.low"],
         )
-
-    def test_launcher_is_parameterized_and_slurm_only(self):
-        text = LAUNCHER.read_text(encoding="utf-8")
-        self.assertIn('[[ "$#" -ne 6 ]]', text)
-        self.assertIn("SLURM_JOB_ID", text)
-        self.assertNotIn("/scratch/", text)
-        self.assertNotIn("/home/", text)
-
 
 if __name__ == "__main__":
     unittest.main()

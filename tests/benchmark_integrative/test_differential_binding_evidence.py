@@ -8,7 +8,6 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "benchmark/integrative/scripts/real/prepare_differential_binding_evidence.py"
-LAUNCHER = ROOT / "benchmark/integrative/scripts/real/slurm_prepare_differential_binding_evidence.sh"
 
 
 def load_adapter():
@@ -42,15 +41,11 @@ class DifferentialBindingEvidenceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "duplicate"):
                 adapter.write_region_catalog(source, root / "regions.bed")
 
-    def test_frozen_annotation_policy_and_slurm_guard_are_explicit(self):
+    def test_frozen_annotation_policy_is_explicit(self):
         adapter = load_adapter()
         self.assertEqual(adapter.ANNOTATION_PARAMETERS["promoter_upstream"], 2000)
         self.assertEqual(adapter.ANNOTATION_PARAMETERS["promoter_downstream"], 500)
         self.assertEqual(adapter.ANNOTATION_PARAMETERS["gene_assignment"], "first")
-        text = LAUNCHER.read_text(encoding="utf-8")
-        self.assertIn('[[ "$#" -ne 10 ]]', text)
-        self.assertNotIn("/scratch/", text)
-        self.assertNotIn("/home/", text)
 
 
 if __name__ == "__main__":

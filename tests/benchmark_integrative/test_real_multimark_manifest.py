@@ -8,7 +8,6 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "benchmark/integrative/scripts/real/prepare_gse133183_multimark_manifest.py"
-SLURM_LAUNCHER = ROOT / "benchmark/integrative/scripts/real/slurm_prepare_gse133183_multimark_manifest.sh"
 
 
 def load_adapter():
@@ -113,13 +112,6 @@ class RealMultimarkManifestTests(unittest.TestCase):
         text = SCRIPT.read_text(encoding="utf-8")
         self.assertIn("must execute inside a Slurm job", text)
         self.assertIn("scientific_artifacts_changed", text)
-
-    def test_slurm_launcher_is_parameterized(self):
-        text = SLURM_LAUNCHER.read_text(encoding="utf-8")
-        self.assertIn('[[ "$#" -ne 6 ]]', text)
-        self.assertNotIn("/scratch/", text)
-        self.assertNotIn("/home/", text)
-
 
 if __name__ == "__main__":
     unittest.main()

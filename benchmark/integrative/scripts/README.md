@@ -1,113 +1,20 @@
-# Integrative benchmark scripts
+# Integrative benchmark utilities
 
-`execute_negative_contract_validation.py` derives the frozen 10E mutations
-from the positive synthetic baseline, exercises the declared validation layer
-twice, compares deterministic outcomes and writes compact contract results.
-`run_negative_contracts_slurm.sh` is the guarded Slurm launcher; it refuses
-scratch roots outside the dedicated HelixForge contract-benchmark namespace.
+Only portable scientific utilities are retained here:
 
-Only compact, deterministic benchmark utilities belong here. They must not
-import `integration.*` when producing truth or independent-reference results.
+- synthetic truth and fixture builders;
+- independent evaluators and run comparators;
+- manifest re-entry preparation and validation;
+- negative-contract executor;
+- finalizers and figure renderer;
+- GSE133183 metadata/reference adapters, manifest composition and evaluator.
 
-- `generate_synthetic_truth.py` creates the preregistered 1,000-entity truth
-  table and its checksum manifest from `configs/synthetic_design.json`.
-- `validate_design.py` performs administrative validation only: row counts,
-  class totals, required states, frozen statuses, JSON parsing and checksums.
-- `prepare_synthetic_fixture.py` materializes positive RNA/ChIP terminal
-  manifests, evidence artifacts and fixture-only policies without importing
-  HelixForge code or exposing truth labels to the workflow.
-- `evaluate_synthetic_integration.py` independently reconstructs joins,
-  missing states, regulatory classes, Candidate Score components, Fisher/BH
-  tests and correlations, then applies the frozen `IS*` criteria.
-- `compare_synthetic_runs.py` compares the two required executions after
-  semantic normalization and records byte identity only where appropriate.
-- `run_synthetic_benchmark_slurm.sh` is the auditable Slurm launcher for the
-  two official workflow executions and their compute-node evaluations.
+Management-node starters, `sbatch` launchers, one-off recovery drivers, runtime
+shims and audit packagers were retired after the baseline freeze. Those files
+described one cluster session and are not required to interpret the public
+evidence or execute the supported top-level workflow. Their exact historical
+versions remain available at the annotated tag
+`integrative-benchmark-v1.0.0-rc.1`.
 
-The manifest/re-entry equivalence utilities are:
-
-- `prepare_reentry_fixture.py` verifies the exact 10B input bytes, relocates
-  the public manifest bundles and validates contracts before execution;
-- `compare_reentry_routes.py` applies the frozen `IR1`–`IR4` comparisons;
-- `finalize_reentry_benchmark.py` creates compact provenance, checksums and
-  the audit package;
-- `validate_reentry_results.py` performs administrative validation without
-  requiring Git on compute nodes;
-- `run_reentry_benchmark_slurm.sh` coordinates the two isolated Slurm routes.
-
-These utilities do not run real biological integration, negative contracts or
-the baseline freeze.
-
-The real biological arm starts with a download-free metadata and storage
-preflight under `scripts/real/`. Its Slurm launcher freezes the session and job
-in a persistent `benchmark_state.json`; the worker cross-checks the 16 selected
-GSE133183 samples against GEO, ENA and NCBI before any FASTQ transfer. A
-metadata mismatch stops as `DATASET_AVAILABILITY_CONFLICT`, while insufficient
-verified scratch space stops as `RESOURCE_BLOCKED`.
-
-The GSE133183 RNA-seq launcher normally uses the released top-level workflow.
-If a completed and audited native QC boundary cannot be recovered because the
-shared NFS runtime has lost the corresponding Nextflow task-cache entries,
-`real/start_gse133183_rnaseq_post_qc.sh` starts a benchmark-only re-entry. It
-consumes the published QC plan, normalized metadata, reference manifest and
-merged FASTQs, then calls the unchanged Salmon, Import, DESeq2 and Report
-subworkflows. The re-entry workflow does not include any QC process and records
-the operational exception in the terminal manifest provenance.
-
-If that continuation reaches DESeq2 but stops on a report-input contract,
-`real/start_gse133183_rnaseq_report_reentry.sh` may continue only the native
-Report API and terminal-manifest assembly from the published upstream
-artifacts. The launcher rejects any attempt to submit QC, Salmon, Import or
-DESeq2 again and records the split execution identity.
-
-`real/start_gse133183_chipseq.sh` starts one frozen real-data ChIP-seq arm from
-the prepared GSE133183 inputs. `H3K27me3` uses broad peaks and `H3K27ac` uses
-narrow peaks; both retain the preregistered matched IgG controls, union
-consensus, differential-binding contrast and five-job Slurm limit. The paired
-`run_gse133183_chipseq.sh` driver keeps Nextflow on the head node and submits
-all scientific processes through Slurm.
-
-If the real ChIP-seq arm reaches the published peak-count matrix but its task
-cache is unavailable, `real/run_gse133183_chipseq_db_reentry.sh` starts the
-benchmark-only differential-binding continuation. It executes only the native
-DESeq2 model, contrast and aggregate modules, writes to an isolated output
-directory and leaves the completed upstream artifacts untouched.
-
-The benchmark runtime prepends a minimal Bowtie2 launcher that selects the
-installed `bowtie2-align-s` or `bowtie2-align-l` binary and passes the upstream
-`--wrapper basic-0` contract. This bypasses only the broken Perl launcher whose
-Conda prefix contains the institutional `@bio` account suffix; the Bowtie2
-version, index, arguments and alignment implementation remain unchanged.
-The same runtime directory selects the previously certified R analysis runtime
-for R scripts without modifying the frozen global `PATH` value or either Conda
-environment.
-
-`real/prepare_gse133183_multimark_manifest.py` composes the independently
-validated H3K27ac and H3K27me3 terminal manifests into the single multi-mark
-ChIP-seq contract consumed by the Integration API. It must run through Slurm,
-deduplicates shared IgG records, preserves scientific artifacts byte-for-byte,
-records source checksums plus an adapter audit, and gates the composite against
-the Integration API schema and the paired RNA-seq reference identity.
-
-`real/prepare_differential_binding_evidence.py` closes the explicit identity
-link between Differential Binding and peak annotation before real integration.
-It projects `peak_id`, `chrom`, `start` and `end` losslessly from each frozen
-Differential Binding table and annotates those exact regions with the certified
-`python_interval_v1` provider and its frozen parameters. Its parameterized
-Slurm launcher records the derived peak universe, native annotation provenance
-and a portable terminal manifest; it does not modify the Differential Binding
-table or its statistics.
-
-`real/run_gse133183_integration.sh` is the management-node Nextflow driver for
-the real integration. It accepts only terminal manifests, pins a clean Git
-commit and runtime checksums, keeps all work under the dedicated scratch case,
-and delegates every scientific process to Slurm with a five-job queue limit.
-`real/start_gse133183_integration.sh` starts that management-node driver in a
-detached session and records its PID without persisting runtime paths in Git.
-
-`real/evaluate_gse133183_integration.py` evaluates the frozen `IB1`–`IB8`
-criteria from the completed terminal outputs. It records technical gates,
-entity/state accounting, differential-mark direction, enrichment availability,
-the preregistered gene examples, candidate inventories and task performance.
-The evaluator is Slurm-only and produces compact TSV/JSON/Markdown evidence;
-it never mutates the workflow outputs.
+The retained Python utilities are deterministic and parameterized. They do not
+contain private cluster paths, raw biological data or Nextflow workdirs.

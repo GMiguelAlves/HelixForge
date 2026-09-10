@@ -18,8 +18,9 @@
   "validation": {
     "scientific_execution": "COMPLETE",
     "independent_reproduction": "SUPPORTED_ALL_ARMS",
-    "administrative_validation": "PENDING_PR_CI_AND_MERGE",
+    "administrative_validation": "PASS",
     "tag": "chipseq-benchmark-v1.0.0-rc.1",
-    "tag_status": "PENDING_POST_MERGE"
+    "tag_status": "PUBLISHED",
+    "tag_target_commit": "ac7d97d5cdd4be71b7423ab9809acfef99ba3c08"
   }
 }
