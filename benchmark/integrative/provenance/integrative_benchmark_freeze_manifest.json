@@ -1,0 +1,57 @@
+{
+  "manifest_version": "1.0",
+  "benchmark": "integrative",
+  "helixforge_version": "1.0.0-rc.1",
+  "freeze_date": "2026-09-10",
+  "freeze_type": "ADMINISTRATIVE_FREEZE",
+  "phase": "BASELINE_FROZEN",
+  "scientific_target_commit": "dc0218ce902302da476910595bb133c82fee927c",
+  "integration_workflow_commit": "d0d1e7499e5b42be8294da3d85e402fa90a1cfe2",
+  "final_administrative_commit": "RESOLVED_BY_ANNOTATED_TAG_AFTER_MERGE",
+  "tag": "integrative-benchmark-v1.0.0-rc.1",
+  "tag_status": "PENDING_POST_MERGE",
+  "overall_classification": "PASS_WITH_LIMITATIONS",
+  "benchmark_arms": [
+    {
+      "id": "synthetic_ground_truth",
+      "classification": "PASS",
+      "report": "benchmark/integrative/reports/synthetic_integration_benchmark.md",
+      "benchmark_commit": "cc4116185407377f9ef593dabb51d548a10bb84f"
+    },
+    {
+      "id": "manifest_reentry",
+      "classification": "PASS",
+      "report": "benchmark/integrative/reports/reentry_equivalence_benchmark.md",
+      "benchmark_commit": "dbbc58b76a059f108e321a9e46b69d96070b45ce"
+    },
+    {
+      "id": "negative_contracts",
+      "classification": "PASS",
+      "report": "benchmark/integrative/reports/negative_contract_validation.md",
+      "benchmark_commit": "4278d5e536a62c76430a79a18ed6f77260e36d68"
+    },
+    {
+      "id": "real_biological",
+      "classification": "PASS_WITH_LIMITATIONS",
+      "report": "benchmark/integrative/reports/real_biological_integration.md",
+      "benchmark_commit": "590789db506b1789555d504f23e70f236a267202"
+    }
+  ],
+  "artifacts": {
+    "benchmark_matrix": "benchmark/integrative/results/integrative_benchmark_matrix.tsv",
+    "summary": "benchmark/integrative/results/integrative_benchmark_summary.json",
+    "final_report": "benchmark/integrative/reports/integrative_benchmark_final_report.md",
+    "interpretation_criteria": "benchmark/integrative/protocol/interpretation_criteria.md",
+    "scientific_target": "benchmark/integrative/provenance/scientific_target.json"
+  },
+  "audit_archives": {
+    "synthetic": "benchmark/integrative/results/synthetic/audit_archive.json",
+    "reentry": "benchmark/integrative/results/reentry/audit_archive.json",
+    "negative_contracts": "benchmark/integrative/results/contracts/audit_archive.json",
+    "real_biological": "benchmark/integrative/provenance/real_biological_audit_archive.json"
+  },
+  "preserved_limitations": {
+    "IB4": "FAIL_EXPECTED_RANGE_NO_SIGNIFICANT_H3K27ME3_REGIONS",
+    "IB5": "NOT_EVALUABLE_DIRECTIONAL_FISHER_TESTS_NOT_EMITTED"
+  }
+}

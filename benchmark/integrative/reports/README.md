@@ -6,6 +6,9 @@ Completed reports:
 - [Manifest / re-entry equivalence](reentry_equivalence_benchmark.md)
 - [Negative contract validation](negative_contract_validation.md)
 - [Real biological integration — GSE133183](real_biological_integration.md)
+- [Final integrative benchmark baseline](integrative_benchmark_final_report.md)
 
 The real biological arm completed independently from the synthetic, re-entry
 and negative-contract arms and is reported as `PASS_WITH_LIMITATIONS`.
+The final report consolidates all four arms and freezes the global baseline as
+`PASS_WITH_LIMITATIONS` without changing IB4 or IB5.

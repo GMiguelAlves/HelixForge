@@ -66,7 +66,7 @@
     "10E",
     "10D"
   ],
-  "phase": "REAL_INTEGRATION_COMPLETE",
+  "phase": "BASELINE_FROZEN",
   "schema_version": "1.0",
   "scientific_stage_order": [
     "10B",
@@ -78,7 +78,18 @@
   "scientific_target_commit": "dc0218ce902302da476910595bb133c82fee927c",
   "session_uuid": "35a89bf1-362d-40a1-b71b-73459f3c18f0",
   "status": "PASS_WITH_LIMITATIONS",
-  "updated_utc": "2026-09-10T06:42:00Z",
+  "updated_utc": "2026-09-10T07:00:00Z",
+  "baseline_freeze": {
+    "classification": "PASS_WITH_LIMITATIONS",
+    "matrix": "benchmark/integrative/results/integrative_benchmark_matrix.tsv",
+    "report": "benchmark/integrative/reports/integrative_benchmark_final_report.md",
+    "tag": "integrative-benchmark-v1.0.0-rc.1",
+    "tag_status": "PENDING_POST_MERGE",
+    "preserved_criteria": {
+      "IB4": "FAIL",
+      "IB5": "NOT_EVALUABLE"
+    }
+  },
   "workdirs": [
     "/scratch/HELIXFORGE_WORKSPACE/helixforge-integrative-real-20260901",
     "/scratch/HELIXFORGE_WORKSPACE/helixforge-integrative-real-20260901/fastq",

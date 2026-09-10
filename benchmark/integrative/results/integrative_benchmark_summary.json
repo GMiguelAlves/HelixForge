@@ -1,0 +1,57 @@
+{
+  "benchmark": "HelixForge integrative benchmark",
+  "helixforge_version": "v1.0.0-rc.1",
+  "freeze_date": "2026-09-10",
+  "phase": "BASELINE_FROZEN",
+  "overall_classification": "PASS_WITH_LIMITATIONS",
+  "scientific_target_commit": "dc0218ce902302da476910595bb133c82fee927c",
+  "integration_workflow_commit": "d0d1e7499e5b42be8294da3d85e402fa90a1cfe2",
+  "core_release_gate_failures": [],
+  "arms": [
+    {
+      "id": "synthetic_ground_truth",
+      "classification": "PASS",
+      "criteria": "IS1-IS12",
+      "benchmark_commit": "cc4116185407377f9ef593dabb51d548a10bb84f"
+    },
+    {
+      "id": "manifest_reentry",
+      "classification": "PASS",
+      "criteria": "IR1-IR4",
+      "benchmark_commit": "dbbc58b76a059f108e321a9e46b69d96070b45ce"
+    },
+    {
+      "id": "negative_contracts",
+      "classification": "PASS",
+      "criteria": "IC1-IC6",
+      "benchmark_commit": "4278d5e536a62c76430a79a18ed6f77260e36d68"
+    },
+    {
+      "id": "real_biological",
+      "classification": "PASS_WITH_LIMITATIONS",
+      "criteria": "IB1-IB8",
+      "benchmark_commit": "590789db506b1789555d504f23e70f236a267202"
+    }
+  ],
+  "limitations": [
+    {
+      "criterion": "IB4",
+      "status": "FAIL",
+      "type": "EXPECTED_RANGE",
+      "finding": "No H3K27me3 region met the frozen differential-significance thresholds.",
+      "blocks_baseline": false,
+      "follow_up_issue": 68
+    },
+    {
+      "criterion": "IB5",
+      "status": "NOT_EVALUABLE",
+      "type": "EXPECTED_RANGE",
+      "finding": "The current statistics contract does not emit directional-concordance Fisher tests.",
+      "blocks_baseline": false,
+      "follow_up_issue": 67
+    }
+  ],
+  "tag": "integrative-benchmark-v1.0.0-rc.1",
+  "tag_status": "PENDING_POST_MERGE",
+  "conclusion": "All core release gates passed. The real biological expected-range and evaluability findings are retained without post-hoc changes."
+}

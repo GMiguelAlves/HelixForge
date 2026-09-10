@@ -7,3 +7,7 @@ available for [synthetic ground truth](synthetic/) and
 [GSE133183 real-integration evaluation](real/evaluation/). Raw outputs, operational logs,
 caches and Nextflow work directories remain outside Git and are represented by
 checksums and separately retained audit archives.
+
+The frozen cross-arm classification is recorded in the
+[benchmark matrix](integrative_benchmark_matrix.tsv) and
+[machine-readable summary](integrative_benchmark_summary.json).

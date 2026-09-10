@@ -62,6 +62,9 @@ caches and operational logs remain outside Git.
 - [Negative-contract machine-readable results](results/contracts/benchmark_summary.json)
 - [Real biological integration report](reports/real_biological_integration.md)
 - [Real biological machine-readable results](results/real/evaluation/benchmark_summary.json)
+- [Final benchmark matrix](results/integrative_benchmark_matrix.tsv)
+- [Final integrative baseline report](reports/integrative_benchmark_final_report.md)
+- [Baseline freeze manifest](provenance/integrative_benchmark_freeze_manifest.json)
 
 The relocated manifest re-entry produced the same entities, schemas, missing
 states, regulatory classes, statistics, Candidate Score, ranking and terminal
@@ -71,7 +74,8 @@ references, manifests, contrasts and entity collisions were rejected, while
 supported normalization and valid unmatched contrasts were retained safely.
 All `IC1`–`IC6` criteria passed.
 
-**Status: synthetic integration, manifest re-entry equivalence and negative
-contracts PASS. The real GSE133183 integration is `PASS_WITH_LIMITATIONS`:
-technical gates passed, while the frozen H3K27me3 expected range was not met
-and directional enrichment was not evaluable.**
+**Status: `BASELINE_FROZEN`. Synthetic integration, manifest re-entry and
+negative contracts are `PASS`; real GSE133183 integration and the consolidated
+global baseline are `PASS_WITH_LIMITATIONS`. Every core release gate passed.
+IB4 remains `FAIL` as an unmet expected range and IB5 remains
+`NOT_EVALUABLE`.**
