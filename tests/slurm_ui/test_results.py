@@ -65,6 +65,38 @@ class ResultProbeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.read('large.tsv', preview=True)
 
+    def test_full_audit_with_removed_workdirs_keeps_archived_results_readable(self):
+        for directory in ('traces', 'logs', 'operational', 'final_report', 'idr', 'provenance'):
+            (self.root / directory).mkdir()
+        trace = self.root / 'traces/full.tsv'
+        trace.write_text('task_id\tnative_id\tname\tstatus\tworkdir\n'
+                         f'1\t101\tIDR\tCOMPLETED\t{self.root}/removed-work\n')
+        artifacts = {
+            'logs/full.nextflow.log': 'Workflow completed\n',
+            'logs/full.nextflow.log.1': 'Earlier attempt\n',
+            'logs/slurm.err': '',
+            'operational/full.report.html': '<h1>Execution</h1>',
+            'operational/full.timeline.html': '<h1>Timeline</h1>',
+            'operational/full.dag.html': '<h1>DAG</h1>',
+            'final_report/chipseq_report.html': '<h1>ChIP-seq</h1>',
+            'provenance/run_manifest.json': '{"status":"complete"}',
+            'idr/peaks.narrowPeak': 'chr1\t0\t100\n',
+        }
+        for path, content in artifacts.items():
+            (self.root / path).write_text(content)
+        data = probe.inspect(self.root)
+        self.assertEqual(data['trace_path'], 'traces/full.tsv')
+        self.assertEqual(data['tasks'][0]['status'], 'COMPLETED')
+        self.assertEqual(set(data['artifacts']), set(artifacts))
+        for path, content in artifacts.items():
+            self.assertEqual(self.read(path)['content'], content)
+        selection = {'task_id': '1', 'native_id': '101', 'name': 'IDR', 'file': '.command.out'}
+        with self.assertRaises(FileNotFoundError):
+            probe.read_log(self.root, selection)
+        # The fallback must not replace an explicit primary execution trace.
+        (self.root / 'trace.tsv').write_text('name\tstatus\tnative_id\nprimary\tFAILED\t102\n')
+        self.assertEqual(probe.inspect(self.root)['tasks'][0]['name'], 'primary')
+
     def test_preserved_benchmark_groups_and_direct_registration_without_trace(self):
         for group in ('contracts', 'reentry', 'real', 'synthetic'):
             directory = self.root / group

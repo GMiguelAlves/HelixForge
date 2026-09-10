@@ -12,7 +12,7 @@ const resultsViewer = (() => {
     for (const id of ["result-prev", "result-next", "result-tail"]) $(id).disabled = true;
   }
   function category(path) {
-    if (/\.(log|out|err)$/.test(path)) return "logs";
+    if (/\.(log|out|err)$/.test(path) || /nextflow\.log\.\d+$/.test(path)) return "logs";
     if (/\.html$/.test(path)) return "reports";
     if (/\.svg$/.test(path)) return "figures";
     if (/\.json$/.test(path)) return "manifests";

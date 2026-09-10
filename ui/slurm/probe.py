@@ -3,6 +3,7 @@ import csv
 import io
 import json
 import os
+import re
 from pathlib import Path
 import stat
 import sys
@@ -13,7 +14,8 @@ from html.parser import HTMLParser
 
 TEXT_LIMIT = 65536
 PREVIEW_LIMIT = 4 * 1024 * 1024
-EXTENSIONS = {'.html', '.svg', '.json', '.tsv', '.csv', '.txt', '.md', '.log', '.out', '.err', '.exit', '.done', '.yml'}
+EXTENSIONS = {'.html', '.svg', '.json', '.tsv', '.csv', '.txt', '.md', '.log', '.out', '.err', '.exit', '.done', '.yml',
+              '.bed', '.narrowpeak', '.broadpeak'}
 
 
 class StaticReport(HTMLParser):
@@ -95,7 +97,8 @@ def catalog(root):
     # Never descend into task work/cache trees, even when a launch directory is registered.
     allowed = {'results', 'pipeline_info', 'integration', 'rnaseq', 'chipseq',
                'execution', 'evaluation', 'manifests', 'failed_attempts',
-               'contracts', 'reentry', 'real', 'synthetic'}
+               'contracts', 'reentry', 'real', 'synthetic',
+               'traces', 'logs', 'operational', 'final_report', 'idr', 'provenance'}
     for base, dirs, files in os.walk(root, followlinks=False):
         visited += 1
         if visited > 5000:
@@ -111,7 +114,8 @@ def catalog(root):
             if visited > 5000 or len(artifacts) >= 1000:
                 return artifacts, True
             path = Path(base) / name
-            if path.suffix.lower() not in EXTENSIONS and name != 'SHA256SUMS':
+            rotated_log = re.fullmatch(r'.*nextflow\.log\.\d+', name)
+            if path.suffix.lower() not in EXTENSIONS and name != 'SHA256SUMS' and not rotated_log:
                 continue
             if name.startswith('.') and name != '.nextflow.log':
                 continue
@@ -168,7 +172,8 @@ def inspect(directory):
         return path
 
     trace = next((path for name in ('pipeline_info/execution_trace.tsv',
-                  'results/pipeline_info/execution_trace.tsv', 'execution/trace.tsv', 'trace.tsv')
+                  'results/pipeline_info/execution_trace.tsv', 'execution/trace.tsv', 'trace.tsv',
+                  'traces/full.tsv')
                   if (path := owned_file(name))), None)
     tasks = []
     modified = None
