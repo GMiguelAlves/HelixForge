@@ -6,6 +6,7 @@ import base64
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import ipaddress
+import importlib.util
 import json
 from pathlib import Path
 import re
@@ -17,6 +18,9 @@ import time
 
 
 STATIC = Path(__file__).parent / "static"
+PROBE_SPEC = importlib.util.spec_from_file_location('result_probe', Path(__file__).with_name('probe.py'))
+PROBE = importlib.util.module_from_spec(PROBE_SPEC)
+PROBE_SPEC.loader.exec_module(PROBE)
 SEPARATOR = "\x1f"
 MARKER = "HELIXFORGE_SLURM_V1:"
 FIELDS = ("id", "name", "state", "elapsed", "time_limit", "nodes", "cpus",
@@ -140,9 +144,14 @@ def query_jobs(config):
 
 
 def query_execution(value):
-    if not isinstance(value, dict) or set(value) not in ({"connection", "directory"}, {"connection", "directory", "log"}):
+    if not isinstance(value, dict) or set(value) not in ({"connection", "directory"}, {"connection", "directory", "log"}, {"connection", "directory", "file"}):
         raise MonitorError("Cadastro de execução inválido.", 400)
     config = connection_config(value["connection"])
+    if 'file' in value:
+        try:
+            PROBE.validate_file(value['file'])
+        except ValueError as exc:
+            raise MonitorError(str(exc), 400) from exc
     if "log" in value:
         selection = value["log"]
         if (not isinstance(selection, dict) or set(selection) != {"task_id", "native_id", "name", "file"}
@@ -160,6 +169,8 @@ def query_execution(value):
         request = {"directory": directory}
         if "log" in value:
             request["log"] = value["log"]
+        if 'file' in value:
+            request['file'] = value['file']
         result = subprocess.run(args, input=json.dumps(request), capture_output=True,
                                 encoding="utf-8", errors="replace", timeout=25,
                                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
@@ -240,7 +251,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "no-referrer")
-        self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+        self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; frame-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
         self.end_headers()
         self.wfile.write(body)
 
@@ -250,6 +261,7 @@ class Handler(BaseHTTPRequestHandler):
         files = {"/": ("index.html", "text/html; charset=utf-8"),
                  "/app.js": ("app.js", "text/javascript; charset=utf-8"),
                  "/executions.js": ("executions.js", "text/javascript; charset=utf-8"),
+                 "/results.js": ("results.js", "text/javascript; charset=utf-8"),
                  "/new-execution.js": ("new-execution.js", "text/javascript; charset=utf-8"),
                  "/connections.js": ("connections.js", "text/javascript; charset=utf-8"),
                  "/styles.css": ("styles.css", "text/css; charset=utf-8")}
