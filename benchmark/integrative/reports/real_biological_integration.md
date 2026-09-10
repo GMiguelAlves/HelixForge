@@ -59,6 +59,12 @@ The absence of significant H3K27me3 and the missing directional enrichment
 test are recorded as follow-up investigations. Neither justifies changing the
 frozen thresholds or tuning the completed result post hoc.
 
+A private compact audit archive was retained outside the repository. Its
+sanitized filename and SHA-256 identity are recorded in
+[`provenance/real_biological_audit_archive.json`](../provenance/real_biological_audit_archive.json);
+the archive itself is not published because execution logs can contain
+cluster-specific paths.
+
 Tracked follow-ups:
 
 - [#66 — expose the Differential Binding region universe in ChIP manifests](https://github.com/GMiguelAlves/HelixForge/issues/66)

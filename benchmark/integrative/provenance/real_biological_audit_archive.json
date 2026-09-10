@@ -1,0 +1,8 @@
+{
+  "archive_filename": "helixforge-integrative-gse133183-real-20260910.zip",
+  "archive_sha256": "e17c7355171aa1f43c976fbe759fea513e00f02588acec6e44e6e4d433f30fa4",
+  "contents": "compact_execution_evidence_and_failed_attempt_logs",
+  "location": "private_maintainer_audit_storage",
+  "publication_policy": "do_not_publish_unsanitized_archive",
+  "status": "RETAINED_AND_CHECKSUM_VERIFIED"
+}
