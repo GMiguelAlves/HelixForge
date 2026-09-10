@@ -104,3 +104,10 @@ commit and runtime checksums, keeps all work under the dedicated scratch case,
 and delegates every scientific process to Slurm with a five-job queue limit.
 `real/start_gse133183_integration.sh` starts that management-node driver in a
 detached session and records its PID without persisting runtime paths in Git.
+
+`real/evaluate_gse133183_integration.py` evaluates the frozen `IB1`–`IB8`
+criteria from the completed terminal outputs. It records technical gates,
+entity/state accounting, differential-mark direction, enrichment availability,
+the preregistered gene examples, candidate inventories and task performance.
+The evaluator is Slurm-only and produces compact TSV/JSON/Markdown evidence;
+it never mutates the workflow outputs.
