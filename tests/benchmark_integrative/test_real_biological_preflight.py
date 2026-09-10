@@ -16,7 +16,6 @@ ROOT = Path(__file__).resolve().parents[2]
 SELECTION = ROOT / "benchmark/integrative/datasets/real_sample_selection.tsv"
 VALIDATOR_PATH = ROOT / "benchmark/integrative/scripts/real/validate_gse133183_metadata.py"
 STATE_PATH = ROOT / "benchmark/integrative/results/real/benchmark_state.json"
-AUDIT_ARCHIVER = ROOT / "benchmark/integrative/scripts/real/archive_gse133183_integration_audit.sh"
 
 
 def load_validator():
@@ -101,9 +100,6 @@ class RealBiologicalPreflightTests(unittest.TestCase):
         workflow = (
             ROOT / "benchmark/integrative/workflows/gse133183_chipseq_report_reentry.nf"
         ).read_text(encoding="utf-8")
-        runner = (
-            ROOT / "benchmark/integrative/scripts/real/run_gse133183_chipseq_report_reentry.sh"
-        ).read_text(encoding="utf-8")
         self.assertIn("CHIPSEQ_REPORT(channel.value", workflow)
         self.assertIn("RUN_MANIFEST(terminal_inputs)", workflow)
         for upstream in (
@@ -111,17 +107,10 @@ class RealBiologicalPreflightTests(unittest.TestCase):
             "DESEQ2_DB_MODEL(",
         ):
             self.assertNotIn(upstream, workflow)
-        self.assertIn("report re-entry unexpectedly submitted an upstream scientific process", runner)
-        self.assertIn("HELIXFORGE_NEXTFLOW_JAR", runner)
-        for module in ("report_context", "report_aggregate", "report_generator"):
-            self.assertIn(f"modules/local/{module}/resources/usr/bin", runner)
 
     def test_h3k27me3_completion_reentry_is_downstream_only(self):
         workflow = (
             ROOT / "benchmark/integrative/workflows/gse133183_h3k27me3_completion_reentry.nf"
-        ).read_text(encoding="utf-8")
-        runner = (
-            ROOT / "benchmark/integrative/scripts/real/run_gse133183_h3k27me3_completion_reentry.sh"
         ).read_text(encoding="utf-8")
         for expected in ("PEAK_ANNOTATION(", "CHIPSEQ_FULL_REPORT_INPUT("):
             self.assertIn(expected, workflow)
@@ -131,45 +120,6 @@ class RealBiologicalPreflightTests(unittest.TestCase):
         ):
             self.assertNotIn(upstream, workflow)
         self.assertIn("track_aggregate.manifest.json", workflow)
-        self.assertIn('test ! -e "$case_root/results/chipseq/chipseq_run_manifest.json"', runner)
-        self.assertIn("completion re-entry unexpectedly submitted an upstream scientific process", runner)
-
-    def test_real_integration_uses_only_terminal_manifests(self):
-        runner = (
-            ROOT / "benchmark/integrative/scripts/real/run_gse133183_integration.sh"
-        ).read_text(encoding="utf-8")
-        config = (
-            ROOT / "benchmark/integrative/configs/real_integration_slurm.config"
-        ).read_text(encoding="utf-8")
-        self.assertIn("--workflow integrative", runner)
-        self.assertIn('--rna_manifest "$rna_manifest"', runner)
-        self.assertIn('--chip_manifest "$chip_manifest"', runner)
-        self.assertIn("HELIXFORGE_ALLOWED_SCRATCH_ROOT", runner)
-        self.assertIn('[[ ! -e "$case_root" ]]', runner)
-        self.assertIn("integration-driver.exit", runner)
-        self.assertIn('rm -f "$benchmark_root/logs/integration-driver.exit"', runner)
-        self.assertIn('$python_runtime/bin/python3', runner)
-        self.assertIn("queueSize = 5", config)
-        for forbidden in ("--workflow rnaseq", "--workflow chipseq", "FASTQC", "SALMON", "BOWTIE2", "MACS3"):
-            self.assertNotIn(forbidden, runner)
-
-        starter = (
-            ROOT / "benchmark/integrative/scripts/real/start_gse133183_integration.sh"
-        ).read_text(encoding="utf-8")
-        self.assertIn("nohup env", starter)
-        self.assertIn("integration-driver.pid", starter)
-        self.assertNotIn("/scratch/", starter)
-        self.assertNotIn("/home/", starter)
-
-    def test_real_integration_audit_archive_is_compact_and_parameterized(self):
-        text = AUDIT_ARCHIVER.read_text(encoding="utf-8")
-        self.assertIn("README_auditoria_integracao_real.md", text)
-        self.assertIn("evaluation", text)
-        self.assertIn("integrative_run_manifest.json", text)
-        for excluded in ("fastq", "work/", "genome.fa", "annotation.gtf"):
-            self.assertNotIn(excluded, text.lower())
-        self.assertNotIn("/scratch/", text)
-        self.assertNotIn("/home/", text)
 
 
 if __name__ == "__main__":

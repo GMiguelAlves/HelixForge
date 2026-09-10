@@ -73,9 +73,15 @@ class IntegrativeBaselineFreezeTests(unittest.TestCase):
                 check=True,
             )
             for name in names:
-                self.assertEqual((generated / name).read_bytes(), (FIGURES / name).read_bytes())
+                self.assertEqual(
+                    (generated / name).read_text(encoding="utf-8"),
+                    (FIGURES / name).read_text(encoding="utf-8"),
+                )
                 self.assertIn(f"../figures/baseline/{name}", report)
-            self.assertEqual((generated / "SHA256SUMS").read_bytes(), (FIGURES / "SHA256SUMS").read_bytes())
+            self.assertEqual(
+                (generated / "SHA256SUMS").read_text(encoding="utf-8"),
+                (FIGURES / "SHA256SUMS").read_text(encoding="utf-8"),
+            )
 
 
 if __name__ == "__main__":

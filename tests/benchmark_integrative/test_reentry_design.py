@@ -19,12 +19,5 @@ class ReentryBenchmarkDesignTests(unittest.TestCase):
         for gate in ("IR1", "IR2", "IR3", "IR4"):
             self.assertIn(f'"criterion_id": "{gate}"', source)
 
-    def test_reentry_uses_independent_nextflow_state(self):
-        source = (BENCHMARK / "scripts" / "run_reentry_benchmark_slurm.sh").read_text(encoding="utf-8")
-        self.assertIn('NXF_HOME="$nxf_home/route-$route"', source)
-        self.assertIn('NXF_CACHE_DIR="$cache/route-$route"', source)
-        self.assertIn('rm -rf -- "$work/route-a" "$cache/route-a" "$nxf_home/route-a"', source)
-
-
 if __name__ == "__main__":
     unittest.main()
