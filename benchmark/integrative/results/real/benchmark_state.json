@@ -1,6 +1,7 @@
 {
   "benchmark": "GSE133183 real biological integration",
-  "execution_repository_commit": "1d4c73cab127c7cf29a54df0447e086ccc75c219",
+  "execution_repository_commit": "d2dcb24f06d747d0345267d5fb5372dd8790afdf",
+  "evaluation_repository_commit": "c50de07e205f217c2d81040db32607d940ff942e",
   "expected_outputs": [
     "metadata/dataset_metadata.tsv",
     "metadata/download_manifest.tsv",
@@ -10,7 +11,12 @@
     "download_manifests/GSM4817467.execution.tsv",
     "download_validation/download_validation.json",
     "download_validation/fastq_inventory.tsv",
-    "reference/reference_manifest.json"
+    "reference/reference_manifest.json",
+    "evaluation/acceptance_results.tsv",
+    "evaluation/benchmark_summary.json",
+    "evaluation/performance.tsv",
+    "evaluation/preregistered_examples.tsv",
+    "evaluation/top20_candidates.tsv"
   ],
   "jobs": [
     {
@@ -38,14 +44,29 @@
       "phase": "REFERENCE_COMPLETE"
     }
   ],
-  "last_known_state": "COMPLETE",
+  "integration_job_ids": [
+    "17223",
+    "17224",
+    "17225",
+    "17226",
+    "17227",
+    "17228",
+    "17229",
+    "17230",
+    "17231",
+    "17232",
+    "17233",
+    "17234"
+  ],
+  "evaluation_job_id": "17236",
+  "last_known_state": "PASS_WITH_LIMITATIONS",
   "operational_stage_order": [
     "10B",
     "10C",
     "10E",
     "10D"
   ],
-  "phase": "REFERENCE_COMPLETE",
+  "phase": "REAL_INTEGRATION_COMPLETE",
   "schema_version": "1.0",
   "scientific_stage_order": [
     "10B",
@@ -56,8 +77,8 @@
   ],
   "scientific_target_commit": "dc0218ce902302da476910595bb133c82fee927c",
   "session_uuid": "35a89bf1-362d-40a1-b71b-73459f3c18f0",
-  "status": "COMPLETE",
-  "updated_utc": "2026-09-02T06:21:13Z",
+  "status": "PASS_WITH_LIMITATIONS",
+  "updated_utc": "2026-09-10T06:42:00Z",
   "workdirs": [
     "/scratch/HELIXFORGE_WORKSPACE/helixforge-integrative-real-20260901",
     "/scratch/HELIXFORGE_WORKSPACE/helixforge-integrative-real-20260901/fastq",

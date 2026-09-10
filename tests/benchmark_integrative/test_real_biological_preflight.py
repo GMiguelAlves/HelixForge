@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SELECTION = ROOT / "benchmark/integrative/datasets/real_sample_selection.tsv"
 VALIDATOR_PATH = ROOT / "benchmark/integrative/scripts/real/validate_gse133183_metadata.py"
 STATE_PATH = ROOT / "benchmark/integrative/results/real/benchmark_state.json"
+AUDIT_ARCHIVER = ROOT / "benchmark/integrative/scripts/real/archive_gse133183_integration_audit.sh"
 
 
 def load_validator():
@@ -52,11 +53,13 @@ class RealBiologicalPreflightTests(unittest.TestCase):
         state = json.loads(STATE_PATH.read_text(encoding="utf-8"))
         self.assertEqual(state["scientific_stage_order"], ["10B", "10C", "10D", "10E", "10F"])
         self.assertEqual(state["operational_stage_order"], ["10B", "10C", "10E", "10D"])
-        self.assertEqual(state["phase"], "REFERENCE_COMPLETE")
-        self.assertEqual(state["status"], "COMPLETE")
+        self.assertEqual(state["phase"], "REAL_INTEGRATION_COMPLETE")
+        self.assertEqual(state["status"], "PASS_WITH_LIMITATIONS")
         self.assertEqual(state["jobs"][0]["job_id"], "16456")
         self.assertEqual(state["jobs"][-1]["job_id"], "16505")
         self.assertEqual(state["jobs"][-1]["phase"], "REFERENCE_COMPLETE")
+        self.assertEqual(state["integration_job_ids"], [str(value) for value in range(17223, 17235)])
+        self.assertEqual(state["evaluation_job_id"], "17236")
 
     def test_accession_preflight_is_complete(self):
         metadata = ROOT / "benchmark/integrative/results/real/metadata"
@@ -157,6 +160,16 @@ class RealBiologicalPreflightTests(unittest.TestCase):
         self.assertIn("integration-driver.pid", starter)
         self.assertNotIn("/scratch/", starter)
         self.assertNotIn("/home/", starter)
+
+    def test_real_integration_audit_archive_is_compact_and_parameterized(self):
+        text = AUDIT_ARCHIVER.read_text(encoding="utf-8")
+        self.assertIn("README_auditoria_integracao_real.md", text)
+        self.assertIn("evaluation", text)
+        self.assertIn("integrative_run_manifest.json", text)
+        for excluded in ("fastq", "work/", "genome.fa", "annotation.gtf"):
+            self.assertNotIn(excluded, text.lower())
+        self.assertNotIn("/scratch/", text)
+        self.assertNotIn("/home/", text)
 
 
 if __name__ == "__main__":

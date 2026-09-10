@@ -8,7 +8,7 @@ HELIXFORGE_RELEASE = v1.0.0-rc.1
 
 OPERATIONAL_STAGE_REORDERING = COMPLETE
 10D_SKIPPED_TEMPORARILY = RESOLVED
-SCIENTIFIC_EXECUTION = DIFFERENTIAL_REGION_CONTRACT_CORRECTION
+SCIENTIFIC_EXECUTION = PASS_WITH_LIMITATIONS
 ```
 
 The real arm uses the 16 preregistered GEO samples in
@@ -71,3 +71,16 @@ No biological result was inspected while preparing this execution plan. The
 expectations and criteria remain those in
 `datasets/real_integrative_biological_expectations.tsv` and
 `protocol/interpretation_criteria.md`.
+
+## Final outcome
+
+The fresh terminal-manifest integration completed all 12 Slurm processes and
+produced the report and final manifest. IB1–IB3 and IB6–IB8 passed. IB4 did not
+meet its frozen expected range because the independently confirmed H3K27me3
+Differential Binding result contains zero significant regions. IB5 is
+`NOT_EVALUABLE` because no directional-concordance Fisher tests are emitted by
+the current statistics contract. The result is therefore frozen as
+`PASS_WITH_LIMITATIONS`; thresholds and observed outputs were not modified.
+
+See `../reports/real_biological_integration.md` and
+`../results/real/evaluation/` for the reviewed summary and checksummed evidence.

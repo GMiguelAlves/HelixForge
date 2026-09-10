@@ -1,0 +1,62 @@
+{
+  "benchmark": "GSE133183 real biological integration",
+  "criteria": {
+    "IB1": "PASS",
+    "IB2": "PASS",
+    "IB3": "PASS",
+    "IB4": "FAIL",
+    "IB5": "NOT_EVALUABLE",
+    "IB6": "PASS",
+    "IB7": "PASS",
+    "IB8": "PASS"
+  },
+  "differential_binding": {
+    "H3K27ac": {
+      "decreased": 14847,
+      "increased": 110,
+      "significant": 14957,
+      "total": 271544
+    },
+    "H3K27me3": {
+      "total": 467451
+    }
+  },
+  "directional_fisher_tests": 0,
+  "fisher_tests": 8,
+  "functional_record_counts": {
+    "legacy_rows": 0,
+    "terms": 0,
+    "tests": 0
+  },
+  "functional_status": "complete_empty",
+  "git_commit": "c50de07e205f217c2d81040db32607d940ff942e",
+  "limitations": [
+    "IB4",
+    "IB5"
+  ],
+  "master_genes": 78517,
+  "master_state_counts": {
+    "chip": {
+      "MEASURED": 60723,
+      "NO_PEAK": 17794
+    },
+    "rna": {
+      "MEASURED": 78477,
+      "NOT_MEASURED": 40
+    }
+  },
+  "regulatory_pattern_counts": {
+    "CHIP_ONLY": 57956,
+    "CONCORDANT_ACTIVATION": 13,
+    "CONCORDANT_REPRESSION": 22,
+    "DISCORDANT": 68,
+    "INSUFFICIENT_CROSS_ASSAY_EVIDENCE": 34958,
+    "NO_REGULATORY_INTERPRETATION": 17724,
+    "RNA_ONLY": 70
+  },
+  "report_html_sha256": "2326c2f86e759835f4f1ba0353a183df0292f4415c9f7cf7e7725eb81bdeb715",
+  "slurm_job_id": "17236",
+  "status": "PASS_WITH_LIMITATIONS",
+  "terminal_manifest_sha256": "d221f8a255d9e69d2f34270ceb34c9be59fe5f03f0f77d37f7654c628f6e66cd",
+  "top20_candidates": 20
+}

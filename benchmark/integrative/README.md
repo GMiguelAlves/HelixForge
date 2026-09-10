@@ -60,6 +60,8 @@ caches and operational logs remain outside Git.
 - [Manifest re-entry machine-readable results](results/reentry/benchmark_summary.json)
 - [Negative-contract report](reports/negative_contract_validation.md)
 - [Negative-contract machine-readable results](results/contracts/benchmark_summary.json)
+- [Real biological integration report](reports/real_biological_integration.md)
+- [Real biological machine-readable results](results/real/evaluation/benchmark_summary.json)
 
 The relocated manifest re-entry produced the same entities, schemas, missing
 states, regulatory classes, statistics, Candidate Score, ranking and terminal
@@ -70,5 +72,6 @@ supported normalization and valid unmatched contrasts were retained safely.
 All `IC1`–`IC6` criteria passed.
 
 **Status: synthetic integration, manifest re-entry equivalence and negative
-contracts PASS. Ready to return to the separately scoped real biological
-integration arm after review.**
+contracts PASS. The real GSE133183 integration is `PASS_WITH_LIMITATIONS`:
+technical gates passed, while the frozen H3K27me3 expected range was not met
+and directional enrichment was not evaluable.**
