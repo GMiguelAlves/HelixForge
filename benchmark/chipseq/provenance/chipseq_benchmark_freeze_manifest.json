@@ -8,7 +8,8 @@
   "administrative_branch_base": "2062f7695bdb16e5ca48674c474a4548c30d454e",
   "final_administrative_commit": "RESOLVED_BY_ANNOTATED_TAG_AFTER_MERGE",
   "tag": "chipseq-benchmark-v1.0.0-rc.1",
-  "tag_status": "PENDING_POST_MERGE",
+  "tag_status": "PUBLISHED",
+  "tag_target_commit": "ac7d97d5cdd4be71b7423ab9809acfef99ba3c08",
   "benchmark_arms": [
     {"id": "synthetic_narrow", "classification": "PASS_WITH_LIMITATIONS", "report": "benchmark/chipseq/reports/synthetic_narrow_benchmark.md", "benchmark_commit": "d5bfa64be972b2f1ef736e2e10a3cb079ea6d568"},
     {"id": "synthetic_broad", "classification": "PASS_WITH_LIMITATIONS", "report": "benchmark/chipseq/reports/synthetic_broad_benchmark.md", "benchmark_commit": "8abbf11bebcbe22c4af3e367b6ad8306f4b5c5c0"},

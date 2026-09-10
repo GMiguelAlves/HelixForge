@@ -44,10 +44,12 @@ scientific equivalence is claimed.
   graph. This item was superseded by the native coordinator documented in
   [chipseq-full-native-validation.md](chipseq-full-native-validation.md); the
   legacy sources themselves remain available as the rollback boundary.
-- Integrative remains legacy and currently consumes paths from its configuration;
-  `all` provides a completion barrier, not semantic RNA/ChIP artifacts.
-- RNA download, metadata/reference preparation and remaining final reporting
-  wrappers are unchanged.
+- Historical status at the time of this audit: Integrative remained legacy and
+  consumed configured paths. This was superseded by the native Integration API,
+  terminal manifests and the frozen Integrative benchmark.
+- Historical status at the time of this audit: RNA download,
+  metadata/reference preparation and reporting still used wrappers. The native
+  production path and legacy retirement supersede this boundary.
 - `rnaseq_native_import=false` is rejected where Import is required; there is no
   longer a supported tximport wrapper to fall back to.
 - Historical finding: IDR had no scientific provider at audit time. This was
@@ -71,12 +73,14 @@ scientific equivalence is claimed.
 
 ## Remaining scientific risks
 
-- No legacy-versus-native real-data comparison was executed in this audit.
+- No legacy-versus-native real-data comparison was executed in this historical
+  audit; later frozen RNA-seq, ChIP-seq and Integrative baselines provide the
+  current evidence.
 - Renamed OCI images may not exist until the updated CI publishes them.
-- Integrative identifier/reference compatibility is not yet enforced by a
-  common manifest inventory.
-- ChIP `full`, production Slurm behavior, container digests and cache
-  invalidation still require the mandatory validation battery.
+- Historical Integrative identifier/reference and ChIP `full` validation gaps
+  were closed by the native contracts and benchmark campaigns. Selective
+  `-resume` behavior on the institutional NFS remains tracked separately as an
+  operational issue.
 - Exact numerical/serialization equivalence for tximport, DESeq2, MACS3,
   featureCounts, annotations and BigWig tracks remains unproven here.
 

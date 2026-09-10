@@ -1,4 +1,4 @@
-# Benchmarks
+# HelixForge benchmarks
 
 Benchmarks consume Nextflow `trace.tsv` files and record duration, CPU,
 peak RSS, read/write volume, and output size for fixed scenarios. They should
@@ -14,6 +14,17 @@ shared runners.
   controlled narrow/broad enrichment and public K562 CTCF/H3K27me3 data.
 - [`integrative/`](integrative/README.md): preregistered integration benchmark
   covering synthetic truth, manifest re-entry, negative contracts and a matched
-  public RNA × ChIP dataset. Scientific execution has not started.
-- [`scenarios/`](scenarios/): focused migration and implementation scenarios.
-- [`reports/`](reports/): compact benchmark reports approved for versioning.
+  public RNA × ChIP dataset; the baseline is frozen as
+  `PASS_WITH_LIMITATIONS`.
+## Current status
+
+| Baseline | Classification | Frozen tag |
+|---|---|---|
+| RNA-seq | `PASS_WITH_LIMITATIONS` | `rnaseq-benchmark-v1.0.0-rc.1` |
+| ChIP-seq | `PASS_WITH_LIMITATIONS` | `chipseq-benchmark-v1.0.0-rc.1` |
+| Integrative | `PASS_WITH_LIMITATIONS` | `integrative-benchmark-v1.0.0-rc.1` |
+
+Cluster-specific launchers and runtime shims used during the campaigns were
+removed after freeze. Reusable builders, evaluators, renderers, compact
+evidence and all scientific contracts remain versioned; the annotated tags
+preserve the complete historical execution material.

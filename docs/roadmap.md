@@ -80,10 +80,12 @@ RNA-seq, ChIP-seq and Integrative legacy retirement is complete. Their final
 sources are preserved by `rnaseq-legacy-v1.0.0`, `chipseq-legacy-v1.0.0`, and
 `integrative-legacy-v1.0.0`.
 
-1. Design and execute the Integrative benchmark against the frozen RNA-seq and
-   ChIP-seq baselines.
-2. Implement Batch Effect Assessment as an optional exploratory subworkflow.
-3. Implement Pathway Enrichment providers behind the common downstream API.
+The Integrative benchmark has been completed and frozen as
+`PASS_WITH_LIMITATIONS`; every core release gate passed. The remaining planned
+scientific work is:
+
+1. Implement Batch Effect Assessment as an optional exploratory subworkflow.
+2. Implement Pathway Enrichment providers behind the common downstream API.
 
 RNA-seq and ChIP-seq reviewed biological benchmarks are complete. Their frozen
 administrative entry points are
