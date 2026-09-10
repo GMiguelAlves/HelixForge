@@ -7,6 +7,32 @@
   "scientific_target_commit": "dc0218ce902302da476910595bb133c82fee927c",
   "integration_workflow_commit": "d0d1e7499e5b42be8294da3d85e402fa90a1cfe2",
   "core_release_gate_failures": [],
+  "performance": [
+    {
+      "arm": "synthetic_ground_truth",
+      "label": "Synthetic ground truth",
+      "wall_seconds": 83.4845,
+      "basis": "mean_of_two_workflow_runs"
+    },
+    {
+      "arm": "manifest_reentry",
+      "label": "Manifest re-entry",
+      "wall_seconds": 83.081,
+      "basis": "mean_of_two_workflow_runs"
+    },
+    {
+      "arm": "negative_contracts",
+      "label": "Negative contracts",
+      "wall_seconds": 9.423786,
+      "basis": "two_fixture_iterations"
+    },
+    {
+      "arm": "real_biological",
+      "label": "Real biological integration",
+      "wall_seconds": 2220.0,
+      "basis": "approximate_shared_cluster_workflow_wall_time"
+    }
+  ],
   "arms": [
     {
       "id": "synthetic_ground_truth",
@@ -52,6 +78,7 @@
     }
   ],
   "tag": "integrative-benchmark-v1.0.0-rc.1",
-  "tag_status": "PENDING_POST_MERGE",
+  "tag_status": "PUBLISHED",
+  "tag_target_commit": "0394fc2ab620e723b1b627dac18508feb50f574b",
   "conclusion": "All core release gates passed. The real biological expected-range and evaluability findings are retained without post-hoc changes."
 }

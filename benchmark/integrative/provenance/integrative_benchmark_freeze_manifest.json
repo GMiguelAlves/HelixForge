@@ -7,9 +7,10 @@
   "phase": "BASELINE_FROZEN",
   "scientific_target_commit": "dc0218ce902302da476910595bb133c82fee927c",
   "integration_workflow_commit": "d0d1e7499e5b42be8294da3d85e402fa90a1cfe2",
-  "final_administrative_commit": "RESOLVED_BY_ANNOTATED_TAG_AFTER_MERGE",
+  "final_administrative_commit": "0394fc2ab620e723b1b627dac18508feb50f574b",
   "tag": "integrative-benchmark-v1.0.0-rc.1",
-  "tag_status": "PENDING_POST_MERGE",
+  "tag_status": "PUBLISHED",
+  "tag_target_commit": "0394fc2ab620e723b1b627dac18508feb50f574b",
   "overall_classification": "PASS_WITH_LIMITATIONS",
   "benchmark_arms": [
     {
@@ -42,7 +43,10 @@
     "summary": "benchmark/integrative/results/integrative_benchmark_summary.json",
     "final_report": "benchmark/integrative/reports/integrative_benchmark_final_report.md",
     "interpretation_criteria": "benchmark/integrative/protocol/interpretation_criteria.md",
-    "scientific_target": "benchmark/integrative/provenance/scientific_target.json"
+    "scientific_target": "benchmark/integrative/provenance/scientific_target.json",
+    "figures": "benchmark/integrative/figures/baseline",
+    "figure_checksums": "benchmark/integrative/figures/baseline/SHA256SUMS",
+    "figure_renderer": "benchmark/integrative/scripts/render_benchmark_figures.py"
   },
   "audit_archives": {
     "synthetic": "benchmark/integrative/results/synthetic/audit_archive.json",

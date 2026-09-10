@@ -19,6 +19,8 @@ The machine-readable consolidation is available in
 [`integrative_benchmark_matrix.tsv`](../results/integrative_benchmark_matrix.tsv)
 and [`integrative_benchmark_summary.json`](../results/integrative_benchmark_summary.json).
 
+![Classification of the four frozen benchmark arms](../figures/baseline/benchmark_arm_status.svg)
+
 ## Evidence by arm
 
 ### Synthetic ground truth
@@ -73,6 +75,10 @@ These findings do not override the successful core evidence, compatibility,
 missingness, safety or re-entry gates. No threshold, sample, contrast or
 observed output was changed post hoc.
 
+![Status counts for all frozen acceptance criteria](../figures/baseline/acceptance_criteria_status.svg)
+
+![Key metrics from the real biological integration](../figures/baseline/real_biological_metrics.svg)
+
 ## Performance scope
 
 The synthetic and re-entry routes each completed in about 83 seconds per run;
@@ -82,6 +88,8 @@ the shared Slurm cluster. `REGULATORY_INTERPRETATION` dominated runtime at 25
 minutes 10 seconds, while `MOLECULAR_EVIDENCE_INTEGRATION` had the largest
 observed RSS at 10.6 GB. These are descriptive shared-cluster measurements,
 not a controlled performance comparison.
+
+![Descriptive execution time by benchmark arm](../figures/baseline/runtime_overview.svg)
 
 ## Provenance and freeze
 
