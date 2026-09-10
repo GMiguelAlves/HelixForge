@@ -1,0 +1,5 @@
+metric	value	unit	role
+wall_time	9.423786	seconds	descriptive
+cpu_time	2.396333	seconds	descriptive
+peak_rss	43956	KiB	descriptive
+fixture_count	14	fixtures	descriptive

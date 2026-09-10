@@ -1,0 +1,176 @@
+from __future__ import annotations
+
+import csv
+import gzip
+import importlib.util
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import unittest
+
+
+ROOT = Path(__file__).resolve().parents[2]
+SELECTION = ROOT / "benchmark/integrative/datasets/real_sample_selection.tsv"
+VALIDATOR_PATH = ROOT / "benchmark/integrative/scripts/real/validate_gse133183_metadata.py"
+STATE_PATH = ROOT / "benchmark/integrative/results/real/benchmark_state.json"
+AUDIT_ARCHIVER = ROOT / "benchmark/integrative/scripts/real/archive_gse133183_integration_audit.sh"
+
+
+def load_validator():
+    spec = importlib.util.spec_from_file_location("real_metadata", VALIDATOR_PATH)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+class RealBiologicalPreflightTests(unittest.TestCase):
+    def test_selection_is_exact_and_balanced(self):
+        with SELECTION.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 16)
+        self.assertEqual({row["geo_sample"] for row in rows}, {f"GSM{i}" for i in range(4817452, 4817468)})
+        self.assertEqual(sum(row["assay"] == "RNA-seq" for row in rows), 4)
+        self.assertEqual(sum(row["mark"] == "H3K27me3" for row in rows), 4)
+        self.assertEqual(sum(row["mark"] == "H3K27ac" for row in rows), 4)
+        self.assertEqual(sum(row["mark"] == "IgG" for row in rows), 4)
+        for row in rows:
+            if row["mark"] in {"H3K27me3", "H3K27ac"}:
+                self.assertTrue(row["control_geo_sample"].startswith("GSM"))
+
+    def test_reference_inventory_has_no_unresolved_checksum(self):
+        path = ROOT / "benchmark/integrative/datasets/reference_sources.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual({row["role"] for row in rows}, {"genome_fasta", "annotation_gtf", "transcriptome", "blacklist"})
+        for row in rows:
+            self.assertRegex(row["frozen_md5"], r"^[0-9a-f]{32}$")
+
+    def test_persistent_state_records_frozen_orders(self):
+        state = json.loads(STATE_PATH.read_text(encoding="utf-8"))
+        self.assertEqual(state["scientific_stage_order"], ["10B", "10C", "10D", "10E", "10F"])
+        self.assertEqual(state["operational_stage_order"], ["10B", "10C", "10E", "10D"])
+        self.assertEqual(state["phase"], "BASELINE_FROZEN")
+        self.assertEqual(state["status"], "PASS_WITH_LIMITATIONS")
+        self.assertEqual(state["jobs"][0]["job_id"], "16456")
+        self.assertEqual(state["jobs"][-1]["job_id"], "16505")
+        self.assertEqual(state["jobs"][-1]["phase"], "REFERENCE_COMPLETE")
+        self.assertEqual(state["integration_job_ids"], [str(value) for value in range(17223, 17235)])
+        self.assertEqual(state["evaluation_job_id"], "17236")
+
+    def test_accession_preflight_is_complete(self):
+        metadata = ROOT / "benchmark/integrative/results/real/metadata"
+        validation = json.loads((metadata / "metadata_validation.json").read_text(encoding="utf-8"))
+        storage = json.loads((metadata / "storage_plan.json").read_text(encoding="utf-8"))
+        self.assertEqual(validation["status"], "METADATA_VALIDATED")
+        self.assertEqual(len(validation["selected_gsms"]), 16)
+        self.assertEqual(len(validation["selected_runs"]), 16)
+        self.assertEqual(storage["selected_fastq_files"], 32)
+        self.assertEqual(storage["status"], "SPACE_AVAILABLE")
+        self.assertGreater(storage["paired_fastq_download_gib"], 200)
+
+    def test_validator_rejects_execution_outside_slurm(self):
+        with tempfile.TemporaryDirectory() as directory:
+            result = subprocess.run(
+                [sys.executable, str(VALIDATOR_PATH), "--selection", str(SELECTION),
+                 "--ena-dir", directory, "--runinfo", str(SELECTION),
+                 "--geo-soft", str(SELECTION), "--reference-sources", str(SELECTION),
+                 "--scratch-root", directory, "--output-dir", str(Path(directory) / "out")],
+                capture_output=True, text=True, env={key: value for key, value in os.environ.items() if key != "SLURM_JOB_ID"},
+            )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("must execute inside a Slurm job", result.stderr + result.stdout)
+
+    def test_helper_parsers_preserve_paired_fastq_contract(self):
+        module = load_validator()
+        row = {
+            "run_accession": "SRRTEST",
+            "library_layout": "PAIRED",
+            "fastq_ftp": "example/SRRTEST_1.fastq.gz;example/SRRTEST_2.fastq.gz",
+            "fastq_md5": "a" * 32 + ";" + "b" * 32,
+            "fastq_bytes": "10;20",
+        }
+        files = module.split_ena_files(row)
+        self.assertEqual([item["mate"] for item in files], ["1", "2"])
+        self.assertEqual(sum(item["bytes"] for item in files), 30)
+
+    def test_chipseq_report_reentry_is_terminal_only(self):
+        workflow = (
+            ROOT / "benchmark/integrative/workflows/gse133183_chipseq_report_reentry.nf"
+        ).read_text(encoding="utf-8")
+        runner = (
+            ROOT / "benchmark/integrative/scripts/real/run_gse133183_chipseq_report_reentry.sh"
+        ).read_text(encoding="utf-8")
+        self.assertIn("CHIPSEQ_REPORT(channel.value", workflow)
+        self.assertIn("RUN_MANIFEST(terminal_inputs)", workflow)
+        for upstream in (
+            "FASTQC(", "BOWTIE2_INDEX(", "BOWTIE2_ALIGN(", "MACS3_CALLPEAK(",
+            "DESEQ2_DB_MODEL(",
+        ):
+            self.assertNotIn(upstream, workflow)
+        self.assertIn("report re-entry unexpectedly submitted an upstream scientific process", runner)
+        self.assertIn("HELIXFORGE_NEXTFLOW_JAR", runner)
+        for module in ("report_context", "report_aggregate", "report_generator"):
+            self.assertIn(f"modules/local/{module}/resources/usr/bin", runner)
+
+    def test_h3k27me3_completion_reentry_is_downstream_only(self):
+        workflow = (
+            ROOT / "benchmark/integrative/workflows/gse133183_h3k27me3_completion_reentry.nf"
+        ).read_text(encoding="utf-8")
+        runner = (
+            ROOT / "benchmark/integrative/scripts/real/run_gse133183_h3k27me3_completion_reentry.sh"
+        ).read_text(encoding="utf-8")
+        for expected in ("PEAK_ANNOTATION(", "CHIPSEQ_FULL_REPORT_INPUT("):
+            self.assertIn(expected, workflow)
+        for upstream in (
+            "FASTQC(", "BOWTIE2_INDEX(", "BOWTIE2_ALIGN(", "MACS3_CALLPEAK(",
+            "PEAK_QC(", "CONSENSUS_IDR(", "DESEQ2_DB_MODEL(", "TRACK_PROVIDER(", "TRACK_AGGREGATE(",
+        ):
+            self.assertNotIn(upstream, workflow)
+        self.assertIn("track_aggregate.manifest.json", workflow)
+        self.assertIn('test ! -e "$case_root/results/chipseq/chipseq_run_manifest.json"', runner)
+        self.assertIn("completion re-entry unexpectedly submitted an upstream scientific process", runner)
+
+    def test_real_integration_uses_only_terminal_manifests(self):
+        runner = (
+            ROOT / "benchmark/integrative/scripts/real/run_gse133183_integration.sh"
+        ).read_text(encoding="utf-8")
+        config = (
+            ROOT / "benchmark/integrative/configs/real_integration_slurm.config"
+        ).read_text(encoding="utf-8")
+        self.assertIn("--workflow integrative", runner)
+        self.assertIn('--rna_manifest "$rna_manifest"', runner)
+        self.assertIn('--chip_manifest "$chip_manifest"', runner)
+        self.assertIn("HELIXFORGE_ALLOWED_SCRATCH_ROOT", runner)
+        self.assertIn('[[ ! -e "$case_root" ]]', runner)
+        self.assertIn("integration-driver.exit", runner)
+        self.assertIn('rm -f "$benchmark_root/logs/integration-driver.exit"', runner)
+        self.assertIn('$python_runtime/bin/python3', runner)
+        self.assertIn("queueSize = 5", config)
+        for forbidden in ("--workflow rnaseq", "--workflow chipseq", "FASTQC", "SALMON", "BOWTIE2", "MACS3"):
+            self.assertNotIn(forbidden, runner)
+
+        starter = (
+            ROOT / "benchmark/integrative/scripts/real/start_gse133183_integration.sh"
+        ).read_text(encoding="utf-8")
+        self.assertIn("nohup env", starter)
+        self.assertIn("integration-driver.pid", starter)
+        self.assertNotIn("/scratch/", starter)
+        self.assertNotIn("/home/", starter)
+
+    def test_real_integration_audit_archive_is_compact_and_parameterized(self):
+        text = AUDIT_ARCHIVER.read_text(encoding="utf-8")
+        self.assertIn("README_auditoria_integracao_real.md", text)
+        self.assertIn("evaluation", text)
+        self.assertIn("integrative_run_manifest.json", text)
+        for excluded in ("fastq", "work/", "genome.fa", "annotation.gtf"):
+            self.assertNotIn(excluded, text.lower())
+        self.assertNotIn("/scratch/", text)
+        self.assertNotIn("/home/", text)
+
+
+if __name__ == "__main__":
+    unittest.main()

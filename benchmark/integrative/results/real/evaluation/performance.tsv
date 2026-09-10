@@ -1,0 +1,13 @@
+task_id	native_id	name	status	duration	realtime	%cpu	peak_rss	peak_vmem
+1	17223	INTEGRATIVE:NATIVE_INTEGRATION:INTEGRATIVE_INPUT_VALIDATION (naughty_brenner.rnaseq.gse133183_k562.multimark.chipseq.integrative)	COMPLETED	34.6s	6.6s	36.9%	25.5 MB	41.2 MB
+2	17224	INTEGRATIVE:NATIVE_INTEGRATION:RNASEQ_EVIDENCE_PROVIDER (naughty_brenner.rnaseq.gse133183_k562.multimark.chipseq.integrative)	COMPLETED	34.5s	11.8s	87.5%	357.4 MB	377.9 MB
+3	17225	INTEGRATIVE:NATIVE_INTEGRATION:CHIPSEQ_EVIDENCE_PROVIDER (naughty_brenner.rnaseq.gse133183_k562.multimark.chipseq.integrative)	COMPLETED	2m 7s	2m	88.7%	2.3 GB	2.4 GB
+4	17226	INTEGRATIVE:NATIVE_INTEGRATION:EVIDENCE_HARMONIZATION (naughty_brenner.rnaseq.gse133183_k562.multimark.chipseq.integrative)	COMPLETED	34.8s	26s	93.4%	2.8 GB	2.9 GB
+5	17227	INTEGRATIVE:NATIVE_INTEGRATION:MOLECULAR_EVIDENCE_INTEGRATION (naughty_brenner.rnaseq.gse133183_k562.multimark.chipseq.integrative)	COMPLETED	4m 35s	4m 11s	94.9%	10.6 GB	10.7 GB
+6	17228	INTEGRATIVE:NATIVE_INTEGRATION:REGULATORY_INTERPRETATION (naughty_brenner.rnaseq.gse133183_k562.multimark.chipseq.integrative)	COMPLETED	25m 25s	25m 10s	99.9%	5.4 GB	5.5 GB
+7	17229	INTEGRATIVE:NATIVE_INTEGRATION:CANDIDATE_SCORING (naughty_brenner.rnaseq.gse133183_k562.multimark.chipseq.integrative)	COMPLETED	1m 5s	46.8s	96.8%	5.7 GB	5.7 GB
+8	17230	INTEGRATIVE:NATIVE_INTEGRATION:CROSS_ASSAY_STATISTICS (naughty_brenner.rnaseq.gse133183_k562.multimark.chipseq.integrative)	COMPLETED	1m 5s	45.5s	94.6%	5.6 GB	5.6 GB
+9	17231	INTEGRATIVE:NATIVE_INTEGRATION:FUNCTIONAL_ANALYSIS (naughty_brenner.rnaseq.gse133183_k562.multimark.chipseq.integrative)	COMPLETED	4.8s	2.6s	81.4%	332.5 MB	351.2 MB
+10	17232	INTEGRATIVE:NATIVE_INTEGRATION:INTEGRATIVE_VISUALIZATION (naughty_brenner.rnaseq.gse133183_k562.multimark.chipseq.integrative)	COMPLETED	34.9s	4.8s	88.0%	597.4 MB	618.7 MB
+11	17233	INTEGRATIVE:NATIVE_INTEGRATION:INTEGRATIVE_REPORT (naughty_brenner.rnaseq.gse133183_k562.multimark.chipseq.integrative)	COMPLETED	34.9s	9.9s	82.2%	820.7 MB	840.6 MB
+12	17234	INTEGRATIVE:NATIVE_INTEGRATION:INTEGRATIVE_RUN_MANIFEST (naughty_brenner.rnaseq.gse133183_k562.multimark.chipseq.integrative)	COMPLETED	34.7s	9.4s	95.3%	26.1 MB	41.4 MB

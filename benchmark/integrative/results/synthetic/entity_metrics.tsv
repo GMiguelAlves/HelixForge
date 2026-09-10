@@ -1,0 +1,2 @@
+expected_entities	observed_entities	missing_entities	unexpected_entities	duplicate_entities	entity_recall
+1000	1000	0	0	0	1.0

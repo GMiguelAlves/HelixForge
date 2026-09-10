@@ -58,7 +58,8 @@ class FullCoordinatorManifestTest(unittest.TestCase):
             root = Path(directory)
             types = [
                 "chipseq_metadata", "reference_bundle", "alignment", "bam_final", "peak_calling",
-                "peak_qc_summary", "consensus_idr", "differential_binding", "peak_annotation_aggregate", "track_aggregate",
+                "peak_qc_summary", "consensus_idr", "differential_binding",
+                "differential_binding_contrast", "peak_annotation_aggregate", "track_aggregate",
             ]
             manifests = []
             artifacts = []
@@ -101,6 +102,10 @@ class FullCoordinatorManifestTest(unittest.TestCase):
             inventory = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(set(inventory["required_components"]), {entry["component"] for entry in inventory["components"]})
             self.assertEqual(sum(len(entry["artifacts"]) for entry in inventory["components"]), 5)
+            self.assertEqual(
+                2,
+                sum(entry["component"] == "differential_binding" for entry in inventory["components"]),
+            )
 
 
 class FullCoordinatorTopologyTest(unittest.TestCase):
@@ -117,6 +122,9 @@ class FullCoordinatorTopologyTest(unittest.TestCase):
         for module in (bam_select, bam_duplicates, bam_blacklist, bam_index_qc):
             self.assertNotIn(" > '${meta.id}.manifest.json'", module)
         self.assertIn("set -o pipefail", report_input)
+        self.assertIn("pattern: 'manifests??'", report_input)
+        self.assertIn("pattern: 'artifacts??'", report_input)
+        self.assertIn("emit: input_bundle", report_input)
 
     def test_full_mode_is_native_and_single_session(self):
         workflow = (ROOT / "workflows/chipseq.nf").read_text(encoding="utf-8")
@@ -141,6 +149,16 @@ class FullCoordinatorTopologyTest(unittest.TestCase):
         self.assertIn('if [[ "$mode" == "recovery-driver" ]]', harness)
         self.assertIn('resume_args=(-resume)', harness)
         self.assertIn('"${resume_args[@]}"', harness)
+        real_harness = (
+            ROOT / "benchmark/integrative/scripts/real/run_gse133183_chipseq.sh"
+        ).read_text(encoding="utf-8")
+        for variable in (
+            "HELIXFORGE_NEXTFLOW_JAR", "HELIXFORGE_JAVA_RUNTIME",
+            "HELIXFORGE_PYTHON_RUNTIME", "HELIXFORGE_R_RUNTIME", "HELIXFORGE_CHIP_RUNTIME",
+            "HELIXFORGE_ALLOWED_CORE_PATCH",
+        ):
+            self.assertIn(variable, real_harness)
+        self.assertIn("Unexpected scientific-core changes", real_harness)
 
         validator = (ROOT / "tests/slurm/validate_chipseq_production.py").read_text(encoding="utf-8")
         self.assertIn('bam_final/*.bam_final.manifest.json', validator)

@@ -1,0 +1,2 @@
+scientific_fields_equal	input_manifest_lineage_equal	artifact_lineage_equal	runtime_only_differences	hidden_workdir_or_cache_dependency	status
+YES	YES	YES	NONE	NO	PASS

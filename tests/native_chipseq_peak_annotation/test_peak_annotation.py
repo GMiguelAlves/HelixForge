@@ -66,6 +66,23 @@ class ProviderContractTest(unittest.TestCase):
             promoter_hits = ANNOTATOR.overlapping(features["promoter"], "chr1", 8, 12)
             self.assertEqual([row[3] for row in promoter_hits], ["geneA", "geneB"])
 
+    def test_interval_index_matches_frozen_linear_overlap(self):
+        rows = {
+            "chr1": [
+                ("chr1", 0, 1000, "long", "+"),
+                ("chr1", 8, 12, "short_a", "+"),
+                ("chr1", 8, 20, "short_b", "-"),
+                ("chr1", 30, 40, "late", "+"),
+            ],
+            "chr2": [("chr2", 4, 9, "other", "+")],
+        }
+        index = ANNOTATOR.build_interval_index(rows)
+        for chrom in ("chr1", "chr2", "chrMissing"):
+            for start, end in ((0, 1), (7, 8), (8, 9), (11, 12), (12, 30), (39, 41), (999, 1001)):
+                expected = ANNOTATOR.overlapping(rows, chrom, start, end)
+                observed = ANNOTATOR.overlapping_indexed(index, chrom, start, end)
+                self.assertEqual(observed, expected)
+
 
 class FullContextTest(unittest.TestCase):
     def test_build_mismatch_fails_early(self):

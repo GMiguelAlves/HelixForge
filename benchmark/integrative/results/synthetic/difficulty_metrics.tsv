@@ -1,0 +1,4 @@
+difficulty	n	accuracy	macro_f1	missing_state_accuracy
+EASY	270	1.0	1.0	1.0
+MODERATE	266	1.0	1.0	1.0
+HARD	464	1.0	1.0	1.0

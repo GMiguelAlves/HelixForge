@@ -1,0 +1,60 @@
+{
+  "assay_counts": {
+    "H3K27ac": 4,
+    "H3K27me3": 4,
+    "IgG": 4,
+    "RNA-seq": 4
+  },
+  "bioproject": "PRJNA550207",
+  "conditions": {
+    "DMSO": 8,
+    "GSK343": 8
+  },
+  "geo_series": "GSE133183",
+  "official_sources": [
+    "GEO family SOFT",
+    "ENA Portal API",
+    "NCBI RunInfo"
+  ],
+  "schema_version": "1.0",
+  "scientific_results_inspected": false,
+  "selected_gsms": [
+    "GSM4817452",
+    "GSM4817453",
+    "GSM4817454",
+    "GSM4817455",
+    "GSM4817456",
+    "GSM4817457",
+    "GSM4817458",
+    "GSM4817459",
+    "GSM4817460",
+    "GSM4817461",
+    "GSM4817462",
+    "GSM4817463",
+    "GSM4817464",
+    "GSM4817465",
+    "GSM4817466",
+    "GSM4817467"
+  ],
+  "selected_runs": [
+    "SRR12773440",
+    "SRR12773441",
+    "SRR12773442",
+    "SRR12773443",
+    "SRR12773444",
+    "SRR12773445",
+    "SRR12773446",
+    "SRR12773447",
+    "SRR12773448",
+    "SRR12773449",
+    "SRR12773450",
+    "SRR12773451",
+    "SRR12773452",
+    "SRR12773453",
+    "SRR12773454",
+    "SRR12773455"
+  ],
+  "slurm_job_id": "16456",
+  "sra_study": "SRP211748",
+  "status": "METADATA_VALIDATED"
+}

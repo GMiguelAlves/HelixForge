@@ -1,0 +1,15 @@
+{
+  "array_job_id": "16459",
+  "content_verification": "Each acquisition task validated official MD5 and gzip integrity before atomic .part rename; consolidation revalidated manifests, sizes, Slurm completion and logs without a redundant 230 GiB content pass.",
+  "fastq_files": 32,
+  "gzip_integrity_checks": 32,
+  "official_md5_successes": 32,
+  "runs": 16,
+  "samples": 16,
+  "schema_version": "1.0",
+  "scientific_results_inspected": false,
+  "slurm_tasks_completed": 16,
+  "status": "FASTQ_DOWNLOAD_VALIDATED",
+  "total_bytes": 245558267911,
+  "transfer_error_markers": 0
+}

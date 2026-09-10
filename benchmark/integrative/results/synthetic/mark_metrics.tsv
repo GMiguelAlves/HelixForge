@@ -1,0 +1,7 @@
+mark	n	accuracy	macro_f1
+H3K27ac	198	1.0	1.0
+H3K27me3	198	1.0	1.0
+H3K4me3	198	1.0	1.0
+H3K9me3	198	1.0	1.0
+SYNTHETIC_UNKNOWN_MARK	4	1.0	1.0
+SmHP1	4	1.0	1.0

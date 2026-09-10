@@ -39,6 +39,12 @@ GTF/GFF, builds the same conceptual feature classes, applies deterministic
 genomic sorting and explicit priority, and exposes `first|all` gene assignment.
 It uses no scheduler, wrapper, or scientific dependency beyond Python.
 
+Real broad-peak validation later exposed inadequate scaling in the original
+linear overlap lookup. The provider now uses a start-coordinate and prefix
+maximum-end interval index. The algorithm, equivalence evidence, measured
+performance, and limitations are documented in
+[Peak annotation interval-index optimization](peak_annotation_optimization.md).
+
 ## Run
 
 ```bash

@@ -57,6 +57,7 @@ class RnaSeqFoundationTest(unittest.TestCase):
             "PIPELINE_PROJECTS\tTEST\n"
             f"SCRATCH_ROOT\t{self.root / 'scratch'}\n"
             "ORGANISM_NAME\tTest organism\n"
+            "REFERENCE_ID\ttest-reference-v1\n"
             "NATIVE_ANALYSIS_MODE\tquantification\n"
             "QUANT_METHOD\tsalmon\n"
             f"REF_GENOME_FA\t{self.genome}\n"
@@ -81,6 +82,10 @@ class RnaSeqFoundationTest(unittest.TestCase):
         self.assertEqual(Path(row["trimmed_run_r1"]).parts[-3:], ("TEST", "trimmed_runs", "sample_RUN1_R1_trimmed.fastq.gz"))
         self.assertEqual(Path(row["merged_sample_r2"]).parts[-3:], ("TEST", "trimmed_merged", "sample_R2_trimmed.fastq.gz"))
         self.assertFalse(json.loads((self.root / "report.json").read_text())["download_performed"])
+        with (self.root / "references.tsv").open(newline="", encoding="utf-8") as handle:
+            reference = next(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(reference["organism"], "Test organism")
+        self.assertEqual(reference["reference_id"], "test-reference-v1")
 
     def test_metadata_rejects_missing_fastq(self):
         metadata, settings = self.write_context()
@@ -92,6 +97,22 @@ class RnaSeqFoundationTest(unittest.TestCase):
         ], text=True, capture_output=True)
         self.assertEqual(result.returncode, 2)
         self.assertIn("fastq_2 does not exist", result.stderr)
+
+    def test_metadata_preserves_legacy_reference_id_fallback(self):
+        metadata, settings = self.write_context()
+        settings.write_text(
+            settings.read_text(encoding="utf-8").replace("REFERENCE_ID\ttest-reference-v1\n", ""),
+            encoding="utf-8",
+        )
+        result = subprocess.run([
+            sys.executable, str(METADATA), "--metadata", str(metadata), "--settings", str(settings),
+            "--normalized", str(self.root / "validated.csv"), "--plan-dir", str(self.root),
+            "--reference-plan", str(self.root / "references.tsv"), "--report", str(self.root / "report.json"),
+        ], text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        with (self.root / "references.tsv").open(newline="", encoding="utf-8") as handle:
+            reference = next(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(reference["reference_id"], "Test organism")
 
     def test_reference_bundle_records_content_checksums(self):
         manifest = self.root / "manifest.json"
@@ -106,6 +127,10 @@ class RnaSeqFoundationTest(unittest.TestCase):
         expected = hashlib.sha256(self.transcriptome.read_bytes()).hexdigest()
         self.assertEqual(artifacts["transcriptome"]["sha256"], expected)
         self.assertEqual(document["type"], "reference_bundle")
+        self.assertEqual(document["id"], "test-v1")
+        self.assertEqual(document["genome_id"], "test-v1")
+        self.assertEqual(document["build"], "test-v1")
+        self.assertEqual(document["organism"], "Test organism")
 
     def test_main_qc_graph_has_no_download_process(self):
         qc_source = (ROOT / "subworkflows/local/rnaseq/qc.nf").read_text(encoding="utf-8")

@@ -8,6 +8,13 @@ artifact roles include available gene counts, transcript abundance, normalized
 counts, DE tables and the optional gene report. Optional products are omitted;
 they are not represented by invented files or zero-valued measurements.
 
+Reference identity separates the biological organism from the concrete
+assembly/annotation release. For example, `organism=Homo_sapiens` may be paired
+with `reference_id`, `genome_id`, and `assembly` set to
+`GRCh38.p14_GENCODE_50`. RNA-seq configuration exposes this distinction as
+`ORGANISM_NAME` and `REFERENCE_ID`; the latter retains a compatibility fallback
+to the former for older configurations.
+
 ## ChIP-seq
 
 `chipseq_run_manifest.json` preserves each sequencing record, biological and

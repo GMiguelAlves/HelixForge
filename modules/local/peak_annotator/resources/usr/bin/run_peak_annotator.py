@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+from bisect import bisect_left
 from collections import Counter, defaultdict
 import hashlib
 import json
@@ -116,6 +117,36 @@ def overlapping(features, chrom, start, end):
     return [row for row in features.get(chrom, ()) if row[1] < end and row[2] > start]
 
 
+def build_interval_index(features):
+    index = {}
+    for chrom, rows in features.items():
+        starts = []
+        prefix_max_end = []
+        maximum_end = -1
+        for row in rows:
+            starts.append(row[1])
+            maximum_end = max(maximum_end, row[2])
+            prefix_max_end.append(maximum_end)
+        index[chrom] = (rows, starts, prefix_max_end)
+    return index
+
+
+def overlapping_indexed(index, chrom, start, end):
+    entry = index.get(chrom)
+    if entry is None:
+        return []
+    rows, starts, prefix_max_end = entry
+    cursor = bisect_left(starts, end) - 1
+    hits = []
+    while cursor >= 0 and prefix_max_end[cursor] > start:
+        row = rows[cursor]
+        if row[2] > start:
+            hits.append(row)
+        cursor -= 1
+    hits.reverse()
+    return hits
+
+
 def write_tsv(path, columns, rows):
     with open(path, "w", encoding="utf-8") as handle:
         handle.write("\t".join(columns) + "\n")
@@ -145,6 +176,7 @@ def main():
             raise ValueError("PEAK_ANNOTATOR requires a validated python_interval_v1 request")
         parameters = request["parameters"]
         features = read_annotation(args.annotation, parameters["promoter_upstream"], parameters["promoter_downstream"])
+        feature_indexes = {name: build_interval_index(group) for name, group in features.items()}
         peaks = read_peaks(args.peaks)
         output = Path(args.output_dir)
         reports = output / "provider_reports"
@@ -154,7 +186,7 @@ def main():
         for peak_id, chrom, start, end in peaks:
             category, hits = "intergenic", []
             for candidate in parameters["feature_priority"]:
-                candidate_hits = overlapping(features[candidate], chrom, start, end)
+                candidate_hits = overlapping_indexed(feature_indexes[candidate], chrom, start, end)
                 if candidate_hits:
                     category, hits = candidate, candidate_hits
                     break

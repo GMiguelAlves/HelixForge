@@ -15,6 +15,10 @@ process CHIPSEQ_FULL_REPORT_INPUT {
 
     publishDir "${params.outdir}/pipeline_info/native_chipseq/full",
         mode: 'copy', overwrite: true, pattern: '*.{json,yml,done,log}'
+    publishDir "${params.outdir}/pipeline_info/native_chipseq/full",
+        mode: 'copy', overwrite: true, pattern: 'manifests??'
+    publishDir "${params.outdir}/pipeline_info/native_chipseq/full",
+        mode: 'copy', overwrite: true, pattern: 'artifacts??'
 
     input:
     tuple val(meta), path(manifests, stageAs: 'manifests??/*'), path(semantic_artifacts, stageAs: 'artifacts??/*', arity: '0..*')
@@ -24,6 +28,7 @@ process CHIPSEQ_FULL_REPORT_INPUT {
     tuple val(meta), path('chipseq_full_report_input.log'), emit: reports
     tuple val(meta), path('chipseq_full_report_input.versions.yml'), emit: versions
     tuple val(meta), path('chipseq_full_report_input.done'), emit: status
+    tuple val(meta), path('manifests??'), path('artifacts??'), emit: input_bundle
 
     script:
     def manifestArgs = manifests.collect { value -> "--manifest '${value}'" }.join(' ')

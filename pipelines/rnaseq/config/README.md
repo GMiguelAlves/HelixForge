@@ -16,6 +16,8 @@ Then edit:
 
 - `PIPELINE_NAME`
 - `ORGANISM_NAME`
+- `REFERENCE_ID`: stable assembly/reference identifier, for example
+  `GRCh38.p14_GENCODE_50`
 - `PIPELINE_PROJECTS`
 - `SCRATCH_ROOT`
 - `CONDA_BASE`
@@ -46,6 +48,11 @@ export STAR_READ_FILES_COMMAND="zcat"      # set to "" only for uncompressed FAS
 Do not replace `config/pipeline_config.sh`. It remains the transitional input
 contract consumed by native Nextflow adapters; most users edit only
 `user_settings.sh` or pass a project-specific configuration.
+
+`ORGANISM_NAME` identifies the biological organism (for example,
+`Homo_sapiens`), while `REFERENCE_ID` identifies the assembly and annotation
+release used by the analysis. Configurations that omit `REFERENCE_ID` retain
+the historical fallback to `ORGANISM_NAME`.
 
 Run HelixForge from the repository root:
 

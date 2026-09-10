@@ -50,9 +50,32 @@ the exact benchmark target commit.
 - [Negative-contract cases](datasets/negative_contract_cases.tsv)
 - [Scientific target provenance](provenance/scientific_target.json)
 
-No scientific benchmark has been run from this directory. No FASTQ, BAM,
-reference, Nextflow work directory or result was added during the design
-freeze.
+The synthetic ground-truth arm has now completed twice on Slurm. Its compact
+machine-readable results and report are versioned; Nextflow work directories,
+caches and operational logs remain outside Git.
 
-**Status: design and preregistered truth frozen; scientific execution not
-started.**
+- [Synthetic benchmark report](reports/synthetic_integration_benchmark.md)
+- [Synthetic machine-readable results](results/synthetic/benchmark_summary.json)
+- [Manifest re-entry report](reports/reentry_equivalence_benchmark.md)
+- [Manifest re-entry machine-readable results](results/reentry/benchmark_summary.json)
+- [Negative-contract report](reports/negative_contract_validation.md)
+- [Negative-contract machine-readable results](results/contracts/benchmark_summary.json)
+- [Real biological integration report](reports/real_biological_integration.md)
+- [Real biological machine-readable results](results/real/evaluation/benchmark_summary.json)
+- [Final benchmark matrix](results/integrative_benchmark_matrix.tsv)
+- [Final integrative baseline report](reports/integrative_benchmark_final_report.md)
+- [Baseline freeze manifest](provenance/integrative_benchmark_freeze_manifest.json)
+
+The relocated manifest re-entry produced the same entities, schemas, missing
+states, regulatory classes, statistics, Candidate Score, ranking and terminal
+lineage as the direct route. All frozen `IR1`–`IR4` release gates passed. The
+14 frozen negative-contract fixtures also passed twice on Slurm: invalid
+references, manifests, contrasts and entity collisions were rejected, while
+supported normalization and valid unmatched contrasts were retained safely.
+All `IC1`–`IC6` criteria passed.
+
+**Status: `BASELINE_FROZEN`. Synthetic integration, manifest re-entry and
+negative contracts are `PASS`; real GSE133183 integration and the consolidated
+global baseline are `PASS_WITH_LIMITATIONS`. Every core release gate passed.
+IB4 remains `FAIL` as an unmet expected range and IB5 remains
+`NOT_EVALUABLE`.**

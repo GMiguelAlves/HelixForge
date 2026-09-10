@@ -1,0 +1,98 @@
+{
+  "benchmark": "GSE133183 real biological integration",
+  "execution_repository_commit": "d2dcb24f06d747d0345267d5fb5372dd8790afdf",
+  "evaluation_repository_commit": "c50de07e205f217c2d81040db32607d940ff942e",
+  "expected_outputs": [
+    "metadata/dataset_metadata.tsv",
+    "metadata/download_manifest.tsv",
+    "metadata/metadata_validation.json",
+    "metadata/storage_plan.json",
+    "download_manifests/GSM4817452.execution.tsv",
+    "download_manifests/GSM4817467.execution.tsv",
+    "download_validation/download_validation.json",
+    "download_validation/fastq_inventory.tsv",
+    "reference/reference_manifest.json",
+    "evaluation/acceptance_results.tsv",
+    "evaluation/benchmark_summary.json",
+    "evaluation/performance.tsv",
+    "evaluation/preregistered_examples.tsv",
+    "evaluation/top20_candidates.tsv"
+  ],
+  "jobs": [
+    {
+      "job_id": "16456",
+      "kind": "metadata_preflight",
+      "last_reported_status": "COMPLETE",
+      "phase": "METADATA_PREFLIGHT_COMPLETE"
+    },
+    {
+      "job_id": "16459",
+      "kind": "fastq_download_array",
+      "last_reported_status": "COMPLETE",
+      "phase": "FASTQ_DOWNLOAD_COMPLETE"
+    },
+    {
+      "job_id": "16503",
+      "kind": "download_validation",
+      "last_reported_status": "COMPLETE",
+      "phase": "FASTQ_DOWNLOAD_COMPLETE"
+    },
+    {
+      "job_id": "16505",
+      "kind": "reference_preparation",
+      "last_reported_status": "COMPLETE",
+      "phase": "REFERENCE_COMPLETE"
+    }
+  ],
+  "integration_job_ids": [
+    "17223",
+    "17224",
+    "17225",
+    "17226",
+    "17227",
+    "17228",
+    "17229",
+    "17230",
+    "17231",
+    "17232",
+    "17233",
+    "17234"
+  ],
+  "evaluation_job_id": "17236",
+  "last_known_state": "PASS_WITH_LIMITATIONS",
+  "operational_stage_order": [
+    "10B",
+    "10C",
+    "10E",
+    "10D"
+  ],
+  "phase": "BASELINE_FROZEN",
+  "schema_version": "1.0",
+  "scientific_stage_order": [
+    "10B",
+    "10C",
+    "10D",
+    "10E",
+    "10F"
+  ],
+  "scientific_target_commit": "dc0218ce902302da476910595bb133c82fee927c",
+  "session_uuid": "35a89bf1-362d-40a1-b71b-73459f3c18f0",
+  "status": "PASS_WITH_LIMITATIONS",
+  "updated_utc": "2026-09-10T07:00:00Z",
+  "baseline_freeze": {
+    "classification": "PASS_WITH_LIMITATIONS",
+    "matrix": "benchmark/integrative/results/integrative_benchmark_matrix.tsv",
+    "report": "benchmark/integrative/reports/integrative_benchmark_final_report.md",
+    "tag": "integrative-benchmark-v1.0.0-rc.1",
+    "tag_status": "PENDING_POST_MERGE",
+    "preserved_criteria": {
+      "IB4": "FAIL",
+      "IB5": "NOT_EVALUABLE"
+    }
+  },
+  "workdirs": [
+    "/scratch/HELIXFORGE_WORKSPACE/helixforge-integrative-real-20260901",
+    "/scratch/HELIXFORGE_WORKSPACE/helixforge-integrative-real-20260901/fastq",
+    "/scratch/HELIXFORGE_WORKSPACE/helixforge-integrative-real-20260901/reference"
+  ]
+}

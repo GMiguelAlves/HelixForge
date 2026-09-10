@@ -1,0 +1,22 @@
+{
+  "available_scratch_bytes": 7730581602304,
+  "available_scratch_gib": 7199.6651611328125,
+  "download_strategy": "official ENA FASTQ with resume and official MD5 validation; no SRA conversion",
+  "paired_fastq_download_bytes": 245558267911,
+  "paired_fastq_download_gib": 228.69395828898996,
+  "planning_formula": "1.25 * (compressed FASTQ + 2.5 bytes/base FASTQ estimate + 100 GiB references + 50 GiB results + 2x FASTQ estimate + 2x compressed work reserve)",
+  "reference_and_index_reserve_bytes": 107374182400,
+  "required_scratch_bytes": 5889310729167,
+  "required_scratch_gib": 5484.8480309983715,
+  "results_reserve_bytes": 53687091200,
+  "safety_margin_fraction": 0.25,
+  "schema_version": "1.0",
+  "selected_fastq_files": 32,
+  "selected_runs": 16,
+  "selected_samples": 16,
+  "status": "SPACE_AVAILABLE",
+  "total_deposited_bases": 508495000800,
+  "uncompressed_fastq_planning_bytes": 1271237502000,
+  "uncompressed_fastq_planning_gib": 1183.9321833103895,
+  "workflow_work_reserve_bytes": 3033591539822
+}
