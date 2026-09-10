@@ -46,6 +46,14 @@ scientific table contents, contrasts and mark identities are not transformed.
 This clarification was fixed before integrated biological results were
 generated.
 
+The first technical launch exposed a basename collision before biological
+evidence was produced: both mark-specific producers legitimately used names
+such as `consolidated_peaks.bed`. The current provider stages declared files by
+basename, so the adapter assigns a mark-qualified portable filename while
+preserving the original relative location in metadata. File contents and
+SHA-256 checksums remain unchanged. This is a pre-result transport correction,
+not a scientific transformation.
+
 No biological result was inspected while preparing this execution plan. The
 expectations and criteria remain those in
 `datasets/real_integrative_biological_expectations.tsv` and

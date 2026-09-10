@@ -112,6 +112,19 @@ def select_artifacts(document: dict[str, Any], expected_mark: str) -> list[dict[
     return sorted(selected, key=lambda item: item["artifact_id"])
 
 
+def make_declared_names_unique(artifacts: list[dict[str, Any]]) -> None:
+    """Prevent basename-only staging from confusing artifacts across marks."""
+    names: set[str] = set()
+    for artifact in artifacts:
+        source_relative = Path(artifact["location"]["path"])
+        declared_name = f"{artifact['mark_or_factor']}.{source_relative.name}"
+        if declared_name in names:
+            raise ValueError(f"non-unique portable artifact name: {declared_name}")
+        names.add(declared_name)
+        artifact.setdefault("metadata", {})["benchmark_adapter_source_location"] = source_relative.as_posix()
+        artifact["location"]["path"] = (source_relative.parent / declared_name).as_posix()
+
+
 def compose_document(
     ac_document: dict[str, Any],
     me3_document: dict[str, Any],
@@ -132,6 +145,7 @@ def compose_document(
 
     samples, duplicate_records = merge_samples([ac_document, me3_document])
     artifacts = select_artifacts(ac_document, "H3K27ac") + select_artifacts(me3_document, "H3K27me3")
+    make_declared_names_unique(artifacts)
     contrast = copy.deepcopy(ac_document["contrasts"][0])
     contrast["label"] = "GSE133183 K562 GSK343 versus DMSO"
     contrast["metadata"] = {
@@ -186,7 +200,8 @@ def materialize_artifacts(document: dict[str, Any], sources: dict[str, Path], ou
         mark = artifact["mark_or_factor"]
         source_manifest = sources[mark]
         relative = Path(artifact["location"]["path"])
-        source = source_manifest.parent / relative
+        source_relative = Path(artifact["metadata"]["benchmark_adapter_source_location"])
+        source = source_manifest.parent / source_relative
         target = output_dir / relative
         expected = artifact["checksum"]["value"]
         if not source.is_file() or sha256_path(source) != expected:
