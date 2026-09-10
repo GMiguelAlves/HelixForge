@@ -7,6 +7,7 @@
   <title>HelixForge · Slurm</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
+  <script src="/results.js" defer></script>
   <script src="/executions.js" defer></script>
   <script src="/new-execution.js" defer></script>
   <script src="/connections.js" defer></script>
@@ -72,7 +73,7 @@
       <div class="queue-heading run-heading"><div><span id="run-subtitle" class="eyebrow"></span><h1 id="run-title" tabindex="-1"></h1></div><button id="update-execution">Atualizar leitura ↻</button></div>
       <p id="run-read-time" class="run-read-time"></p>
       <div id="run-error" class="error" role="alert" hidden></div>
-      <nav class="screen-nav run-tabs" aria-label="Seções da execução"><button id="run-tab-summary">Resumo</button><button id="run-tab-processes">Processos</button><button id="run-tab-logs">Logs</button><button id="run-tab-files">Arquivos</button></nav>
+      <nav class="screen-nav run-tabs" aria-label="Seções da execução"><button id="run-tab-summary">Resumo</button><button id="run-tab-processes">Processos</button><button id="run-tab-logs">Logs</button><button id="run-tab-files">Resultados</button></nav>
       <section id="run-panel-summary" aria-label="Resumo da execução">
         <div class="run-summary-grid"><section><h2>Dados da execução</h2><dl id="execution-info" class="run-info"></dl><div class="run-management"><button id="remove-execution">Remover do histórico</button><small>Os arquivos no servidor são mantidos.</small></div></section><aside class="run-status"><span class="eyebrow">TRACE</span><h2 id="run-trace-status"></h2><div id="run-counts"></div><p>O trace descreve processos registrados nesta saída. O estado final da análise ainda não é confirmado por este painel.</p></aside></div>
       </section>
@@ -81,8 +82,14 @@
         <div class="toolbar"><label class="search-label"><span class="sr-only">Buscar processos</span><input id="run-task-search" type="search" placeholder="Buscar processo ou ID Slurm"></label><label><span class="sr-only">Estado do processo</span><select id="run-task-state"><option value="all">Todos os estados</option><option value="COMPLETED">Concluídos</option><option value="CACHED">Em cache</option><option value="FAILED">Falhas</option><option value="other">Outros estados</option></select></label></div>
         <div class="run-process-grid"><div><div class="table-wrap"><table><thead><tr><th>Processo</th><th>ID Slurm</th><th>Estado no trace</th><th>Duração</th></tr></thead><tbody id="execution-tasks"></tbody></table></div><p id="run-tasks-empty" hidden>Nenhum processo corresponde ao filtro.</p><div class="run-pagination"><span id="execution-task-count" aria-live="polite"></span><button id="run-page-prev">Anterior</button><button id="run-page-next">Próxima</button></div></div><aside class="inspector run-task-inspector"><span class="eyebrow">PROCESSO</span><h2 id="run-task-title"></h2><dl id="run-task-info"></dl><div class="execution-detail-actions"><button id="task-open-logs">Ver logs ↗</button></div></aside></div>
       </section>
-      <section id="run-panel-logs" aria-label="Logs dos processos" hidden><div class="log-controls"><label>Processo<select id="log-task"></select></label><label>Arquivo<select id="log-file"><option value=".command.out">Saída padrão · .command.out</option><option value=".command.err">Erros · .command.err</option><option value=".command.log">Log combinado · .command.log</option></select></label><button id="log-read">Ler log ↻</button></div><p>Leitura manual das últimas 400 linhas, limitada a 64 KiB. Consultas repetidas usam cache de 30 segundos.</p><p id="log-status" role="status">Selecione um processo e leia o log.</p><p id="log-path"></p><pre id="log-content" tabindex="0" aria-label="Conteúdo do log">Nenhum log carregado.</pre></section>
-      <section id="run-panel-files" aria-label="Arquivos da execução" hidden><h2>Relatórios e manifestos</h2><p>Arquivos encontrados nos caminhos esperados. O conteúdo dos relatórios ainda não é aberto pelo painel.</p><div id="execution-artifacts" class="run-files"></div><p id="run-copy-status" role="status"></p></section>
+      <section id="run-panel-logs" aria-label="Logs dos processos" hidden><div class="log-controls"><label>Processo<select id="log-task"></select></label><label>Arquivo<select id="log-file"><option value=".command.out">Saída padrão · .command.out</option><option value=".command.err">Erros · .command.err</option><option value=".command.log">Log combinado · .command.log</option></select></label><button id="log-read">Ler log ↻</button></div><p>Para o log Nextflow e logs publicados, abra <a href="#" id="logs-open-results">Resultados</a>.</p><p>Leitura manual das últimas 400 linhas, limitada a 64 KiB. Consultas repetidas usam cache de 30 segundos.</p><p id="log-status" role="status">Selecione um processo e leia o log.</p><p id="log-path"></p><pre id="log-content" tabindex="0" aria-label="Conteúdo do log">Nenhum log carregado.</pre></section>
+      <section id="run-panel-files" aria-label="Resultados da execução" hidden>
+        <h2>Relatórios, figuras e arquivos</h2><p>Consulte logs Nextflow, manifestos, tabelas e artefatos publicados. Tentativas anteriores mantêm seus caminhos separados. A presença de arquivos não confirma sucesso científico.</p>
+        <div class="toolbar"><label class="search-label">Buscar caminho<input id="result-search" type="search" placeholder="nextflow.log, manifesto ou nome do resultado"></label><label>Tipo<select id="result-filter"><option value="all">Todos</option><option value="reports">Relatórios HTML</option><option value="figures">Figuras SVG</option><option value="manifests">Manifestos / JSON</option><option value="logs">Logs</option><option value="tables">Tabelas e outros textos</option></select></label></div>
+        <div id="execution-artifacts" class="run-files"></div><div class="run-pagination"><span id="result-count" role="status"></span><button id="result-page-prev">Anterior</button><button id="result-page-next">Próxima</button></div><p id="run-copy-status" role="status"></p>
+        <h2 id="result-title" tabindex="-1">Visualização</h2><p id="result-status" role="status">Selecione um arquivo para ler.</p><div class="form-actions"><button id="result-prev" disabled>Trecho anterior</button><button id="result-next" disabled>Próximo trecho</button><button id="result-tail" disabled>Final do arquivo</button></div><div id="result-preview"></div>
+        <p>Texto em blocos de 64 KiB; a busca do navegador consulta o trecho exibido. HTML/SVG: prévia até 4 MiB. Relatórios que dependem de JavaScript podem aparecer incompletos; use os processos do trace e os arquivos associados.</p>
+      </section>
     </section>
     <section id="new-execution-screen" aria-labelledby="new-title" hidden>
       <div class="run-breadcrumb"><a href="#executions">← Execuções</a><span>Nova execução</span></div>
@@ -125,7 +132,7 @@
         <div class="inspector-bottom">HELIXFORGE <span>/ SLURM</span></div>
       </aside>
     </div>
-    <div class="page-notes"><p>A fila mostra jobs do usuário autenticado, enviados por qualquer ferramenta.</p><p>Um job sair da fila não confirma sucesso. Logs e resultados ainda não fazem parte desta versão.</p></div>
+    <div class="page-notes"><p>A fila mostra jobs do usuário autenticado, enviados por qualquer ferramenta.</p><p>Um job sair da fila não confirma sucesso. Consulte os detalhes de uma execução registrada para ver logs e resultados.</p></div>
     </section>
   </main>
 </body>

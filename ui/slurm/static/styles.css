@@ -8,6 +8,13 @@
   --dark: #272d29;
   --mono: ui-monospace, "Cascadia Code", Consolas, monospace;
 }
+#result-preview { margin-top: 22px; }
+#result-preview pre { padding: 24px; background: var(--dark); color: var(--paper); max-height: 600px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: 13px/1.7 var(--mono); }
+#result-preview iframe { width: 100%; height: 650px; border: 1px solid var(--line); background: white; }
+#result-preview img { display: block; max-width: 100%; max-height: 800px; background: white; }
+#result-title { overflow-wrap: anywhere; }
+.run-file > code { flex: 1; min-width: 0; }
+
 .log-controls { display: grid; grid-template-columns: minmax(0,1fr) 280px auto; gap: 22px; align-items: end; }
 .log-controls select { margin-top: 8px; }
 #run-panel-logs p { font-size: 13px; }
@@ -221,4 +228,9 @@ dd { margin: 0; font: 12px/1.65 var(--mono); overflow-wrap: anywhere; }
   input, select, .toolbar input, .toolbar select { font-size: 16px; }
   button { min-height: 40px; }
   .inspector { padding: 22px; }
+}
+
+@media (max-width: 800px) {
+  .run-summary-grid, .run-process-grid, .new-layout, .log-controls { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .run-file { align-items: flex-start; flex-direction: column; gap: 14px; }
 }

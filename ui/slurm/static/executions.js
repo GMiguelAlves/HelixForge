@@ -111,7 +111,7 @@
     const run = runs.find((item) => item.id === (detailId || selected));
     $("execution-placeholder").hidden = Boolean(run);
     $("execution-detail").hidden = !run;
-    if (!run) return;
+    if (!run) { resultsViewer.bind(null); return; }
     const data = run.data;
     const logKey = run.id + ":" + data.checked_at;
     if (logRun !== logKey) {
@@ -137,6 +137,9 @@
       "Processos": String(data.tasks.length), "Concluídos / cache": String(completed),
       "Falhas no trace": String(data.tasks.filter((task) => task.status === "FAILED").length) };
     for (const [label, value] of Object.entries(fields)) $("execution-info").append(element("dt", label), element("dd", value));
+    for (const declaration of data.declarations || []) {
+      $("execution-info").append(element("dt", "Estado declarado no manifesto"), element("dd", `${declaration.status} · ${declaration.path}`));
+    }
     $("execution-preview").replaceChildren();
     for (const [label, value] of Object.entries({Workflow: workflows[run.workflow], Servidor:run.connection.host, Processos: String(data.tasks.length), "Última leitura":date(data.checked_at)})) $("execution-preview").append(element("dt", label), element("dd", value));
     $("run-trace-status").textContent = traceLabel(data);
@@ -144,24 +147,9 @@
     for (const [label, count] of [["Concluídos", data.tasks.filter((task) => task.status === "COMPLETED").length], ["Em cache", data.tasks.filter((task) => task.status === "CACHED").length], ["Falhas", data.tasks.filter((task) => task.status === "FAILED").length]]) {
       const line = element("div", ""); line.append(element("strong", String(count)), element("span", label)); $("run-counts").append(line);
     }
-    $("execution-trace-note").textContent = data.trace_found ? "Registros presentes no trace desta saída. Uma nova execução no mesmo diretório pode substituir esse arquivo." : "execution_trace.tsv ainda não foi encontrado em pipeline_info. O cadastro foi mantido para consultas posteriores.";
+    $("execution-trace-note").textContent = data.trace_found ? `Registros de ${data.trace_path || "pipeline_info/execution_trace.tsv"}. Uma nova execução no mesmo diretório pode substituir esse arquivo.` : "Trace ainda não encontrado nos caminhos suportados. O cadastro foi mantido para consultas posteriores.";
     renderTasks(data);
-    $("execution-artifacts").replaceChildren();
-    $("run-copy-status").textContent = "";
-    if (!data.artifacts.length) $("execution-artifacts").append(element("p", "Nenhum relatório ou manifesto encontrado nos caminhos esperados."));
-    for (const path of data.artifacts) {
-      const row = element("div", "", "run-file");
-      const text = element("div", "");
-      const title = path.endsWith("execution_report.html") ? "Relatório de execução" : path.endsWith("execution_timeline.html") ? "Timeline" : "Manifesto · " + path.split("/")[0];
-      text.append(element("h3", title), element("code", path));
-      const copy = element("button", "Copiar caminho");
-      copy.setAttribute("aria-label", `Copiar caminho: ${title}`);
-      copy.addEventListener("click", async () => {
-        try { await navigator.clipboard.writeText(data.directory.replace(/\/$/, "") + "/" + path); $("run-copy-status").textContent = `Caminho copiado: ${title}.`; }
-        catch { $("run-copy-status").textContent = `Copie o caminho: ${data.directory.replace(/\/$/, "")}/${path}`; }
-      });
-      row.append(text, copy); $("execution-artifacts").append(row);
-    }
+    resultsViewer.bind(run);
   }
 
   function renderTasks(data) {
@@ -201,6 +189,7 @@
     $("log-task").value = String(taskIndex); clearLog();
     location.hash = `execution/${detailId}/logs`;
   });
+  $("logs-open-results").addEventListener("click", (event) => { event.preventDefault(); location.hash = `execution/${detailId}/files`; });
   $("log-task").addEventListener("change", clearLog);
   $("log-file").addEventListener("change", clearLog);
   $("log-read").addEventListener("click", async () => {
