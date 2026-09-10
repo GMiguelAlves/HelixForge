@@ -51,8 +51,9 @@ integration output was silently accepted.
 
 The complete terminal-manifest route joined RNA-seq, H3K27ac and H3K27me3
 evidence from GSE133183 and completed all 12 processes on Slurm. The final
-model contains 78,517 canonical genes; 78,477 have measured RNA evidence and
-60,723 have measured ChIP evidence. All technical release gates passed.
+model contains 78,517 canonicalized gene entities; 78,477 have measured RNA
+evidence and 60,723 have measured ChIP evidence. All technical release gates
+passed.
 
 H3K27ac contributed 14,957 significant differential regions under the frozen
 policy, with 14,847 decreased and 110 increased. H3K27me3 contributed no

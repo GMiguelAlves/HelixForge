@@ -5,7 +5,7 @@
 - Overall accuracy: correct regulatory-pattern rows / 1,000.
 - Per-class precision, recall and F1; macro and prevalence-weighted F1.
 - Complete confusion matrix for the actual `regulatory_pattern` vocabulary.
-- Entity preservation: exact canonical gene set equality.
+- Entity preservation: exact canonicalized gene-entity set equality.
 - Difficulty stratification: all classification metrics repeated for EASY,
   MODERATE and HARD.
 

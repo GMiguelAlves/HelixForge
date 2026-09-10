@@ -26,8 +26,8 @@ H3K27ac had 14,957 significant regions under the frozen policy
 independent upstream summary confirms that H3K27me3 had zero significant
 regions, so IB4 is an unmet expected range rather than an evaluation defect.
 
-The final evidence model contains 78,517 canonical genes. RNA evidence is
-measured for 78,477 genes and ChIP evidence for 60,723. Regulatory
+The final evidence model contains 78,517 canonicalized gene entities. RNA
+evidence is measured for 78,477 genes and ChIP evidence for 60,723. Regulatory
 interpretation reports 13 concordant-activation and 22 concordant-repression
 records, alongside 68 discordant records. The literature examples FGF18,
 UBTD2, FBXW11, IGF2, HBB, HBZ and HBE1 are all represented, but none is forced

@@ -31,7 +31,7 @@ the correction, bias risk and preserved parameters.
 ## 10B — Synthetic ground truth
 
 The primary synthetic input is integration-level evidence-provider data, not
-FASTQ. Exactly 1,000 canonical genes are frozen in
+FASTQ. Exactly 1,000 canonicalized gene entities are frozen in
 `datasets/synthetic_truth.tsv`:
 
 | Truth class | Count | Expected HelixForge pattern |
