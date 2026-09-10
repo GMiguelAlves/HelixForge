@@ -68,6 +68,25 @@ def selected_gene_ids(annotation: Path) -> dict[str, str]:
     return found
 
 
+def top_directional_candidates(ranking: list[dict[str, str]],
+                               memberships: dict[str, set[str]],
+                               marks: dict[tuple[str, str], set[str]],
+                               limit: int = 10) -> dict[str, list[dict[str, str]]]:
+    selected: dict[str, list[dict[str, str]]] = {pattern: [] for pattern in sorted(CONCORDANT)}
+    for pattern in selected:
+        for ranked in ranking:
+            gene = ranked.get("canonical_entity_id", "")
+            if gene not in memberships.get(pattern, set()):
+                continue
+            item = dict(ranked)
+            item.update({"regulatory_pattern": pattern,
+                         "canonical_mark": ";".join(sorted(marks.get((pattern, gene), set())))})
+            selected[pattern].append(item)
+            if len(selected[pattern]) == limit:
+                break
+    return selected
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--results-dir", required=True, type=Path)
@@ -152,16 +171,19 @@ def main() -> int:
     top20 = ranking[:20]
     class_counts: Counter[str] = Counter()
     class_by_gene: dict[str, list[dict[str, str]]] = defaultdict(list)
-    directional_ranked: dict[str, list[dict[str, str]]] = {key: [] for key in sorted(CONCORDANT)}
+    directional_genes: dict[str, set[str]] = {key: set() for key in sorted(CONCORDANT)}
+    directional_marks: dict[tuple[str, str], set[str]] = defaultdict(set)
     for row in rows(paths["classes"]):
         pattern = row.get("regulatory_pattern", "")
         class_counts[pattern] += 1
         gene = row.get("canonical_entity_id", "")
-        if gene in rank_by_gene and pattern in CONCORDANT and len(directional_ranked[pattern]) < 10:
-            merged = dict(rank_by_gene[gene])
-            merged.update({"regulatory_pattern": pattern, "canonical_mark": row.get("canonical_mark", "")})
-            directional_ranked[pattern].append(merged)
+        if pattern in CONCORDANT:
+            directional_genes[pattern].add(gene)
+            if row.get("canonical_mark"):
+                directional_marks[(pattern, gene)].add(row["canonical_mark"])
         class_by_gene[gene].append(row)
+
+    directional_ranked = top_directional_candidates(ranking, directional_genes, directional_marks)
 
     symbols = selected_gene_ids(args.annotation)
     examples = []

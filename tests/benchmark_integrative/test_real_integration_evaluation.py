@@ -37,6 +37,25 @@ class RealIntegrationEvaluationTests(unittest.TestCase):
         self.assertIsNone(evaluator.optional_float("NA"))
         self.assertEqual(evaluator.optional_float("-1.25"), -1.25)
 
+    def test_directional_candidates_follow_candidate_score_rank(self):
+        evaluator = load_evaluator()
+        ranking = [
+            {"rank": "1", "canonical_entity_id": "gene.high"},
+            {"rank": "2", "canonical_entity_id": "gene.mid"},
+            {"rank": "3", "canonical_entity_id": "gene.low"},
+        ]
+        selected = evaluator.top_directional_candidates(
+            ranking,
+            {"CONCORDANT_ACTIVATION": {"gene.low", "gene.high"}, "CONCORDANT_REPRESSION": set()},
+            {("CONCORDANT_ACTIVATION", "gene.high"): {"H3K27ac"},
+             ("CONCORDANT_ACTIVATION", "gene.low"): {"H3K27me3"}},
+            limit=2,
+        )
+        self.assertEqual(
+            [row["canonical_entity_id"] for row in selected["CONCORDANT_ACTIVATION"]],
+            ["gene.high", "gene.low"],
+        )
+
     def test_launcher_is_parameterized_and_slurm_only(self):
         text = LAUNCHER.read_text(encoding="utf-8")
         self.assertIn('[[ "$#" -ne 6 ]]', text)
