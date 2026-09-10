@@ -11,6 +11,7 @@ java_bin=${HELIXFORGE_JAVA:?HELIXFORGE_JAVA is required}
 nextflow_jar=${HELIXFORGE_NEXTFLOW_JAR:?HELIXFORGE_NEXTFLOW_JAR is required}
 expected_commit=${HELIXFORGE_EXECUTION_COMMIT:?HELIXFORGE_EXECUTION_COMMIT is required}
 mkdir -p "$benchmark_root/logs"
+rm -f "$benchmark_root/logs/integration-driver.exit"
 trap 'rc=$?; printf "%s\n" "$rc" > "$benchmark_root/logs/integration-driver.exit"' EXIT
 
 [[ -z "${SLURM_JOB_ID:-}" ]] || { echo "Nextflow driver must run on the Slurm management node" >&2; exit 2; }

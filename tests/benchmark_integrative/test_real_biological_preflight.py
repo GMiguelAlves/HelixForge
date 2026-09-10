@@ -144,6 +144,7 @@ class RealBiologicalPreflightTests(unittest.TestCase):
         self.assertIn("HELIXFORGE_ALLOWED_SCRATCH_ROOT", runner)
         self.assertIn('[[ ! -e "$case_root" ]]', runner)
         self.assertIn("integration-driver.exit", runner)
+        self.assertIn('rm -f "$benchmark_root/logs/integration-driver.exit"', runner)
         self.assertIn('$python_runtime/bin/python3', runner)
         self.assertIn("queueSize = 5", config)
         for forbidden in ("--workflow rnaseq", "--workflow chipseq", "FASTQC", "SALMON", "BOWTIE2", "MACS3"):
