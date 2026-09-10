@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="470" viewBox="0 0 1120 470" role="img" aria-labelledby="title desc">
+<title id="title">Frozen acceptance criteria</title>
+<desc id="desc">Status counts from IS1–IS12, IR1–IR4, IC1–IC6 and IB1–IB8</desc>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#172033}.title{font-size:26px;font-weight:700}.subtitle{font-size:14px;fill:#5b6475}.label{font-size:15px;font-weight:600}.value{font-size:14px}.small{font-size:12px;fill:#5b6475}.axis{stroke:#d9dee8;stroke-width:1}.status{font-size:13px;font-weight:700;fill:#ffffff}</style>
+<text x="48" y="46" class="title">Frozen acceptance criteria</text>
+<text x="48" y="72" class="subtitle">Status counts from IS1–IS12, IR1–IR4, IC1–IC6 and IB1–IB8</text>
+<line x1="260.0" y1="112" x2="260.0" y2="390" class="axis"/>
+<text x="260.0" y="414" class="small" text-anchor="middle">0</text>
+<line x1="386.7" y1="112" x2="386.7" y2="390" class="axis"/>
+<text x="386.7" y="414" class="small" text-anchor="middle">2</text>
+<line x1="513.3" y1="112" x2="513.3" y2="390" class="axis"/>
+<text x="513.3" y="414" class="small" text-anchor="middle">4</text>
+<line x1="640.0" y1="112" x2="640.0" y2="390" class="axis"/>
+<text x="640.0" y="414" class="small" text-anchor="middle">6</text>
+<line x1="766.7" y1="112" x2="766.7" y2="390" class="axis"/>
+<text x="766.7" y="414" class="small" text-anchor="middle">8</text>
+<line x1="893.3" y1="112" x2="893.3" y2="390" class="axis"/>
+<text x="893.3" y="414" class="small" text-anchor="middle">10</text>
+<line x1="1020.0" y1="112" x2="1020.0" y2="390" class="axis"/>
+<text x="1020.0" y="414" class="small" text-anchor="middle">12</text>
+<text x="48" y="162" class="label">Synthetic</text>
+<rect x="260.0" y="140" width="760.0" height="34" fill="#238636"/>
+<text x="640.0" y="163" class="status" text-anchor="middle">12</text>
+<text x="48" y="230" class="label">Re-entry</text>
+<rect x="260.0" y="208" width="253.3" height="34" fill="#238636"/>
+<text x="386.7" y="231" class="status" text-anchor="middle">4</text>
+<text x="48" y="298" class="label">Contracts</text>
+<rect x="260.0" y="276" width="380.0" height="34" fill="#238636"/>
+<text x="450.0" y="299" class="status" text-anchor="middle">6</text>
+<text x="48" y="366" class="label">Real biological</text>
+<rect x="260.0" y="344" width="380.0" height="34" fill="#238636"/>
+<text x="450.0" y="367" class="status" text-anchor="middle">6</text>
+<rect x="640.0" y="344" width="63.3" height="34" fill="#cf222e"/>
+<text x="671.7" y="367" class="status" text-anchor="middle">1</text>
+<rect x="703.3" y="344" width="63.3" height="34" fill="#6e7781"/>
+<text x="735.0" y="367" class="status" text-anchor="middle">1</text>
+<rect x="48" y="438" width="14" height="14" fill="#238636"/><text x="70" y="450" class="small">PASS</text>
+<rect x="150" y="438" width="14" height="14" fill="#cf222e"/><text x="172" y="450" class="small">FAIL</text>
+<rect x="238" y="438" width="14" height="14" fill="#6e7781"/><text x="260" y="450" class="small">NOT_EVALUABLE</text>
+</svg>

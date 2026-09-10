@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="650" viewBox="0 0 1120 650" role="img" aria-labelledby="title desc">
+<title id="title">Real biological integration metrics</title>
+<desc id="desc">GSE133183 frozen outputs; descriptive values without post-hoc threshold changes</desc>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#172033}.title{font-size:26px;font-weight:700}.subtitle{font-size:14px;fill:#5b6475}.label{font-size:15px;font-weight:600}.value{font-size:14px}.small{font-size:12px;fill:#5b6475}.axis{stroke:#d9dee8;stroke-width:1}.status{font-size:13px;font-weight:700;fill:#ffffff}</style>
+<text x="48" y="46" class="title">Real biological integration metrics</text>
+<text x="48" y="72" class="subtitle">GSE133183 frozen outputs; descriptive values without post-hoc threshold changes</text>
+<text x="48" y="118" class="label">Evidence coverage</text>
+<text x="48" y="153" class="value">RNA measured</text><rect x="220" y="134" width="649.7" height="24" fill="#0969da"/><text x="890" y="153" class="value">78,477 / 78,517 (99.9%)</text>
+<text x="48" y="195" class="value">ChIP measured</text><rect x="220" y="176" width="502.7" height="24" fill="#8250df"/><text x="890" y="195" class="value">60,723 / 78,517 (77.3%)</text>
+<line x1="48" y1="232" x2="1072" y2="232" class="axis"/>
+<text x="48" y="270" class="label">Significant differential-binding regions</text>
+<text x="48" y="312" class="value">H3K27ac</text>
+<rect x="220" y="292" width="650.0" height="24" fill="#0969da"/>
+<text x="890" y="312" class="value">14,957</text>
+<text x="48" y="354" class="value">H3K27me3</text>
+<rect x="220" y="334" width="2.0" height="24" fill="#8250df"/>
+<text x="890" y="354" class="value">0</text>
+<line x1="48" y1="392" x2="1072" y2="392" class="axis"/>
+<text x="48" y="430" class="label">Regulatory interpretation records</text>
+<text x="48" y="472" class="value">Concordant activation</text>
+<rect x="220" y="452" width="124.3" height="24" fill="#238636"/>
+<text x="890" y="472" class="value">13</text>
+<text x="48" y="516" class="value">Concordant repression</text>
+<rect x="220" y="496" width="210.3" height="24" fill="#0969da"/>
+<text x="890" y="516" class="value">22</text>
+<text x="48" y="560" class="value">Discordant</text>
+<rect x="220" y="540" width="650.0" height="24" fill="#cf222e"/>
+<text x="890" y="560" class="value">68</text>
+<text x="48" y="625" class="small">IB4 remains FAIL because H3K27me3 has zero significant regions; IB5 remains NOT_EVALUABLE.</text>
+</svg>

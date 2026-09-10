@@ -84,7 +84,8 @@
     "matrix": "benchmark/integrative/results/integrative_benchmark_matrix.tsv",
     "report": "benchmark/integrative/reports/integrative_benchmark_final_report.md",
     "tag": "integrative-benchmark-v1.0.0-rc.1",
-    "tag_status": "PENDING_POST_MERGE",
+    "tag_status": "PUBLISHED",
+    "tag_target_commit": "0394fc2ab620e723b1b627dac18508feb50f574b",
     "preserved_criteria": {
       "IB4": "FAIL",
       "IB5": "NOT_EVALUABLE"
