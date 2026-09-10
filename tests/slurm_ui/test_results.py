@@ -65,6 +65,45 @@ class ResultProbeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.read('large.tsv', preview=True)
 
+    def test_preserved_benchmark_groups_and_direct_registration_without_trace(self):
+        for group in ('contracts', 'reentry', 'real', 'synthetic'):
+            directory = self.root / group
+            directory.mkdir()
+            (directory / 'acceptance.tsv').write_text('criterion\tstatus\nexample\tPASS\n')
+            nested = directory / 'case' / 'evaluation'
+            nested.mkdir(parents=True)
+            (nested / 'summary.json').write_text('{}')
+        data = probe.inspect(self.root)
+        self.assertFalse(data['trace_found'])
+        self.assertEqual(data['tasks'], [])
+        self.assertEqual(len(data['artifacts']), 8)
+        for group in ('contracts', 'reentry', 'real', 'synthetic'):
+            self.assertIn(f'{group}/acceptance.tsv', data['artifacts'])
+            self.assertIn(f'{group}/case/evaluation/summary.json', data['artifacts'])
+            self.assertIn('PASS', self.read(f'{group}/acceptance.tsv')['content'])
+        direct = probe.inspect(self.root / 'reentry')
+        self.assertFalse(direct['trace_found'])
+        self.assertIn('acceptance.tsv', direct['artifacts'])
+        self.assertNotIn('status', direct)
+
+    def test_benchmark_groups_preserve_catalog_boundaries(self):
+        group = self.root / 'synthetic'
+        group.mkdir()
+        for name in ('work', '.nextflow'):
+            directory = group / name
+            directory.mkdir()
+            (directory / 'private.json').write_text('{}')
+        other = self.root / 'unlisted'
+        other.mkdir()
+        (other / 'private.json').write_text('{}')
+        (self.root / 'real').symlink_to(other, target_is_directory=True)
+        (group / 'linked').symlink_to(other, target_is_directory=True)
+        self.assertEqual(probe.inspect(self.root)['artifacts'], [])
+        for path in ('real/private.json', 'synthetic/linked/private.json',
+                     'synthetic/work/private.json', 'unlisted/private.json'):
+            with self.assertRaises(ValueError):
+                self.read(path)
+
     def test_preview_limits_and_empty_logs(self):
         (self.root / 'empty.log').write_text('')
         self.assertEqual(self.read('empty.log')['content'], '')

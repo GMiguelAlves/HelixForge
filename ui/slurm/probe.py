@@ -94,7 +94,8 @@ def catalog(root):
     artifacts, visited, truncated = [], 0, False
     # Never descend into task work/cache trees, even when a launch directory is registered.
     allowed = {'results', 'pipeline_info', 'integration', 'rnaseq', 'chipseq',
-               'execution', 'evaluation', 'manifests', 'failed_attempts'}
+               'execution', 'evaluation', 'manifests', 'failed_attempts',
+               'contracts', 'reentry', 'real', 'synthetic'}
     for base, dirs, files in os.walk(root, followlinks=False):
         visited += 1
         if visited > 5000:
