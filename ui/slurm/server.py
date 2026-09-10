@@ -43,9 +43,10 @@ exec squeue --local --all --array --noheader --states=all --user="$hf_user" --fo
 
 
 class MonitorError(Exception):
-    def __init__(self, message, status=502):
+    def __init__(self, message, status=502, code="unavailable"):
         super().__init__(message)
         self.status = status
+        self.code = code
 
 
 def connection_config(value):
@@ -178,13 +179,15 @@ def query_execution(value):
         raise MonitorError("Não foi possível consultar o diretório. Verifique o SSH e tente novamente.") from exc
     lines = [line for line in result.stdout.split("\n") if line.startswith("HELIXFORGE_EXECUTION_V1:")]
     if result.returncode or len(lines) != 1:
-        raise MonitorError("A leitura remota falhou. Verifique o SSH e a disponibilidade de Python 3 no servidor.")
+        error = result.stderr.lower()
+        code = "permission" if "permission denied" in error else "unavailable"
+        raise MonitorError("A leitura remota falhou. Verifique o SSH e a disponibilidade de Python 3 no servidor.", code=code)
     try:
         data = json.loads(lines[0].split(":", 1)[1])
     except ValueError as exc:
         raise MonitorError("Resposta remota inválida.") from exc
     if "error" in data:
-        raise MonitorError(data["error"], 400)
+        raise MonitorError(data["error"], 400, data.get("code", "partial"))
     data["checked_at"] = datetime.now(timezone.utc).isoformat()
     return data
 
@@ -251,7 +254,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "no-referrer")
-        self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; frame-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+        self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: blob:; frame-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
         self.end_headers()
         self.wfile.write(body)
 
@@ -262,6 +265,7 @@ class Handler(BaseHTTPRequestHandler):
                  "/app.js": ("app.js", "text/javascript; charset=utf-8"),
                  "/executions.js": ("executions.js", "text/javascript; charset=utf-8"),
                  "/results.js": ("results.js", "text/javascript; charset=utf-8"),
+                 "/execution-state.js": ("execution-state.js", "text/javascript; charset=utf-8"),
                  "/new-execution.js": ("new-execution.js", "text/javascript; charset=utf-8"),
                  "/connections.js": ("connections.js", "text/javascript; charset=utf-8"),
                  "/styles.css": ("styles.css", "text/css; charset=utf-8")}
@@ -295,7 +299,7 @@ class Handler(BaseHTTPRequestHandler):
         except (ValueError, UnicodeError):
             self.send_body(400, {"error": "Configuração JSON inválida."})
         except MonitorError as exc:
-            self.send_body(exc.status, {"error": str(exc)})
+            self.send_body(exc.status, {"error": str(exc), "code": exc.code})
 
 
 def main():

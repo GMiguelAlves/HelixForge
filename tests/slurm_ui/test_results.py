@@ -1,5 +1,9 @@
 """Synthetic result fixtures only; no infrastructure or biological data."""
 import os
+import base64
+import json
+import shutil
+import subprocess
 import unittest
 import tempfile
 from pathlib import Path
@@ -26,6 +30,67 @@ class ResultAPITests(unittest.TestCase):
         self.assertEqual(safe, 'link<p>safe</p>')
         self.assertIn('&lt;img', probe.static_report('<p>&lt;img src=x onerror=evil&gt;</p>'))
 
+    def test_missing_permission_and_partial_are_distinct(self):
+        for failure, code in ((FileNotFoundError(), 'missing'), (PermissionError(), 'permission'),
+                              (ValueError('incomplete'), 'partial')):
+            with patch.object(probe, 'inspect', side_effect=failure):
+                result = probe.handle_request({'directory': '/output'})
+            self.assertEqual(result['code'], code)
+            self.assertIn('error', result)
+
+
+@unittest.skipUnless(shutil.which('node'), 'Node is needed for snapshot state tests')
+class SnapshotStateTests(unittest.TestCase):
+    def node(self, script, *values):
+        source = Path(__file__).resolve().parents[2] / 'ui/slurm/static/execution-state.js'
+        result = subprocess.run(['node', '-e', script, str(source), *(json.dumps(value) for value in values)],
+                                capture_output=True, text=True, check=True, timeout=10)
+        return json.loads(result.stdout)
+
+    def run_state(self, previous, current=None, reason=None):
+        script = "const s=require(process.argv[1]),p=JSON.parse(process.argv[2]),c=JSON.parse(process.argv[3]);console.log(JSON.stringify(c.reason?s.preserveExecutionSnapshot(p,c.reason,'2026-09-10T12:00:00Z'):s.executionRegression(p,c.current)))"
+        payload = {'reason': reason} if reason else {'current': current}
+        return self.node(script, previous, payload)
+
+    def test_missing_trace_artifact_and_changed_identity_are_regressions(self):
+        previous = {'fingerprint':'one', 'trace_found':True, 'artifacts':['report.html']}
+        self.assertEqual(self.run_state(previous, {'fingerprint':'one', 'trace_found':False, 'artifacts':['report.html']})['code'], 'missing')
+        self.assertEqual(self.run_state(previous, {'fingerprint':'one', 'trace_found':True, 'artifacts':[]})['code'], 'missing')
+        self.assertEqual(self.run_state(previous, {'fingerprint':'two', 'trace_found':True, 'artifacts':['report.html']})['code'], 'identity')
+        self.assertIsNone(self.run_state(previous, previous))
+
+    def test_partial_trace_and_disappearing_detailed_artifact_preserve_snapshot(self):
+        previous = {'trace_found':True, 'artifacts':['report.html'], 'artifact_details':[{'path':'report.html'}],
+                    'health':{'trace':{'state':'available'}}}
+        partial = {**previous, 'health':{'trace':{'state':'partial'}}}
+        self.assertEqual(self.run_state(previous, partial)['code'], 'partial')
+        missing = {**previous, 'artifact_details':[], 'health':{'trace':{'state':'available'}}}
+        self.assertEqual(self.run_state(previous, missing)['code'], 'missing')
+
+    def test_stale_snapshot_keeps_last_valid_data_and_bounded_history(self):
+        run = {'data':{'tasks':[{}], 'artifacts':['report.html'], 'health':{'trace':{'state':'available'}}},
+               'history':[{'checked_at':str(i)} for i in range(12)]}
+        preserved = self.run_state(run, reason='permission')
+        self.assertEqual(preserved['data'], run['data'])
+        self.assertEqual(preserved['availability']['state'], 'stale')
+        self.assertEqual(preserved['availability']['reason'], 'permission')
+        self.assertEqual(len(preserved['history']), 10)
+
+    def test_job_correlation_requires_exact_id_and_same_connection(self):
+        script = "const s=require(process.argv[1]);console.log(JSON.stringify(s.findCurrentSlurmJob(...[2,3,4,5].map(i=>JSON.parse(process.argv[i])))))"
+        config = {'host':'cluster', 'user':'', 'port':'', 'control_path':''}
+        queue = {'jobs':[{'id':'123', 'state':'RUNNING'}, {'id':'123_1', 'state':'PENDING'}]}
+        self.assertEqual(self.node(script, {'native_id':'123'}, config, config, queue)['state'], 'RUNNING')
+        self.assertIsNone(self.node(script, {'native_id':'12'}, config, config, queue))
+        self.assertIsNone(self.node(script, {'native_id':'123'}, config, {**config, 'host':'other'}, queue))
+
+    def test_local_removal_can_be_undone_without_touching_remote_files(self):
+        script = "const s=require(process.argv[1]),runs=JSON.parse(process.argv[2]);const x=s.removeExecutionLocally(runs,'one');console.log(JSON.stringify({x,restored:s.restoreExecutionLocally(x.remaining,x.removed)}))"
+        result = self.node(script, [{'id':'one'}, {'id':'two'}])
+        self.assertEqual(result['x']['removed']['id'], 'one')
+        self.assertEqual([run['id'] for run in result['x']['remaining']], ['two'])
+        self.assertEqual([run['id'] for run in result['restored']], ['one', 'two'])
+
 
 @unittest.skipUnless(hasattr(os, 'getuid'), 'Remote probe runs on Linux')
 class ResultProbeTests(unittest.TestCase):
@@ -49,6 +114,11 @@ class ResultProbeTests(unittest.TestCase):
         self.assertEqual(data['trace_path'], 'execution/trace.tsv')
         self.assertEqual([t['name'] for t in data['tasks']], ['main'])
         self.assertIn('failed_attempts/trace.tsv', data['artifacts'])
+        archived = next(item for item in data['artifact_details'] if item['path'] == 'failed_attempts/trace.tsv')
+        self.assertTrue(archived['archived'])
+        self.assertEqual(archived['group'], 'archived')
+        self.assertEqual(data['health']['files']['archived'], 1)
+        self.assertEqual(data['health']['trace']['state'], 'available')
 
     def test_large_sparse_table_reads_only_requested_window(self):
         path = self.root / 'large.tsv'
@@ -144,6 +214,43 @@ class ResultProbeTests(unittest.TestCase):
         (self.root / 'report.html').write_bytes(b'x' * (probe.PREVIEW_LIMIT + 1))
         with self.assertRaises(ValueError):
             self.read('report.html', preview=True)
+
+    def test_png_jpeg_and_pdf_use_bounded_binary_previews(self):
+        fixtures = {'plot.png': (b'\x89PNG\r\n\x1a\nsynthetic', 'image/png', 'png'),
+                    'plot.jpg': (b'\xff\xd8\xffsynthetic\xff\xd9', 'image/jpeg', 'jpg'),
+                    'report.pdf': (b'%PDF-1.4\n% synthetic\n%%EOF', 'application/pdf', 'pdf')}
+        for path, (content, mime, kind) in fixtures.items():
+            (self.root / path).write_bytes(content)
+            result = self.read(path, preview=True)
+            self.assertEqual(result['mime'], mime)
+            self.assertEqual(result['kind'], kind)
+            self.assertEqual(base64.b64decode(result['content']), content)
+            with self.assertRaises(ValueError):
+                self.read(path)
+        details = {item['path']: item for item in probe.inspect(self.root)['artifact_details']}
+        self.assertTrue(all(details[path]['group'] == 'figures' for path in fixtures))
+        (self.root / 'fake.png').write_text('<script>alert(1)</script>')
+        with self.assertRaises(ValueError):
+            self.read('fake.png', preview=True)
+
+    def test_component_health_keeps_failure_signals_separate(self):
+        (self.root / 'trace.tsv').write_text('name\tstatus\tnative_id\nstep\tFAILED\t1\n')
+        (self.root / 'coordinator.exit').write_text('1\n')
+        (self.root / 'run_manifest.json').write_text('{"status":"complete"}')
+        data = probe.inspect(self.root)
+        self.assertEqual(data['health']['trace']['state'], 'failed')
+        self.assertEqual(data['health']['exit_logs']['state'], 'failed')
+        self.assertEqual(data['health']['manifests']['state'], 'available')
+        self.assertEqual(data['health']['files']['state'], 'available')
+        self.assertEqual(data['overall_state'], 'failed')
+
+    def test_artifact_disappearing_during_inspection_marks_files_partial(self):
+        (self.root / 'report.html').write_text('<h1>Report</h1>')
+        with patch.object(probe, 'artifact_details', return_value=[]):
+            data = probe.inspect(self.root)
+        self.assertEqual(data['health']['files']['state'], 'partial')
+        self.assertEqual(data['health']['files']['unavailable'], 1)
+        self.assertEqual(data['overall_state'], 'partial')
 
     def test_manifest_status_is_attributed_and_partial_json_does_not_hide_results(self):
         (self.root / 'run_manifest.json').write_text('{"status":"complete_empty"}')

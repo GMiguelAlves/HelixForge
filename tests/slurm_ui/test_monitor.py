@@ -185,6 +185,15 @@ class HTTPTests(unittest.TestCase):
         self.assertFalse(json.loads(body)["trace_found"])
         self.assertEqual(self.request("GET", "/executions.js")[0], 200)
 
+    def test_execution_error_exposes_machine_readable_availability(self):
+        payload = json.dumps({"connection": CONFIG, "directory": "/output/run"})
+        headers = {"X-HelixForge-Token": self.server.token, "Content-Type": "application/json"}
+        with patch.object(self.server.executions, "query", side_effect=monitor.MonitorError("Arquivo ausente.", 400, "missing")):
+            status, _, body = self.request("POST", "/api/execution", payload, headers)
+        self.assertEqual(status, 400)
+        self.assertEqual(json.loads(body), {"error": "Arquivo ausente.", "code": "missing"})
+        self.assertEqual(self.request("GET", "/execution-state.js")[0], 200)
+
     def test_profile_validation_never_connects_to_remote(self):
         headers = {"X-HelixForge-Token": self.server.token, "Content-Type": "application/json"}
         with patch.object(monitor.subprocess, "run", side_effect=AssertionError("Must not connect")):

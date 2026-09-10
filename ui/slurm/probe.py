@@ -1,5 +1,7 @@
 """Bounded, read-only inspection of an explicitly supplied output directory."""
 import csv
+import base64
+import hashlib
 import io
 import json
 import os
@@ -14,8 +16,10 @@ from html.parser import HTMLParser
 
 TEXT_LIMIT = 65536
 PREVIEW_LIMIT = 4 * 1024 * 1024
+BINARY_PREVIEW_LIMIT = 12 * 1024 * 1024
 EXTENSIONS = {'.html', '.svg', '.json', '.tsv', '.csv', '.txt', '.md', '.log', '.out', '.err', '.exit', '.done', '.yml',
-              '.bed', '.narrowpeak', '.broadpeak'}
+              '.bed', '.narrowpeak', '.broadpeak', '.png', '.jpg', '.jpeg', '.pdf'}
+BINARY_TYPES = {'.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.pdf': 'application/pdf'}
 
 
 class StaticReport(HTMLParser):
@@ -98,7 +102,8 @@ def catalog(root):
     allowed = {'results', 'pipeline_info', 'integration', 'rnaseq', 'chipseq',
                'execution', 'evaluation', 'manifests', 'failed_attempts',
                'contracts', 'reentry', 'real', 'synthetic',
-               'traces', 'logs', 'operational', 'final_report', 'idr', 'provenance'}
+               'traces', 'logs', 'operational', 'final_report', 'idr', 'provenance',
+               'figures', 'plots', 'reports', 'tables', 'visualization', 'qc'}
     for base, dirs, files in os.walk(root, followlinks=False):
         visited += 1
         if visited > 5000:
@@ -128,6 +133,39 @@ def catalog(root):
     return artifacts, truncated
 
 
+def artifact_group(path):
+    lower = path.lower()
+    suffix = Path(lower).suffix
+    if lower.startswith('failed_attempts/'):
+        return 'archived'
+    if suffix in ('.log', '.out', '.err') or re.search(r'nextflow\.log\.\d+$', lower):
+        return 'logs'
+    if 'manifest' in lower or 'provenance' in lower or Path(lower).name == 'sha256sums':
+        return 'manifests'
+    if lower.startswith('evaluation/') or '/evaluation/' in lower:
+        return 'evaluation'
+    if suffix == '.html':
+        return 'reports'
+    if suffix in ('.svg', '.png', '.jpg', '.jpeg', '.pdf'):
+        return 'figures'
+    return 'tables'
+
+
+def artifact_details(root, paths):
+    details = []
+    for path in paths:
+        try:
+            with open_result(root, path) as (_handle, info):
+                archived = path.startswith('failed_attempts/')
+                kind_path = path.split('/', 1)[1] if archived else path
+                details.append({'path': path, 'size': info.st_size, 'modified': info.st_mtime,
+                                'group': 'archived' if archived else artifact_group(path),
+                                'kind_group': artifact_group(kind_path), 'archived': archived})
+        except (OSError, ValueError):
+            continue
+    return details
+
+
 def read_file(directory, selection):
     validate_file(selection)
     path = selection['path']
@@ -138,15 +176,27 @@ def read_file(directory, selection):
     suffix = Path(path).suffix.lower()
     with open_result(root, path) as (handle, info):
         preview = selection['preview']
-        if preview and (suffix not in ('.html', '.svg') or info.st_size > PREVIEW_LIMIT):
-            raise ValueError('Prévia disponível apenas para HTML/SVG de até 4 MiB. Use a leitura de texto.')
+        limit = BINARY_PREVIEW_LIMIT if suffix in BINARY_TYPES else PREVIEW_LIMIT
+        if preview and (suffix not in ('.html', '.svg', *BINARY_TYPES) or info.st_size > limit):
+            raise ValueError('Prévia indisponível para este formato ou tamanho. Use a leitura de texto quando aplicável.')
+        if not preview and suffix in BINARY_TYPES:
+            raise ValueError('Arquivo binário. Use a prévia segura.')
         offset = min(selection['offset'], info.st_size)
         if preview:
             offset = 0
         handle.seek(offset)
-        raw = handle.read(PREVIEW_LIMIT + 1 if preview else TEXT_LIMIT)
-        if preview and len(raw) > PREVIEW_LIMIT:
+        raw = handle.read(limit + 1 if preview else TEXT_LIMIT)
+        if preview and len(raw) > limit:
             raise ValueError('Arquivo cresceu além do limite de prévia. Tente a leitura de texto.')
+    if preview and suffix in BINARY_TYPES:
+        signatures = {'.png': (b'\x89PNG\r\n\x1a\n',), '.jpg': (b'\xff\xd8\xff',),
+                      '.jpeg': (b'\xff\xd8\xff',), '.pdf': (b'%PDF-',)}
+        if not raw.startswith(signatures[suffix]):
+            raise ValueError('O conteúdo não corresponde ao formato declarado pelo arquivo.')
+        return {'path': path, 'size': info.st_size, 'modified': info.st_mtime,
+                'content': base64.b64encode(raw).decode('ascii'), 'encoding': 'base64',
+                'mime': BINARY_TYPES[suffix], 'offset': 0, 'next_offset': len(raw),
+                'truncated': False, 'kind': suffix[1:]}
     content = raw.decode('utf-8', errors='replace')
     if preview and suffix == '.html':
         content = static_report(content)
@@ -161,6 +211,8 @@ def inspect(directory):
     uid = os.getuid()
     if not root.is_dir() or root.stat().st_uid != uid:
         raise ValueError("Informe um diretório de saída pertencente ao usuário autenticado.")
+    root_info = root.stat()
+    fingerprint = hashlib.sha256(f'{root_info.st_dev}:{root_info.st_ino}:{root_info.st_uid}'.encode()).hexdigest()
 
     def owned_file(relative):
         path = root / relative
@@ -177,6 +229,7 @@ def inspect(directory):
                   if (path := owned_file(name))), None)
     tasks = []
     modified = None
+    trace_partial = False
     if trace:
         # Nonblocking open and fstat also guard against special files replaced during inspection.
         with open_result(root, str(trace.relative_to(root))) as (handle, info):
@@ -185,6 +238,7 @@ def inspect(directory):
             raise ValueError("O trace excede o limite de 2 MB desta versão.")
         # An active writer may not have finished its last record yet.
         text = raw.decode("utf-8", errors="replace")
+        trace_partial = bool(text and not text.endswith('\n'))
         text = text[:text.rfind("\n") + 1]
         reader = csv.DictReader(io.StringIO(text), delimiter="\t")
         if not reader.fieldnames or not {"name", "status", "native_id"}.issubset(reader.fieldnames):
@@ -202,6 +256,7 @@ def inspect(directory):
     artifacts = [path for path in artifacts if not trace or root / path != trace]
     declarations = []
     inspected_manifests = 0
+    malformed_manifests = 0
     for path in artifacts:
         if (path.startswith('failed_attempts/') or not path.endswith(('run_manifest.json', 'report_manifest.json'))
                 or inspected_manifests >= 20):
@@ -217,11 +272,47 @@ def inspect(directory):
                 declarations.append({'path': path, 'status': manifest['status'][:128]})
         except (OSError, ValueError):
             # A partial or malformed manifest must not hide the rest of the execution.
+            malformed_manifests += 1
             continue
+    details = artifact_details(root, artifacts)
+    unavailable_files = len(artifacts) - len(details)
+    current = [item for item in details if not item['archived']]
+    archived = [item for item in details if item['archived']]
+    log_files = [item for item in current if item['group'] == 'logs']
+    exit_files = [item for item in current if Path(item['path']).suffix.lower() in ('.exit', '.done')]
+    nonzero_exits = 0
+    malformed_exits = 0
+    for item in exit_files[:20]:
+        if not item['path'].endswith('.exit'):
+            continue
+        try:
+            with open_result(root, item['path']) as (handle, _info):
+                value = handle.read(64).decode('ascii', errors='replace').strip()
+            if value and int(value) != 0:
+                nonzero_exits += 1
+        except (OSError, ValueError):
+            malformed_exits += 1
+    trace_failed = any(task['status'] in ('FAILED', 'ABORTED') for task in tasks)
+    manifest_failed = any(item['status'].lower() in ('failed', 'failure', 'error', 'cancelled', 'aborted')
+                          for item in declarations)
+    health = {
+        'trace': {'state': 'failed' if trace_failed else 'partial' if trace_partial else 'available' if trace else 'missing',
+                  'count': len(tasks), 'path': str(trace.relative_to(root)) if trace else None},
+        'exit_logs': {'state': 'failed' if nonzero_exits else 'partial' if malformed_exits else 'available' if log_files or exit_files else 'missing',
+                      'logs': len(log_files), 'terminal_files': len(exit_files), 'nonzero_exits': nonzero_exits,
+                      'malformed_exits': malformed_exits},
+        'manifests': {'state': 'failed' if manifest_failed else 'partial' if malformed_manifests else 'available' if declarations else 'missing',
+                      'readable': len(declarations), 'malformed': malformed_manifests},
+        'files': {'state': 'partial' if truncated or unavailable_files else 'available' if current else 'missing',
+                  'current': len(current), 'archived': len(archived), 'unavailable': unavailable_files},
+    }
+    states = [component['state'] for component in health.values()]
+    overall = 'failed' if 'failed' in states else 'partial' if 'partial' in states or 'missing' in states else 'available'
     return {"directory": str(root), "trace_found": bool(trace), "trace_modified": modified,
             "trace_path": str(trace.relative_to(root)) if trace else None,
             "tasks": tasks, "artifacts": artifacts, "artifacts_truncated": truncated,
-            "declarations": declarations}
+            "artifact_details": details, "declarations": declarations,
+            "fingerprint": fingerprint, "health": health, "overall_state": overall}
 
 
 def read_log(directory, selection):
@@ -258,16 +349,23 @@ def read_log(directory, selection):
             "path": str(path), "size": info.st_size, "modified": info.st_mtime}
 
 
-if __name__ == "__main__":
-    request = {}
+def handle_request(request):
     try:
-        request = json.loads(sys.stdin.read(8192))
         if 'file' in request:
-            result = read_file(request['directory'], request['file'])
-        else:
-            result = read_log(request["directory"], request["log"]) if "log" in request else inspect(request["directory"])
+            return read_file(request['directory'], request['file'])
+        return read_log(request["directory"], request["log"]) if "log" in request else inspect(request["directory"])
     except FileNotFoundError:
-        result = {"error": "Log, trace ou diretório não encontrado. Os arquivos podem ainda não existir ou ter sido removidos."}
+        return {"error": "Log, trace ou diretório não encontrado. Os arquivos podem ainda não existir ou ter sido removidos.", "code": "missing"}
+    except PermissionError:
+        return {"error": "Diretório ou arquivo sem permissão de leitura.", "code": "permission"}
     except (ValueError, OSError, KeyError) as exc:
-        result = {"error": str(exc) if isinstance(exc, ValueError) else "Diretório indisponível ou sem permissão de leitura."}
+        return {"error": str(exc) if isinstance(exc, ValueError) else "Diretório indisponível ou sem permissão de leitura.",
+                "code": "partial" if isinstance(exc, ValueError) else "permission"}
+
+
+if __name__ == "__main__":
+    try:
+        result = handle_request(json.loads(sys.stdin.read(8192)))
+    except (ValueError, UnicodeError):
+        result = {"error": "Requisição inválida.", "code": "partial"}
     print("HELIXFORGE_EXECUTION_V1:" + json.dumps(result))
