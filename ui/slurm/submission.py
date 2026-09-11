@@ -12,6 +12,42 @@ import shlex
 WORKFLOWS = {"rnaseq", "chipseq", "integrative", "all"}
 RUNTIMES = {"slurm", "slurm,apptainer", "slurm,singularity"}
 
+FIELD_LABELS = {
+    "name": "Nome da análise",
+    "clone.path": "Caminho do clone",
+    "clone.repository": "Repositório oficial",
+    "clone.ref": "Tag, branch ou commit",
+    "storage.project_root": "Diretório do projeto leve",
+    "storage.launch": "Diretório de lançamento",
+    "storage.output": "Diretório de resultados",
+    "storage.work": "Workdir",
+    "runtime.partition": "Partição Slurm",
+    "runtime.memory": "Memória do coordenador (GB)",
+    "runtime.hours": "Tempo do coordenador (h)",
+    "organism.name": "Organismo",
+    "organism.reference_id": "Identificador da referência",
+    "organism.genome_fasta": "Genoma FASTA",
+    "organism.transcriptome_fasta": "Transcriptoma FASTA",
+    "organism.annotation": "Anotação GTF ou GFF3",
+    "science.effective_genome_size": "Effective genome size",
+    "statistics.variable": "Variável principal",
+    "statistics.formula": "Fórmula",
+    "statistics.alpha": "Alpha",
+    "statistics.lfc_threshold": "Limiar absoluto log2FC",
+    "statistics.min_replicates": "Mínimo de replicatas",
+    "integration.rna_manifest": "Manifest RNA-seq",
+    "integration.chip_manifest": "Manifest ChIP-seq",
+    "integration.policy_paths.harmonization": "Política de harmonização",
+    "integration.policy_paths.interpretation": "Política de interpretação",
+    "integration.policy_paths.mark_roles": "Papéis das marcas",
+    "integration.policy_paths.prioritization_context": "Contexto de priorização",
+    "integration.policy_paths.functional_annotation": "Anotação funcional",
+}
+SAMPLE_LABELS = {"sample_id":"Sample ID", "fastq_1":"FASTQ R1", "fastq_2":"FASTQ R2",
+                 "condition":"Condição", "batch":"Batch", "replicate":"Replicata",
+                 "dataset":"Dataset", "run_accession":"Run accession",
+                 "mark_or_factor":"Mark / fator", "control_id":"Control ID", "layout":"Layout"}
+
 
 class PlanError(ValueError):
     def __init__(self, message, field=""):
@@ -19,12 +55,30 @@ class PlanError(ValueError):
         self.field = field
 
 
+def field_label(field):
+    match = re.fullmatch(r"(rnaseq|chipseq)_samples\.(\d+)\.([a-z0-9_]+)", field)
+    if match:
+        assay, index, key = match.groups()
+        return f"{SAMPLE_LABELS.get(key, key)} da amostra {int(index) + 1} de {'RNA-seq' if assay == 'rnaseq' else 'ChIP-seq'}"
+    match = re.fullmatch(r"statistics\.contrasts\.(\d+)\.(numerator|denominator)", field)
+    if match:
+        side = "Numerador" if match.group(2) == "numerator" else "Denominador"
+        return f"{side} do contraste {int(match.group(1)) + 1}"
+    return FIELD_LABELS.get(field, field)
+
+
+def required_message(field):
+    return f'O campo “{field_label(field)}” é obrigatório.'
+
+
 def _text(value, field, maximum=2048, required=True):
+    if value is None and required:
+        raise PlanError(required_message(field), field)
     if not isinstance(value, str):
         raise PlanError("O valor deve ser texto.", field)
     value = value.strip()
     if required and not value:
-        raise PlanError("Campo obrigatório.", field)
+        raise PlanError(required_message(field), field)
     if len(value) > maximum or any(ord(char) < 32 or ord(char) == 127 for char in value):
         raise PlanError("Valor inválido ou muito longo.", field)
     return value
@@ -47,6 +101,8 @@ def _cell(value, field, required=True):
 
 
 def _number(value, field, minimum, maximum, integer=False):
+    if value is None or isinstance(value, str) and not value.strip():
+        raise PlanError(required_message(field), field)
     try:
         number = int(value) if integer else float(value)
     except (TypeError, ValueError) as exc:
@@ -135,7 +191,7 @@ def validate_plan(value):
             raise PlanError("IDR requer exatamente duas replicatas biológicas por mark e condição.", "science.idr")
     plan["statistics"] = _validate_statistics(value.get("statistics", {}), workflow)
     if workflow != "integrative" and not plan["statistics"]["contrasts"]:
-        raise PlanError("Adicione ao menos um contraste estatístico.", "statistics.contrasts")
+        raise PlanError('Os campos “Numerador” e “Denominador” do contraste são obrigatórios.', "statistics.contrasts.0.numerator")
     minimum = plan["statistics"]["min_replicates"]
     for assay in ("rnaseq", "chipseq"):
         assay_rows = [row for row in plan["samples"][assay] if assay == "rnaseq" or not row.get("is_control")]
@@ -181,35 +237,36 @@ def submission_from_plan(plan):
 def _validate_samples(samples, workflow):
     output, ids = [], set()
     for index, raw in enumerate(samples):
+        prefix = f"{workflow}_samples.{index}"
         if not isinstance(raw, dict):
-            raise PlanError("Amostra inválida.", f"samples.{index}")
-        sample_id = _cell(raw.get("sample_id"), f"samples.{index}.sample_id")
+            raise PlanError("Amostra inválida.", prefix)
+        sample_id = _cell(raw.get("sample_id"), f"{prefix}.sample_id")
         if sample_id in ids:
-            raise PlanError("Os identificadores de amostra devem ser únicos.", f"samples.{index}.sample_id")
+            raise PlanError("Os identificadores de amostra devem ser únicos.", f"{prefix}.sample_id")
         ids.add(sample_id)
-        row = {"sample_id": sample_id, "fastq_1": _path(raw.get("fastq_1"), f"samples.{index}.fastq_1"),
-               "fastq_2": _path(raw.get("fastq_2", ""), f"samples.{index}.fastq_2", workflow == "rnaseq" or raw.get("layout", "paired") == "paired"),
-               "condition": _cell(raw.get("condition"), f"samples.{index}.condition"),
-               "batch": _cell(raw.get("batch", "batch1"), f"samples.{index}.batch"),
-               "replicate": _cell(str(raw.get("replicate", "1")), f"samples.{index}.replicate")}
+        row = {"sample_id": sample_id, "fastq_1": _path(raw.get("fastq_1"), f"{prefix}.fastq_1"),
+               "fastq_2": _path(raw.get("fastq_2", ""), f"{prefix}.fastq_2", workflow == "rnaseq" or raw.get("layout", "paired") == "paired"),
+               "condition": _cell(raw.get("condition"), f"{prefix}.condition"),
+               "batch": _cell(raw.get("batch", "batch1"), f"{prefix}.batch"),
+               "replicate": _cell(str(raw.get("replicate", "1")), f"{prefix}.replicate")}
         if workflow in ("rnaseq", "all"):
-            row.update(dataset=_cell(raw.get("dataset", "dataset1"), f"samples.{index}.dataset"),
-                       run_accession=_cell(raw.get("run_accession", sample_id), f"samples.{index}.run_accession"))
+            row.update(dataset=_cell(raw.get("dataset", "dataset1"), f"{prefix}.dataset"),
+                       run_accession=_cell(raw.get("run_accession", sample_id), f"{prefix}.run_accession"))
         if workflow in ("chipseq", "all"):
             layout = raw.get("layout", "paired")
             if layout not in ("single", "paired"):
-                raise PlanError("Layout deve ser single ou paired.", f"samples.{index}.layout")
+                raise PlanError("Layout deve ser single ou paired.", f"{prefix}.layout")
             is_control = raw.get("is_control") is True
             row.update(layout=layout, assay="input" if is_control else "ChIP-seq",
-                       mark_or_factor=_cell(raw.get("mark_or_factor", "input" if is_control else ""), f"samples.{index}.mark_or_factor"),
-                       control_id=_cell(raw.get("control_id", ""), f"samples.{index}.control_id", False),
+                       mark_or_factor=_cell(raw.get("mark_or_factor", "input" if is_control else ""), f"{prefix}.mark_or_factor"),
+                       control_id=_cell(raw.get("control_id", ""), f"{prefix}.control_id", False),
                        is_control=is_control, organism="", genome_id="")
         output.append(row)
     if workflow in ("chipseq", "all"):
         controls = {row["sample_id"] for row in output if row["is_control"]}
         for index, row in enumerate(output):
             if not row["is_control"] and row["control_id"] not in controls:
-                raise PlanError("Cada amostra IP deve apontar para um controle existente.", f"samples.{index}.control_id")
+                raise PlanError("Cada amostra IP deve apontar para um controle existente.", f"{workflow}_samples.{index}.control_id")
     return output
 
 
