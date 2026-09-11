@@ -9,8 +9,12 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
-from test_executions import probe
-from test_monitor import CONFIG, monitor
+try:
+    from .test_executions import probe
+    from .test_monitor import CONFIG, monitor
+except ImportError:  # Direct discovery with tests/slurm_ui as the top level.
+    from test_executions import probe
+    from test_monitor import CONFIG, monitor
 
 
 class ResultAPITests(unittest.TestCase):

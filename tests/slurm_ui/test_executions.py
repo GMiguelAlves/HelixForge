@@ -8,7 +8,10 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
-from test_monitor import CONFIG, monitor
+try:
+    from .test_monitor import CONFIG, monitor
+except ImportError:  # Direct discovery with tests/slurm_ui as the top level.
+    from test_monitor import CONFIG, monitor
 
 SPEC = importlib.util.spec_from_file_location("execution_probe", Path(monitor.__file__).with_name("probe.py"))
 probe = importlib.util.module_from_spec(SPEC)
@@ -19,10 +22,10 @@ class ExecutionAPITests(unittest.TestCase):
     def test_log_selection_is_validated_before_ssh(self):
         with patch.object(monitor.subprocess, "run", side_effect=AssertionError("Must not connect")):
             with self.assertRaises(monitor.MonitorError):
-                monitor.query_execution({"connection": CONFIG, "directory": "/scratch/run", "log": {"task_id": "1", "native_id": "123", "name": "step", "file": "../secret"}})
+                monitor.query_execution({"connection": CONFIG, "directory": "/scratch/my_user/run", "log": {"task_id": "1", "native_id": "123", "name": "step", "file": "../secret"}})
     def test_directory_is_stdin_data_never_shell_code(self):
-        directory = "/scratch/my run/$(touch danger); 'quoted'"
-        result = subprocess.CompletedProcess([], 0, 'banner\nHELIXFORGE_EXECUTION_V1:{"tasks":[],"directory":"/scratch/run"}\n', '')
+        directory = "/scratch/my_user/my run/$(touch danger); 'quoted'"
+        result = subprocess.CompletedProcess([], 0, 'banner\nHELIXFORGE_EXECUTION_V1:{"tasks":[],"directory":"/scratch/my_user/run"}\n', '')
         with patch.object(monitor.subprocess, "run", return_value=result) as call:
             data = monitor.query_execution({"connection": CONFIG, "directory": directory})
         args, kwargs = call.call_args
@@ -39,7 +42,7 @@ class ExecutionAPITests(unittest.TestCase):
         for output in ('', 'HELIXFORGE_EXECUTION_V1:{"error":"sem permissão"}', 'HELIXFORGE_EXECUTION_V1:broken'):
             with patch.object(monitor.subprocess, "run", return_value=subprocess.CompletedProcess([], 0, output, '')):
                 with self.assertRaises(monitor.MonitorError):
-                    monitor.query_execution({"connection": CONFIG, "directory": "/scratch/run"})
+                    monitor.query_execution({"connection": CONFIG, "directory": "/scratch/my_user/run"})
 
 
 @unittest.skipUnless(hasattr(os, "getuid"), "Remote probe runs on Linux")

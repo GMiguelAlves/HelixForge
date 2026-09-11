@@ -21,6 +21,9 @@ STATIC = Path(__file__).parent / "static"
 PROBE_SPEC = importlib.util.spec_from_file_location('result_probe', Path(__file__).with_name('probe.py'))
 PROBE = importlib.util.module_from_spec(PROBE_SPEC)
 PROBE_SPEC.loader.exec_module(PROBE)
+PREPARATION_SPEC = importlib.util.spec_from_file_location('submission_documents', Path(__file__).with_name('submission.py'))
+PREPARATION = importlib.util.module_from_spec(PREPARATION_SPEC)
+PREPARATION_SPEC.loader.exec_module(PREPARATION)
 SEPARATOR = "\x1f"
 MARKER = "HELIXFORGE_SLURM_V1:"
 FIELDS = ("id", "name", "state", "elapsed", "time_limit", "nodes", "cpus",
@@ -289,6 +292,33 @@ def remote_submission(config, draft, action):
     return data
 
 
+def remote_preparation(config, request, timeout=45):
+    script = Path(__file__).with_name("remote_prepare.py").read_bytes()
+    command = "import base64;exec(base64.b64decode(" + repr(base64.b64encode(script).decode()) + "))"
+    args = ssh_arguments(config)[:-1] + ["python3 -c " + shlex.quote(command)]
+    try:
+        result = subprocess.run(args, input=json.dumps(request), capture_output=True, encoding="utf-8", errors="replace",
+                                timeout=timeout, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    except FileNotFoundError as exc:
+        raise MonitorError("OpenSSH não encontrado.") from exc
+    except subprocess.TimeoutExpired as exc:
+        raise MonitorError("A preparação remota excedeu o tempo limite. Verifique o servidor antes de repetir uma alteração.",
+                           504, "uncertain" if request.get("action") in ("create_clone", "write") else "unavailable") from exc
+    lines = [line for line in result.stdout.split("\n") if line.startswith("HELIXFORGE_PREPARATION_V1:")]
+    if len(lines) != 1:
+        raise MonitorError("A resposta da preparação remota é inválida.", code="response")
+    try:
+        data = json.loads(lines[0].split(":", 1)[1])
+    except ValueError as exc:
+        raise MonitorError("A resposta da preparação remota é inválida.", code="response") from exc
+    if "error" in data:
+        code = data.get("code", "invalid")
+        raise MonitorError(data["error"], 400 if code in ("invalid", "missing", "exists", "symlink", "version") else 502, code)
+    if result.returncode:
+        raise MonitorError("A sessão remota terminou antes de confirmar a preparação.", code="response")
+    return data
+
+
 def query_execution(value):
     if not isinstance(value, dict) or set(value) not in ({"connection", "directory"}, {"connection", "directory", "log"}, {"connection", "directory", "file"}):
         raise MonitorError("Cadastro de execução inválido.", 400)
@@ -378,6 +408,75 @@ class MonitorServer(ThreadingHTTPServer):
         self.token = secrets.token_urlsafe(32)
         self.submissions = {}
         self.submission_lock = threading.Lock()
+        self.preparations = {}
+        self.preparation_lock = threading.Lock()
+
+    def _review(self, kind, value):
+        token = secrets.token_urlsafe(32)
+        now = time.monotonic()
+        with self.preparation_lock:
+            self.preparations = {key: item for key, item in self.preparations.items() if now - item[0] < 600}
+            if len(self.preparations) >= 16:
+                self.preparations.pop(next(iter(self.preparations)))
+            self.preparations[token] = (now, kind, value)
+        return token
+
+    def _consume_review(self, token, kind):
+        if not isinstance(token, str):
+            raise MonitorError("Confirmação inválida.", 400, "invalid")
+        with self.preparation_lock:
+            prepared = self.preparations.pop(token, None)
+        if not prepared or time.monotonic() - prepared[0] >= 600 or prepared[1] != kind:
+            raise MonitorError("A revisão expirou. Revise a etapa novamente.", 409, "expired")
+        return prepared[2]
+
+    def review_clone(self, value):
+        if not isinstance(value, dict) or set(value) != {"connection", "clone"}:
+            raise MonitorError("Solicitação de clone inválida.", 400, "invalid")
+        config = connection_config(value["connection"])
+        try:
+            clone = PREPARATION.validate_clone(value["clone"])
+        except PREPARATION.PlanError as exc:
+            raise MonitorError(str(exc), 400, "invalid") from exc
+        inspection = remote_preparation(config, {"action":"inspect_clone", "clone":clone})
+        response = {"inspection":inspection}
+        if clone["mode"] == "new":
+            approved = {**clone, "ref":inspection["commit"]}
+            response["review_token"] = self._review("clone", {"config":config, "clone":approved})
+        return response
+
+    def create_clone(self, value):
+        if not isinstance(value, dict) or set(value) != {"review_token"}:
+            raise MonitorError("Confirmação de clone inválida.", 400, "invalid")
+        reviewed = self._consume_review(value["review_token"], "clone")
+        return remote_preparation(reviewed["config"], {"action":"create_clone", "clone":reviewed["clone"]}, 210)
+
+    def review_preparation(self, value):
+        if not isinstance(value, dict) or set(value) != {"connection", "plan"}:
+            raise MonitorError("Plano de preparação inválido.", 400, "invalid")
+        config = connection_config(value["connection"])
+        try:
+            generated = PREPARATION.generate_documents(value["plan"])
+        except PREPARATION.PlanError as exc:
+            raise MonitorError(str(exc), 400, "invalid:" + exc.field) from exc
+        plan, documents = generated["plan"], generated["documents"]
+        request = {"action":"preflight", "clone":plan["clone"], "project_root":plan["storage"]["project_root"],
+                   "inputs":PREPARATION.input_paths(plan), "documents":documents, "runtime":plan["runtime"],
+                   "storage":plan["storage"],
+                   "integration":plan["integration"] if plan["workflow"] == "integrative" else {}}
+        preflight = remote_preparation(config, request)
+        token = self._review("documents", {"config":config, "plan":plan, "documents":documents, "request":request})
+        return {"review_token":token, "preflight":preflight,
+                "documents":[{"path":item["path"], "relative_path":item["relative_path"], "kind":item["kind"], "content":item["content"]} for item in documents]}
+
+    def write_preparation(self, value):
+        if not isinstance(value, dict) or set(value) != {"review_token"}:
+            raise MonitorError("Confirmação de escrita inválida.", 400, "invalid")
+        reviewed = self._consume_review(value["review_token"], "documents")
+        request = {**reviewed["request"], "action":"write"}
+        result = remote_preparation(reviewed["config"], request)
+        result.update({"connection":reviewed["config"], "draft":PREPARATION.submission_from_plan(reviewed["plan"])})
+        return result
 
     def prepare_submission(self, value):
         if not isinstance(value, dict) or set(value) != {"connection", "draft"}:
@@ -427,6 +526,9 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Cross-Origin-Resource-Policy", "same-origin")
+        self.send_header("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
         self.send_header("Referrer-Policy", "no-referrer")
         self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: blob:; frame-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
         self.end_headers()
@@ -456,13 +558,16 @@ class Handler(BaseHTTPRequestHandler):
                 or self.headers.get("X-HelixForge-Token") != self.server.token):
             return self.send_body(403, {"error": "Sessão local inválida. Recarregue a página."})
         if self.path not in ("/api/jobs", "/api/execution", "/api/connection",
-                             "/api/submission/prepare", "/api/submission/submit"):
+                             "/api/submission/prepare", "/api/submission/submit",
+                             "/api/clone/review", "/api/clone/create",
+                             "/api/preparation/review", "/api/preparation/write"):
             return self.send_body(404, {"error": "Recurso não encontrado."})
         try:
             if self.headers.get("Content-Type", "").split(";")[0] != "application/json":
                 raise MonitorError("Envie a configuração em JSON.", 400)
             size = int(self.headers.get("Content-Length", "0"))
-            if not 0 < size <= (16384 if self.path == "/api/submission/prepare" else 4096):
+            maximum = 2 * 1024 * 1024 if self.path == "/api/preparation/review" else 16384 if self.path in ("/api/submission/prepare", "/api/clone/review") else 4096
+            if not 0 < size <= maximum:
                 raise MonitorError("Tamanho de configuração inválido.", 400)
             value = json.loads(self.rfile.read(size))
             if self.path == "/api/connection":
@@ -471,6 +576,14 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_body(200, self.server.prepare_submission(value))
             elif self.path == "/api/submission/submit":
                 self.send_body(200, self.server.submit_execution(value))
+            elif self.path == "/api/clone/review":
+                self.send_body(200, self.server.review_clone(value))
+            elif self.path == "/api/clone/create":
+                self.send_body(200, self.server.create_clone(value))
+            elif self.path == "/api/preparation/review":
+                self.send_body(200, self.server.review_preparation(value))
+            elif self.path == "/api/preparation/write":
+                self.send_body(200, self.server.write_preparation(value))
             elif self.path == "/api/execution":
                 self.send_body(200, self.server.executions.get({"request": json.dumps(value, sort_keys=True)}))
             else:

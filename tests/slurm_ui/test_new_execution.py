@@ -12,7 +12,7 @@ class NewExecutionTests(unittest.TestCase):
     def build(self, **changes):
         draft = dict(name="Analysis 01", host="cluster", workflow="rnaseq", runtime="slurm",
                      repo="/home/researcher/HelixForge", config="/home/researcher/run.config",
-                     launch="/scratch/run", output="/scratch/run/results", work="/scratch/run/work",
+                     launch="/scratch/my_user/run", output="/scratch/my_user/run/results", work="/scratch/my_user/run/work",
                      memory="4", hours="12", partition="general", account="")
         draft.update(changes)
         source = Path(__file__).resolve().parents[2] / "ui/slurm/static/new-execution.js"
@@ -25,7 +25,7 @@ class NewExecutionTests(unittest.TestCase):
         argv = shlex.split(command.replace("\\\n", ""))
         self.assertEqual(argv[0], "sbatch")
         self.assertEqual(argv[argv.index("--cpus-per-task") + 1], "1")
-        self.assertEqual(argv[argv.index("--chdir") + 1], "/scratch/run")
+        self.assertEqual(argv[argv.index("--chdir") + 1], "/scratch/my_user/run")
         inner = shlex.split(argv[argv.index("--wrap") + 1])
         self.assertEqual(inner[:3], ["exec", "nextflow", "run"])
         self.assertEqual(inner[inner.index("--workflow") + 1], "rnaseq")
@@ -38,8 +38,8 @@ class NewExecutionTests(unittest.TestCase):
         self.assertEqual(inner[inner.index("-c") + 1], path)
 
     def test_invalid_or_overlapping_directories_are_rejected(self):
-        for changes in ({"output": "/scratch/run/work/nested"}, {"work": "/scratch"}, {"launch": "relative"},
-                        {"output": "/scratch/../results"}, {"config": "/tmp/file\ncommand"}, {"launch": "/scratch/%j"}):
+        for changes in ({"output": "/scratch/my_user/run/work/nested"}, {"work": "/scratch"}, {"launch": "relative"},
+                        {"output": "/scratch/my_user/../results"}, {"config": "/tmp/file\ncommand"}, {"launch": "/scratch/my_user/%j"}):
             with self.subTest(changes=changes):
                 self.assertIn("error", self.build(**changes))
 
@@ -51,6 +51,7 @@ class NewExecutionTests(unittest.TestCase):
 
     def test_ui_uses_review_then_submit_endpoints(self):
         source = (Path(__file__).resolve().parents[2] / "ui/slurm/static/new-execution.js").read_text(encoding="utf-8")
-        self.assertIn('fetch("/api/submission/prepare"', source)
-        self.assertIn('fetch("/api/submission/submit"', source)
+        for endpoint in ("/api/clone/review", "/api/clone/create", "/api/preparation/review", "/api/preparation/write", "/api/submission/prepare", "/api/submission/submit"):
+            self.assertIn(endpoint, source)
         self.assertIn("registerSubmittedExecution", source)
+        self.assertNotIn("localStorage", source)
