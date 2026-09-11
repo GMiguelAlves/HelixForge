@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="helixforge-token" content="__SESSION_TOKEN__">
+  <title>HelixForge · Slurm</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+  <script src="/results.js" defer></script>
+  <script src="/execution-state.js" defer></script>
+  <script src="/executions.js" defer></script>
+  <script src="/new-execution.js" defer></script>
+  <script src="/connections.js" defer></script>
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="/" aria-label="HelixForge início"><span class="brand-mark" aria-hidden="true">hƒ</span>helixforge<span class="brand-period">.</span></a>
+    <span class="edition">EXECUÇÃO DE PIPELINES <span>/ SLURM</span></span>
+    <span class="read-only">Sessão local</span>
+  </header>
+  <main>
+    <nav class="screen-nav" aria-label="Navegação principal"><button id="nav-executions" aria-current="page">Execuções</button><button id="nav-jobs">Jobs</button><button id="nav-connections">Conexões</button></nav>
+    <section class="connection" aria-label="Conexão SSH">
+      <div class="connection-bar" aria-live="polite"><span id="connection-status">Não conectado</span><span id="last-checked">Aguardando primeira consulta</span></div>
+      <details id="connection-settings" open>
+        <summary>Configurar conexão <span aria-hidden="true">↗</span></summary>
+        <div class="connection-body">
+          <div class="connection-intro"><h2>Conexão SSH</h2><p>Use o acesso SSH já configurado neste computador.</p></div>
+          <form id="connection-form">
+            <div class="connection-fields">
+              <label for="host">Servidor ou alias SSH<input id="host" name="host" placeholder="cluster-lab ou localhost" required maxlength="253" autocomplete="off" spellcheck="false"></label>
+              <label for="user">Usuário <small>opcional</small><input id="user" name="user" placeholder="Do SSH config" maxlength="128" autocomplete="off" spellcheck="false"></label>
+              <label for="port">Porta <small>opcional</small><input id="port" name="port" placeholder="Do SSH config" inputmode="numeric" pattern="[0-9]{1,5}" maxlength="5"></label>
+              <label for="control_path">Socket compartilhado <small>opcional</small><input id="control_path" name="control_path" placeholder="/tmp/minha-conexao.sock" maxlength="1024" autocomplete="off" spellcheck="false"></label>
+            </div>
+            <div class="connection-actions"><label class="check"><input id="remember" type="checkbox"> Lembrar conexão neste navegador</label><button id="connect" class="primary" type="submit">Conectar e consultar</button></div>
+          </form>
+          <details class="help"><summary>Como usar um túnel existente</summary><p>Se ele encaminha uma porta local para o SSH do servidor, use <code>localhost</code>, a porta local e seu usuário remoto. Um túnel para uma página web não oferece acesso SSH.</p><p>Para uma conexão master aberta com <code>ssh -S</code>, informe o mesmo alias e o caminho do socket. Execute este painel no mesmo ambiente Linux/WSL da conexão. A autenticação usa suas chaves, agente ou conexão compartilhada; resolva senhas e confirmação de identidade antes no terminal.</p></details>
+        </div>
+      </details>
+    </section>
+    <div id="error" class="error" role="alert" hidden></div>
+    <section id="executions-screen" aria-labelledby="executions-title">
+      <div class="queue-heading"><div><span class="eyebrow">HELIXFORGE / HISTÓRICO LOCAL</span><h1 id="executions-title">Execuções</h1></div><div class="form-actions"><button id="undo-remove" hidden>Desfazer remoção</button><button id="import-executions">Importar</button><input id="import-file" class="sr-only" type="file" accept="application/json"><button id="export-executions">Exportar</button><button id="register-execution">Registrar existente</button><a class="button-link primary" href="#new">Nova execução +</a></div></div>
+      <form id="execution-form" class="execution-form" hidden>
+        <div class="execution-fields">
+          <label>Nome da execução<input id="execution-name" required maxlength="120" placeholder="Ex.: ChIP-seq · amostra 01"></label>
+          <label>Workflow<select id="execution-workflow"><option value="chipseq">ChIP-seq</option><option value="rnaseq">RNA-seq</option><option value="integrative">Integrativo</option><option value="all">Todos</option></select></label>
+          <label class="directory-field">Diretório de saída no servidor<input id="execution-directory" required maxlength="2048" placeholder="/caminho/absoluto/resultados" spellcheck="false"></label>
+        </div>
+        <p>Usa a conexão configurada acima. O nome, os caminhos e a configuração SSH ficam salvos neste navegador. Nenhum processo é iniciado.</p>
+        <div class="form-actions"><button type="submit" id="save-execution" class="primary">Verificar e registrar</button><button type="button" id="cancel-execution">Cancelar</button></div>
+      </form>
+      <div id="execution-error" class="error" role="alert" hidden></div>
+      <div class="workspace">
+        <section class="queue" aria-label="Lista de execuções">
+          <div class="toolbar"><label class="search-label"><span class="sr-only">Buscar execuções</span><input id="execution-search" type="search" placeholder="Buscar por nome, workflow ou servidor"></label><label><span class="sr-only">Filtrar workflow</span><select id="execution-filter"><option value="all">Todos os workflows</option><option value="chipseq">ChIP-seq</option><option value="rnaseq">RNA-seq</option><option value="integrative">Integrativo</option></select></label></div>
+          <div id="execution-empty" class="empty"><h2>Nenhuma execução registrada</h2><p>Registre o diretório de saída de uma análise para consultar seus processos e arquivos.</p></div>
+          <div id="execution-table" class="table-wrap" hidden><table><thead><tr><th>Execução / servidor</th><th>Trace</th><th>Verificado em</th></tr></thead><tbody id="execution-rows"></tbody></table></div>
+          <footer><span id="execution-count">0 execuções</span><span>Salvo neste navegador</span></footer>
+        </section>
+        <aside class="inspector" aria-label="Detalhes da execução">
+          <span class="eyebrow">EXECUÇÃO</span>
+          <div id="execution-placeholder"><h2>Nenhuma execução selecionada</h2><p>Os detalhes aparecem aqui após o cadastro.</p></div>
+          <div id="execution-detail" hidden><h2 id="execution-detail-title"></h2><p id="execution-note" class="snapshot-note"></p><dl id="execution-preview"></dl><div class="execution-detail-actions"><button id="open-execution">Abrir detalhes ↗</button></div></div>
+          <div class="inspector-bottom">HELIXFORGE <span>/ EXECUÇÕES</span></div>
+        </aside>
+      </div>
+      <div class="page-notes"><p>O trace registra processos da análise. Ele pode estar incompleto durante a execução.</p><p>A presença de um relatório ou manifesto não confirma sucesso nem valida os resultados.</p></div>
+    </section>
+    <section id="execution-screen" aria-labelledby="run-title" hidden>
+      <div class="run-breadcrumb"><a href="#executions">← Execuções</a><span id="run-breadcrumb-name"></span></div>
+      <div class="queue-heading run-heading"><div><span id="run-subtitle" class="eyebrow"></span><h1 id="run-title" tabindex="-1"></h1></div><button id="update-execution">Atualizar leitura ↻</button></div>
+      <p id="run-read-time" class="run-read-time"></p>
+      <div id="run-error" class="error" role="alert" hidden></div>
+      <nav class="screen-nav run-tabs" aria-label="Seções da execução"><button id="run-tab-summary">Resumo</button><button id="run-tab-processes">Processos</button><button id="run-tab-logs">Logs</button><button id="run-tab-files">Resultados</button></nav>
+      <section id="run-panel-summary" aria-label="Resumo da execução">
+        <div class="run-summary-grid"><section><h2>Dados da execução</h2><dl id="execution-info" class="run-info"></dl><h2>Histórico de leituras</h2><div id="snapshot-history" class="snapshot-history"></div><div class="run-management"><button id="remove-execution">Remover do histórico</button><small id="remove-note">Os arquivos no servidor são mantidos.</small></div></section><aside class="run-status"><span class="eyebrow">ESTADO GERAL</span><h2 id="run-overall-status"></h2><div id="run-health"></div><span class="eyebrow">PROGRESSO DO TRACE</span><progress id="run-progress" max="100" value="0"></progress><p id="run-progress-note"></p><h2 id="run-trace-status"></h2><div id="run-counts"></div><p>Trace, logs, manifestos e arquivos são avaliados separadamente. Estados declarados não confirmam validade científica.</p></aside></div>
+      </section>
+      <section id="run-panel-processes" aria-label="Processos da execução" hidden>
+        <p id="execution-trace-note"></p>
+        <div class="toolbar"><label class="search-label"><span class="sr-only">Buscar processos</span><input id="run-task-search" type="search" placeholder="Buscar processo ou ID Slurm"></label><label><span class="sr-only">Estado do processo</span><select id="run-task-state"><option value="all">Todos os estados</option><option value="COMPLETED">Concluídos</option><option value="CACHED">Em cache</option><option value="FAILED">Falhas</option><option value="other">Outros estados</option></select></label></div>
+        <div class="run-process-grid"><div><div class="table-wrap"><table><thead><tr><th>Processo</th><th>ID Slurm</th><th>Estado no trace</th><th>Duração</th></tr></thead><tbody id="execution-tasks"></tbody></table></div><p id="run-tasks-empty" hidden>Nenhum processo corresponde ao filtro.</p><div class="run-pagination"><span id="execution-task-count" aria-live="polite"></span><button id="run-page-prev">Anterior</button><button id="run-page-next">Próxima</button></div></div><aside class="inspector run-task-inspector"><span class="eyebrow">PROCESSO</span><h2 id="run-task-title"></h2><dl id="run-task-info"></dl><div class="execution-detail-actions"><button id="task-open-logs">Ver logs ↗</button></div></aside></div>
+      </section>
+      <section id="run-panel-logs" aria-label="Logs dos processos" hidden><div class="log-controls"><label>Processo<select id="log-task"></select></label><label>Arquivo<select id="log-file"><option value=".command.out">Saída padrão · .command.out</option><option value=".command.err">Erros · .command.err</option><option value=".command.log">Log combinado · .command.log</option></select></label><button id="log-read">Ler log ↻</button></div><p>Para o log Nextflow e logs publicados, abra <a href="#" id="logs-open-results">Resultados</a>.</p><p>Leitura manual das últimas 400 linhas, limitada a 64 KiB. Consultas repetidas usam cache de 30 segundos.</p><p id="log-status" role="status">Selecione um processo e leia o log.</p><p id="log-path"></p><pre id="log-content" tabindex="0" aria-label="Conteúdo do log">Nenhum log carregado.</pre></section>
+      <section id="run-panel-files" aria-label="Resultados da execução" hidden>
+        <h2>Relatórios, figuras e arquivos</h2><p>Consulte logs Nextflow, manifestos, tabelas e artefatos publicados. Tentativas anteriores mantêm seus caminhos separados. A presença de arquivos não confirma sucesso científico.</p>
+        <div class="toolbar"><label class="search-label">Buscar caminho<input id="result-search" type="search" placeholder="nextflow.log, manifesto ou nome do resultado"></label><label>Grupo<select id="result-filter"><option value="all">Todos os grupos</option><option value="current">Execução atual</option><option value="archived">Tentativas arquivadas</option><option value="logs">Logs</option><option value="manifests">Manifestos / proveniência</option><option value="evaluation">Avaliação</option><option value="reports">Relatórios</option><option value="figures">Figuras</option><option value="tables">Tabelas e outros textos</option></select></label></div>
+        <div id="execution-artifacts" class="run-files"></div><div class="run-pagination"><span id="result-count" role="status"></span><button id="result-page-prev">Anterior</button><button id="result-page-next">Próxima</button></div><p id="run-copy-status" role="status"></p>
+        <h2 id="result-title" tabindex="-1">Visualização</h2><p id="result-status" role="status">Selecione um arquivo para ler.</p><div class="form-actions"><button id="result-prev" disabled>Trecho anterior</button><button id="result-next" disabled>Próximo trecho</button><button id="result-tail" disabled>Final do arquivo</button></div><div id="result-preview"></div>
+        <p>Texto em blocos de 64 KiB; a busca do navegador consulta o trecho exibido. HTML/SVG têm prévia até 4 MiB; PNG/JPEG/PDF até 12 MiB. Relatórios que dependem de JavaScript podem aparecer incompletos; use os processos do trace e os arquivos associados.</p>
+      </section>
+    </section>
+    <section id="new-execution-screen" aria-labelledby="new-title" hidden>
+      <div class="run-breadcrumb"><a href="#executions">← Execuções</a><span>Nova execução</span></div>
+      <div class="queue-heading"><div><span class="eyebrow">HELIXFORGE / SLURM</span><h1 id="new-title">Nova execução</h1></div><span class="draft-label">Rascunho local</span></div>
+      <p id="new-message" role="status"></p>
+      <form id="new-form">
+        <div class="new-layout"><div>
+          <section class="new-section"><h2><span>01</span> Análise</h2><div class="execution-fields"><label>Nome<input id="new-name" required maxlength="80" placeholder="Ex.: RNA-seq · experimento 02"></label><label>Workflow<select id="new-workflow"><option value="rnaseq">RNA-seq</option><option value="chipseq">ChIP-seq</option><option value="integrative">Integrativo</option><option value="all">RNA-seq + ChIP-seq + Integrativo</option></select></label></div><p id="new-workflow-note"></p></section>
+          <section class="new-section"><h2><span>02</span> Arquivos no servidor</h2><div class="execution-fields"><label class="directory-field">Diretório do HelixForge<input id="new-repo" required placeholder="/caminho/HelixForge"></label><label class="directory-field">Configuração Nextflow da análise e do cluster<input id="new-config" required placeholder="/caminho/analise.config"></label><label class="directory-field">Diretório de lançamento<input id="new-launch" required placeholder="/scratch/seu-usuario/nova-analise"></label><label>Diretório de saída<input id="new-output" required placeholder="/scratch/seu-usuario/nova-analise/results"></label><label>Diretório de trabalho<input id="new-work" required placeholder="/scratch/seu-usuario/nova-analise/work"></label></div><p>A configuração deve conter entradas, referências, parâmetros científicos e recursos dos processos. Use diretórios exclusivos para esta análise.</p></section>
+          <section class="new-section"><h2><span>03</span> Job de coordenação</h2><div class="execution-fields"><label>Partição<input id="new-partition" required placeholder="Partição autorizada"></label><label>Ambiente<select id="new-runtime"><option value="slurm">Configurado no servidor</option><option value="slurm,apptainer">Apptainer</option><option value="slurm,singularity">Singularity</option></select></label><label>Memória (GB)<input id="new-memory" required type="number" min="1" max="1024" step="1"></label><label>Limite de tempo (horas)<input id="new-hours" required type="number" min="1" max="720" step="1"></label><label>Conta <small>opcional</small><input id="new-account" maxlength="80"></label></div><p>Esses recursos são para o coordenador Nextflow, com 1 CPU. Os processos da análise usam os recursos definidos na configuração.</p></section>
+          <div class="form-actions new-actions"><button type="submit" class="primary">Revisar execução →</button><button type="button" id="new-save">Salvar rascunho</button><button type="button" id="new-clear">Limpar rascunho</button></div>
+        </div><aside class="run-status"><span class="eyebrow">DESTINO</span><h2 id="new-server"></h2><p>Usa a conexão SSH configurada no topo da página.</p><hr><h3>Preparação</h3><p>Os arquivos devem existir no servidor. O nó de execução precisa ter acesso ao Nextflow, Java e ao ambiente da análise.</p><p>A revisão verifica o ambiente e os caminhos antes de habilitar o envio.</p></aside></div>
+      </form>
+      <section id="new-review" hidden aria-labelledby="new-review-title"><h2 id="new-review-title">Revisar execução</h2><dl id="new-review-info" class="run-info"></dl><p id="new-review-status">Ambiente e caminhos verificados no servidor. Confira os dados antes de enviar.</p><pre id="new-command" tabindex="0"></pre><div class="form-actions new-actions"><button id="new-submit" class="primary">Enviar job ao Slurm</button><button id="new-copy">Copiar comando</button><button id="new-edit">Voltar e editar</button></div><p>O envio cria um job coordenador. O Nextflow submete os processos do pipeline ao Slurm e a execução é registrada automaticamente para acompanhamento.</p></section>
+    </section>
+    <section id="connections-screen" aria-labelledby="connections-title" hidden>
+      <div class="queue-heading"><div><span class="eyebrow">SSH / PERFIS LOCAIS</span><h1 id="connections-title">Conexões</h1></div><button id="profile-new" class="primary">Nova conexão +</button></div>
+      <p id="profile-message" role="status"></p>
+      <div class="workspace"><section class="queue" aria-label="Conexões salvas"><div id="profiles-list"></div><div id="profiles-empty" class="empty" hidden><h2>Nenhuma conexão salva</h2><p>Adicione um alias SSH ou um endereço e uma porta de túnel.</p></div><footer>Perfis salvos neste navegador. Senhas e chaves privadas não são armazenadas.</footer></section>
+      <aside class="inspector"><span class="eyebrow">ACESSO AO SERVIDOR</span><h2>SSH existente</h2><p class="inspector-note">Use um alias configurado no ambiente que executa o painel. Para um túnel, informe localhost e a porta encaminhada para o SSH.</p><p class="inspector-note">O teste identifica o usuário autenticado e consulta apenas seus jobs no Slurm. A submissão exige uma revisão separada na tela “Nova execução”.</p><p class="inspector-note">As execuções registradas mantêm sua própria conexão. Trocar o destino aqui não altera esses cadastros.</p></aside></div>
+      <form id="profile-form" class="execution-form" hidden><h2 id="profile-form-title">Nova conexão</h2><div class="connection-fields"><label>Nome da conexão<input id="profile-name" required maxlength="80" placeholder="Ex.: Laboratório · Unicamp"></label><label>Servidor ou alias<input id="profile-host" required maxlength="253" spellcheck="false" placeholder="cluster-lab"></label><label>Usuário remoto <small>opcional</small><input id="profile-user" maxlength="128" spellcheck="false"></label><label>Porta SSH <small>opcional</small><input id="profile-port" maxlength="5" inputmode="numeric" pattern="[0-9]{1,5}"></label></div><label class="profile-socket">Socket SSH compartilhado <small>opcional</small><input id="profile-control_path" maxlength="1024" spellcheck="false" placeholder="/tmp/minha-conexao.sock"></label><div class="form-actions new-actions"><button id="profile-save" type="submit" class="primary">Salvar conexão</button><button id="profile-cancel" type="button">Cancelar</button></div></form>
+    </section>
+    <section id="jobs-screen" hidden>
+    <section class="queue-heading" aria-labelledby="queue-title">
+      <div><span class="eyebrow">SLURM / FILA ATUAL</span><h1 id="queue-title">Jobs</h1></div>
+      <div class="update-controls"><button id="refresh" disabled>Atualizar fila <span aria-hidden="true">↻</span></button><label class="check"><input id="auto" type="checkbox" checked> A cada 30 segundos</label></div>
+    </section>
+    <div class="queue-summary" aria-label="Resumo da última consulta"><span><strong id="total">—</strong> na fila</span><span class="running-count"><strong id="running">—</strong> em execução</span><span><strong id="pending">—</strong> pendentes</span><span><strong id="other">—</strong> em outros estados</span></div>
+    <div class="workspace">
+      <section class="queue" aria-label="Jobs Slurm">
+        <div class="toolbar"><label class="search-label" for="search"><span class="sr-only">Buscar jobs</span><input id="search" type="search" placeholder="Buscar por nome, ID ou partição" autocomplete="off"></label><label for="state"><span class="sr-only">Estado</span><select id="state"><option value="all">Todos os estados</option><option value="RUNNING">Em execução</option><option value="PENDING">Pendentes</option><option value="other">Outros estados</option></select></label></div>
+        <div id="empty" class="empty"><h2>Sem conexão</h2><p>Configure a conexão acima para consultar seus jobs.</p></div>
+        <div id="table-wrap" class="table-wrap" hidden><table><caption class="sr-only">Jobs do usuário autenticado no servidor</caption><thead><tr><th>Processo / job</th><th>Estado</th><th>Partição</th><th>Tempo</th></tr></thead><tbody id="jobs"></tbody></table></div>
+        <footer><span id="result-count">Nenhuma consulta realizada</span><span>Selecione um processo para inspecionar →</span></footer>
+      </section>
+      <aside class="inspector" aria-label="Inspeção do job">
+        <div class="inspector-top"><span class="eyebrow">INSPEÇÃO</span><button id="close-details" hidden>Voltar à fila ↗</button></div>
+        <div id="inspector-empty"><h2>Nenhum job selecionado</h2><p>Os detalhes aparecem aqui quando houver jobs na fila.</p></div>
+        <div id="inspector-content" hidden><p id="job-number" class="job-number"></p><h2 id="job-title" tabindex="-1"></h2><p id="job-snapshot-note" class="snapshot-note" aria-live="polite"></p><dl id="job-details"></dl><p class="inspector-note">Memória solicitada, não medida. O início de um job pendente pode ser uma estimativa.</p></div>
+        <div class="inspector-bottom">HELIXFORGE <span>/ SLURM</span></div>
+      </aside>
+    </div>
+    <div class="page-notes"><p>A fila mostra jobs do usuário autenticado, enviados por qualquer ferramenta.</p><p>Um job sair da fila não confirma sucesso. Consulte os detalhes de uma execução registrada para ver logs e resultados.</p></div>
+    </section>
+  </main>
+</body>
+</html>

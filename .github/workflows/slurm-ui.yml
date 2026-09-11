@@ -1,0 +1,33 @@
+name: Slurm monitor
+
+on:
+  push:
+    branches: ['contrib/slurm-ui']
+    paths: ['ui/slurm/**', 'tests/slurm_ui/**', '.github/workflows/slurm-ui.yml']
+  pull_request:
+    paths: ['ui/slurm/**', 'tests/slurm_ui/**', '.github/workflows/slurm-ui.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  monitor:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m unittest discover -s tests/slurm_ui -v
+      - run: node --check ui/slurm/static/app.js
+      - run: node --check ui/slurm/static/executions.js
+      - run: node --check ui/slurm/static/results.js
+      - run: node --check ui/slurm/static/execution-state.js
+      - run: node --check ui/slurm/static/new-execution.js
+      - run: node --check ui/slurm/static/connections.js
