@@ -30,7 +30,7 @@ if (typeof document !== "undefined") (() => {
   const storage = "helixforge.new-execution.v1";
   const fields = ["name", "workflow", "repo", "config", "launch", "output", "work", "partition", "runtime", "memory", "hours", "account"];
   const workflows = {rnaseq: "RNA-seq", chipseq: "ChIP-seq", integrative: "Integrativo", all: "RNA-seq + ChIP-seq + Integrativo"};
-  let reviewed = null;
+  let reviewed = null, reviewToken = null, working = false;
   const message = (text) => { $("new-message").textContent = text; };
   function read() { return {...Object.fromEntries(fields.map((field) => [field, $("new-" + field).value.trim()])), host: $("host").value.trim(), user: $("user").value.trim(), port: $("port").value.trim()}; }
   function describe() {
@@ -42,23 +42,36 @@ if (typeof document !== "undefined") (() => {
     try { localStorage.setItem(storage, JSON.stringify(read())); message("Rascunho salvo neste navegador. Nenhum job enviado."); return true; }
     catch { message("Não foi possível salvar o rascunho. Verifique o armazenamento do navegador."); return false; }
   }
-  function edit() { reviewed = null; $("new-review").hidden = true; $("new-form").hidden = false; }
+  function edit() { reviewed = null; reviewToken = null; $("new-review").hidden = true; $("new-form").hidden = false; }
   try {
     const saved = JSON.parse(localStorage.getItem(storage));
     if (saved && typeof saved === "object") for (const field of fields) if (typeof saved[field] === "string") $("new-" + field).value = saved[field];
   } catch { message("O rascunho anterior não pôde ser recuperado."); }
-  $("new-form").addEventListener("submit", (event) => {
+  $("new-form").addEventListener("submit", async (event) => {
     event.preventDefault();
+    if (working) return;
     try {
       const draft = read(); const command = buildExecutionCommand(draft);
       if (!save()) return;
-      reviewed = draft;
-      $("new-command").textContent = command;
+      const submitButton = event.submitter || $("new-form").querySelector('button[type="submit"]');
+      working = true; submitButton.disabled = true; submitButton.textContent = "Verificando…";
+      message("Verificando ambiente, arquivos e diretórios no servidor…");
+      const connection = Object.fromEntries(["host", "user", "port", "control_path"].map((field) => [field, $(field).value.trim()]));
+      const submission = Object.fromEntries(fields.map((field) => [field, draft[field]]));
+      const response = await fetch("/api/submission/prepare", {method:"POST", headers:{"Content-Type":"application/json", "X-HelixForge-Token":token},
+        body:JSON.stringify({connection, draft:submission})});
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Não foi possível validar a execução no servidor.");
+      reviewed = draft; reviewToken = data.review_token;
+      $("new-review-status").textContent = "Ambiente e caminhos verificados no servidor. Confira os dados antes de enviar.";
+      $("new-command").textContent = data.preflight.command || command;
       $("new-review-info").replaceChildren();
-      for (const [label, value] of Object.entries({Nome:draft.name, Workflow:workflows[draft.workflow], Servidor:draft.host, Usuário:draft.user || "Do SSH config", Porta:draft.port || "Do SSH config", Configuração:draft.config, Lançamento:draft.launch, Saída:draft.output, Trabalho:draft.work, Partição:draft.partition, "Job de coordenação":`1 CPU · ${draft.memory} GB · ${draft.hours} h`})) $("new-review-info").append(element("dt", label), element("dd", value));
+      for (const [label, value] of Object.entries({Nome:draft.name, Workflow:workflows[draft.workflow], Servidor:draft.host, Usuário:data.preflight.user || draft.user || "Do SSH config", Porta:draft.port || "Do SSH config", Configuração:draft.config, Lançamento:draft.launch, Saída:draft.output, Trabalho:draft.work, Partição:draft.partition, "Job de coordenação":`1 CPU · ${draft.memory} GB · ${draft.hours} h`})) $("new-review-info").append(element("dt", label), element("dd", value));
       $("new-form").hidden = true; $("new-review").hidden = false;
+      message("Validação concluída. Revise os dados e confirme o envio.");
       $("new-review").scrollIntoView({block:"start"});
     } catch (error) { message(error.message); $("new-message").scrollIntoView({block:"center"}); }
+    finally { working = false; const submitButton = event.submitter || $("new-form").querySelector('button[type="submit"]'); submitButton.disabled = false; submitButton.textContent = "Revisar execução →"; }
   });
   $("new-save").addEventListener("click", save);
   $("new-clear").addEventListener("click", () => {
@@ -72,6 +85,21 @@ if (typeof document !== "undefined") (() => {
     if (!reviewed || JSON.stringify(read()) !== JSON.stringify(reviewed)) { edit(); message("Os dados mudaram. Revise a execução novamente."); return; }
     try { await navigator.clipboard.writeText($("new-command").textContent); message("Comando copiado. Nenhum job foi enviado pela UI."); }
     catch { message("Não foi possível copiar automaticamente. Selecione o comando abaixo."); }
+  });
+  $("new-submit").addEventListener("click", async () => {
+    if (working) return;
+    if (!reviewed || !reviewToken || JSON.stringify(read()) !== JSON.stringify(reviewed)) { edit(); message("Os dados mudaram. Valide a execução novamente."); return; }
+    working = true; $("new-submit").disabled = true; $("new-edit").disabled = true; $("new-submit").textContent = "Enviando…";
+    message("Enviando o job coordenador ao Slurm…");
+    try {
+      const response = await fetch("/api/submission/submit", {method:"POST", headers:{"Content-Type":"application/json", "X-HelixForge-Token":token}, body:JSON.stringify({review_token:reviewToken})});
+      const data = await response.json(); reviewToken = null;
+      if (!response.ok) throw new Error(data.error || "O Slurm não confirmou a submissão.");
+      window.registerSubmittedExecution(data);
+      try { localStorage.removeItem(storage); } catch { /* Submission succeeded independently of draft storage. */ }
+      message(`Job ${data.job_id} enviado e execução registrada para acompanhamento.`);
+    } catch (error) { reviewToken = null; message(error.message); $("new-review-status").textContent = "A submissão não foi confirmada. Valide novamente antes de tentar outro envio."; }
+    finally { working = false; $("new-submit").disabled = false; $("new-edit").disabled = false; $("new-submit").textContent = "Enviar job ao Slurm"; }
   });
   window.addEventListener("hashchange", describe);
   describe();

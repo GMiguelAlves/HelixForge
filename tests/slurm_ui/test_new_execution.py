@@ -1,4 +1,4 @@
-"""Command preparation only: never invokes sbatch, Nextflow, or SSH."""
+"""Submission UI tests never invoke sbatch, Nextflow, or SSH."""
 import json
 from pathlib import Path
 import shlex
@@ -48,3 +48,9 @@ class NewExecutionTests(unittest.TestCase):
                         {"workflow": "bad"}, {"runtime": "local"}, {"host": ""}):
             with self.subTest(changes=changes):
                 self.assertIn("error", self.build(**changes))
+
+    def test_ui_uses_review_then_submit_endpoints(self):
+        source = (Path(__file__).resolve().parents[2] / "ui/slurm/static/new-execution.js").read_text(encoding="utf-8")
+        self.assertIn('fetch("/api/submission/prepare"', source)
+        self.assertIn('fetch("/api/submission/submit"', source)
+        self.assertIn("registerSubmittedExecution", source)

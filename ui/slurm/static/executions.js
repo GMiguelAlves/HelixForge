@@ -15,6 +15,7 @@
   let removeCandidate = null;
   let removedRun = null;
   let removeTimer = null;
+  let progressTimer = null;
   const availabilityLabels = {available:"Disponível", failed:"Falha indicada", current:"Atual", stale:"Snapshot preservado", partial:"Parcial", missing:"Ausente", permission:"Sem permissão", unavailable:"Indisponível", identity:"Identidade alterada"};
   const healthLabels = {trace:"Trace", exit_logs:"Saída e logs", manifests:"Manifestos", files:"Arquivos"};
   function normalizeRun(run) {
@@ -53,6 +54,17 @@
     try { localStorage.setItem(key, JSON.stringify(next)); }
     catch { throw new Error("Não foi possível salvar o histórico. Verifique o espaço e as permissões de armazenamento do navegador."); }
     runs = next;
+  };
+  window.registerSubmittedExecution = (submission) => {
+    const checkedAt = submission.submitted_at || new Date().toISOString();
+    const data = {directory:submission.directory, checked_at:checkedAt, trace_found:false, trace_path:"", trace_modified:null,
+      tasks:[], artifacts:[], artifact_details:[], declarations:[], overall_state:"partial",
+      health:{trace:{state:"missing"}, exit_logs:{state:"missing"}, manifests:{state:"missing"}, files:{state:"missing"}}};
+    const run = normalizeRun({id:crypto.randomUUID(), name:submission.draft.name, workflow:submission.draft.workflow,
+      connection:submission.connection, created_at:checkedAt, data, availability:{state:"partial", checked_at:checkedAt}, history:[],
+      submission:{job_id:submission.job_id, submitted_at:checkedAt, launch:submission.launch}});
+    persist([run, ...runs]); selected = run.id; detailId = run.id;
+    location.hash = `execution/${run.id}/summary`; render();
   };
   try {
     const saved = JSON.parse(localStorage.getItem(key) || "[]");
@@ -106,6 +118,12 @@
   $("open-execution").addEventListener("click", () => { if (selected) location.hash = `execution/${selected}/summary`; });
   const date = (value) => value ? new Date(value).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—";
   const traceLabel = (data) => !data.trace_found ? "Sem trace" : data.tasks.some((task) => task.status === "FAILED") ? "Falhas registradas" : `${data.tasks.length} registros`;
+  function scheduleProgressRefresh(run) {
+    clearTimeout(progressTimer);
+    if (!run?.submission || !detailId || reading || document.hidden) return;
+    const terminal = run.data.tasks.length && run.data.tasks.every((task) => ["COMPLETED", "CACHED", "FAILED", "ABORTED", "CANCELLED"].includes(task.status));
+    if (!terminal) progressTimer = setTimeout(() => $("update-execution").click(), 30000);
+  }
 
   function render() {
     const query = $("execution-search").value.trim().toLocaleLowerCase();
@@ -154,7 +172,12 @@
     $("execution-note").textContent = stale ? `Snapshot stale preservado. A consulta mais recente indicou: ${availabilityLabels[run.availability.reason] || run.availability.reason}.` : "Estado final da análise não confirmado. Dados da última leitura.";
     $("execution-info").replaceChildren();
     const completed = data.tasks.filter((task) => ["COMPLETED", "CACHED"].includes(task.status)).length;
+    const progress = data.tasks.length ? Math.round(completed * 100 / data.tasks.length) : 0;
+    $("run-progress").value = progress;
+    $("run-progress-note").textContent = data.tasks.length ? `${completed} de ${data.tasks.length} processos registrados concluídos ou em cache (${progress}%).` :
+      (run.submission ? `Job coordenador ${run.submission.job_id} enviado; aguardando o primeiro trace do Nextflow.` : "Aguardando registros no trace.");
     const fields = { Workflow: workflows[run.workflow], Servidor: run.connection.host,
+      "Job coordenador": run.submission?.job_id || "—",
       "Diretório": data.directory, "Registrada em": date(run.created_at), "Última leitura": date(data.checked_at),
       "Trace alterado": date(data.trace_modified && data.trace_modified * 1000),
       "Processos": String(data.tasks.length), "Concluídos / cache": String(completed),
@@ -187,6 +210,7 @@
     $("execution-trace-note").textContent = data.trace_found ? `Registros de ${data.trace_path || "pipeline_info/execution_trace.tsv"}. Uma nova execução no mesmo diretório pode substituir esse arquivo.` : "Trace ainda não encontrado nos caminhos suportados. O cadastro foi mantido para consultas posteriores.";
     renderTasks(data);
     resultsViewer.bind(run);
+    scheduleProgressRefresh(run);
   }
 
   function renderTasks(data) {
@@ -384,5 +408,6 @@
   });
   $("execution-search").addEventListener("input", render);
   $("execution-filter").addEventListener("change", render);
+  document.addEventListener("visibilitychange", render);
   route();
 })();

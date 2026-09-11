@@ -1,4 +1,4 @@
-"""Read-only monitor contracts. No real SSH connections or Slurm jobs."""
+"""Slurm UI contracts. Tests never create real SSH connections or Slurm jobs."""
 
 import http.client
 import importlib.util
@@ -14,6 +14,13 @@ SPEC = importlib.util.spec_from_file_location("slurm_monitor", Path(__file__).re
 monitor = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(monitor)
 CONFIG = {"host": "example-cluster", "user": "", "port": "", "control_path": ""}
+
+
+def submission():
+    return {"name": "Analysis 01", "workflow": "rnaseq", "runtime": "slurm",
+            "repo": "/home/researcher/HelixForge", "config": "/home/researcher/run.config",
+            "launch": "/scratch/run", "output": "/scratch/run/results", "work": "/scratch/run/work",
+            "memory": "4", "hours": "12", "partition": "general", "account": ""}
 
 
 def queue_output():
@@ -127,6 +134,43 @@ class QueueTests(unittest.TestCase):
             cache.lock.release()
 
 
+class SubmissionTests(unittest.TestCase):
+    def test_draft_validation_rejects_commands_overlaps_and_invalid_resources(self):
+        self.assertEqual(monitor.submission_draft(submission())["memory"], "4")
+        for changes in ({"partition": "general;id"}, {"output": "/scratch/run/work/nested"},
+                        {"repo": "relative"}, {"config": "/tmp/a\ncommand"}, {"memory": "1.5"},
+                        {"runtime": "local"}, {"extra": "field"}):
+            value = {**submission(), **changes}
+            with self.subTest(changes=changes), self.assertRaises(monitor.MonitorError):
+                monitor.submission_draft(value)
+
+    @patch.object(monitor.subprocess, "run")
+    def test_remote_adapter_uses_fixed_python_and_structured_stdin(self, run):
+        response = {"ok": True, "user": "researcher", "command": "sbatch --parsable ...",
+                    "directory": "/scratch/run/results", "launch": "/scratch/run"}
+        run.return_value = subprocess.CompletedProcess([], 0, "HELIXFORGE_SUBMISSION_V1:" + json.dumps(response) + "\n", "")
+        result = monitor.remote_submission(CONFIG, submission(), "prepare")
+        self.assertEqual(result["user"], "researcher")
+        self.assertFalse(run.call_args.kwargs.get("shell", False))
+        self.assertEqual(json.loads(run.call_args.kwargs["input"])["draft"]["partition"], "general")
+        self.assertNotIn("/scratch/run/results", run.call_args.args[0][-1])
+
+    @patch.object(monitor.subprocess, "run", side_effect=subprocess.TimeoutExpired("ssh", 40))
+    def test_submit_timeout_is_reported_as_uncertain(self, _run):
+        with self.assertRaises(monitor.MonitorError) as raised:
+            monitor.remote_submission(CONFIG, submission(), "submit")
+        self.assertEqual(raised.exception.code, "uncertain")
+
+    @patch.object(monitor.subprocess, "run")
+    def test_remote_response_must_match_reviewed_paths(self, run):
+        response = {"ok": True, "user": "researcher", "command": "sbatch --parsable ...",
+                    "directory": "/different/results", "launch": "/scratch/run"}
+        run.return_value = subprocess.CompletedProcess([], 0, "HELIXFORGE_SUBMISSION_V1:" + json.dumps(response), "")
+        with self.assertRaises(monitor.MonitorError) as raised:
+            monitor.remote_submission(CONFIG, submission(), "prepare")
+        self.assertEqual(raised.exception.code, "response")
+
+
 class HTTPTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -202,6 +246,31 @@ class HTTPTests(unittest.TestCase):
             self.assertEqual(json.loads(body)["connection"]["port"], "22")
             self.assertEqual(self.request("POST", "/api/connection", json.dumps({**CONFIG, "host": "-oProxyCommand=bad"}), headers)[0], 400)
             self.assertEqual(self.request("POST", "/api/connection", json.dumps(CONFIG))[0], 403)
+
+    def test_submission_requires_review_and_consumes_token_once(self):
+        headers = {"X-HelixForge-Token": self.server.token, "Content-Type": "application/json"}
+        prepared = {"ok": True, "user": "researcher", "command": "sbatch --parsable ...",
+                    "directory": "/scratch/run/results", "launch": "/scratch/run"}
+        submitted = {**prepared, "job_id": "12345"}
+        self.server.submissions.clear()
+        with patch.object(monitor, "remote_submission", side_effect=[prepared, submitted]) as remote:
+            status, _, body = self.request("POST", "/api/submission/prepare",
+                json.dumps({"connection": CONFIG, "draft": submission()}), headers)
+            self.assertEqual(status, 200)
+            token = json.loads(body)["review_token"]
+            status, _, body = self.request("POST", "/api/submission/submit", json.dumps({"review_token": token}), headers)
+            self.assertEqual(status, 200)
+            self.assertEqual(json.loads(body)["job_id"], "12345")
+            self.assertEqual(self.request("POST", "/api/submission/submit", json.dumps({"review_token": token}), headers)[0], 409)
+            self.assertEqual([call.args[2] for call in remote.call_args_list], ["prepare", "submit"])
+
+    def test_invalid_submission_is_rejected_before_ssh(self):
+        headers = {"X-HelixForge-Token": self.server.token, "Content-Type": "application/json"}
+        with patch.object(monitor, "remote_submission", side_effect=AssertionError("Must not connect")):
+            status, _, body = self.request("POST", "/api/submission/prepare",
+                json.dumps({"connection": CONFIG, "draft": {**submission(), "partition": "x;id"}}), headers)
+        self.assertEqual(status, 400)
+        self.assertEqual(json.loads(body)["code"], "invalid")
 
 
 if __name__ == "__main__":
