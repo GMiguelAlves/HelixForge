@@ -106,9 +106,22 @@ class DocumentGenerationTests(unittest.TestCase):
 
     def test_star_is_explicit_and_idr_requires_narrow_peaks(self):
         plan = base_plan("rnaseq"); plan["science"]["quantification"] = "star"; plan["organism"]["genome_fasta"] = ""
-        with self.assertRaisesRegex(submission.PlanError, "Campo obrigatório"): submission.validate_plan(plan)
+        with self.assertRaisesRegex(submission.PlanError, "Genoma FASTA.*obrigatório"): submission.validate_plan(plan)
         plan = base_plan("chipseq"); plan["science"].update(idr=True, peak_type="broad")
         with self.assertRaisesRegex(submission.PlanError, "IDR requer picos narrow"): submission.validate_plan(plan)
+
+    def test_required_messages_identify_the_field_and_sample(self):
+        plan = base_plan(); plan["name"] = ""
+        with self.assertRaises(submission.PlanError) as raised: submission.validate_plan(plan)
+        self.assertEqual(str(raised.exception), 'O campo “Nome da análise” é obrigatório.')
+        self.assertEqual(raised.exception.field, "name")
+        plan = base_plan(); plan["rnaseq_samples"][1]["fastq_1"] = ""
+        with self.assertRaises(submission.PlanError) as raised: submission.validate_plan(plan)
+        self.assertEqual(str(raised.exception), 'O campo “FASTQ R1 da amostra 2 de RNA-seq” é obrigatório.')
+        self.assertEqual(raised.exception.field, "rnaseq_samples.1.fastq_1")
+        plan = base_plan(); del plan["storage"]["launch"]
+        with self.assertRaises(submission.PlanError) as raised: submission.validate_plan(plan)
+        self.assertEqual(str(raised.exception), 'O campo “Diretório de lançamento” é obrigatório.')
 
 
 if __name__ == "__main__":

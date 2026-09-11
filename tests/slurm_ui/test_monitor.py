@@ -326,6 +326,15 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(status, 400)
         self.assertTrue(json.loads(body)["code"].startswith("invalid:"))
 
+    def test_required_plan_field_is_named_in_http_error(self):
+        headers = {"X-HelixForge-Token": self.server.token, "Content-Type": "application/json"}
+        plan = base_plan(); plan["storage"]["output"] = ""
+        status, _, body = self.request("POST", "/api/preparation/review", json.dumps({"connection":CONFIG, "plan":plan}), headers)
+        error = json.loads(body)
+        self.assertEqual(status, 400)
+        self.assertEqual(error["code"], "invalid:storage.output")
+        self.assertEqual(error["error"], 'O campo “Diretório de resultados” é obrigatório.')
+
 
 if __name__ == "__main__":
     unittest.main()

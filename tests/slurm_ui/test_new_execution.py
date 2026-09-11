@@ -55,3 +55,9 @@ class NewExecutionTests(unittest.TestCase):
             self.assertIn(endpoint, source)
         self.assertIn("registerSubmittedExecution", source)
         self.assertNotIn("localStorage", source)
+
+    def test_required_field_messages_name_static_and_sample_fields(self):
+        source = Path(__file__).resolve().parents[2] / "ui/slurm/static/new-execution.js"
+        code = "const ui=require(process.argv[1]);console.log(JSON.stringify([ui.requiredFieldMessage('storage.output'),ui.requiredFieldMessage('chipseq_samples.2.control_id')]));"
+        result = subprocess.run(["node", "-e", code, str(source)], capture_output=True, text=True, encoding="utf-8", check=True, timeout=10)
+        self.assertEqual(json.loads(result.stdout), ['O campo “Diretório de resultados” é obrigatório.', 'O campo “Control ID da amostra 3 de ChIP-seq” é obrigatório.'])
