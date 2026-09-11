@@ -15,6 +15,17 @@ SPEC.loader.exec_module(remote)
 
 @unittest.skipUnless(hasattr(os, "getuid"), "Remote preparation runs on Linux")
 class AtomicWriteTests(unittest.TestCase):
+    def test_new_clone_review_pins_the_resolved_commit(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary) / "clone"
+            commit = "a" * 40
+            result = remote.subprocess.CompletedProcess([], 0, commit + "\trefs/heads/master\n", "")
+            clone = {"mode":"new", "path":str(target), "repository":"https://github.com/GMiguelAlves/HelixForge.git", "ref":"master"}
+            with patch.object(remote.shutil, "which", return_value="/usr/bin/git"), patch.object(remote, "run", return_value=result):
+                inspected = remote.inspect_clone(clone)
+            self.assertEqual(inspected["commit"], commit)
+            self.assertIn("checkout --detach " + commit, inspected["command"])
+
     def test_integrative_manifest_contract_is_checked_before_writing(self):
         with tempfile.TemporaryDirectory() as temporary:
             base = Path(temporary)

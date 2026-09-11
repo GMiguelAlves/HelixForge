@@ -136,7 +136,7 @@ if (typeof document !== "undefined") (() => {
   $("clone-check").addEventListener("click", async () => {
     if (busy) return; setBusy(true, "Verificando o clone e a referência no servidor…");
     try { const clone = {mode:cloneMode(), path:value("new-repo"), repository:value("new-repository"), ref:value("new-ref")}, data = await api("/api/clone/review", {connection:connection(), clone}), info = data.inspection; cloneToken = data.review_token || null;
-      $("clone-result").hidden = false; $("clone-result").replaceChildren(element("strong", info.state === "available" ? `${info.ref} · ${info.commit.slice(0, 12)}` : "Destino e referência disponíveis"), element("span", info.dirty ? "Há alterações locais; elas serão preservadas." : info.command || "Clone válido e limpo."));
+      $("clone-result").hidden = false; $("clone-result").replaceChildren(element("strong", info.state === "available" ? `${info.ref} · ${info.commit.slice(0, 12)}` : `Referência fixada · ${info.commit.slice(0, 12)}`), element("span", info.state === "available" ? `${info.dirty ? "Há alterações locais; elas serão preservadas. · " : ""}Origem: ${info.origin}` : info.command));
       cloneReady = info.state === "available"; $("clone-create").hidden = !cloneToken; message(cloneReady ? "Clone verificado." : "Revise o comando e confirme a criação do clone.");
     } catch (error) { showFieldError(error); } finally { setBusy(false); }
   });

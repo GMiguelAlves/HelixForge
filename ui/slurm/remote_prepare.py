@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -53,10 +54,16 @@ def inspect_clone(clone):
             fail("Git não está disponível no servidor.", "environment")
         raw_commit = bool(re.fullmatch(r"[0-9a-fA-F]{40}", clone["ref"]))
         checked = run(["git", "ls-remote", clone["repository"], *( [] if raw_commit else [clone["ref"]])], 30)
-        found = any(line.split("\t", 1)[0].lower() == clone["ref"].lower() for line in checked.stdout.splitlines()) if raw_commit else bool(checked.stdout.strip())
-        if checked.returncode or not found:
+        references = [line.split("\t", 1) for line in checked.stdout.splitlines() if "\t" in line]
+        matches = [item for item in references if re.fullmatch(r"[0-9a-fA-F]{40}", item[0])]
+        if raw_commit:
+            matches = [item for item in matches if item[0].lower() == clone["ref"].lower()]
+        if checked.returncode or not matches:
             fail("A tag, branch ou commit não foi encontrada no repositório oficial.", "missing")
-        return {"state":"ready_to_clone", "path":str(target), "repository":clone["repository"], "ref":clone["ref"], "command":"git clone --branch " + clone["ref"] + " --single-branch " + clone["repository"] + " " + str(target)}
+        resolved = next((item[0] for item in matches if item[1].endswith("^{}")), matches[0][0]).lower()
+        command = shlex.join(["git", "clone", clone["repository"], str(target)]) + " && " + shlex.join(["git", "-C", str(target), "checkout", "--detach", resolved])
+        return {"state":"ready_to_clone", "path":str(target), "repository":clone["repository"],
+                "ref":clone["ref"], "commit":resolved, "command":command}
     try:
         stat = target.stat()
     except OSError:
@@ -70,10 +77,12 @@ def inspect_clone(clone):
     commit = run(["git", "-C", str(target), "rev-parse", "HEAD"])
     branch = run(["git", "-C", str(target), "branch", "--show-current"])
     status = run(["git", "-C", str(target), "status", "--porcelain", "--untracked-files=no"])
+    origin = run(["git", "-C", str(target), "remote", "get-url", "origin"])
     if commit.returncode or branch.returncode or status.returncode:
         fail("Não foi possível identificar a versão do clone.", "invalid")
     return {"state":"available", "path":str(target), "commit":commit.stdout.strip(),
-            "ref":branch.stdout.strip() or "detached", "dirty":bool(status.stdout.strip())}
+            "ref":branch.stdout.strip() or "detached", "dirty":bool(status.stdout.strip()),
+            "origin":origin.stdout.strip() if origin.returncode == 0 else "origem não configurada"}
 
 
 def create_clone(clone):

@@ -13,26 +13,26 @@ SPEC.loader.exec_module(submission)
 def base_plan(workflow="rnaseq"):
     conditions = [("treated", 1), ("treated", 2), ("control", 1), ("control", 2)]
     rna = [{"dataset":"study", "sample_id":f"rna_{condition}_{rep}", "run_accession":f"RUN{index}",
-            "fastq_1":f"/scratch/fastq/rna_{index}_R1.fastq.gz", "fastq_2":f"/scratch/fastq/rna_{index}_R2.fastq.gz",
+            "fastq_1":f"/scratch/my_user/fastq/rna_{index}_R1.fastq.gz", "fastq_2":f"/scratch/my_user/fastq/rna_{index}_R2.fastq.gz",
             "condition":condition, "batch":"batch1", "replicate":str(rep)} for index, (condition, rep) in enumerate(conditions, 1)]
-    chip = [{"sample_id":"input_1", "fastq_1":"/scratch/fastq/input_R1.fastq.gz", "fastq_2":"/scratch/fastq/input_R2.fastq.gz",
+    chip = [{"sample_id":"input_1", "fastq_1":"/scratch/my_user/fastq/input_R1.fastq.gz", "fastq_2":"/scratch/my_user/fastq/input_R2.fastq.gz",
              "layout":"paired", "condition":"control", "batch":"batch1", "replicate":"1", "is_control":True, "mark_or_factor":"input", "control_id":""}]
-    chip += [{"sample_id":f"chip_{condition}_{rep}", "fastq_1":f"/scratch/fastq/chip_{index}_R1.fastq.gz", "fastq_2":f"/scratch/fastq/chip_{index}_R2.fastq.gz",
+    chip += [{"sample_id":f"chip_{condition}_{rep}", "fastq_1":f"/scratch/my_user/fastq/chip_{index}_R1.fastq.gz", "fastq_2":f"/scratch/my_user/fastq/chip_{index}_R2.fastq.gz",
               "layout":"paired", "condition":condition, "batch":"batch1", "replicate":str(rep), "is_control":False,
               "mark_or_factor":"H3K27ac", "control_id":"input_1"} for index, (condition, rep) in enumerate(conditions, 1)]
     return {"name":"Analysis 01", "workflow":workflow,
             "clone":{"mode":"existing", "path":"/home/researcher/HelixForge", "repository":"https://github.com/GMiguelAlves/HelixForge.git", "ref":""},
-            "storage":{"project_root":"/home/researcher/projects/analysis-01", "launch":"/home/researcher/launch/analysis-01", "output":"/scratch/researcher/analysis-01/results", "work":"/scratch/researcher/analysis-01/work"},
+            "storage":{"project_root":"/home/researcher/projects/analysis-01", "launch":"/home/researcher/launch/analysis-01", "output":"/scratch/my_user/analysis-01/results", "work":"/scratch/my_user/analysis-01/work"},
             "runtime":{"profile":"slurm,apptainer", "partition":"general", "account":"", "memory":"4", "hours":"12"},
-            "organism":{"name":"Example organism", "reference_id":"assembly_v1", "genome_fasta":"/scratch/reference/genome.fa",
-                        "transcriptome_fasta":"/scratch/reference/transcripts.fa", "annotation":"/scratch/reference/annotation.gtf", "blacklist":""},
+            "organism":{"name":"Example organism", "reference_id":"assembly_v1", "genome_fasta":"/scratch/my_user/reference/genome.fa",
+                        "transcriptome_fasta":"/scratch/my_user/reference/transcripts.fa", "annotation":"/scratch/my_user/reference/annotation.gtf", "blacklist":""},
             "science":{"quantification":"salmon", "peak_type":"narrow", "effective_genome_size":"2913022398",
                        "consensus_method":"replicate_support", "idr":False},
             "rnaseq_samples":rna if workflow in ("rnaseq", "all") else [], "chipseq_samples":chip if workflow in ("chipseq", "all") else [],
             "statistics":{"variable":"condition", "covariates":["batch"], "formula":"~ batch + condition", "alpha":"0.05", "lfc_threshold":"1", "min_replicates":"2", "genes":["gene1"],
                           "contrasts":[{"numerator":"treated", "denominator":"control"}]},
-            "integration":{"rna_manifest":"/scratch/rna/rnaseq_run_manifest.json" if workflow == "integrative" else "",
-                           "chip_manifest":"/scratch/chip/chipseq_run_manifest.json" if workflow == "integrative" else "", "policy_mode":"templates", "policy_paths":{}}}
+            "integration":{"rna_manifest":"/scratch/my_user/rna/rnaseq_run_manifest.json" if workflow == "integrative" else "",
+                           "chip_manifest":"/scratch/my_user/chip/chipseq_run_manifest.json" if workflow == "integrative" else "", "policy_mode":"templates", "policy_paths":{}}}
 
 
 class DocumentGenerationTests(unittest.TestCase):
@@ -75,7 +75,7 @@ class DocumentGenerationTests(unittest.TestCase):
         plan["organism"] = {"name":"", "reference_id":"", "genome_fasta":"", "transcriptome_fasta":"", "annotation":"", "blacklist":""}
         generated = submission.generate_documents(plan)
         docs = {item["relative_path"]:item["content"] for item in generated["documents"]}
-        self.assertIn("rna_manifest = '/scratch/rna/rnaseq_run_manifest.json'", docs["run.config"])
+        self.assertIn("rna_manifest = '/scratch/my_user/rna/rnaseq_run_manifest.json'", docs["run.config"])
         self.assertEqual(generated["plan"]["samples"], {"rnaseq":[], "chipseq":[]})
 
     def test_integrative_can_select_existing_policy_files(self):
@@ -90,7 +90,7 @@ class DocumentGenerationTests(unittest.TestCase):
 
     def test_malicious_paths_cells_and_repository_are_rejected(self):
         cases = []
-        plan = base_plan(); plan["storage"]["output"] = "/scratch/../escape"; cases.append(plan)
+        plan = base_plan(); plan["storage"]["output"] = "/scratch/my_user/../escape"; cases.append(plan)
         plan = base_plan(); plan["rnaseq_samples"][0]["sample_id"] = "sample\tbad"; cases.append(plan)
         plan = base_plan(); plan["clone"] = {"mode":"new", "path":"/home/new", "repository":"https://evil.invalid/repo", "ref":"main"}; cases.append(plan)
         for plan in cases:

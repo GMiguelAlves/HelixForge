@@ -441,7 +441,8 @@ class MonitorServer(ThreadingHTTPServer):
         inspection = remote_preparation(config, {"action":"inspect_clone", "clone":clone})
         response = {"inspection":inspection}
         if clone["mode"] == "new":
-            response["review_token"] = self._review("clone", {"config":config, "clone":clone})
+            approved = {**clone, "ref":inspection["commit"]}
+            response["review_token"] = self._review("clone", {"config":config, "clone":approved})
         return response
 
     def create_clone(self, value):
@@ -525,6 +526,9 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Cross-Origin-Resource-Policy", "same-origin")
+        self.send_header("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
         self.send_header("Referrer-Policy", "no-referrer")
         self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data: blob:; frame-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
         self.end_headers()

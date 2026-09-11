@@ -8,7 +8,10 @@ import subprocess
 import threading
 import unittest
 from unittest.mock import patch
-from test_submission_documents import base_plan
+try:
+    from .test_submission_documents import base_plan
+except ImportError:  # Direct discovery with tests/slurm_ui as the top level.
+    from test_submission_documents import base_plan
 
 
 SPEC = importlib.util.spec_from_file_location("slurm_monitor", Path(__file__).resolve().parents[2] / "ui/slurm/server.py")
@@ -20,7 +23,7 @@ CONFIG = {"host": "example-cluster", "user": "", "port": "", "control_path": ""}
 def submission():
     return {"name": "Analysis 01", "workflow": "rnaseq", "runtime": "slurm",
             "repo": "/home/researcher/HelixForge", "config": "/home/researcher/run.config",
-            "launch": "/scratch/run", "output": "/scratch/run/results", "work": "/scratch/run/work",
+            "launch": "/scratch/my_user/run", "output": "/scratch/my_user/run/results", "work": "/scratch/my_user/run/work",
             "memory": "4", "hours": "12", "partition": "general", "account": ""}
 
 
@@ -138,7 +141,7 @@ class QueueTests(unittest.TestCase):
 class SubmissionTests(unittest.TestCase):
     def test_draft_validation_rejects_commands_overlaps_and_invalid_resources(self):
         self.assertEqual(monitor.submission_draft(submission())["memory"], "4")
-        for changes in ({"partition": "general;id"}, {"output": "/scratch/run/work/nested"},
+        for changes in ({"partition": "general;id"}, {"output": "/scratch/my_user/run/work/nested"},
                         {"repo": "relative"}, {"config": "/tmp/a\ncommand"}, {"memory": "1.5"},
                         {"runtime": "local"}, {"extra": "field"}):
             value = {**submission(), **changes}
@@ -148,13 +151,13 @@ class SubmissionTests(unittest.TestCase):
     @patch.object(monitor.subprocess, "run")
     def test_remote_adapter_uses_fixed_python_and_structured_stdin(self, run):
         response = {"ok": True, "user": "researcher", "command": "sbatch --parsable ...",
-                    "directory": "/scratch/run/results", "launch": "/scratch/run"}
+                    "directory": "/scratch/my_user/run/results", "launch": "/scratch/my_user/run"}
         run.return_value = subprocess.CompletedProcess([], 0, "HELIXFORGE_SUBMISSION_V1:" + json.dumps(response) + "\n", "")
         result = monitor.remote_submission(CONFIG, submission(), "prepare")
         self.assertEqual(result["user"], "researcher")
         self.assertFalse(run.call_args.kwargs.get("shell", False))
         self.assertEqual(json.loads(run.call_args.kwargs["input"])["draft"]["partition"], "general")
-        self.assertNotIn("/scratch/run/results", run.call_args.args[0][-1])
+        self.assertNotIn("/scratch/my_user/run/results", run.call_args.args[0][-1])
 
     @patch.object(monitor.subprocess, "run", side_effect=subprocess.TimeoutExpired("ssh", 40))
     def test_submit_timeout_is_reported_as_uncertain(self, _run):
@@ -165,7 +168,7 @@ class SubmissionTests(unittest.TestCase):
     @patch.object(monitor.subprocess, "run")
     def test_remote_response_must_match_reviewed_paths(self, run):
         response = {"ok": True, "user": "researcher", "command": "sbatch --parsable ...",
-                    "directory": "/different/results", "launch": "/scratch/run"}
+                    "directory": "/different/results", "launch": "/scratch/my_user/run"}
         run.return_value = subprocess.CompletedProcess([], 0, "HELIXFORGE_SUBMISSION_V1:" + json.dumps(response), "")
         with self.assertRaises(monitor.MonitorError) as raised:
             monitor.remote_submission(CONFIG, submission(), "prepare")
@@ -212,6 +215,8 @@ class HTTPTests(unittest.TestCase):
         self.assertIn(self.server.token.encode(), body)
         self.assertNotIn(b"__SESSION_TOKEN__", body)
         self.assertIn("frame-ancestors 'none'", dict(headers)["Content-Security-Policy"])
+        self.assertEqual(dict(headers)["X-Frame-Options"], "DENY")
+        self.assertEqual(dict(headers)["Cross-Origin-Resource-Policy"], "same-origin")
         status, _, body = self.request("POST", "/api/jobs", json.dumps(CONFIG),
             {"Content-Type": "application/json", "X-HelixForge-Token": self.server.token})
         self.assertEqual(status, 200)
@@ -230,7 +235,7 @@ class HTTPTests(unittest.TestCase):
             "X-HelixForge-Token": self.server.token, "Content-Type": "application/json"})[0], 400)
 
     def test_execution_endpoint_requires_session_and_returns_inspection(self):
-        payload = json.dumps({"connection": CONFIG, "directory": "/scratch/run"})
+        payload = json.dumps({"connection": CONFIG, "directory": "/scratch/my_user/run"})
         self.assertEqual(self.request("POST", "/api/execution", payload)[0], 403)
         with patch.object(self.server.executions, "query", return_value={"tasks": [], "trace_found": False}):
             status, _, body = self.request("POST", "/api/execution", payload, {
@@ -260,7 +265,7 @@ class HTTPTests(unittest.TestCase):
     def test_submission_requires_review_and_consumes_token_once(self):
         headers = {"X-HelixForge-Token": self.server.token, "Content-Type": "application/json"}
         prepared = {"ok": True, "user": "researcher", "command": "sbatch --parsable ...",
-                    "directory": "/scratch/run/results", "launch": "/scratch/run"}
+                    "directory": "/scratch/my_user/run/results", "launch": "/scratch/my_user/run"}
         submitted = {**prepared, "job_id": "12345"}
         self.server.submissions.clear()
         with patch.object(monitor, "remote_submission", side_effect=[prepared, submitted]) as remote:
@@ -303,14 +308,15 @@ class HTTPTests(unittest.TestCase):
     def test_clone_creation_requires_separate_review_token(self):
         headers = {"X-HelixForge-Token": self.server.token, "Content-Type": "application/json"}
         clone = {"mode":"new", "path":"/home/researcher/HelixForge-v1", "repository":"https://github.com/GMiguelAlves/HelixForge.git", "ref":"v1.0.0"}
-        ready = {"state":"ready_to_clone", "path":clone["path"], "repository":clone["repository"], "ref":clone["ref"], "command":"git clone ..."}
+        ready = {"state":"ready_to_clone", "path":clone["path"], "repository":clone["repository"], "ref":clone["ref"], "commit":"a" * 40, "command":"git clone ..."}
         created = {"state":"available", "path":clone["path"], "commit":"b" * 40, "ref":"v1.0.0", "dirty":False}
         self.server.preparations.clear()
-        with patch.object(monitor, "remote_preparation", side_effect=[ready, created]):
+        with patch.object(monitor, "remote_preparation", side_effect=[ready, created]) as remote:
             status, _, body = self.request("POST", "/api/clone/review", json.dumps({"connection":CONFIG, "clone":clone}), headers)
             self.assertEqual(status, 200); token = json.loads(body)["review_token"]
             self.assertEqual(self.request("POST", "/api/clone/create", json.dumps({"review_token":token}), headers)[0], 200)
             self.assertEqual(self.request("POST", "/api/clone/create", json.dumps({"review_token":token}), headers)[0], 409)
+            self.assertEqual(remote.call_args_list[1].args[1]["clone"]["ref"], "a" * 40)
 
     def test_invalid_plan_never_reaches_remote_preparation(self):
         headers = {"X-HelixForge-Token": self.server.token, "Content-Type": "application/json"}
