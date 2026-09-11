@@ -8,6 +8,7 @@ import subprocess
 import threading
 import unittest
 from unittest.mock import patch
+from test_submission_documents import base_plan
 
 
 SPEC = importlib.util.spec_from_file_location("slurm_monitor", Path(__file__).resolve().parents[2] / "ui/slurm/server.py")
@@ -170,6 +171,15 @@ class SubmissionTests(unittest.TestCase):
             monitor.remote_submission(CONFIG, submission(), "prepare")
         self.assertEqual(raised.exception.code, "response")
 
+    @patch.object(monitor.subprocess, "run")
+    def test_preparation_adapter_keeps_documents_in_stdin(self, run):
+        response = {"state":"ready"}
+        run.return_value = subprocess.CompletedProcess([], 0, "HELIXFORGE_PREPARATION_V1:" + json.dumps(response), "")
+        request = {"action":"preflight", "documents":[{"path":"/home/project/run.config", "content":"secret"}]}
+        self.assertEqual(monitor.remote_preparation(CONFIG, request), response)
+        self.assertEqual(json.loads(run.call_args.kwargs["input"]), request)
+        self.assertNotIn("secret", run.call_args.args[0][-1])
+
 
 class HTTPTests(unittest.TestCase):
     @classmethod
@@ -271,6 +281,44 @@ class HTTPTests(unittest.TestCase):
                 json.dumps({"connection": CONFIG, "draft": {**submission(), "partition": "x;id"}}), headers)
         self.assertEqual(status, 400)
         self.assertEqual(json.loads(body)["code"], "invalid")
+
+    def test_document_review_must_precede_atomic_write(self):
+        headers = {"X-HelixForge-Token": self.server.token, "Content-Type": "application/json"}
+        preflight = {"state":"ready", "clone":{"ref":"master", "commit":"a" * 40, "dirty":False},
+                     "inputs":10, "documents":5, "java":"21", "nextflow":"25.10.7", "sbatch":True}
+        written = {"state":"written", "project_root":"/home/researcher/projects/analysis-01", "documents":["/home/researcher/projects/analysis-01/run.config"]}
+        self.server.preparations.clear()
+        with patch.object(monitor, "remote_preparation", side_effect=[preflight, written]) as remote:
+            status, _, body = self.request("POST", "/api/preparation/review", json.dumps({"connection":CONFIG, "plan":base_plan()}), headers)
+            self.assertEqual(status, 200)
+            review = json.loads(body)
+            self.assertGreaterEqual(len(review["documents"]), 5)
+            token = review["review_token"]
+            status, _, body = self.request("POST", "/api/preparation/write", json.dumps({"review_token":token}), headers)
+            self.assertEqual(status, 200)
+            self.assertEqual(json.loads(body)["draft"]["config"], "/home/researcher/projects/analysis-01/run.config")
+            self.assertEqual(self.request("POST", "/api/preparation/write", json.dumps({"review_token":token}), headers)[0], 409)
+            self.assertEqual([call.args[1]["action"] for call in remote.call_args_list], ["preflight", "write"])
+
+    def test_clone_creation_requires_separate_review_token(self):
+        headers = {"X-HelixForge-Token": self.server.token, "Content-Type": "application/json"}
+        clone = {"mode":"new", "path":"/home/researcher/HelixForge-v1", "repository":"https://github.com/GMiguelAlves/HelixForge.git", "ref":"v1.0.0"}
+        ready = {"state":"ready_to_clone", "path":clone["path"], "repository":clone["repository"], "ref":clone["ref"], "command":"git clone ..."}
+        created = {"state":"available", "path":clone["path"], "commit":"b" * 40, "ref":"v1.0.0", "dirty":False}
+        self.server.preparations.clear()
+        with patch.object(monitor, "remote_preparation", side_effect=[ready, created]):
+            status, _, body = self.request("POST", "/api/clone/review", json.dumps({"connection":CONFIG, "clone":clone}), headers)
+            self.assertEqual(status, 200); token = json.loads(body)["review_token"]
+            self.assertEqual(self.request("POST", "/api/clone/create", json.dumps({"review_token":token}), headers)[0], 200)
+            self.assertEqual(self.request("POST", "/api/clone/create", json.dumps({"review_token":token}), headers)[0], 409)
+
+    def test_invalid_plan_never_reaches_remote_preparation(self):
+        headers = {"X-HelixForge-Token": self.server.token, "Content-Type": "application/json"}
+        plan = base_plan(); plan["storage"]["work"] = "../../bad"
+        with patch.object(monitor, "remote_preparation", side_effect=AssertionError("Must not connect")):
+            status, _, body = self.request("POST", "/api/preparation/review", json.dumps({"connection":CONFIG, "plan":plan}), headers)
+        self.assertEqual(status, 400)
+        self.assertTrue(json.loads(body)["code"].startswith("invalid:"))
 
 
 if __name__ == "__main__":

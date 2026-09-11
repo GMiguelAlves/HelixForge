@@ -85,12 +85,13 @@
     $("execution-screen").hidden = screen !== "execution";
     $("new-execution-screen").hidden = screen !== "new";
     $("connections-screen").hidden = screen !== "connections";
-    for (const name of ["executions", "jobs", "connections"]) {
-      if (name === screen || (name === "executions" && ["execution", "new"].includes(screen))) $("nav-" + name).setAttribute("aria-current", "page");
+    for (const name of ["executions", "new", "jobs", "connections"]) {
+      if (name === screen || (name === "executions" && screen === "execution")) $("nav-" + name).setAttribute("aria-current", "page");
       else $("nav-" + name).removeAttribute("aria-current");
     }
   }
   $("nav-executions").addEventListener("click", () => { location.hash = "executions"; });
+  $("nav-new").addEventListener("click", () => { location.hash = "new"; });
   $("nav-jobs").addEventListener("click", () => { location.hash = "jobs"; });
   $("nav-connections").addEventListener("click", () => { location.hash = "connections"; });
   function route() {

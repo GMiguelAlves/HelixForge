@@ -51,6 +51,7 @@ class NewExecutionTests(unittest.TestCase):
 
     def test_ui_uses_review_then_submit_endpoints(self):
         source = (Path(__file__).resolve().parents[2] / "ui/slurm/static/new-execution.js").read_text(encoding="utf-8")
-        self.assertIn('fetch("/api/submission/prepare"', source)
-        self.assertIn('fetch("/api/submission/submit"', source)
+        for endpoint in ("/api/clone/review", "/api/clone/create", "/api/preparation/review", "/api/preparation/write", "/api/submission/prepare", "/api/submission/submit"):
+            self.assertIn(endpoint, source)
         self.assertIn("registerSubmittedExecution", source)
+        self.assertNotIn("localStorage", source)
