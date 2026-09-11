@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
   <script src="/results.js" defer></script>
+  <script src="/execution-state.js" defer></script>
   <script src="/executions.js" defer></script>
   <script src="/new-execution.js" defer></script>
   <script src="/connections.js" defer></script>
@@ -41,7 +42,7 @@
     </section>
     <div id="error" class="error" role="alert" hidden></div>
     <section id="executions-screen" aria-labelledby="executions-title">
-      <div class="queue-heading"><div><span class="eyebrow">HELIXFORGE / HISTÓRICO LOCAL</span><h1 id="executions-title">Execuções</h1></div><div class="form-actions"><button id="register-execution">Registrar existente</button><a class="button-link primary" href="#new">Nova execução +</a></div></div>
+      <div class="queue-heading"><div><span class="eyebrow">HELIXFORGE / HISTÓRICO LOCAL</span><h1 id="executions-title">Execuções</h1></div><div class="form-actions"><button id="undo-remove" hidden>Desfazer remoção</button><button id="import-executions">Importar</button><input id="import-file" class="sr-only" type="file" accept="application/json"><button id="export-executions">Exportar</button><button id="register-execution">Registrar existente</button><a class="button-link primary" href="#new">Nova execução +</a></div></div>
       <form id="execution-form" class="execution-form" hidden>
         <div class="execution-fields">
           <label>Nome da execução<input id="execution-name" required maxlength="120" placeholder="Ex.: ChIP-seq · amostra 01"></label>
@@ -75,7 +76,7 @@
       <div id="run-error" class="error" role="alert" hidden></div>
       <nav class="screen-nav run-tabs" aria-label="Seções da execução"><button id="run-tab-summary">Resumo</button><button id="run-tab-processes">Processos</button><button id="run-tab-logs">Logs</button><button id="run-tab-files">Resultados</button></nav>
       <section id="run-panel-summary" aria-label="Resumo da execução">
-        <div class="run-summary-grid"><section><h2>Dados da execução</h2><dl id="execution-info" class="run-info"></dl><div class="run-management"><button id="remove-execution">Remover do histórico</button><small>Os arquivos no servidor são mantidos.</small></div></section><aside class="run-status"><span class="eyebrow">TRACE</span><h2 id="run-trace-status"></h2><div id="run-counts"></div><p>O trace descreve processos registrados nesta saída. O estado final da análise ainda não é confirmado por este painel.</p></aside></div>
+        <div class="run-summary-grid"><section><h2>Dados da execução</h2><dl id="execution-info" class="run-info"></dl><h2>Histórico de leituras</h2><div id="snapshot-history" class="snapshot-history"></div><div class="run-management"><button id="remove-execution">Remover do histórico</button><small id="remove-note">Os arquivos no servidor são mantidos.</small></div></section><aside class="run-status"><span class="eyebrow">ESTADO GERAL</span><h2 id="run-overall-status"></h2><div id="run-health"></div><span class="eyebrow">TRACE</span><h2 id="run-trace-status"></h2><div id="run-counts"></div><p>Trace, logs, manifestos e arquivos são avaliados separadamente. Estados declarados não confirmam validade científica.</p></aside></div>
       </section>
       <section id="run-panel-processes" aria-label="Processos da execução" hidden>
         <p id="execution-trace-note"></p>
@@ -85,10 +86,10 @@
       <section id="run-panel-logs" aria-label="Logs dos processos" hidden><div class="log-controls"><label>Processo<select id="log-task"></select></label><label>Arquivo<select id="log-file"><option value=".command.out">Saída padrão · .command.out</option><option value=".command.err">Erros · .command.err</option><option value=".command.log">Log combinado · .command.log</option></select></label><button id="log-read">Ler log ↻</button></div><p>Para o log Nextflow e logs publicados, abra <a href="#" id="logs-open-results">Resultados</a>.</p><p>Leitura manual das últimas 400 linhas, limitada a 64 KiB. Consultas repetidas usam cache de 30 segundos.</p><p id="log-status" role="status">Selecione um processo e leia o log.</p><p id="log-path"></p><pre id="log-content" tabindex="0" aria-label="Conteúdo do log">Nenhum log carregado.</pre></section>
       <section id="run-panel-files" aria-label="Resultados da execução" hidden>
         <h2>Relatórios, figuras e arquivos</h2><p>Consulte logs Nextflow, manifestos, tabelas e artefatos publicados. Tentativas anteriores mantêm seus caminhos separados. A presença de arquivos não confirma sucesso científico.</p>
-        <div class="toolbar"><label class="search-label">Buscar caminho<input id="result-search" type="search" placeholder="nextflow.log, manifesto ou nome do resultado"></label><label>Tipo<select id="result-filter"><option value="all">Todos</option><option value="reports">Relatórios HTML</option><option value="figures">Figuras SVG</option><option value="manifests">Manifestos / JSON</option><option value="logs">Logs</option><option value="tables">Tabelas e outros textos</option></select></label></div>
+        <div class="toolbar"><label class="search-label">Buscar caminho<input id="result-search" type="search" placeholder="nextflow.log, manifesto ou nome do resultado"></label><label>Grupo<select id="result-filter"><option value="all">Todos os grupos</option><option value="current">Execução atual</option><option value="archived">Tentativas arquivadas</option><option value="logs">Logs</option><option value="manifests">Manifestos / proveniência</option><option value="evaluation">Avaliação</option><option value="reports">Relatórios</option><option value="figures">Figuras</option><option value="tables">Tabelas e outros textos</option></select></label></div>
         <div id="execution-artifacts" class="run-files"></div><div class="run-pagination"><span id="result-count" role="status"></span><button id="result-page-prev">Anterior</button><button id="result-page-next">Próxima</button></div><p id="run-copy-status" role="status"></p>
         <h2 id="result-title" tabindex="-1">Visualização</h2><p id="result-status" role="status">Selecione um arquivo para ler.</p><div class="form-actions"><button id="result-prev" disabled>Trecho anterior</button><button id="result-next" disabled>Próximo trecho</button><button id="result-tail" disabled>Final do arquivo</button></div><div id="result-preview"></div>
-        <p>Texto em blocos de 64 KiB; a busca do navegador consulta o trecho exibido. HTML/SVG: prévia até 4 MiB. Relatórios que dependem de JavaScript podem aparecer incompletos; use os processos do trace e os arquivos associados.</p>
+        <p>Texto em blocos de 64 KiB; a busca do navegador consulta o trecho exibido. HTML/SVG têm prévia até 4 MiB; PNG/JPEG/PDF até 12 MiB. Relatórios que dependem de JavaScript podem aparecer incompletos; use os processos do trace e os arquivos associados.</p>
       </section>
     </section>
     <section id="new-execution-screen" aria-labelledby="new-title" hidden>

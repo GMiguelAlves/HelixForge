@@ -28,5 +28,6 @@ jobs:
       - run: node --check ui/slurm/static/app.js
       - run: node --check ui/slurm/static/executions.js
       - run: node --check ui/slurm/static/results.js
+      - run: node --check ui/slurm/static/execution-state.js
       - run: node --check ui/slurm/static/new-execution.js
       - run: node --check ui/slurm/static/connections.js

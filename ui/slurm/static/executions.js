@@ -12,6 +12,29 @@
   let logRequest = 0;
   let logController = null;
   let logRun = null;
+  let removeCandidate = null;
+  let removedRun = null;
+  let removeTimer = null;
+  const availabilityLabels = {available:"Disponível", failed:"Falha indicada", current:"Atual", stale:"Snapshot preservado", partial:"Parcial", missing:"Ausente", permission:"Sem permissão", unavailable:"Indisponível", identity:"Identidade alterada"};
+  const healthLabels = {trace:"Trace", exit_logs:"Saída e logs", manifests:"Manifestos", files:"Arquivos"};
+  function normalizeRun(run) {
+    run.history = Array.isArray(run.history) ? run.history : [];
+    run.availability = run.availability || {state:run.data.overall_state === "partial" ? "partial" : "current", checked_at:run.data.checked_at};
+    return run;
+  }
+  function validRuns(value) {
+    return Array.isArray(value) && value.length <= 200 && !value.some((run) => typeof run.id !== "string" || !run.id || run.id.length > 128 ||
+      typeof run.name !== "string" || run.name.length > 120 || !workflows[run.workflow] ||
+      typeof run.connection?.host !== "string" || run.connection.host.length > 253 ||
+      typeof run.data?.directory !== "string" || run.data.directory.length > 2048 ||
+      !Array.isArray(run.data.tasks) || run.data.tasks.length > 2000 || !Array.isArray(run.data.artifacts) || run.data.artifacts.length > 1000 ||
+      run.data.artifacts.some((path) => typeof path !== "string" || path.length > 2048));
+  }
+  function snapshotSummary(data, state="current", reason="") {
+    return {checked_at:data.checked_at, state, reason, tasks:data.tasks.length, artifacts:data.artifacts.length,
+            health:data.health || null};
+  }
+  function history(run, entry) { return [entry, ...(run.history || [])].slice(0, 10); }
   function clearLog() {
     logRequest++; logController?.abort(); logController = null;
     $("log-content").textContent = "Nenhum log carregado.";
@@ -33,10 +56,8 @@
   };
   try {
     const saved = JSON.parse(localStorage.getItem(key) || "[]");
-    if (!Array.isArray(saved) || saved.some((run) => !run.id || typeof run.name !== "string" || !workflows[run.workflow] ||
-        typeof run.connection?.host !== "string" || typeof run.data?.directory !== "string" ||
-        !Array.isArray(run.data.tasks) || !Array.isArray(run.data.artifacts))) throw new Error();
-    runs = saved;
+    if (!validRuns(saved)) throw new Error();
+    runs = saved.map(normalizeRun);
     selected = runs[0]?.id;
     if (runs.length) {
       if (!$("host").value) {
@@ -100,7 +121,8 @@
       button.setAttribute("aria-pressed", String(run.id === selected));
       button.addEventListener("click", () => { selected = run.id; location.hash = `execution/${run.id}/summary`; });
       name.append(button, element("small", `${workflows[run.workflow]} · ${run.connection.host}`));
-      row.append(name, element("td", traceLabel(run.data)), element("td", date(run.data.checked_at)));
+      const state = run.availability?.state === "stale" ? `${traceLabel(run.data)} · stale (${availabilityLabels[run.availability.reason] || run.availability.reason})` : traceLabel(run.data);
+      row.append(name, element("td", state), element("td", date(run.data.checked_at)));
       $("execution-rows").append(row);
     }
     $("execution-table").hidden = !visible.length;
@@ -126,9 +148,10 @@
     $("run-title").textContent = run.name;
     $("run-breadcrumb-name").textContent = run.name;
     $("run-subtitle").textContent = `${workflows[run.workflow]} / ${run.connection.host}`;
-    $("run-read-time").textContent = `Última leitura: ${date(data.checked_at)} · dados salvos neste navegador`;
+    const stale = run.availability?.state === "stale";
+    $("run-read-time").textContent = `Último snapshot válido: ${date(data.checked_at)} · dados salvos neste navegador`;
     $("execution-detail-title").textContent = run.name;
-    $("execution-note").textContent = "Estado final da análise não confirmado. Dados da última leitura.";
+    $("execution-note").textContent = stale ? `Snapshot stale preservado. A consulta mais recente indicou: ${availabilityLabels[run.availability.reason] || run.availability.reason}.` : "Estado final da análise não confirmado. Dados da última leitura.";
     $("execution-info").replaceChildren();
     const completed = data.tasks.filter((task) => ["COMPLETED", "CACHED"].includes(task.status)).length;
     const fields = { Workflow: workflows[run.workflow], Servidor: run.connection.host,
@@ -140,8 +163,22 @@
     for (const declaration of data.declarations || []) {
       $("execution-info").append(element("dt", "Estado declarado no manifesto"), element("dd", `${declaration.status} · ${declaration.path}`));
     }
+    $("snapshot-history").replaceChildren();
+    const snapshots = [snapshotSummary(data, run.availability?.state || "current", run.availability?.reason || ""), ...(run.history || [])];
+    for (const item of snapshots.slice(0, 10)) {
+      const line = element("p", `${date(item.checked_at)} · ${availabilityLabels[item.state] || item.state}${item.reason ? ` (${availabilityLabels[item.reason] || item.reason})` : ""} · ${item.tasks} processos · ${item.artifacts} arquivos`);
+      $("snapshot-history").append(line);
+    }
     $("execution-preview").replaceChildren();
     for (const [label, value] of Object.entries({Workflow: workflows[run.workflow], Servidor:run.connection.host, Processos: String(data.tasks.length), "Última leitura":date(data.checked_at)})) $("execution-preview").append(element("dt", label), element("dd", value));
+    $("run-overall-status").textContent = stale ? "Snapshot preservado" : data.overall_state === "failed" ? "Falha indicada" : data.overall_state === "partial" ? "Leitura parcial" : "Disponível";
+    $("run-health").replaceChildren();
+    const health = data.health || {trace:{state:data.trace_found ? "available" : "missing"}, files:{state:data.artifacts.length ? "available" : "missing"}};
+    for (const [component, value] of Object.entries(health)) {
+      const line = element("div", "");
+      line.append(element("strong", availabilityLabels[value.state] || value.state), element("span", healthLabels[component] || component));
+      $("run-health").append(line);
+    }
     $("run-trace-status").textContent = traceLabel(data);
     $("run-counts").replaceChildren();
     for (const [label, count] of [["Concluídos", data.tasks.filter((task) => task.status === "COMPLETED").length], ["Em cache", data.tasks.filter((task) => task.status === "CACHED").length], ["Falhas", data.tasks.filter((task) => task.status === "FAILED").length]]) {
@@ -179,7 +216,14 @@
     $("run-task-title").textContent = task ? task.name : "Nenhum processo selecionado";
     $("run-task-info").replaceChildren();
     $("task-open-logs").disabled = !task;
-    if (task) for (const [label, value] of Object.entries({"ID tarefa":task.task_id, "ID Slurm":task.native_id, Estado:task.status, "Código de saída":task.exit, Duração:task.duration, "Tempo em execução":task.realtime})) $("run-task-info").append(element("dt",label),element("dd",value || "—"));
+    if (task) {
+      const detailRun = runs.find((item) => item.id === detailId);
+      const currentJob = findCurrentSlurmJob(task, detailRun?.connection, typeof connection === "undefined" ? null : connection, typeof snapshot === "undefined" ? null : snapshot);
+      const sameConnection = typeof connection !== "undefined" && connection && detailRun && ["host", "user", "port", "control_path"].every((field) => (connection[field] || "") === (detailRun.connection[field] || ""));
+      const fields = {"ID tarefa":task.task_id, "ID Slurm":task.native_id, Estado:task.status, "Código de saída":task.exit, Duração:task.duration, "Tempo em execução":task.realtime,
+                      "Fila Slurm atual":currentJob ? (labels[currentJob.state] || currentJob.state) : sameConnection && snapshot ? "Não encontrado na fila atual" : "Fila não consultada nesta conexão"};
+      for (const [label, value] of Object.entries(fields)) $("run-task-info").append(element("dt",label),element("dd",value || "—"));
+    }
   }
   for (const id of ["run-task-search", "run-task-state"]) $(id).addEventListener(id.endsWith("search") ? "input" : "change", () => { taskPage = 0; render(); });
   $("run-page-prev").addEventListener("click", () => { taskPage--; render(); });
@@ -229,14 +273,14 @@
     try {
       const response = await fetch("/api/execution", { method: "POST", headers: { "Content-Type": "application/json", "X-HelixForge-Token": token }, body: JSON.stringify({ connection: config, directory }), signal: controller.signal });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Não foi possível ler a execução.");
+      if (!response.ok) { const problem = new Error(data.error || "Não foi possível ler a execução."); problem.code = data.code || "unavailable"; throw problem; }
       $("connection-status").textContent = `Leitura realizada · ${config.host}`;
       document.querySelector(".connection-bar").className = "connection-bar connected";
       $("last-checked").textContent = `Última leitura de execução: ${date(data.checked_at)}`;
       return data;
     } catch (err) {
-      if (err.name === "AbortError") throw new Error("A consulta demorou demais. Verifique a conexão SSH.");
-      if (err instanceof TypeError) throw new Error("O serviço local não respondeu. Verifique se ele continua aberto.");
+      if (err.name === "AbortError") { const problem = new Error("A consulta demorou demais. Verifique a conexão SSH."); problem.code = "unavailable"; throw problem; }
+      if (err instanceof TypeError) { const problem = new Error("O serviço local não respondeu. Verifique se ele continua aberto."); problem.code = "unavailable"; throw problem; }
       throw err;
     } finally { clearTimeout(timeout); }
   }
@@ -263,8 +307,10 @@
     setReading(true);
     try {
       const data = await inspectRun(config, $("execution-directory").value.trim());
-      if (runs.some((run) => run.connection.host === config.host && run.connection.user === config.user && run.connection.port === config.port && run.data.directory === data.directory)) throw new Error("Este diretório já está cadastrado para esta conexão.");
-      const run = { id: crypto.randomUUID(), name, workflow, connection: config, created_at: new Date().toISOString(), data };
+      if (runs.some((run) => run.connection.host === config.host && run.connection.user === config.user && run.connection.port === config.port &&
+          (run.data.directory === data.directory || data.fingerprint && run.data.fingerprint === data.fingerprint))) throw new Error("Esta execução já está cadastrada para esta conexão.");
+      const run = normalizeRun({ id: crypto.randomUUID(), name, workflow, connection: config, created_at: new Date().toISOString(), data,
+        availability:{state:data.overall_state === "partial" ? "partial" : "current", checked_at:data.checked_at}, history:[] });
       persist([run, ...runs]);
       selected = run.id;
       $("execution-form").reset();
@@ -280,15 +326,61 @@
     error(""); setReading(true);
     try {
       const data = await inspectRun(run.connection, run.data.directory);
-      persist(runs.map((item) => item.id === run.id ? { ...run, data } : item));
+      const degraded = executionRegression(run.data, data);
+      if (degraded) {
+        const changed = preserveExecutionSnapshot(run, degraded.code, new Date().toISOString());
+        persist(runs.map((item) => item.id === run.id ? changed : item));
+        throw Object.assign(new Error(degraded.message), {code:degraded.code, preserved:true});
+      }
+      const changed = {...run, data, availability:{state:data.overall_state === "partial" ? "partial" : "current", checked_at:data.checked_at},
+        history:history(run, snapshotSummary(run.data, run.availability?.state || "current", run.availability?.reason || ""))};
+      persist(runs.map((item) => item.id === run.id ? changed : item));
       render();
-    } catch (err) { error(`${err.message} Os dados da última leitura foram mantidos.`); }
+    } catch (err) {
+      if (!err.preserved) {
+        const changed = preserveExecutionSnapshot(run, err.code || "unavailable", new Date().toISOString());
+        try { persist(runs.map((item) => item.id === run.id ? changed : item)); render(); } catch { /* Original error remains actionable. */ }
+      }
+      error(`${err.message} O último snapshot válido foi preservado.`);
+    }
     finally { setReading(false); }
   });
   $("remove-execution").addEventListener("click", () => {
     if (reading) return;
-    try { persist(runs.filter((run) => run.id !== (detailId || selected))); selected = runs[0]?.id; detailId = null; error(""); location.hash = "executions"; render(); }
+    const id = detailId || selected;
+    if (removeCandidate !== id) {
+      removeCandidate = id; $("remove-execution").textContent = "Confirmar remoção";
+      $("remove-note").textContent = "Clique novamente para remover somente o cadastro local.";
+      clearTimeout(removeTimer); removeTimer = setTimeout(() => { removeCandidate = null; $("remove-execution").textContent = "Remover do histórico"; $("remove-note").textContent = "Os arquivos no servidor são mantidos."; }, 5000);
+      return;
+    }
+    try {
+      const removal = removeExecutionLocally(runs, id); removedRun = removal.removed; persist(removal.remaining);
+      selected = runs[0]?.id; detailId = null; removeCandidate = null; error(""); location.hash = "executions"; render();
+      $("undo-remove").hidden = false; error("Cadastro removido. Os arquivos no servidor foram mantidos; você pode desfazer a remoção.");
+    }
     catch (err) { error(err.message); }
+  });
+  $("undo-remove").addEventListener("click", () => {
+    if (!removedRun) return;
+    try { const restored = removedRun; persist(restoreExecutionLocally(runs, restored)); selected = restored.id; removedRun = null; $("undo-remove").hidden = true; location.hash = `execution/${selected}/summary`; render(); }
+    catch (err) { error(err.message); }
+  });
+  $("export-executions").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify({schema:"helixforge.slurm.executions.v1", exported_at:new Date().toISOString(), runs}, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.href = url; link.download = "helixforge-executions.json"; link.click(); URL.revokeObjectURL(url);
+  });
+  $("import-executions").addEventListener("click", () => $("import-file").click());
+  $("import-file").addEventListener("change", async () => {
+    try {
+      const file = $("import-file").files[0];
+      if (!file || file.size > 10 * 1024 * 1024) throw new Error("O histórico deve ser um JSON de até 10 MiB.");
+      const parsed = JSON.parse(await file.text());
+      if (parsed.schema !== "helixforge.slurm.executions.v1" || !validRuns(parsed.runs)) throw new Error("Arquivo de histórico inválido.");
+      const merged = [...parsed.runs.map(normalizeRun), ...runs.filter((run) => !parsed.runs.some((item) => item.id === run.id))];
+      persist(merged); selected = runs[0]?.id; error(""); render();
+    } catch (err) { error(err.message || "Não foi possível importar o histórico."); }
+    finally { $("import-file").value = ""; }
   });
   $("execution-search").addEventListener("input", render);
   $("execution-filter").addEventListener("change", render);

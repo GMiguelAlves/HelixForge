@@ -59,6 +59,13 @@
 #run-counts > div { display: flex; gap: 20px; align-items: center; border-top: 1px solid #4d564b; padding: 15px 0; }
 #run-counts strong { font: 25px var(--mono); min-width: 45px; }
 #run-counts span { font-size: 13px; }
+#run-health { margin-bottom: 28px; }
+#run-health > div { display: flex; justify-content: space-between; gap: 18px; border-top: 1px solid #4d564b; padding: 11px 0; }
+#run-health strong { font: 11px var(--mono); color: #eaae87; }
+#run-health span { font-size: 12px; }
+.snapshot-history { border-top: 1px solid var(--line); }
+.snapshot-history p { margin: 0; padding: 10px 0; border-bottom: 1px solid var(--line); font: 11px/1.6 var(--mono); }
+.result-group { margin: 28px 0 0; padding: 9px 0; border-bottom: 2px solid var(--ink); font: 13px var(--mono) !important; text-transform: uppercase; letter-spacing: 1px; }
 .run-management { display: flex; align-items: center; gap: 18px; padding: 28px 0; }
 .run-management button { font-size: 13px; }
 .run-process-grid { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 30px; align-items: start; }
