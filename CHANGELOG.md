@@ -7,7 +7,39 @@ contract/model versions evolve independently as documented in
 
 ## [Unreleased]
 
-## [1.0.0-rc.1] - unreleased
+## [1.0.0] - 2026-09-14
+
+### Added
+
+- Frozen RNA-seq benchmark combining Polyester controlled truth and the full
+  GSE52778 biological dataset.
+- Frozen ChIP-seq benchmark covering synthetic and real narrow- and broad-peak
+  regimes.
+- Frozen Integrative benchmark covering synthetic truth, portable manifest
+  re-entry, negative contracts, and real RNA/ChIP integration.
+- Stable terminal manifests, portable re-entry artifacts, provenance, and HTML
+  reporting across the three workflows.
+
+### Changed
+
+- Promoted the validated release candidate to the stable `v1.0.0` software
+  release without changing scientific contracts, defaults, thresholds, or
+  algorithms.
+- Consolidated the overall benchmark decision as `PASS_WITH_LIMITATIONS`.
+
+### Known limitations
+
+- Salmon can show small numerical nondeterminism under some threading
+  conditions while preserving the validated scientific conclusions.
+- Synthetic broad-domain fragmentation, the non-evaluable RN3 null, and real
+  broad replicate asymmetry remain documented ChIP-seq limitations.
+- Integrative IB4 remains outside its expected range and IB5 is not evaluable
+  under the current directional Fisher contract.
+- Top-level `-resume` persistence is environment-dependent in the tested HPC
+  setup; Apptainer/Singularity and Conda remain experimental profiles.
+- STAR and RNA-seq single-end execution are not certified production paths.
+
+## [1.0.0-rc.1] - 2026-08-24
 
 ### Added
 
@@ -52,5 +84,6 @@ contract/model versions evolve independently as documented in
   v1 validation cycle.
 - Batch Effect Assessment and pathway enrichment are roadmap items.
 
-[Unreleased]: https://github.com/GMiguelAlves/HelixForge/compare/v1.0.0-rc.1...HEAD
+[Unreleased]: https://github.com/GMiguelAlves/HelixForge/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/GMiguelAlves/HelixForge/releases/tag/v1.0.0
 [1.0.0-rc.1]: https://github.com/GMiguelAlves/HelixForge/releases/tag/v1.0.0-rc.1
