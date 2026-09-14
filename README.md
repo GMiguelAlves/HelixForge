@@ -5,6 +5,11 @@ and cross-assay molecular evidence integration. It preserves explicit
 scientific contracts, provenance, and deterministic outputs while remaining
 ready for future assay providers.
 
+**Current stable release: HelixForge v1.0.0.** The validated release retains an
+overall benchmark classification of `PASS_WITH_LIMITATIONS`; the documented
+limitations bound the validated scope without indicating a central scientific
+implementation failure.
+
 ## What it runs
 
 | Workflow | Production path | Terminal contract |
@@ -110,6 +115,7 @@ Start at the [documentation index](docs/index.md):
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
 - [Developer guide](docs/developer-guide.md)
+- [HelixForge v1.0.0 release notes](docs/release-notes-v1.0.0.md)
 
 The same curated user documentation is published in the
 [GitHub Wiki](https://github.com/GMiguelAlves/HelixForge/wiki).

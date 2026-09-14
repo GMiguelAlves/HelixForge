@@ -42,6 +42,8 @@ the versioned source of truth.
 
 - [Final validation report](final-validation-report.md)
 - [Release-candidate audit](v1-rc-audit.md)
+- [HelixForge v1.0.0 freeze report](releases/v1.0.0_freeze_report.md)
+- [Release notes for v1.0.0](release-notes-v1.0.0.md)
 - [Release notes for v1.0.0-rc.1](release-notes-v1.0.0-rc.1.md)
 - [RNA-seq final validation](rnaseq-final-validation.md)
 - [ChIP-seq full native validation](chipseq-full-native-validation.md)

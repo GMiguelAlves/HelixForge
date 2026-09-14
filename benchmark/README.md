@@ -28,3 +28,7 @@ Cluster-specific launchers and runtime shims used during the campaigns were
 removed after freeze. Reusable builders, evaluators, renderers, compact
 evidence and all scientific contracts remain versioned; the annotated tags
 preserve the complete historical execution material.
+
+The machine-readable release consolidation is
+[`v1_benchmark_summary.json`](v1_benchmark_summary.json). The stable v1 release
+does not modify the evidence preserved by the three benchmark tags.
