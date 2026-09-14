@@ -3,6 +3,12 @@
 > **Historical validation record.** This report preserves dated runtime and
 > scientific evidence; it is not an installation or execution guide.
 
+> **Stable-release update (2026-09-14).** The later RNA-seq, ChIP-seq, and
+> Integrative benchmark programs are complete and frozen as
+> `PASS_WITH_LIMITATIONS`. Integrative legacy retirement is complete. The
+> `BLOCKED` decision below belongs to this earlier validation checkpoint and is
+> not the current HelixForge v1.0.0 release decision.
+
 > Update (2026-08-13): IDR 2.0.4.2 is implemented as an optional provider and
 > passed both immutable-OCI certification and a complete reduced top-level
 > Slurm execution. Statements below that IDR was `not_implemented` describe an

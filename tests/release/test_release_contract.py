@@ -10,11 +10,23 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class ReleaseContractTest(unittest.TestCase):
-    def test_software_version_is_rc_candidate(self):
+    def test_software_version_is_stable_v1(self):
         config = (ROOT / "nextflow.config").read_text(encoding="utf-8")
         match = re.search(r"^\s*version\s*=\s*'([^']+)'", config, re.MULTILINE)
         self.assertIsNotNone(match)
-        self.assertEqual("1.0.0-rc.1", match.group(1))
+        self.assertEqual("1.0.0", match.group(1))
+        citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
+        self.assertIn('version: "1.0.0"', citation)
+
+    def test_v1_benchmark_summary_preserves_all_limitations(self):
+        summary = json.loads((ROOT / "benchmark/v1_benchmark_summary.json").read_text(encoding="utf-8"))
+        self.assertEqual("v1.0.0", summary["release"])
+        self.assertEqual("PASS_WITH_LIMITATIONS", summary["overall_classification"])
+        self.assertEqual({"rnaseq", "chipseq", "integrative"}, set(summary["benchmarks"]))
+        self.assertTrue(all(item["classification"] == "PASS_WITH_LIMITATIONS" for item in summary["benchmarks"].values()))
+        self.assertEqual(6, len(summary["preserved_limitations"]))
+        for item in summary["benchmarks"].values():
+            self.assertTrue((ROOT / item["report"]).is_file(), item["report"])
 
     def test_public_workflows_and_schema_agree(self):
         schema = json.loads((ROOT / "nextflow_schema.json").read_text(encoding="utf-8"))

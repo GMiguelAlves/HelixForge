@@ -74,6 +74,17 @@ universe, enrichment method, thresholds, command, container, and checksums.
 Common outputs will include enrichment tables, plots, mapping diagnostics,
 manifest, versions, execution metadata, and provenance.
 
+## RNA-seq single-end extension
+
+Status: **planned as an isolated post-v1 certification** ([issue #76](https://github.com/GMiguelAlves/HelixForge/issues/76)).
+
+The paired-end Salmon path remains the certified v1 production route.
+Single-end support must extend samplesheet, QC, trimming, channel, manifest,
+and re-entry contracts so `read1` is valid without `read2`. Salmon fragment
+length mean and standard deviation must be explicit, validated, and recorded
+in provenance. Dedicated functional, regression, Slurm, and cache tests must
+demonstrate the extension without changing paired-end behavior.
+
 ## Release order
 
 RNA-seq, ChIP-seq and Integrative legacy retirement is complete. Their final
@@ -86,6 +97,8 @@ scientific work is:
 
 1. Implement Batch Effect Assessment as an optional exploratory subworkflow.
 2. Implement Pathway Enrichment providers behind the common downstream API.
+3. Implement and separately certify RNA-seq single-end execution while
+   preserving the paired-end baseline.
 
 RNA-seq and ChIP-seq reviewed biological benchmarks are complete. Their frozen
 administrative entry points are

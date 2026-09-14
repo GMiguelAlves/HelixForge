@@ -2,14 +2,14 @@
 
 ## Supported environment
 
-The v1 release candidate certifies a deliberately narrow runtime baseline.
+HelixForge v1.0.0 certifies a deliberately narrow runtime baseline.
 
 | Component | Status | Notes |
 |---|---|---|
 | Linux x86_64 | Supported | Primary execution platform |
 | WSL2 | Supported for development | Used for local checks; native Windows is unsupported |
 | Java 21 | Supported | Full validated baseline |
-| Nextflow 25.10.7 | Supported | Exact certified version for v1 RC |
+| Nextflow 25.10.7 | Supported | Exact scientifically validated version for v1.0.0 |
 | Newer Nextflow/Java | Experimental | May work, but is not the release baseline |
 | Docker profile | Supported | Recommended local container runtime |
 | Slurm profile | Supported with site configuration | Validated with a maximum of five concurrent submissions |
@@ -64,8 +64,11 @@ approved by the site. HelixForge processes never call `sbatch` themselves.
 
 ## Updating
 
-Use a release tag when one exists. Until the RC tag is authorized, clone the
-reviewed branch or commit explicitly. Do not assume that `master` is immutable.
+Use the stable release tag rather than assuming that `master` is immutable:
+
+```bash
+git checkout v1.0.0
+```
 
 ## Troubleshooting
 

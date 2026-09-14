@@ -2,8 +2,9 @@
 
 ## Status
 
-This is a draft release candidate. No tag should be created until the release
-checklist passes and the maintainer explicitly approves it.
+This historical release candidate was published on 24 August 2026 and is
+preserved for auditability. It was subsequently promoted to the stable
+`v1.0.0` release after completion of all three benchmark programs.
 
 ## Highlights
 
@@ -40,6 +41,6 @@ historical audit or semantic comparison.
 - Apptainer/Singularity and Conda are experimental.
 - Externally authored terminal manifests require further interoperability
   certification.
-- RNA-seq and ChIP-seq biological benchmark baselines are complete and retain
-  `PASS_WITH_LIMITATIONS`; the Integrative benchmark is the next validation
-  stage.
+- RNA-seq and ChIP-seq biological benchmark baselines were complete at RC
+  publication. The later Integrative baseline is also frozen as
+  `PASS_WITH_LIMITATIONS`; see the stable v1.0.0 release notes.

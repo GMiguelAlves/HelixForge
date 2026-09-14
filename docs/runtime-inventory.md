@@ -1,7 +1,7 @@
 # Runtime and container inventory
 
-This inventory groups the module-declared runtimes used by the v1 release
-candidate. `nextflow.config` and `nextflow_schema.json` are the executable
+This inventory groups the module-declared runtimes used by HelixForge v1.0.0.
+`nextflow.config` and `nextflow_schema.json` are the executable
 sources of truth; every process records its observed tool/version metadata.
 
 ## Production scientific runtimes
@@ -32,7 +32,7 @@ configuration; use the full values in `nextflow.config`.
 
 Small context/metadata/FASTQ-concatenation processes use exact version tags for
 `debian:12.5-slim` or `python:3.12.4-slim-bookworm`. These processes do not
-embed scientific algorithms, but digest-pinning them is a post-RC supply-chain
+embed scientific algorithms, but digest-pinning them is a post-v1 supply-chain
 hardening item. STAR uses its declared Seqera image and remains experimental.
 
 ## Apptainer and Conda
@@ -48,5 +48,5 @@ access, and a complete clean Conda smoke was not run.
 Repository GitHub Actions build/certify the custom DESeq2, report, MultiQC and
 ChIP images. Build jobs may test a version tag immediately after publishing it;
 the released runtime configuration uses the reviewed digest. Full-SHA pinning
-of third-party GitHub Actions is tracked separately as post-RC supply-chain
+of third-party GitHub Actions is tracked separately as post-v1 supply-chain
 hardening.

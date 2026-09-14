@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "release": "v1.0.0",
+  "validated_candidate": "v1.0.0-rc.1",
+  "overall_classification": "PASS_WITH_LIMITATIONS",
+  "benchmarks": {
+    "rnaseq": {
+      "classification": "PASS_WITH_LIMITATIONS",
+      "tag": "rnaseq-benchmark-v1.0.0-rc.1",
+      "report": "benchmark/rnaseq/README.md"
+    },
+    "chipseq": {
+      "classification": "PASS_WITH_LIMITATIONS",
+      "tag": "chipseq-benchmark-v1.0.0-rc.1",
+      "report": "benchmark/chipseq/reports/chipseq_benchmark_final_report.md"
+    },
+    "integrative": {
+      "classification": "PASS_WITH_LIMITATIONS",
+      "tag": "integrative-benchmark-v1.0.0-rc.1",
+      "report": "benchmark/integrative/reports/integrative_benchmark_final_report.md"
+    }
+  },
+  "preserved_limitations": [
+    "Salmon numerical nondeterminism under some threading conditions",
+    "synthetic broad fragmentation behavior",
+    "RN3 not evaluable under frozen null requirements",
+    "real broad replicate asymmetry",
+    "IB4 expected-range limitation",
+    "IB5 not evaluable under the current directional Fisher contract"
+  ]
+}
