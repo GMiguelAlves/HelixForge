@@ -7,6 +7,8 @@ contract/model versions evolve independently as documented in
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-09-15
+
 ### Fixed
 
 - Added an explicit, manifest-validated prebuilt Salmon-index path so
@@ -90,6 +92,7 @@ contract/model versions evolve independently as documented in
   v1 validation cycle.
 - Batch Effect Assessment and pathway enrichment are roadmap items.
 
-[Unreleased]: https://github.com/GMiguelAlves/HelixForge/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/GMiguelAlves/HelixForge/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/GMiguelAlves/HelixForge/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/GMiguelAlves/HelixForge/releases/tag/v1.0.0
 [1.0.0-rc.1]: https://github.com/GMiguelAlves/HelixForge/releases/tag/v1.0.0-rc.1
