@@ -35,7 +35,8 @@ def fixture(root: Path) -> tuple[Path, Path, Path]:
         json.dumps(
             {
                 "transcriptome_sha256": MODULE.sha256_file(transcriptome),
-                "composite_sha256": MODULE.canonical_index_sha256(index, files),
+                "composite_sha256": MODULE.canonical_index_sha256(index, files, index.name),
+                "composite_sha256_prefix": index.name,
                 "salmon_version": "1.10.3",
                 "index_version": 5,
                 "kmer_size": 31,

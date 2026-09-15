@@ -28,13 +28,15 @@ def index_inventory(index: Path) -> tuple[list[Path], int]:
     return files, sum(path.stat().st_size for path in files)
 
 
-def canonical_index_sha256(index: Path, files: list[Path] | None = None) -> str:
-    """Match the checksum emitted by SALMON_INDEX independent of its location."""
+def canonical_index_sha256(
+    index: Path, files: list[Path] | None = None, prefix: str = "salmon_index"
+) -> str:
+    """Hash sorted file-checksum lines under an explicit directory prefix."""
     files = files if files is not None else index_inventory(index)[0]
     digest = hashlib.sha256()
     for path in files:
         relative = path.relative_to(index).as_posix()
-        line = f"{sha256_file(path)}  salmon_index/{relative}\n"
+        line = f"{sha256_file(path)}  {prefix}/{relative}\n"
         digest.update(line.encode("utf-8"))
     return digest.hexdigest()
 
@@ -76,9 +78,12 @@ def validate(index: Path, transcriptome: Path, manifest_path: Path, expected_kme
         manifest, ("kmer_size",), ("parameters", "kmer_size")
     )
     manifest_index_version = nested_value(manifest, ("index_version",))
-    manifest_index_sha = nested_value(
-        manifest, ("index_sha256",), ("sha256",), ("composite_sha256",)
-    )
+    if manifest.get("composite_sha256") is not None:
+        manifest_index_sha = manifest["composite_sha256"]
+        checksum_prefix = str(manifest.get("composite_sha256_prefix", index.name))
+    else:
+        manifest_index_sha = nested_value(manifest, ("index_sha256",), ("sha256",))
+        checksum_prefix = str(manifest.get("index_sha256_prefix", "salmon_index"))
 
     required_manifest = {
         "transcriptome_sha256": manifest_transcriptome_sha,
@@ -93,7 +98,7 @@ def validate(index: Path, transcriptome: Path, manifest_path: Path, expected_kme
 
     transcriptome_sha = sha256_file(transcriptome)
     files, size_bytes = index_inventory(index)
-    index_sha = canonical_index_sha256(index, files)
+    index_sha = canonical_index_sha256(index, files, checksum_prefix)
     observed_salmon_version = str(version_info.get("salmonVersion", ""))
     observed_index_version = version_info.get("indexVersion")
     observed_kmer = version_info.get("auxKmerLength", info.get("k"))
@@ -125,6 +130,7 @@ def validate(index: Path, transcriptome: Path, manifest_path: Path, expected_kme
             "kmer_size": observed_kmer,
             "file_count": len(files),
             "size_bytes": size_bytes,
+            "checksum_prefix": checksum_prefix,
         },
     }
     if failed:

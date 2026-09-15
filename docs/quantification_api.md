@@ -60,7 +60,9 @@ directory is then emitted through the same provider-neutral index channel.
 The manifest must provide `transcriptome_sha256`, `salmon_version`,
 `index_version`, `kmer_size`, and one of `index_sha256`, `sha256`, or
 `composite_sha256`. `file_count` and `size_bytes` are optional additional
-guards. A mismatch terminates before `SALMON_QUANT` starts.
+guards. An external audit may declare `composite_sha256_prefix`; native
+`SALMON_INDEX` manifests use the stable `salmon_index` prefix. A mismatch
+terminates before `SALMON_QUANT` starts.
 
 This explicit mode is distinct from `-resume`: cache reuse may avoid a build,
 whereas the prebuilt-index contract guarantees that index construction is not
