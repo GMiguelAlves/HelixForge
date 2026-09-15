@@ -14,9 +14,9 @@ class ReleaseContractTest(unittest.TestCase):
         config = (ROOT / "nextflow.config").read_text(encoding="utf-8")
         match = re.search(r"^\s*version\s*=\s*'([^']+)'", config, re.MULTILINE)
         self.assertIsNotNone(match)
-        self.assertEqual("1.0.0", match.group(1))
+        self.assertEqual("1.0.1", match.group(1))
         citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
-        self.assertIn('version: "1.0.0"', citation)
+        self.assertIn('version: "1.0.1"', citation)
 
     def test_v1_benchmark_summary_preserves_all_limitations(self):
         summary = json.loads((ROOT / "benchmark/v1_benchmark_summary.json").read_text(encoding="utf-8"))
