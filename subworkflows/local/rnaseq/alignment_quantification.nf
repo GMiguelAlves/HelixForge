@@ -1,6 +1,7 @@
 include { RNASEQ_ALIGNMENT_PLAN }                       from '../../../modules/local/rnaseq_alignment_plan/main'
 include { RNASEQ_QUANTIFICATION_PLAN }                  from '../../../modules/local/rnaseq_quantification_plan/main'
 include { RNASEQ_IMPORT_CONTEXT }                       from '../../../modules/local/rnaseq_import_context/main'
+include { SALMON_INDEX_VALIDATE }                       from '../../../modules/local/salmon_index_validate/main'
 include { REFERENCE_INDEX }                             from '../alignment/reference_index'
 include { ALIGNMENT }                                   from '../alignment/alignment'
 include { TRANSCRIPTOME_INDEX }                         from '../quantification/transcriptome_index'
@@ -172,25 +173,60 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
         salmon_settings = quantification_settings_rows
             .filter { row -> row.method == 'salmon' && row.enabled.toBoolean() }
 
-        salmon_index_inputs = salmon_settings
-            .map { row ->
-                def safe_transcriptome = file(row.transcriptome).baseName.replaceAll(/[^A-Za-z0-9_.-]/, '_')
-                def index_key = row.index_dir
-                def meta = [
-                    id        : "salmon.${safe_transcriptome}.index",
-                    quantifier: 'salmon',
-                    index_key : index_key,
-                    target_dir: row.index_dir
-                ]
-                tuple(
-                    meta,
-                    file(row.transcriptome, checkIfExists: true),
-                    [kmer_size: row.kmer_size]
-                )
-            }
-            .unique { item -> item[0].index_key }
+        use_prebuilt_salmon_index = params.salmon_prebuilt_index != null && params.salmon_prebuilt_index.toString().trim()
+        if (use_prebuilt_salmon_index && !(params.salmon_prebuilt_index_manifest != null && params.salmon_prebuilt_index_manifest.toString().trim())) {
+            error '--salmon_prebuilt_index requires --salmon_prebuilt_index_manifest.'
+        }
 
-        TRANSCRIPTOME_INDEX(salmon_index_inputs)
+        if (use_prebuilt_salmon_index) {
+            salmon_external_index_inputs = salmon_settings
+                .map { row ->
+                    def safe_transcriptome = file(row.transcriptome).baseName.replaceAll(/[^A-Za-z0-9_.-]/, '_')
+                    def meta = [
+                        id        : "salmon.${safe_transcriptome}.external_index",
+                        quantifier: 'salmon',
+                        index_key : row.index_dir
+                    ]
+                    tuple(
+                        meta,
+                        file(row.transcriptome, checkIfExists: true),
+                        file(params.salmon_prebuilt_index, checkIfExists: true),
+                        file(params.salmon_prebuilt_index_manifest, checkIfExists: true),
+                        [kmer_size: row.kmer_size]
+                    )
+                }
+                .unique { item -> item[0].index_key }
+
+            SALMON_INDEX_VALIDATE(salmon_external_index_inputs)
+            salmon_indexes_by_key = SALMON_INDEX_VALIDATE.out.artifacts.map { index_meta, index ->
+                tuple(index_meta.index_key, index)
+            }
+            provider_logs = provider_logs.mix(SALMON_INDEX_VALIDATE.out.reports)
+        } else {
+            salmon_index_inputs = salmon_settings
+                .map { row ->
+                    def safe_transcriptome = file(row.transcriptome).baseName.replaceAll(/[^A-Za-z0-9_.-]/, '_')
+                    def index_key = row.index_dir
+                    def meta = [
+                        id        : "salmon.${safe_transcriptome}.index",
+                        quantifier: 'salmon',
+                        index_key : index_key,
+                        target_dir: row.index_dir
+                    ]
+                    tuple(
+                        meta,
+                        file(row.transcriptome, checkIfExists: true),
+                        [kmer_size: row.kmer_size]
+                    )
+                }
+                .unique { item -> item[0].index_key }
+
+            TRANSCRIPTOME_INDEX(salmon_index_inputs)
+            salmon_indexes_by_key = TRANSCRIPTOME_INDEX.out.artifacts.map { index_meta, index ->
+                tuple(index_meta.index_key, index)
+            }
+            provider_logs = provider_logs.mix(TRANSCRIPTOME_INDEX.out.reports)
+        }
 
         salmon_settings_by_project = salmon_settings.map { row -> tuple(row.project, row) }
         salmon_samples_by_project = RNASEQ_QUANTIFICATION_PLAN.out.plans
@@ -225,9 +261,6 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
         salmon_samples_by_index = salmon_sample_specs.map { meta, reads, transcriptome, quantification_params ->
             tuple(meta.index_key, meta, reads, transcriptome, quantification_params)
         }
-        salmon_indexes_by_key = TRANSCRIPTOME_INDEX.out.artifacts.map { index_meta, index ->
-            tuple(index_meta.index_key, index)
-        }
         salmon_quantification_inputs = salmon_samples_by_index
             .combine(salmon_indexes_by_key, by: 0)
             .map { _index_key, meta, reads, transcriptome, quantification_params, index ->
@@ -240,7 +273,6 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
             QUANTIFICATION.out.status.map { _meta, status -> tuple('salmon', status) }
         )
         provider_logs = provider_logs
-            .mix(TRANSCRIPTOME_INDEX.out.reports)
             .mix(QUANTIFICATION.out.logs)
         quantification_table = QUANTIFICATION.out.quantification
         quantification_manifest = QUANTIFICATION.out.manifest

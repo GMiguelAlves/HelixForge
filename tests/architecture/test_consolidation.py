@@ -52,6 +52,8 @@ def test_workflow_composition_guards() -> None:
     assert "if (run_alignment && native_alignment_enabled)" in rna
     assert "if (run_quantification && native_quantification_enabled)" in rna
     assert "if (run_mode in ['alignment', 'quant', 'quantification'])" in rna
+    assert "SALMON_INDEX_VALIDATE" in rna
+    assert "salmon_prebuilt_index_manifest" in rna
 
     chip = (ROOT / "subworkflows/local/chipseq/native_foundation.nf").read_text(encoding="utf-8")
     assert ".combine(indexes_by_key, by: 0)" in chip
