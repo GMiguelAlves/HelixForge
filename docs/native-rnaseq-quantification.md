@@ -48,8 +48,11 @@ flowchart TD
     SI --> SA["STAR_ALIGN per sample"]
     REF --> TI["TRANSCRIPTOME_INDEX API"]
     QP --> QU["QUANTIFICATION API"]
-    TI --> SX["SALMON_INDEX"]
+    TI --> IDX{"Index source"}
+    IDX -->|build| SX["SALMON_INDEX"]
+    IDX -->|prebuilt + manifest| SV["SALMON_INDEX_VALIDATE"]
     SX --> SQ["SALMON_QUANT per sample"]
+    SV --> SQ
     QC --> SA
     QC --> SQ
     SA --> STAROUT["BAM + gene counts"]
@@ -71,11 +74,16 @@ The two provider APIs have no edge between them. Import waits only for the metho
 | `RNASEQ_QUANTIFICATION_PLAN` | Translate the authoritative config and unchanged Salmon plan into API tuples | settings TSV, Salmon plan CSV |
 | `TRANSCRIPTOME_INDEX` | Dispatch by `meta.quantifier` | provider-neutral index, reports, versions, provenance |
 | `SALMON_INDEX` | Build one content-tracked Salmon index | complete Salmon index and checksums |
+| `SALMON_INDEX_VALIDATE` | Validate and reuse an immutable prebuilt index | provider-neutral index plus validation provenance |
 | `QUANTIFICATION` | Dispatch providers and project tool files into stable roles | quantification, command info, library format, auxiliary, logs, statistics |
 | `SALMON_QUANT` | Execute the preserved Salmon command once per sample | complete legacy-compatible Salmon directory plus provenance |
 
 The formal input/output contract and future-provider rules are defined in
 [quantification_api.md](quantification_api.md).
+
+Supplying both `--salmon_prebuilt_index` and
+`--salmon_prebuilt_index_manifest` bypasses index construction. This is an
+explicit provenance contract and does not depend on task-cache availability.
 
 ## Software and provenance
 
