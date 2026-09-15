@@ -58,8 +58,11 @@ flowchart LR
     MQC --> FAN{"analysis mode"}
     FAN -->|alignment or both| SI["STAR_INDEX"]
     SI --> SA["STAR_ALIGN"]
-    FAN -->|quantification or both| QI["SALMON_INDEX"]
+    FAN -->|quantification or both| QSRC{"Salmon index source"}
+    QSRC -->|build| QI["SALMON_INDEX"]
+    QSRC -->|prebuilt| QV["SALMON_INDEX_VALIDATE"]
     QI --> SQ["SALMON_QUANT"]
+    QV --> SQ
     SA --> IMP{"Import provider"}
     SQ --> IMP
     IMP -->|STAR| STARIMP["STAR_IMPORT"]

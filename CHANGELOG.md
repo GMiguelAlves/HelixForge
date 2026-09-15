@@ -7,6 +7,12 @@ contract/model versions evolve independently as documented in
 
 ## [Unreleased]
 
+### Fixed
+
+- Added an explicit, manifest-validated prebuilt Salmon-index path so
+  production workflows can guarantee index reuse without relying on
+  `-resume` or rebuilding an existing reference.
+
 ## [1.0.0] - 2026-09-14
 
 ### Added

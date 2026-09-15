@@ -37,10 +37,36 @@ manifest           // tuple(meta, partial manifest.json)
 status             // tuple(meta, status.json)
 ```
 
-The transcriptome and index parameters are content-tracked inputs. Providers
-must use deep cache and must not skip index construction merely because an
-unverified directory exists at `target_dir`. A successful cached task may
-republish its verified index at that compatibility path.
+The transcriptome and index parameters are content-tracked inputs. By default,
+providers build the index with deep cache and do not trust a directory merely
+because it exists at `target_dir`. A successful cached task may republish its
+verified index at that compatibility path.
+
+### Reusing a prebuilt Salmon index
+
+Production installations may provide an immutable index explicitly:
+
+```text
+--salmon_prebuilt_index <index-directory>
+--salmon_prebuilt_index_manifest <manifest.json>
+```
+
+Both parameters are required together. `SALMON_INDEX_VALIDATE` checks the
+transcriptome SHA-256, canonical composite index SHA-256, Salmon version, index
+version, k-mer size, file count, and byte size when declared. The validated
+directory is then emitted through the same provider-neutral index channel.
+`SALMON_INDEX` is not invoked and the supplied directory is never modified.
+
+The manifest must provide `transcriptome_sha256`, `salmon_version`,
+`index_version`, `kmer_size`, and one of `index_sha256`, `sha256`, or
+`composite_sha256`. `file_count` and `size_bytes` are optional additional
+guards. An external audit may declare `composite_sha256_prefix`; native
+`SALMON_INDEX` manifests use the stable `salmon_index` prefix. A mismatch
+terminates before `SALMON_QUANT` starts.
+
+This explicit mode is distinct from `-resume`: cache reuse may avoid a build,
+whereas the prebuilt-index contract guarantees that index construction is not
+part of the execution graph.
 
 ## Quantification provider
 

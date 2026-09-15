@@ -111,6 +111,20 @@
     },
     "salmon_index_queue": { "type": ["string", "null"], "default": null },
     "salmon_quant_queue": { "type": ["string", "null"], "default": null },
+    "salmon_prebuilt_index": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "Existing Salmon index directory. Requires salmon_prebuilt_index_manifest and bypasses SALMON_INDEX."
+    },
+    "salmon_prebuilt_index_manifest": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "Manifest proving the transcriptome, checksum, Salmon version, index version, and k-mer size of a prebuilt index."
+    },
+    "salmon_index_validation_container": {
+      "type": "string",
+      "default": "python:3.12.10-slim@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db"
+    },
     "chipseq_run_mode": {
       "type": "string",
       "enum": ["qc", "alignment", "post_alignment", "peaks", "peak_qc", "consensus", "idr", "differential_binding", "annotation", "tracks", "report", "full"],

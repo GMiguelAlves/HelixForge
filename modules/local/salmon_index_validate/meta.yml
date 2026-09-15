@@ -1,0 +1,23 @@
+name: salmon_index_validate
+description: Validate and reuse a prebuilt Salmon index without rebuilding it.
+keywords: [index, validation, quantification, rna-seq, salmon]
+tools:
+  - python:
+      description: Python programming language
+      homepage: https://www.python.org/
+      licence: [PSF-2.0]
+input:
+  - meta: {type: map, required: true}
+  - transcriptome: {type: file, required: true}
+  - transcriptome_index: {type: directory, required: true}
+  - index_manifest: {type: file, required: true}
+  - index_params: {type: map, required: true}
+output:
+  - artifacts: {type: directory}
+  - reports: {type: files, pattern: '*.validation.{json,log}'}
+  - versions: {type: file, pattern: '*.versions.yml'}
+  - execution_metadata: {type: file, pattern: '*.execution.json'}
+  - manifest: {type: file, pattern: '*.manifest.json'}
+  - status: {type: file, pattern: '*.salmon_index_validate.done'}
+authors:
+  - HelixForge contributors
