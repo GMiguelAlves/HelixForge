@@ -67,6 +67,19 @@ class ResumeGuardTests(unittest.TestCase):
         self.assertIn("no recoverable entries", result.stderr)
         self.assertFalse(self.receipt.exists())
 
+    def test_failed_rows_are_excluded_from_partial_run_receipt(self):
+        failed = self.root / "failed.tsv"
+        failed.write_text(
+            self.rows.read_text(encoding="utf-8")
+            + "ff/failed\tFLOW:FAILED (sample)\tFAILED\t1\t\n",
+            encoding="utf-8",
+        )
+        result = self.run_guard("capture", failed)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("ignored non-recoverable task records: 1", result.stderr)
+        payload = json.loads(self.receipt.read_text(encoding="utf-8"))
+        self.assertEqual(payload["task_count"], 1)
+
     def test_missing_workdir_fails_closed(self):
         self.task.rename(self.root / "removed-task")
         result = self.run_guard("capture")

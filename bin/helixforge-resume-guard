@@ -71,6 +71,7 @@ def read_log_rows(args: argparse.Namespace) -> list[dict[str, str]]:
         raw = completed.stdout
 
     rows: list[dict[str, str]] = []
+    ignored = 0
     for number, line in enumerate(raw.splitlines(), start=1):
         if not line.strip():
             continue
@@ -80,12 +81,13 @@ def read_log_rows(args: argparse.Namespace) -> list[dict[str, str]]:
                 f"invalid nextflow log row {number}: expected 5 tab-separated fields"
             )
         task_hash, name, status, exit_code, workdir = (field.strip() for field in fields)
-        if not task_hash or not name or not workdir:
+        if not task_hash or not name:
             raise GuardError(f"incomplete nextflow log row {number}")
         if status.upper() not in SUCCESS_STATES or exit_code != "0":
-            raise GuardError(
-                f"task is not recoverable: {name} status={status!r} exit={exit_code!r}"
-            )
+            ignored += 1
+            continue
+        if not workdir:
+            raise GuardError(f"recoverable task has no workdir in row {number}")
         rows.append(
             {
                 "hash": task_hash,
@@ -98,6 +100,11 @@ def read_log_rows(args: argparse.Namespace) -> list[dict[str, str]]:
     if not rows:
         raise GuardError(
             "task cache has no recoverable entries; refusing to allow -resume"
+        )
+    if ignored:
+        print(
+            f"[WARN] ignored non-recoverable task records: {ignored}",
+            file=sys.stderr,
         )
     if args.expected_tasks is not None and len(rows) != args.expected_tasks:
         raise GuardError(

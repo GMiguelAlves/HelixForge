@@ -68,7 +68,8 @@ returns and before cache/work cleanup. It writes a private receipt containing:
 context and requires:
 
 - at least one task record;
-- only successful records (`COMPLETED` or `CACHED`, exit zero);
+- at least one recoverable record (`COMPLETED` or `CACHED`, exit zero), while
+  failed/aborted attempts are reported and excluded from the receipt;
 - the exact captured task inventory;
 - every task work directory below the declared root;
 - `.exitcode=0` in every recorded work directory.
