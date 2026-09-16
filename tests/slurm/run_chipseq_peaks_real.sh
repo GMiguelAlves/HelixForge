@@ -23,7 +23,6 @@ esac
 test -d "$repo_root/.git"
 test -x "${conda_root}/envs/${rna_env}/bin/java"
 test -x "${conda_root}/envs/${chip_env}/bin/macs3"
-test -s "$validation_root/nextflow.jar"
 
 if [[ "$mode" == "prepare-job" ]]; then
     test -n "${SLURM_JOB_ID:-}"

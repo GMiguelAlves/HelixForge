@@ -27,10 +27,8 @@ esac
 
 test -d "$repo_root/.git"
 test -x "$conda_bin"
-test -x "${conda_root}/envs/${rna_env}/bin/java"
 test -x "${conda_root}/envs/${rna_env}/bin/STAR"
 test -x "${conda_root}/envs/${chip_env}/bin/samtools"
-test -s "$validation_root/nextflow.jar"
 if [[ -n "$star_command_dir" ]]; then
     case "$star_command_dir" in
         "$validation_root"/*) ;;
@@ -104,10 +102,12 @@ printf '%s\n' "$legacy_job" > "$case_root/legacy_job_id.txt"
 
 mkdir -p "$native_dir" "$nextflow_out"
 cd "$repo_root"
+nextflow_bin=${HELIXFORGE_NEXTFLOW_BIN:-nextflow}
+[[ "$nextflow_bin" == */* ]] || nextflow_bin=$(command -v "$nextflow_bin")
+test -x "$nextflow_bin"
 env PATH="$runtime_path" \
     NXF_HOME="$validation_root/.nextflow-home" \
-    "${conda_root}/envs/${rna_env}/bin/java" \
-    -jar "$validation_root/nextflow.jar" \
+    "$nextflow_bin" \
     -log "$case_root/nextflow.log" \
     run tests/native_alignment/main.nf \
     -c tests/native_alignment/nextflow.config \

@@ -24,9 +24,7 @@ case "$validation_root" in
 esac
 
 test -d "$repo_root/.git"
-test -x "${conda_root}/envs/${rna_env}/bin/java"
 test -x "${conda_root}/envs/${chip_env}/bin/samtools"
-test -s "$validation_root/nextflow.jar"
 
 metric() {
     local path=$1 name=$2
@@ -89,9 +87,11 @@ printf '%s\n' "$prepare_job" > "$case_root/prepare_job_id.txt"
 
 mkdir -p "$native_dir" "$nextflow_out"
 cd "$repo_root"
+nextflow_bin=${HELIXFORGE_NEXTFLOW_BIN:-nextflow}
+[[ "$nextflow_bin" == */* ]] || nextflow_bin=$(command -v "$nextflow_bin")
+test -x "$nextflow_bin"
 env PATH="$runtime_path" NXF_HOME="$validation_root/.nextflow-home" \
-    "${conda_root}/envs/${rna_env}/bin/java" \
-    -jar "$validation_root/nextflow.jar" \
+    "$nextflow_bin" \
     -log "$case_root/nextflow.log" \
     run tests/native_chipseq_bam/main.nf \
     -c tests/native_chipseq_bam/nextflow.config \

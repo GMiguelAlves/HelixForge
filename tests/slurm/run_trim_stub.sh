@@ -16,7 +16,9 @@ esac
 
 test -d "$repo_root/.git"
 test -x "$conda_bin"
-test -s "$validation_root/nextflow.jar"
+nextflow_bin=${HELIXFORGE_NEXTFLOW_BIN:-nextflow}
+[[ "$nextflow_bin" == */* ]] || nextflow_bin=$(command -v "$nextflow_bin")
+test -x "$nextflow_bin"
 
 case "$resume_mode" in
     true) resume_args=(-resume) ;;
@@ -26,8 +28,7 @@ esac
 
 cd "$repo_root"
 env NXF_HOME="$validation_root/.nextflow-home" \
-    "$conda_bin" run -n "$runtime_env" java \
-    -jar "$validation_root/nextflow.jar" \
+    "$nextflow_bin" \
     -log "$validation_root/trim-stub.nextflow.log" \
     run tests/native_trim_galore/main.nf \
     -c tests/native_trim_galore/nextflow.config \
