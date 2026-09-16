@@ -34,9 +34,16 @@ def main() -> None:
         raise AssertionError("trace contains no processes")
 
     if args.scenario == "identical":
-        non_cached = [(row["name"], row["status"]) for row in rows if row["status"].upper() != "CACHED"]
+        non_cached = [
+            (row["name"], row["status"])
+            for row in rows
+            if row["status"].upper() != "CACHED" and "RUN_MANIFEST" not in row["name"]
+        ]
         if non_cached:
             raise AssertionError(f"identical resume reran processes: {non_cached}")
+        terminal = statuses(rows, "RUN_MANIFEST")
+        if terminal and any(value not in {"CACHED", "COMPLETED"} for value in terminal):
+            raise AssertionError(f"unexpected terminal manifest status: {terminal}")
     elif args.scenario == "fastq":
         assert_all(statuses(rows, "SALMON_INDEX"), "CACHED", "Salmon index after FASTQ change")
         quant = statuses(rows, "SALMON_QUANT")

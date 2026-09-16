@@ -33,7 +33,7 @@ elif [[ "$consensus_method" != "union" ]]; then
     echo "Production validation supports consensus method union or idr, observed: $consensus_method" >&2
     exit 2
 fi
-nextflow_jar=${HELIXFORGE_NEXTFLOW_JAR:-${validation_root}/nextflow.jar}
+nextflow_bin=${HELIXFORGE_NEXTFLOW_BIN:-nextflow}
 
 case "$validation_root" in
     /*/helixforge-chipseq-validation-*) ;;
@@ -41,7 +41,11 @@ case "$validation_root" in
 esac
 test -e "$repo_root/.git"
 test -x "$conda_bin"
-test -s "$nextflow_jar"
+if [[ "$nextflow_bin" == */* ]]; then
+    test -x "$nextflow_bin"
+else
+    nextflow_bin=$(command -v "$nextflow_bin")
+fi
 if [[ -z "${SLURM_JOB_ID:-}" ]]; then
     mkdir -p "$compat_bin"
     ln -sfn "${conda_root}/envs/${chip_env}/bin/bowtie2-align-s" "$compat_bin/bowtie2"
@@ -133,7 +137,7 @@ submit_helper() {
         --job-name="$job_name" --partition="$queue"
         --cpus-per-task=1 --mem=2G --time=00:10:00
         --chdir="$repo_root"
-        --export="ALL,HELIXFORGE_REPO_ROOT=$repo_root,HELIXFORGE_NEXTFLOW_JAR=$nextflow_jar"
+        --export="ALL,HELIXFORGE_REPO_ROOT=$repo_root,HELIXFORGE_NEXTFLOW_BIN=$nextflow_bin"
         --output="$case_root/logs/${job_name}-%j.out"
         "$repo_root/tests/slurm/run_chipseq_production_real.sh"
         "$validation_root" "$conda_bin" "$rna_env" "$chip_env" "$r_env" "$python_env" "$queue"
@@ -160,7 +164,7 @@ run_stage() {
     env PATH="$runtime_path" \
         NXF_HOME="${validation_root}/nxf-home" \
         NXF_CACHE_DIR="$cache_root" \
-        "${conda_root}/envs/${rna_env}/bin/java" -Xms128m -Xmx1g -jar "$nextflow_jar" \
+        "$nextflow_bin" \
         -log "$case_root/logs/${stage}.nextflow.log" \
         run main.nf \
         "${resume_args[@]}" \
@@ -175,7 +179,7 @@ run_stage() {
     archive_operational "$stage"
 }
 
-runtime_version=$("${conda_root}/envs/${rna_env}/bin/java" -jar "$nextflow_jar" -version 2>&1)
+runtime_version=$("$nextflow_bin" -version 2>&1)
 [[ "$runtime_version" == *"version 25.10.7"* ]] || {
     printf 'Expected certified Nextflow 25.10.7, observed:\n%s\n' "$runtime_version" >&2
     exit 4

@@ -4,7 +4,6 @@ set -euo pipefail
 
 project_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 nextflow_bin=${NEXTFLOW_BIN:-nextflow}
-nextflow_jar=${NEXTFLOW_JAR:-}
 case_root="${project_root}/results/test/native-alignment-cache-v6"
 fixture_root="${project_root}/tests/fixtures/native_alignment"
 input_dir="${case_root}/input"
@@ -25,11 +24,7 @@ esac
 rm -rf "$case_root"
 
 run_nextflow() {
-    if [[ -n "$nextflow_jar" ]]; then
-        java -jar "$nextflow_jar" "$@"
-    else
-        "$nextflow_bin" "$@"
-    fi
+    "$nextflow_bin" "$@"
 }
 
 mkdir -p "$input_dir"

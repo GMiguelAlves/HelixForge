@@ -4,15 +4,10 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 IMAGE="${DESEQ2_TEST_IMAGE:-ghcr.io/gmiguelalves/helixforge-deseq2:1.0.1@sha256:0356ef0276bdeadf36da2fc3c97dbc4f925fec6783abea1c5da1aac7c1dc61eb}"
 ADAPTER_IMAGE="${DE_ADAPTER_TEST_IMAGE:-ghcr.io/gmiguelalves/helixforge-import-python:1.0.0@sha256:f09bbd79be8b6a14b3addebfad2134a692b2cb78d253b86d667fc423a34fe456}"
-NXF_BIN="${NEXTFLOW:-nextflow}"
-NXF_JAR="${NEXTFLOW_JAR:-}"
+NXF_BIN="${NEXTFLOW_BIN:-${NEXTFLOW:-nextflow}}"
 
 run_nextflow() {
-  if [[ -n "$NXF_JAR" ]]; then
-    java -jar "$NXF_JAR" "$@"
-  else
-    "$NXF_BIN" "$@"
-  fi
+  "$NXF_BIN" "$@"
 }
 if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
   echo "[SKIP] Missing validated DESeq2 image: $IMAGE" >&2
