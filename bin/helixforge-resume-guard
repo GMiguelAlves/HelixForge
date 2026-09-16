@@ -1,0 +1,197 @@
+#!/usr/bin/env python3
+"""Fail closed before a Nextflow resume when its task cache is not recoverable."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+from datetime import datetime, timezone
+
+
+SCHEMA = "helixforge.resume-receipt/1"
+SUCCESS_STATES = {"COMPLETED", "CACHED"}
+
+
+class GuardError(RuntimeError):
+    pass
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Capture or verify recoverable Nextflow task-cache entries before "
+            "a production -resume."
+        )
+    )
+    parser.add_argument("mode", choices=("capture", "check"))
+    parser.add_argument("--run-name", required=True)
+    parser.add_argument("--receipt", required=True, type=Path)
+    parser.add_argument("--work-dir", required=True, type=Path)
+    parser.add_argument("--launch-dir", type=Path, default=Path.cwd())
+    parser.add_argument("--nextflow", default=os.environ.get("NEXTFLOW", "nextflow"))
+    parser.add_argument("--cache-dir", type=Path)
+    parser.add_argument("--expected-tasks", type=int)
+    parser.add_argument(
+        "--log-tsv",
+        type=Path,
+        help="Read saved hash/name/status/exit/workdir rows instead of invoking Nextflow.",
+    )
+    return parser.parse_args()
+
+
+def read_log_rows(args: argparse.Namespace) -> list[dict[str, str]]:
+    if args.log_tsv:
+        raw = args.log_tsv.read_text(encoding="utf-8")
+    else:
+        env = os.environ.copy()
+        if args.cache_dir:
+            env["NXF_CACHE_DIR"] = str(args.cache_dir.resolve())
+        command = [
+            args.nextflow,
+            "log",
+            args.run_name,
+            "-f",
+            "hash,name,status,exit,workdir",
+        ]
+        completed = subprocess.run(
+            command,
+            cwd=args.launch_dir,
+            env=env,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if completed.returncode != 0:
+            detail = completed.stderr.strip() or completed.stdout.strip()
+            raise GuardError(f"nextflow log failed ({completed.returncode}): {detail}")
+        raw = completed.stdout
+
+    rows: list[dict[str, str]] = []
+    ignored = 0
+    for number, line in enumerate(raw.splitlines(), start=1):
+        if not line.strip():
+            continue
+        fields = line.split("\t")
+        if len(fields) != 5:
+            raise GuardError(
+                f"invalid nextflow log row {number}: expected 5 tab-separated fields"
+            )
+        task_hash, name, status, exit_code, workdir = (field.strip() for field in fields)
+        if not task_hash or not name:
+            raise GuardError(f"incomplete nextflow log row {number}")
+        if status.upper() not in SUCCESS_STATES or exit_code != "0":
+            ignored += 1
+            continue
+        if not workdir:
+            raise GuardError(f"recoverable task has no workdir in row {number}")
+        rows.append(
+            {
+                "hash": task_hash,
+                "name": name,
+                "status": status.upper(),
+                "exit": exit_code,
+                "workdir": workdir,
+            }
+        )
+    if not rows:
+        raise GuardError(
+            "task cache has no recoverable entries; refusing to allow -resume"
+        )
+    if ignored:
+        print(
+            f"[WARN] ignored non-recoverable task records: {ignored}",
+            file=sys.stderr,
+        )
+    if args.expected_tasks is not None and len(rows) != args.expected_tasks:
+        raise GuardError(
+            f"task count mismatch: expected {args.expected_tasks}, observed {len(rows)}"
+        )
+    return rows
+
+
+def validated_tasks(rows: list[dict[str, str]], work_root: Path) -> list[dict[str, str]]:
+    root = work_root.resolve(strict=True)
+    tasks: list[dict[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for row in rows:
+        raw_workdir = Path(row["workdir"])
+        if not raw_workdir.is_dir():
+            raise GuardError(f"task workdir does not exist: {raw_workdir}")
+        workdir = raw_workdir.resolve(strict=True)
+        try:
+            relative = workdir.relative_to(root)
+        except ValueError as error:
+            raise GuardError(f"task workdir is outside --work-dir: {workdir}") from error
+        exit_file = workdir / ".exitcode"
+        if not exit_file.is_file():
+            raise GuardError(f"missing task exit marker: {exit_file}")
+        if exit_file.read_text(encoding="utf-8").strip() != "0":
+            raise GuardError(f"non-zero task exit marker: {exit_file}")
+        identity = (row["hash"], row["name"])
+        if identity in seen:
+            raise GuardError(f"duplicate cache task identity: {identity}")
+        seen.add(identity)
+        tasks.append(
+            {
+                "hash": row["hash"],
+                "name": row["name"],
+                "workdir": relative.as_posix(),
+            }
+        )
+    return sorted(tasks, key=lambda task: (task["hash"], task["name"]))
+
+
+def capture(args: argparse.Namespace, tasks: list[dict[str, str]]) -> None:
+    payload = {
+        "schema": SCHEMA,
+        "run_name": args.run_name,
+        "captured_at": datetime.now(timezone.utc).isoformat(),
+        "task_count": len(tasks),
+        "tasks": tasks,
+    }
+    args.receipt.parent.mkdir(parents=True, exist_ok=True)
+    temporary = args.receipt.with_suffix(args.receipt.suffix + ".tmp")
+    temporary.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    temporary.replace(args.receipt)
+    print(f"[OK] resume receipt captured: run={args.run_name} tasks={len(tasks)}")
+
+
+def check(args: argparse.Namespace, tasks: list[dict[str, str]]) -> None:
+    if not args.receipt.is_file():
+        raise GuardError(f"resume receipt does not exist: {args.receipt}")
+    receipt = json.loads(args.receipt.read_text(encoding="utf-8"))
+    if receipt.get("schema") != SCHEMA:
+        raise GuardError(f"unsupported resume receipt schema: {receipt.get('schema')!r}")
+    if receipt.get("run_name") != args.run_name:
+        raise GuardError("resume run name does not match the captured receipt")
+    if receipt.get("task_count") != len(tasks):
+        raise GuardError(
+            "live task-cache count differs from the captured receipt: "
+            f"captured={receipt.get('task_count')} live={len(tasks)}"
+        )
+    if receipt.get("tasks") != tasks:
+        raise GuardError("live task-cache identities differ from the captured receipt")
+    print(f"[OK] resume cache is recoverable: run={args.run_name} tasks={len(tasks)}")
+
+
+def main() -> int:
+    args = parse_args()
+    try:
+        rows = read_log_rows(args)
+        tasks = validated_tasks(rows, args.work_dir)
+        if args.mode == "capture":
+            capture(args, tasks)
+        else:
+            check(args, tasks)
+    except (GuardError, OSError, ValueError, json.JSONDecodeError) as error:
+        print(f"[FAIL] {error}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

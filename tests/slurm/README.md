@@ -53,8 +53,38 @@ validation permits at most five concurrent tasks.
   tasks with Nextflow 25.10.7.
 - `cache_probe.nf` and `cache-probe.config` provide a one-process diagnostic
   for task-cache persistence independently of the scientific DAG.
+- `cache_scale_probe.nf` and `cache-scale-probe.config` vary only the number of
+  trivial task invocations, with at most five simultaneous Slurm jobs, so a
+  site can distinguish a single-task success from a scale/filesystem cache
+  failure without processing scientific data.
+- `cache_tuple_probe.nf` isolates the tuple-input shape used by real HelixForge
+  modules from the minimal scalar cache probe.
+- `cache_standard_probe.nf` distinguishes the default cache mode from the
+  suite's deep-content cache policy.
 
-The 2026-08-11 runtime matrix for that probe found:
+Before a production `-resume`, create a receipt immediately after the original
+run and validate it against the live cache:
+
+```bash
+bin/helixforge-resume-guard capture \
+  --run-name RUN_NAME \
+  --receipt /persistent/audit/resume-receipt.json \
+  --work-dir /shared/work
+
+bin/helixforge-resume-guard check \
+  --run-name RUN_NAME \
+  --receipt /persistent/audit/resume-receipt.json \
+  --work-dir /shared/work
+```
+
+The same `NXF_CACHE_DIR`, launch directory and Nextflow executable used by the
+workflow must be present for both commands. A missing/empty task database,
+changed task inventory, absent work directory, or non-zero `.exitcode` fails
+closed before Nextflow can submit work. Only a successful check authorizes
+`-resume RUN_NAME`; the guard does not reconstruct or replace Nextflow cache
+entries.
+
+The historical 2026-08-11 runtime matrix on Debian 12 found:
 
 - Nextflow 25.10.7 resumed from cache with Java 21 and Java 23;
 - Nextflow 26.04.6 submitted the identical task again with Java 21 and Java 23;
@@ -68,6 +98,13 @@ store remained empty. The driver stopped before the FASTQ, transcriptome,
 contrast, QC-parameter and module-script mutations because unchanged resume is
 a prerequisite for interpreting them. `recovery-driver` can continue an
 interrupted baseline, and the task cache is isolated per validation case.
+
+After the site upgrade to Debian 13, the exact one-task 25.10.7/Java 21 probe
+also produced an empty task database on both NFS and local ext4 cache paths.
+Task count, queue concurrency, deep/default cache mode and launch/cache
+filesystem were varied without recovering records. The current evidence and
+fail-closed operational policy are maintained in
+`docs/resume-cache-diagnostic.md`.
 
 The scripts do not install software or remove data. Cluster paths, the Conda
 executable, environment, and Slurm partition are explicit arguments.

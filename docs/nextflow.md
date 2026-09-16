@@ -6,6 +6,40 @@ demonstrated task-cache persistence failure is investigated. Java 21 and Java
 23 both resumed a one-task probe with 25.10.7, but the identical top-level RNA
 workflow did not persist task records; production `-resume` is not certified.
 
+## Safe resume preflight
+
+Do not add `-resume` blindly to a production invocation. Capture a cache
+receipt after the original run, while the task database and work directory are
+still present:
+
+```bash
+bin/helixforge-resume-guard capture \
+  --run-name RUN_NAME \
+  --receipt /persistent/audit/resume-receipt.json \
+  --work-dir /shared/work
+```
+
+Before resuming, use the same launch directory, `NXF_CACHE_DIR` and Nextflow
+runtime to verify that the live task inventory still matches the receipt:
+
+```bash
+bin/helixforge-resume-guard check \
+  --run-name RUN_NAME \
+  --receipt /persistent/audit/resume-receipt.json \
+  --work-dir /shared/work
+
+nextflow run . -resume RUN_NAME [the original arguments]
+```
+
+The check validates non-empty successful task records, stable hash/name
+identities, work-directory containment and `.exitcode=0`. It fails before job
+submission when persistence is absent or partial. A receipt contains relative
+work paths rather than site-specific absolute paths and must be kept with the
+private run audit, not committed as project configuration.
+
+The controlled runtime matrix and the re-entry policy are recorded in the
+[resume-cache diagnostic](resume-cache-diagnostic.md).
+
 ## Available workflows
 
 Select one workflow with `--workflow rnaseq`, `chipseq`, `integrative`, or
