@@ -23,8 +23,14 @@ Nextflow `-resume` depends on both its task database and the unchanged work
 directory. On one shared/WSL filesystem combination, complete runs succeeded
 but the LevelDB task store persisted without task entries, causing eligible
 tasks to run again. This is an operational limitation of that environment, not
-a known change in scientific results. Confirm cache reuse on the target site
-before relying on selective invalidation.
+a known change in scientific results. Production launchers must run
+`bin/helixforge-resume-guard check` against a previously captured receipt
+before adding `-resume`; an empty or partial cache must stop before submission.
+This prevents an expensive accidental rerun but does not repair missing
+Nextflow cache records. Confirm cache reuse on the target site before relying
+on selective invalidation. See the
+[controlled diagnostic](resume-cache-diagnostic.md) for the post-upgrade
+runtime matrix and safe re-entry policy.
 
 Compatibility outputs may retain configured absolute scratch paths. Docker
 runs must bind those paths consistently, while shared HPC filesystems must be
