@@ -215,12 +215,16 @@ if [[ "$mode" != "short-matrix-driver" ]]; then
 fi
 
 submit_helper hf-rna-contrast fixture-job contrast
-run_pipeline contrast-change true false
+downstream_validate_mappings=false
+if [[ "$mode" == "short-matrix-driver" ]]; then
+    downstream_validate_mappings=true
+fi
+run_pipeline contrast-change true "$downstream_validate_mappings"
 "${conda_root}/envs/${python_env}/bin/python3" \
     "$repo_root/tests/slurm/assert_rnaseq_cache.py" \
     "$case_root/traces/contrast-change.tsv" contrast
 
-run_pipeline qc-parameter-change true false 25
+run_pipeline qc-parameter-change true "$downstream_validate_mappings" 25
 "${conda_root}/envs/${python_env}/bin/python3" \
     "$repo_root/tests/slurm/assert_rnaseq_cache.py" \
     "$case_root/traces/qc-parameter-change.tsv" qc
