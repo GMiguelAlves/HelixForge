@@ -18,6 +18,7 @@ fi
 case_root="${validation_root}/results/${case_name}"
 conda_root=$(cd "$(dirname "$conda_bin")/.." && pwd)
 runtime_path="${conda_root}/envs/${rna_env}/bin:${conda_root}/envs/${r_env}/bin:${conda_root}/envs/${python_env}/bin:/usr/bin:/bin"
+certified_python="${conda_root}/envs/${rna_env}/bin/python3"
 nextflow_bin=${HELIXFORGE_NEXTFLOW_BIN:-nextflow}
 work_root="${validation_root}/work/${case_name}"
 cache_root="${HELIXFORGE_NXF_CACHE_DIR:-${repo_root}/.validation-cache/${case_name}}"
@@ -38,6 +39,7 @@ fi
 if [[ "$mode" == "preflight-job" ]]; then
     test -n "${SLURM_JOB_ID:-}"
     export PATH="$runtime_path"
+    test -x "$certified_python"
     missing=0
     for command_name in java salmon fastqc trim_galore cutadapt multiqc Rscript python3; do
         if command_path=$(command -v "$command_name"); then
@@ -48,6 +50,13 @@ if [[ "$mode" == "preflight-job" ]]; then
         fi
     done
     [[ "$missing" -eq 0 ]] || exit 3
+    selected_python=$(command -v python3)
+    [[ "$selected_python" == "$certified_python" ]] || {
+        printf '[ERROR] Expected certified Python %s, observed %s\n' \
+            "$certified_python" "$selected_python" >&2
+        exit 4
+    }
+    python3 -c 'import jsonschema, sys; import importlib.metadata as metadata; print("[OK] python=%s jsonschema=%s" % (sys.executable, metadata.version("jsonschema")))'
     salmon --version
     fastqc --version
     trim_galore --version

@@ -40,6 +40,26 @@ The former empty-cache incident, its direct-JAR root cause and the corrected
 runtime policy are recorded in the
 [resume-cache diagnostic](resume-cache-diagnostic.md).
 
+## Certified Python inheritance on Slurm
+
+Site launchers must prepend the certified tool environment to `PATH` **before**
+starting Nextflow. Nextflow processes then inherit that exact path. Checking
+only that a `python3` executable exists is insufficient: the selected
+interpreter must also provide the dependencies used by terminal manifest
+generation, including `jsonschema`.
+
+The production RNA-seq Slurm harness enforces this order:
+
+```text
+certified RNA/Python environment -> PATH -> Nextflow -> RUN_MANIFEST
+```
+
+Its compute-node preflight verifies that `python3` resolves to the certified
+environment and executes `python3 -c "import jsonschema"` in the same inherited
+environment before any scientific workflow is launched. A failed import or an
+unexpected interpreter aborts the run before analysis. Site-specific absolute
+paths remain private configuration and must not be committed to the repository.
+
 ## Available workflows
 
 Select one workflow with `--workflow rnaseq`, `chipseq`, `integrative`, or
