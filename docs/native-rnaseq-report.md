@@ -56,3 +56,22 @@ Certification proves the reduced provider contract and runtime. The full
 synthetic production path also passed on Slurm with 12 non-empty figures. A
 reviewed biological benchmark and broad result assessment remain a post-release
 validation milestone, as planned; they are not inferred from synthetic data.
+
+## Presentation validation
+
+The revised presentation layer was validated on 2026-09-17 against the
+preserved PRJNA597909 result set using the certified R environment on Slurm.
+The report completed in 1 minute 56 seconds with a peak resident-memory use of
+approximately 1.13 GiB. It represented 65 gene/group entries covering 61
+unique requested genes, of which 45 were present in the expression matrix.
+
+The revision reduced the generated figure set from 348 referenced plots to 285
+non-empty PNG files by rendering each unique gene only once. The complete
+result directory decreased from approximately 78 MB to 38 MB. Automated checks
+confirmed that every referenced image resolved, detailed images were deferred
+until their section was opened, and no absolute runtime path was exposed in the
+HTML or differential-expression tables.
+
+This validation concerns navigation, presentation, portability and resource
+use. Candidate-gene selection, expression transformations, differential-
+expression thresholds and all exported scientific tables remain unchanged.
