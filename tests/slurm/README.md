@@ -39,7 +39,9 @@ validation permits at most five concurrent tasks.
   QC -> Salmon -> Import -> DESeq2 -> Gene Report path, then attempts identical
   and selective invalidation scenarios. `baseline-driver` executes only the
   complete synthetic scientific baseline, while `resume-driver` continues a
-  completed baseline without overwriting its evidence.
+  completed baseline without overwriting its evidence. `short-matrix-driver`
+  verifies identical resume plus FASTQ, transcriptome, contrast and QC
+  parameter invalidation without the longer module-mutation scenarios.
 - `run_chipseq_production_real.sh` validates the complete supported ChIP-seq
   path using a deterministic paired-end fixture and at most five concurrent
   Slurm jobs. It chains `differential_binding`, `annotation`, `tracks`, and
@@ -84,27 +86,20 @@ closed before Nextflow can submit work. Only a successful check authorizes
 `-resume RUN_NAME`; the guard does not reconstruct or replace Nextflow cache
 entries.
 
-The historical 2026-08-11 runtime matrix on Debian 12 found:
-
-- Nextflow 25.10.7 resumed from cache with Java 21 and Java 23;
-- Nextflow 26.04.6 submitted the identical task again with Java 21 and Java 23;
-- earlier 26.04.4/26.04.6 probes also failed with Java 25 and with both syntax
-  parsers.
-
-The subsequent full RNA baseline completed with Nextflow 25.10.7, but its
-identical resume resubmitted tasks even with an explicit persistent
-`NXF_CACHE_DIR`. The same session UUID was retained while the LevelDB task
-store remained empty. The driver stopped before the FASTQ, transcriptome,
-contrast, QC-parameter and module-script mutations because unchanged resume is
-a prerequisite for interpreting them. `recovery-driver` can continue an
-interrupted baseline, and the task cache is isolated per validation case.
-
-After the site upgrade to Debian 13, the exact one-task 25.10.7/Java 21 probe
-also produced an empty task database on both NFS and local ext4 cache paths.
-Task count, queue concurrency, deep/default cache mode and launch/cache
-filesystem were varied without recovering records. The current evidence and
-fail-closed operational policy are maintained in
+An earlier version/JVM matrix appeared to identify runtime-dependent cache
+behavior. That comparison is not accepted as evidence because its failing
+harnesses invoked the Nextflow JAR directly while the successful control used
+the official launcher. The apparent difference was caused by launch method,
+not filesystem or Slurm. With the official Nextflow 25.10.7 launcher and Java
+21, the complete RNA workflow persists task records and an identical resume
+recovers all scientific tasks from cache. The short selective matrix also
+passes FASTQ, transcriptome, contrast and trim-quality boundaries. The
+corrected evidence and operational policy are maintained in
 `docs/resume-cache-diagnostic.md`.
+
+All harnesses must receive an official launcher through `NEXTFLOW_BIN` or
+`HELIXFORGE_NEXTFLOW_BIN`. A wrapper that delegates to `java -jar` is not a
+supported launcher.
 
 The scripts do not install software or remove data. Cluster paths, the Conda
 executable, environment, and Slurm partition are explicit arguments.

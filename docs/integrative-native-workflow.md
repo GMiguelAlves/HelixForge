@@ -81,11 +81,10 @@ HTML report, terminal schema and absence of active legacy dependencies. The
 real local run completed all 12 processes with Nextflow 25.10.7. A subsequent
 top-level `workflow all -stub-run` also completed 108 tasks, including native
 RNA-seq and ChIP-seq terminal-manifest production and Integrative consumption.
-A subsequent
-resume reused the same session UUID, but the newly created cache LevelDB
-contained no task entries (`000011.log` was empty), so selective cache reuse
-remains an external operational limitation already tracked for the certified
-runtime/filesystem combination.
+A subsequent resume originally produced an empty task database. The retained
+diagnostic later showed that its harness invoked the Nextflow JAR directly and
+bypassed launcher-provided JVM options. This operational defect is resolved;
+supported executions must use the official launcher.
 
 ## Current limitations
 
@@ -96,6 +95,5 @@ runtime/filesystem combination.
   manifest-relative bundles are the certified re-entry mechanism;
 - reviewed biological benchmark validation remains part of the v1 validation
   cycle;
-- `-resume` semantics are implemented normally but not operationally certified
-  on the affected shared/WSL filesystem because its Nextflow task database may
-  persist with zero entries.
+- `-resume` requires the official Nextflow launcher and preserved cache/work
+  artifacts; direct JAR execution is unsupported.

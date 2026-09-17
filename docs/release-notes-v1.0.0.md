@@ -76,8 +76,9 @@ performance across organisms, protocols, executors, or sequencing designs.
   H3K27me3 region passed the preregistered differential threshold.
 - Integrative IB5 was not evaluable because the current statistics contract
   does not emit directional-concordance Fisher tests.
-- Complete-workflow `-resume` persistence was unreliable in the tested shared
-  HPC environment even though Nextflow 25.10.7 passed the minimal cache probe.
+- At release time, complete-workflow `-resume` persistence was considered
+  unreliable. Post-release diagnosis identified direct JAR invocation in the
+  validation harness; the supported official launcher restores persistence.
 - Apptainer/Singularity and Conda profiles remain experimental. The tested
   cluster did not provide an administrator-supported Apptainer runtime with
   registry and mount access.
@@ -100,4 +101,3 @@ The release retains the RC tag, all three annotated benchmark tags, compact
 machine-readable benchmark evidence, historical legacy tags, terminal-manifest
 schemas, pinned providers, and audit-oriented documentation. Benchmark results
 were not recomputed or modified for this stable release.
-
