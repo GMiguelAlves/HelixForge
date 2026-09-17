@@ -93,6 +93,10 @@ The execution and acceptance matrix is maintained in
 - Python compilation for changed manifest/report helpers: **PASS**.
 - JSON parsing for root, schema and asset specifications: **PASS**.
 - Git whitespace/error check: **PASS**.
-- Nextflow lint and stub execution: **NOT RUN** because `nextflow` is not
-  installed in the available WSL environment. No runtime or dependencies were
-  downloaded. This is an environment limitation, not a successful validation.
+- At the time of this historical audit, Nextflow lint and stub execution were
+  **NOT RUN** because the available WSL environment did not contain a Nextflow
+  launcher. This historical limitation was subsequently closed: on 2026-09-16,
+  the complete `nextflow lint .` and all four public workflow stub smokes
+  (`rnaseq`, `chipseq`, `integrative`, and `all`) were executed in WSL2 with the
+  official Nextflow launcher 25.10.7 and Java 21. The same lint and smoke gates
+  also run in the release-candidate GitHub Actions workflow.

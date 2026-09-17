@@ -91,6 +91,12 @@ def test_workflow_composition_guards() -> None:
     assert '"baseline-driver"' in production_harness
     assert "--rnaseq_report_enabled true" in production_harness
     assert "--rnaseq_report_genes" in production_harness
+    assert 'runtime_path="${conda_root}/envs/${rna_env}/bin:' in production_harness
+    assert 'certified_python="${conda_root}/envs/${rna_env}/bin/python3"' in production_harness
+    assert 'selected_python=$(command -v python3)' in production_harness
+    assert '[[ "$selected_python" == "$certified_python" ]]' in production_harness
+    assert "import jsonschema, sys" in production_harness
+    assert 'env PATH="$runtime_path"' in production_harness
 
 
 def test_manifest_identity_and_lineage_guards() -> None:
