@@ -7,11 +7,22 @@ contract/model versions evolve independently as documented in
 
 ## [Unreleased]
 
+### Changed
+
+- Redesigned the RNA-seq Gene Report around a compact scientific overview,
+  searchable gene status, progressive disclosure and reusable full-resolution
+  figures, while preserving its scientific calculations and exported tables.
+- Removed duplicate per-group rendering of the same gene and suppressed
+  invariant or placeholder metadata from plots where it conveyed no
+  information.
+
 ### Fixed
 
 - Replaced direct Nextflow JAR invocation in validation harnesses with the
   official launcher, restoring task-cache persistence and complete-workflow
   `-resume` under the certified Nextflow 25.10.7/Java 21 runtime.
+- Prevented absolute staged-file paths and redundant provider labels from
+  leaking into RNA-seq Gene Report differential-expression summaries.
 
 ## [1.0.1] - 2026-09-15
 

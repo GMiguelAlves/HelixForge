@@ -34,8 +34,8 @@ Signalling: gene_c; gene_d
 
 ## Provider
 
-`candidate_genes_v1` is the first provider. It executes the established
-`gene_set_report.R` script unchanged with explicit arguments. The old
+`candidate_genes_v1` is the first provider. It executes the module-owned
+`gene_set_report.R` implementation with explicit arguments. The old
 `gene_report_job.sh` scheduler wrapper is retired. DE input discovery is
 confined to a task-local directory containing only the aggregate file supplied
 by the Differential Expression API.
@@ -57,6 +57,23 @@ R provider, preventing silent normalization or empty joins.
 
 The production Salmon path defaults to `TPM`. Parameters that influence output
 are explicit cache inputs and recorded in the context and final manifest.
+
+### Report presentation
+
+The terminal HTML is a static, portable report and requires no web service.
+Its overview presents coverage of requested identifiers, sample and contrast
+counts, and the principal global figures before gene-level detail. Candidate
+genes and functional groups are searchable and collapsible. Found and missing
+identifiers remain explicit; missing identifiers are never silently removed.
+
+Detailed group/gene images use deferred loading, while every PNG and TSV
+remains directly accessible for audit and reuse. Gene figures are generated
+once per unique identifier and referenced from every group membership, avoiding
+duplicate payloads without changing scientific values. Plotting automatically
+omits invariant or undeclared metadata dimensions, shortens user-facing
+contrast context, and labels candidate-panel PCA/MDS and heatmap scaling
+explicitly. These are presentation and interpretability safeguards; expression
+summaries, DEG thresholds and inferential inputs are unchanged.
 
 ## Response
 
