@@ -38,6 +38,8 @@ def test_parameter_inventory_is_complete() -> None:
     assert config_parameter_names() == set(schema["properties"])
     chip_modes = set(schema["properties"]["chipseq_run_mode"]["enum"])
     assert {"annotation", "tracks", "report"} <= chip_modes
+    rna_modes = set(schema["properties"]["rnaseq_run_mode"]["enum"])
+    assert "report_reentry" in rna_modes
 
 
 def test_common_manifest_envelope() -> None:
@@ -81,6 +83,9 @@ def test_workflow_composition_guards() -> None:
 
     workflow = (ROOT / "workflows/rnaseq.nf").read_text(encoding="utf-8")
     assert "legacy_root" not in workflow
+    assert "run_mode == 'report_reentry'" in workflow
+    assert "RNASEQ_REPORT_REENTRY(report_request)" in workflow
+    assert "RNASEQ_NATIVE_FOUNDATION(config_file, pipeline_root, seed)" in workflow
     assert not (ROOT / "pipelines/rnaseq/legacy").exists()
     assert (ROOT / "pipelines/rnaseq/config/pipeline_config.sh").is_file()
 

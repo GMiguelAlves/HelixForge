@@ -53,7 +53,10 @@ class ReportApiTest(unittest.TestCase):
             },
         }), encoding="utf-8")
         de_manifest = root / "de.json"
-        de_manifest.write_text(json.dumps({"type": "differential_expression", "status": "complete"}), encoding="utf-8")
+        de_manifest.write_text(json.dumps({
+            "type": "differential_expression", "status": "complete",
+            "artifacts": {"legacy_results": {"sha256": digest(de_results)}},
+        }), encoding="utf-8")
         parameters = base64.b64encode(json.dumps({"expression_unit": "TPM"}).encode()).decode()
         return [
             sys.executable, str(VALIDATOR), "--id", "test.report", "--provider", "candidate_genes_v1",
@@ -98,6 +101,16 @@ class ReportApiTest(unittest.TestCase):
             result = subprocess.run(command, capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("import_id order", result.stderr)
+
+    def test_context_rejects_de_checksum_mismatch(self):
+        with tempfile.TemporaryDirectory() as name:
+            root = Path(name)
+            command = self.build_request(root)
+            with (root / "de.tsv").open("a", encoding="utf-8") as handle:
+                handle.write("gene_b\t2\t0.02\n")
+            result = subprocess.run(command, capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("DE results checksum", result.stderr)
 
     def test_finalizer_builds_inventory_and_provenance(self):
         with tempfile.TemporaryDirectory() as name:

@@ -19,9 +19,10 @@ gene reports.
 - `--rnaseq_report_genes`: candidate-gene group file when the report is enabled.
 
 **Modes:** `qc`, `alignment`, `quantification`, `import`, `de`, `report`, and
-`full`. `quant` and `differential_expression` are accepted aliases. Salmon is
-the production quantifier. STAR is an explicit experimental provider and is
-independent from Salmon.
+`full`, plus the terminal-only `report_reentry` mode. `quant` and
+`differential_expression` are accepted aliases. Salmon is the production
+quantifier. STAR is an explicit experimental provider and is independent from
+Salmon.
 
 ```bash
 nextflow run . -profile docker \
@@ -37,6 +38,12 @@ nextflow run . -profile docker \
 The DE design must be estimable. Batch is represented in the model, for example
 `~ batch + condition`; corrected matrices are not substituted into inference.
 The terminal contract is `results/rnaseq/rnaseq_run_manifest.json`.
+
+`report_reentry` is deliberately not cumulative. It accepts the frozen Import
+manifest, abundance matrix, ordered sample table, annotation, aggregate DE
+table, DE manifest, and candidate-gene file and runs only the Report API. It
+does not require FASTQs, the originating work directory, or Nextflow cache.
+See [RNA-seq Report API](rnaseq_report_api.md#terminal-only-re-entry).
 
 ## ChIP-seq
 

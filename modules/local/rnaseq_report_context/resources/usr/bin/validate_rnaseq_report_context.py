@@ -125,6 +125,7 @@ def main() -> int:
 
     abundance_hash = sha256(args.abundance)
     metadata_hash = sha256(args.samples)
+    de_results_hash = sha256(args.de_results)
     if import_manifest.get("status") != "stub":
         expected_abundance = artifact_sha(import_manifest, "abundance")
         expected_metadata = artifact_sha(import_manifest, "metadata")
@@ -132,6 +133,10 @@ def main() -> int:
             raise ValueError("Abundance checksum differs from Import API manifest.")
         if expected_metadata and expected_metadata != metadata_hash:
             raise ValueError("Sample-table checksum differs from Import API manifest.")
+    if de_manifest.get("status") != "stub":
+        expected_de_results = artifact_sha(de_manifest, "legacy_results")
+        if expected_de_results and expected_de_results != de_results_hash:
+            raise ValueError("DE results checksum differs from Differential Expression API manifest.")
 
     expression_unit = parameters.get("expression_unit") or "TPM"
     if expression_unit not in {"TPM", "CPM"}:
@@ -171,7 +176,7 @@ def main() -> int:
             "abundance": {"sha256": abundance_hash},
             "samples": {"sha256": metadata_hash},
             "annotation": {"sha256": sha256(args.annotation)},
-            "de_results": {"sha256": sha256(args.de_results)},
+            "de_results": {"sha256": de_results_hash},
             "genes": {"sha256": sha256(args.genes)},
             "import_manifest": {"sha256": sha256(args.import_manifest)},
             "de_manifest": {"sha256": sha256(args.de_manifest)},

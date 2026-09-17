@@ -18,6 +18,8 @@ Anything not listed as public is an implementation detail.
 - `--outdir`;
 - `--rnaseq_config` and `--chipseq_config`;
 - `--rna_manifest` and `--chip_manifest` for independent Integrative runs;
+- `--rnaseq_run_mode report_reentry` plus its explicit Import, DE, annotation,
+  sample-table, abundance, and candidate-gene inputs;
 - versioned RNA DE, ChIP differential-binding, annotation, track, report, and
   Integrative policy/specification inputs documented in the user guide.
 

@@ -236,7 +236,9 @@ and a `SummarizedExperiment`. See
 
 `--rnaseq_run_mode` defines the last requested native layer and works with
 Nextflow `-resume`: `qc`, `alignment`, `quantification`, `import`, `de`,
-`report`, or `full`. The default is `full`. `--rnaseq_native_de false` is rejected
+`report`, `report_reentry`, or `full`. The default is `full`.
+`report_reentry` is a terminal-only exception to the cumulative stage model.
+`--rnaseq_native_de false` is rejected
 because the retired DEG wrapper is available only from `rnaseq-legacy-v1.0.0`.
 
 ```bash
@@ -260,3 +262,22 @@ nextflow run . --workflow rnaseq --rnaseq_run_mode report \
 Set `--rnaseq_report_enabled true` to append it to a `full` run. The provider
 consumes the Import abundance matrix/sample table and Differential Expression
 aggregate/manifest directly. See [rnaseq_report_api.md](rnaseq_report_api.md).
+
+To render a report after upstream scratch and cache cleanup, use the retained
+API artifacts directly:
+
+```bash
+nextflow run . --workflow rnaseq --rnaseq_run_mode report_reentry \
+  --rnaseq_report_import_manifest /path/to/import_manifest.json \
+  --rnaseq_report_abundance /path/to/tpm_matrix.tsv \
+  --rnaseq_report_samples /path/to/quant_samples.tsv \
+  --rnaseq_report_annotation /path/to/annotation.gtf \
+  --rnaseq_report_de_results /path/to/DEGs_all_results.tsv \
+  --rnaseq_report_de_manifest /path/to/de_manifest.json \
+  --rnaseq_report_genes /path/to/genes.txt \
+  --outdir results
+```
+
+This route schedules only `RNASEQ_REPORT_CONTEXT` and
+`RNASEQ_GENE_REPORT`. The context validates manifest types, declared checksums,
+sample order, identifiers, and candidate syntax before rendering.

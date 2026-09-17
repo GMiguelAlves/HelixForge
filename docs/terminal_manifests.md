@@ -7,6 +7,9 @@ conditions, stages, batches, quantification method and DE contrasts. Terminal
 artifact roles include available gene counts, transcript abundance, normalized
 counts, DE tables and the optional gene report. Optional products are omitted;
 they are not represented by invented files or zero-valued measurements.
+When a report is generated later through `report_reentry`, its independent
+`rnaseq_report` manifest records the upstream Import and DE manifest checksums;
+the already accepted terminal RNA-seq manifest is not rewritten.
 
 Reference identity separates the biological organism from the concrete
 assembly/annotation release. For example, `organism=Homo_sapiens` may be paired
