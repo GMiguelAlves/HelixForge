@@ -61,6 +61,56 @@ safe_div <- function(x, y) {
   ifelse(is.na(y) | y == 0, NA_real_, x / y)
 }
 
+is_placeholder_value <- function(x) {
+  tolower(trimws(as.character(x))) %in% c("", ".", "na", "nan", "none", "unknown", "not_declared", "not_available") |
+    is.na(x)
+}
+
+informative_fields <- function(df, fields, require_variation = TRUE) {
+  fields <- intersect(fields, colnames(df))
+  selected <- character()
+  selected_values <- list()
+  for (field in fields) {
+    values <- as.character(df[[field]])
+    meaningful <- values[!is_placeholder_value(values)]
+    if (length(meaningful) == 0) next
+    if (require_variation && dplyr::n_distinct(meaningful) < 2) next
+    normalized <- ifelse(is_placeholder_value(values), "", values)
+    duplicate_field <- any(vapply(selected_values, function(other) identical(normalized, other), logical(1)))
+    if (duplicate_field) next
+    selected <- c(selected, field)
+    selected_values[[field]] <- normalized
+  }
+  selected
+}
+
+metadata_labels <- c(
+  dataset = "estudo", batch = "batch", condition = "condicao",
+  stage = "estagio", tissue = "tecido", sex = "sexo"
+)
+
+compact_context <- function(df, fields = names(metadata_labels), fallback = "contexto unico", include_names = FALSE) {
+  active <- informative_fields(df, fields, require_variation = TRUE)
+  if (length(active) == 0) return(rep(fallback, nrow(df)))
+  pieces <- lapply(active, function(field) {
+    values <- as.character(df[[field]])
+    values[is_placeholder_value(values)] <- "nao informado"
+    if (include_names) paste0(metadata_labels[[field]], "=", values) else values
+  })
+  do.call(paste, c(pieces, sep = " | "))
+}
+
+join_nonempty <- function(...) {
+  values <- list(...)
+  n <- max(vapply(values, length, integer(1)))
+  values <- lapply(values, rep_len, length.out = n)
+  vapply(seq_len(n), function(i) {
+    row <- vapply(values, function(x) as.character(x[[i]]), character(1))
+    row <- row[!is_placeholder_value(row)]
+    paste(unique(row), collapse = " | ")
+  }, character(1))
+}
+
 split_env_csv <- function(name, default) {
   value <- Sys.getenv(name, unset = default)
   value <- trimws(value)
@@ -376,16 +426,22 @@ load_deg_hits <- function(deg_root, gene_catalog) {
     df <- tryCatch(readr::read_tsv(path, show_col_types = FALSE, col_types = cols(.default = col_character())), error = function(e) NULL)
     if (is.null(df) || !"gene_id" %in% colnames(df)) return(NULL)
     if (!"contrast" %in% colnames(df)) df$contrast <- tools::file_path_sans_ext(basename(path))
-    rel <- gsub("\\\\", "/", sub(paste0("^", normalizePath(deg_root, winslash = "/", mustWork = FALSE), "/?"), "", normalizePath(path, winslash = "/", mustWork = FALSE)))
+    root_lexical <- sub("/+$", "", gsub("\\\\", "/", deg_root))
+    path_lexical <- gsub("\\\\", "/", path)
+    prefix <- paste0(root_lexical, "/")
+    rel <- if (startsWith(path_lexical, prefix)) substring(path_lexical, nchar(prefix) + 1) else basename(path_lexical)
     result_dir <- dirname(rel)
+    clean_result_dir <- ifelse(result_dir %in% c("", ".", "./"), "", result_dir)
+    project_value <- ifelse(clean_result_dir == "", "", sub("/.*$", "", clean_result_dir))
+    mode_value <- ifelse(grepl("/", clean_result_dir), sub("^.*/", "", clean_result_dir), "")
     df %>%
       dplyr::filter(gene_id %in% gene_catalog$matched_gene_id) %>%
       dplyr::mutate(
         source_file = rel,
-        result_dir = result_dir,
-        deg_project = sub("/.*$", "", result_dir),
-        deg_mode = ifelse(grepl("/", result_dir), sub("^.*/", "", result_dir), "unknown"),
-        contrast_label = paste(result_dir, contrast, sep = " | "),
+        result_dir = clean_result_dir,
+        deg_project = project_value,
+        deg_mode = mode_value,
+        contrast_label = join_nonempty(project_value, mode_value, contrast),
         padj_num = suppressWarnings(as.numeric(padj)),
         log2FoldChange_num = suppressWarnings(as.numeric(log2FoldChange)),
         neg_log10_padj = ifelse(!is.na(padj_num) & padj_num > 0, -log10(padj_num), NA_real_),
@@ -520,11 +576,12 @@ heatmap_has_signal <- function(mat) {
 }
 
 plot_expression_heatmap <- function(expr_summary, outfile, title = "Expressao media por contexto") {
+  expr_summary$context_compact <- compact_context(expr_summary, include_names = TRUE)
   mat_df <- expr_summary %>%
     dplyr::arrange(dataset, batch, condition, stage_class, stage_day, stage, tissue, sex, group, gene_display_label) %>%
     dplyr::mutate(
-      label = paste(group, gene_display_label, sep = " | "),
-      context = paste(dataset, batch, condition, stage, tissue, sex, sep = " | ")
+      label = paste0(gene_display_label, "  [", group, "]"),
+      context = context_compact
     ) %>%
     dplyr::group_by(label, context) %>%
     dplyr::summarise(mean_log2TPM = mean(mean_log2TPM, na.rm = TRUE), .groups = "drop") %>%
@@ -533,30 +590,40 @@ plot_expression_heatmap <- function(expr_summary, outfile, title = "Expressao me
   mat <- as.matrix(mat_df[, -1, drop = FALSE])
   rownames(mat) <- mat_df$label
   if (!heatmap_has_signal(mat)) return(FALSE)
-  pheatmap::pheatmap(mat, scale = heatmap_scale_mode(mat), border_color = NA,
+  scale_mode <- heatmap_scale_mode(mat)
+  scale_note <- ifelse(scale_mode == "row", "z-score por gene", expression_mean_log_label)
+  pheatmap::pheatmap(mat, scale = scale_mode, border_color = NA,
                      cluster_rows = nrow(mat) > 1,
                      cluster_cols = ncol(mat) > 1,
                      fontsize_row = 7, fontsize_col = 6,
-                     main = title, filename = outfile,
+                     main = paste0(title, "\nEscala: ", scale_note), filename = outfile,
                      width = 14, height = max(5, min(18, nrow(mat) * 0.32 + 3)))
   TRUE
 }
 
 plot_expression_dotplot <- function(expr_summary, outfile, title = "Expressao media e fracao expressa") {
+  expr_summary$context_compact <- compact_context(expr_summary, include_names = TRUE)
   df <- expr_summary %>%
     dplyr::arrange(dataset, batch, condition, stage_class, stage_day, stage, tissue, sex, group, gene_display_label) %>%
     dplyr::mutate(
-      context = paste(dataset, batch, condition, stage, tissue, sex, sep = " | "),
-      gene_label = paste(group, gene_display_label, sep = " | ")
+      context = context_compact,
+      gene_label = paste0(gene_display_label, "  [", group, "]")
     )
   if (nrow(df) == 0) return(FALSE)
-  p <- ggplot(df, aes(x = context, y = gene_label)) +
-    geom_point(aes(size = fraction_expressed, color = mean_log2TPM), alpha = 0.85) +
+  fraction_varies <- dplyr::n_distinct(round(df$fraction_expressed, 4), na.rm = TRUE) > 1
+  p <- ggplot(df, aes(x = context, y = gene_label))
+  if (fraction_varies) {
+    p <- p + geom_point(aes(size = fraction_expressed, color = mean_log2TPM), alpha = 0.88) +
+      labs(size = paste0("Fracao ", expression_unit, ">1"))
+  } else {
+    p <- p + geom_point(aes(color = mean_log2TPM), size = 3, alpha = 0.88)
+  }
+  p <- p +
     scale_color_viridis_c(option = "C") +
     theme_bw(base_size = 9) +
     theme(axis.text.x = element_text(angle = 55, hjust = 1), panel.grid.major.y = element_line(color = "gray92")) +
-    labs(title = title, x = "Projeto | batch | condicao | estagio | tecido | sexo", y = "Grupo | gene | ID",
-         color = expression_mean_log_label, size = paste0("Frac. ", expression_unit, ">1"))
+    labs(title = title, x = "Contexto (somente metadados informativos)", y = "Gene [grupo]",
+         color = expression_mean_log_label)
   ggsave(outfile, p, width = 15, height = max(5, min(18, length(unique(df$gene_label)) * 0.32 + 3)), dpi = 300)
   TRUE
 }
@@ -635,7 +702,10 @@ sample_annotation_for_matrix <- function(expr_long, sample_ids) {
     dplyr::distinct(import_id, dataset, batch, condition, stage, tissue, sex) %>%
     dplyr::filter(import_id %in% sample_ids)
   ann <- ann[match(sample_ids, ann$import_id), , drop = FALSE]
-  ann <- as.data.frame(ann[, c("dataset", "batch", "condition", "stage", "tissue", "sex"), drop = FALSE])
+  fields <- informative_fields(ann, c("condition", "stage", "tissue", "sex", "batch", "dataset"), require_variation = TRUE)
+  if (length(fields) == 0) return(NULL)
+  ann <- as.data.frame(ann[, fields, drop = FALSE])
+  colnames(ann) <- unname(metadata_labels[colnames(ann)])
   rownames(ann) <- sample_ids
   ann
 }
@@ -645,15 +715,24 @@ plot_annotated_sample_heatmap <- function(expr_long, outfile, title = "Heatmap g
   if (is.null(mat) || nrow(mat) < 1 || ncol(mat) < 2) return(FALSE)
   if (!heatmap_has_signal(mat)) return(FALSE)
   ann_col <- sample_annotation_for_matrix(expr_long, colnames(mat))
-  pheatmap::pheatmap(mat, scale = heatmap_scale_mode(mat), border_color = NA,
-                     cluster_rows = nrow(mat) > 1,
-                     cluster_cols = ncol(mat) > 1,
-                     annotation_col = ann_col,
-                     show_colnames = FALSE,
-                     fontsize_row = 7,
-                     main = title,
-                     filename = outfile,
-                     width = 15, height = max(5, min(18, nrow(mat) * 0.32 + 4)))
+  scale_mode <- heatmap_scale_mode(mat)
+  scale_note <- ifelse(scale_mode == "row", "z-score por gene", expression_log_label)
+  args <- list(
+    mat = mat,
+    scale = scale_mode,
+    border_color = NA,
+    cluster_rows = nrow(mat) > 1,
+    cluster_cols = ncol(mat) > 1,
+    show_colnames = ncol(mat) <= 24,
+    fontsize_row = 7,
+    fontsize_col = 6,
+    main = paste0(title, "\nEscala: ", scale_note),
+    filename = outfile,
+    width = 15,
+    height = max(5, min(18, nrow(mat) * 0.32 + 4))
+  )
+  if (!is.null(ann_col)) args$annotation_col <- ann_col
+  do.call(pheatmap::pheatmap, args)
   TRUE
 }
 
@@ -698,14 +777,8 @@ sample_scores_long <- function(expr_long, method = c("pca", "mds")) {
   coords$import_id <- rownames(sample_mat)
   ann <- expr_long %>% dplyr::distinct(import_id, dataset, batch, condition, stage, tissue, sex)
   coords <- coords %>% dplyr::left_join(ann, by = "import_id")
-  vars <- c("dataset", "batch", "condition", "stage", "tissue", "sex")
-  out <- dplyr::bind_rows(lapply(vars, function(v) {
-    coords %>%
-      dplyr::mutate(variable = v, value = as.character(.data[[v]])) %>%
-      dplyr::select(import_id, Dim1, Dim2, variable, value)
-  }))
-  attr(out, "axis_labels") <- axis_labels
-  out
+  attr(coords, "axis_labels") <- axis_labels
+  coords
 }
 
 plot_sample_ordination <- function(expr_long, outfile, method = c("pca", "mds"), title = "Ordenacao de amostras") {
@@ -713,12 +786,27 @@ plot_sample_ordination <- function(expr_long, outfile, method = c("pca", "mds"),
   df <- sample_scores_long(expr_long, method = method)
   if (nrow(df) == 0) return(FALSE)
   axis_labels <- attr(df, "axis_labels")
-  p <- ggplot(df, aes(x = Dim1, y = Dim2, color = value)) +
-    geom_point(size = 2.2, alpha = 0.9) +
-    facet_wrap(~ variable, scales = "free") +
+  fields <- informative_fields(df, c("condition", "stage", "tissue", "sex", "batch", "dataset"), require_variation = TRUE)
+  primary <- if (length(fields) > 0) fields[[1]] else NULL
+  secondary <- if (length(fields) > 1 && dplyr::n_distinct(df[[fields[[2]]]]) <= 6) fields[[2]] else NULL
+  p <- ggplot(df, aes(x = Dim1, y = Dim2))
+  if (!is.null(primary) && !is.null(secondary)) {
+    p <- p + geom_point(aes(color = .data[[primary]], shape = .data[[secondary]]), size = 3, alpha = 0.9) +
+      labs(color = metadata_labels[[primary]], shape = metadata_labels[[secondary]])
+  } else if (!is.null(primary)) {
+    p <- p + geom_point(aes(color = .data[[primary]]), size = 3, alpha = 0.9) +
+      labs(color = metadata_labels[[primary]])
+  } else {
+    p <- p + geom_point(size = 3, color = "#2b6f9f", alpha = 0.9)
+  }
+  if (nrow(df) <= 12) {
+    p <- p + geom_text(aes(label = import_id), check_overlap = TRUE, size = 2.5, vjust = -0.8, show.legend = FALSE)
+  }
+  p <- p +
     theme_bw(base_size = 10) +
-    labs(title = title, x = axis_labels[1], y = axis_labels[2], color = "Valor")
-  ggsave(outfile, p, width = 12, height = 8, dpi = 300)
+    labs(title = title, subtitle = "Ordenacao exploratoria calculada somente com os genes candidatos",
+         x = axis_labels[1], y = axis_labels[2])
+  ggsave(outfile, p, width = 10, height = 7, dpi = 240)
   TRUE
 }
 
@@ -858,67 +946,103 @@ plot_deg_context_tile <- function(deg_hits, gene_catalog, outfile, title = "Pres
 }
 
 plot_gene_expression_boxplot <- function(df, outfile, label) {
-  p <- ggplot(df, aes(x = interaction(tissue, sex, drop = TRUE), y = log2TPM, fill = condition)) +
-    geom_boxplot(outlier.shape = NA, alpha = 0.7) +
-    geom_jitter(aes(color = batch), width = 0.18, alpha = 0.55, size = 1.5) +
-    facet_grid(dataset ~ stage, scales = "free_x", space = "free_x") +
+  df$context_compact <- compact_context(df, c("condition", "stage", "tissue", "sex"), include_names = FALSE)
+  color_fields <- informative_fields(df, c("batch", "dataset"), require_variation = TRUE)
+  color_field <- if (length(color_fields) > 0) color_fields[[1]] else NULL
+  p <- ggplot(df, aes(x = context_compact, y = log2TPM)) +
+    geom_boxplot(outlier.shape = NA, alpha = 0.18, color = "#587187")
+  if (!is.null(color_field)) {
+    p <- p + geom_jitter(aes(color = .data[[color_field]]), width = 0.16, alpha = 0.72, size = 1.7) +
+      labs(color = metadata_labels[[color_field]])
+  } else {
+    p <- p + geom_jitter(width = 0.16, alpha = 0.72, size = 1.7, color = "#2b6f9f")
+  }
+  p <- p +
     theme_bw(base_size = 10) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    labs(title = label, x = "Tecido.sexo", y = expression_log_label, fill = "Condicao", color = "Batch")
-  ggsave(outfile, p, width = 13, height = 8, dpi = 300)
+    labs(title = label, x = "Contexto biologico informativo", y = expression_log_label)
+  ggsave(outfile, p, width = 11, height = 6.5, dpi = 240)
   TRUE
 }
 
 plot_gene_batch_boxplot <- function(df, outfile, label) {
-  p <- ggplot(df, aes(x = batch, y = log2TPM, fill = dataset)) +
+  fields <- informative_fields(df, c("batch", "dataset"), require_variation = TRUE)
+  if (length(fields) == 0) return(FALSE)
+  x_field <- fields[[1]]
+  color_fields <- informative_fields(df, c("condition", "stage", "tissue", "sex"), require_variation = TRUE)
+  color_field <- if (length(color_fields) > 0) color_fields[[1]] else NULL
+  p <- ggplot(df, aes(x = .data[[x_field]], y = log2TPM)) +
     geom_boxplot(outlier.shape = NA, alpha = 0.7) +
-    geom_jitter(aes(color = condition), width = 0.18, alpha = 0.55, size = 1.5) +
-    facet_grid(tissue ~ sex, scales = "free_y") +
+    theme_bw(base_size = 10)
+  if (!is.null(color_field)) {
+    p <- p + geom_jitter(aes(color = .data[[color_field]]), width = 0.18, alpha = 0.6, size = 1.6) +
+      labs(color = metadata_labels[[color_field]])
+  } else {
+    p <- p + geom_jitter(width = 0.18, alpha = 0.6, size = 1.6, color = "#2b6f9f")
+  }
+  p <- p +
     theme_bw(base_size = 10) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    labs(title = paste("Batch/projeto:", label), x = "Batch", y = expression_log_label, fill = "Projeto", color = "Condicao")
-  ggsave(outfile, p, width = 13, height = 8, dpi = 300)
+    labs(title = paste("Efeito tecnico:", label), x = metadata_labels[[x_field]], y = expression_log_label)
+  ggsave(outfile, p, width = 10, height = 6, dpi = 240)
   TRUE
 }
 
 plot_gene_profile_line <- function(df, outfile, label) {
+  stage_informative <- length(informative_fields(df, "stage", require_variation = TRUE)) > 0
+  if (!stage_informative) return(FALSE)
   profile_df <- df %>%
     dplyr::group_by(dataset, batch, condition, stage_class, stage_day, stage, tissue, sex) %>%
-    dplyr::summarise(mean_log2TPM = mean(log2TPM, na.rm = TRUE), .groups = "drop")
-  line_df <- profile_df %>%
-    dplyr::group_by(dataset, batch, condition, tissue, sex) %>%
-    dplyr::filter(dplyr::n_distinct(stage) > 1) %>%
-    dplyr::ungroup()
-  p <- ggplot(profile_df, aes(x = stage, y = mean_log2TPM, color = condition, shape = sex,
-                              group = interaction(dataset, batch, condition, tissue, sex))) +
-    geom_point(size = 2) +
-    facet_grid(dataset + batch ~ tissue, scales = "free_x", space = "free_x") +
+    dplyr::summarise(mean_log2TPM = mean(log2TPM, na.rm = TRUE),
+                     se_log2TPM = stats::sd(log2TPM, na.rm = TRUE) / sqrt(dplyr::n()), .groups = "drop")
+  color_fields <- informative_fields(profile_df, c("condition", "tissue", "sex", "batch", "dataset"), require_variation = TRUE)
+  color_field <- if (length(color_fields) > 0) color_fields[[1]] else NULL
+  if (!is.null(color_field)) {
+    line_df <- profile_df %>%
+      dplyr::group_by(.data[[color_field]]) %>%
+      dplyr::filter(dplyr::n_distinct(stage) > 1) %>%
+      dplyr::ungroup()
+  } else {
+    line_df <- profile_df %>%
+      dplyr::filter(dplyr::n_distinct(stage) > 1)
+  }
+  if (!is.null(color_field)) {
+    p <- ggplot(profile_df, aes(x = stage, y = mean_log2TPM, color = .data[[color_field]], group = .data[[color_field]])) +
+      labs(color = metadata_labels[[color_field]])
+  } else {
+    p <- ggplot(profile_df, aes(x = stage, y = mean_log2TPM, group = 1))
+  }
+  p <- p +
+    geom_errorbar(aes(ymin = mean_log2TPM - se_log2TPM, ymax = mean_log2TPM + se_log2TPM), width = 0.12, alpha = 0.45, na.rm = TRUE) +
+    geom_point(size = 2.4) +
     theme_bw(base_size = 9) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    labs(title = paste("Perfil medio:", label), x = "Estagio", y = expression_mean_log_label, color = "Condicao", shape = "Sexo")
+    labs(title = paste("Perfil por estagio:", label), subtitle = "Pontos: media; barras: erro-padrao",
+         x = "Estagio", y = expression_mean_log_label)
   if (nrow(line_df) > 0) p <- p + geom_line(data = line_df, alpha = 0.75)
-  ggsave(outfile, p, width = 14, height = 9, dpi = 300)
+  ggsave(outfile, p, width = 10, height = 6, dpi = 240)
   TRUE
 }
 
 plot_gene_sample_tile <- function(df, outfile, label) {
   tile_df <- df %>%
-    dplyr::mutate(sample_context = paste(dataset, batch, condition, stage, tissue, sex, sample_id, sep = " | ")) %>%
+    dplyr::mutate(sample_context = as.character(sample_id)) %>%
     dplyr::arrange(dataset, batch, condition, stage_class, stage_day, stage, tissue, sex, sample_id)
   p <- ggplot(tile_df, aes(x = sample_context, y = gene_display_label, fill = log2TPM)) +
     geom_tile(color = "white") +
     scale_fill_viridis_c(option = "C") +
     theme_bw(base_size = 8) +
-    theme(axis.text.x = element_text(angle = 60, hjust = 1), panel.grid = element_blank()) +
+    theme(axis.text.x = if (nrow(tile_df) <= 40) element_text(angle = 60, hjust = 1) else element_blank(),
+          axis.ticks.x = if (nrow(tile_df) <= 40) element_line() else element_blank(), panel.grid = element_blank()) +
     labs(title = paste("Expressao por amostra:", label), x = "Amostra", y = "", fill = expression_log_label)
-  ggsave(outfile, p, width = 15, height = 3.8, dpi = 300)
+  ggsave(outfile, p, width = min(14, max(8, nrow(tile_df) * 0.12)), height = 3.3, dpi = 180)
   TRUE
 }
 
 plot_gene_deg_lollipop <- function(deg_df, outfile, label) {
   if (nrow(deg_df) == 0) return(FALSE)
   df <- deg_df %>%
-    dplyr::mutate(contrast_display = paste(deg_project, deg_mode, contrast, sep = " | ")) %>%
+    dplyr::mutate(contrast_display = join_nonempty(deg_project, deg_mode, contrast)) %>%
     dplyr::arrange(log2FoldChange_num)
   if (nrow(df) > 80) {
     df <- df %>%
@@ -939,14 +1063,20 @@ plot_gene_deg_lollipop <- function(deg_df, outfile, label) {
 
 plot_gene_deg_scatter <- function(deg_df, outfile, label) {
   if (nrow(deg_df) == 0) return(FALSE)
-  p <- ggplot(deg_df, aes(x = log2FoldChange_num, y = neg_log10_padj, color = significant, shape = deg_project)) +
+  shape_fields <- informative_fields(deg_df, "deg_project", require_variation = TRUE)
+  facet_fields <- informative_fields(deg_df, "deg_mode", require_variation = TRUE)
+  p <- ggplot(deg_df, aes(x = log2FoldChange_num, y = neg_log10_padj, color = significant)) +
     geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "gray70") +
     geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "gray70") +
-    geom_point(size = 2.4, alpha = 0.85) +
-    facet_wrap(~ deg_mode) +
     scale_color_manual(values = c("FALSE" = "gray55", "TRUE" = "#b2182b")) +
     theme_bw(base_size = 10) +
-    labs(title = paste("Contrastes DEG:", label), x = "log2FC", y = "-log10(padj)", color = "Significativo", shape = "Projeto")
+    labs(title = paste("Contrastes DEG:", label), x = "log2FC", y = "-log10(padj)", color = "Significativo")
+  if (length(shape_fields) > 0 && dplyr::n_distinct(deg_df$deg_project) <= 6) {
+    p <- p + geom_point(aes(shape = deg_project), size = 2.4, alpha = 0.85) + labs(shape = "Projeto")
+  } else {
+    p <- p + geom_point(size = 2.4, alpha = 0.85)
+  }
+  if (length(facet_fields) > 0) p <- p + facet_wrap(~ deg_mode)
   ggsave(outfile, p, width = 10, height = 6, dpi = 300)
   TRUE
 }
@@ -978,14 +1108,16 @@ plot_group_outputs <- function(expr_long, expr_summary, deg_hits, gene_catalog, 
 }
 
 plot_gene_outputs <- function(expr_long, deg_hits, out_dir) {
-  gene_keys <- expr_long %>% dplyr::distinct(group, gene_id, gene_name, gene_display_label, biotype)
+  gene_keys <- expr_long %>% dplyr::distinct(gene_id, gene_name, gene_display_label, biotype)
   for (i in seq_len(nrow(gene_keys))) {
     key <- gene_keys[i, ]
-    gene_dir <- file.path(out_dir, "genes", sanitize(key$group), sanitize(key$gene_id))
+    gene_dir <- file.path(out_dir, "genes", sanitize(key$gene_id))
     dir.create(gene_dir, recursive = TRUE, showWarnings = FALSE)
-    df <- expr_long %>% dplyr::filter(group == key$group, gene_id == key$gene_id)
+    df <- expr_long %>%
+      dplyr::filter(gene_id == key$gene_id) %>%
+      dplyr::distinct(import_id, .keep_all = TRUE)
     deg_df <- deg_hits %>% dplyr::filter(gene_id == key$gene_id)
-    label <- paste(key$group, key$gene_display_label, sep = " | ")
+    label <- key$gene_display_label
     plot_or_skip(paste("gene expression", key$gene_id), function() plot_gene_expression_boxplot(df, file.path(gene_dir, "expression_tissue_sex_condition.png"), label))
     plot_or_skip(paste("gene batch", key$gene_id), function() plot_gene_batch_boxplot(df, file.path(gene_dir, "expression_batch_project.png"), label))
     plot_or_skip(paste("gene profile", key$gene_id), function() plot_gene_profile_line(df, file.path(gene_dir, "expression_stage_profile.png"), label))
@@ -1025,34 +1157,48 @@ table_to_html <- function(df, max_rows = 30) {
 figure_explanation <- function(caption) {
   caption_l <- tolower(caption)
   dplyr::case_when(
-    grepl("pca", caption_l) ~ "Agrupa amostras por similaridade global de expressao nos genes exibidos. Separacoes fortes podem indicar efeito biologico, batch ou amostras discrepantes.",
-    grepl("mds", caption_l) ~ "Resume distancias entre amostras; pontos proximos tem perfis de expressao parecidos para este conjunto de genes.",
-    grepl("correlacao", caption_l) ~ "Mostra se genes variam juntos entre as amostras. Valores altos sugerem perfis coordenados ou dependencia de um mesmo contexto.",
-    grepl("dotplot|fracao expressa", caption_l) ~ "Combina intensidade media de expressao com a proporcao de amostras expressas, ajudando a separar genes altos em poucas amostras de genes consistentes.",
-    grepl("heatmap gene x amostra|amostra", caption_l) ~ "Mostra expressao por amostra individual. Use para procurar outliers, padroes por projeto e consistencia entre replicatas.",
-    grepl("heatmap|expressao media", caption_l) ~ paste0("Resume log2(", expression_unit, " + 1) medio por contexto. Cores mais intensas indicam maior expressao relativa naquele contexto."),
-    grepl("ovario|testiculo", caption_l) ~ "Compara contextos reprodutivos quando a metadata contem esses tecidos; e ignorado quando os dados nao permitem a comparacao.",
-    grepl("batch|projeto", caption_l) ~ "Ajuda a avaliar se o sinal de expressao acompanha projeto/batch em vez de contexto biologico.",
-    grepl("log2fc|deg|contraste", caption_l) ~ "Resume resultados diferenciais. log2FC positivo/negativo indica direcao do efeito; padj baixo aumenta a confianca estatistica.",
-    grepl("perfil agregado|perfil medio", caption_l) ~ "Mostra tendencias medias ao longo de estagios ou contextos, suavizando variacao gene a gene.",
-    TRUE ~ "Figura exploratoria para revisar padroes de expressao, consistencia entre amostras e possiveis efeitos tecnicos."
+    grepl("pca", caption_l) ~ "Ordenação exploratória calculada somente com os genes candidatos. Separações podem refletir biologia, lote técnico ou amostras discrepantes; não substitui uma PCA transcriptômica global.",
+    grepl("mds", caption_l) ~ "Resume as distâncias entre amostras usando somente os genes candidatos. Pontos próximos possuem perfis semelhantes dentro deste painel.",
+    grepl("correla", caption_l) ~ "Correlação de Spearman entre os perfis dos genes candidatos. Valores altos indicam variação coordenada, não causalidade.",
+    grepl("dotplot|fra", caption_l) ~ "Combina expressão média e, quando informativa, a proporção de amostras acima do limiar de expressão.",
+    grepl("heatmap gene x amostra|amostra", caption_l) ~ "Expressão por amostra individual. Metadados constantes ou não informados são omitidos para reduzir ruído visual.",
+    grepl("heatmap|express", caption_l) ~ paste0("Expressão média por contexto. Quando indicado na figura, as cores representam z-score por gene; caso contrário, representam log2(", expression_unit, " + 1)."),
+    grepl("ov.rio|test.culo", caption_l) ~ "Comparação específica entre tecidos reprodutivos, produzida somente quando a metadata permite essa análise.",
+    grepl("batch|projeto|efeito t.cnico", caption_l) ~ "Distribuição exploratória por covariáveis técnicas que realmente variam neste estudo.",
+    grepl("log2fc|deg|contraste|dire", caption_l) ~ "Efeitos diferenciais por contraste. log2FC informa direção e magnitude; padj representa significância após correção para múltiplos testes.",
+    grepl("perfil agregado|perfil por est", caption_l) ~ "Tendência média ao longo dos estágios disponíveis; as barras representam erro-padrão quando há replicação.",
+    TRUE ~ "Visualização exploratória para revisar expressão, consistência entre amostras e possíveis efeitos técnicos."
   )
 }
 
-img_tag <- function(src, caption) {
+img_tag <- function(src, caption, deferred = FALSE, featured = FALSE) {
   if (!file.exists(file.path(out_dir, src))) return("")
   explanation <- figure_explanation(caption)
   search_text <- paste(caption, explanation, src)
+  normalized_src <- gsub("\\\\", "/", src)
+  image_attribute <- if (deferred) paste0("data-src='", normalized_src, "'") else paste0("src='", normalized_src, "'")
+  loading_mode <- if (featured) "eager" else "lazy"
+  priority_attribute <- if (featured) " fetchpriority='high'" else ""
+  class_name <- if (featured) "report-figure featured" else "report-figure"
   paste0(
-    "<figure class='searchable report-figure' data-kind='figure' data-search='", html_escape(tolower(search_text)), "'>",
-    "<img src='", gsub("\\\\", "/", src), "' alt='", html_escape(caption), "'>",
-    "<figcaption><strong>", html_escape(caption), "</strong><span>", html_escape(explanation), "</span></figcaption>",
+    "<figure class='searchable ", class_name, "' data-kind='figure' data-search='", html_escape(tolower(search_text)), "'>",
+    "<a class='figure-link' href='", normalized_src, "' target='_blank' rel='noopener' title='Abrir imagem em resolução completa'>",
+    "<img ", image_attribute, " loading='", loading_mode, "' decoding='async'", priority_attribute, " alt='", html_escape(caption), "'>",
+    "</a>",
+    "<figcaption><strong>", html_escape(caption), "</strong><span>", html_escape(explanation), "</span>",
+    "<a class='download-link' href='", normalized_src, "' download>Baixar PNG</a></figcaption>",
     "</figure>"
   )
 }
 
 write_html_report <- function(path, title, catalog, gene_summary, deg_hits, global_plots, expression_unit = "TPM") {
   if (is.na(expression_unit) || expression_unit == "") expression_unit <- "TPM"
+  unique_gene_count <- length(unique(catalog$matched_gene_id))
+  found_gene_count <- length(unique(catalog$matched_gene_id[catalog$found_in_expression_matrix %in% TRUE]))
+  missing_gene_count <- unique_gene_count - found_gene_count
+  sample_count <- if (nrow(gene_summary) == 0 || all(is.na(gene_summary$n_samples))) 0 else max(gene_summary$n_samples, na.rm = TRUE)
+  contrast_count <- length(unique(deg_hits$contrast_label[!is_placeholder_value(deg_hits$contrast_label)]))
+  significant_gene_count <- length(unique(deg_hits$gene_id[deg_hits$significant %in% TRUE]))
 
   group_links <- paste(vapply(unique(catalog$group), function(grp) {
     paste0("<li><a href='#group_", sanitize(grp), "'>", html_escape(grp), "</a></li>")
@@ -1061,10 +1207,15 @@ write_html_report <- function(path, title, catalog, gene_summary, deg_hits, glob
   gene_index <- paste(vapply(seq_len(nrow(catalog)), function(i) {
     row <- catalog[i, ]
     search_text <- paste(row$group, row$query, row$matched_gene_id, row$gene_name, row$gene_display_label, row$biotype, row$description, row$chromosome, row$location)
+    found <- isTRUE(row$found_in_expression_matrix)
+    status_class <- if (found) "found" else "missing"
+    status_text <- if (found) "Encontrado" else "Ausente"
     paste0(
-      "<a class='searchable gene-chip' data-kind='gene' data-search='", html_escape(tolower(search_text)), "' href='#gene_", sanitize(row$group), "_", sanitize(row$matched_gene_id), "'>",
-      "<span>", html_escape(row$gene_display_label), "</span>",
-      "<small>", html_escape(row$group), "</small>",
+      "<a class='searchable gene-chip ", status_class, "' data-kind='gene' data-status='", status_class,
+      "' data-search='", html_escape(tolower(search_text)), "' href='#gene_", sanitize(row$group), "_", sanitize(row$matched_gene_id), "'>",
+      "<span class='gene-chip-title'>", html_escape(row$gene_display_label), "</span>",
+      "<span class='badge ", status_class, "'>", status_text, "</span>",
+      "<small>", html_escape(row$group), " · ", html_escape(row$biotype), "</small>",
       "</a>"
     )
   }, character(1)), collapse = "\n")
@@ -1075,52 +1226,70 @@ write_html_report <- function(path, title, catalog, gene_summary, deg_hits, glob
       dplyr::filter(group == grp) %>%
       dplyr::select(group, query, query_display, matched_gene_id, gene_name, gene_display_label, biotype, chromosome, gene_start, gene_end, strand, location, found_in_expression_matrix)
     group_search <- paste(group_catalog$group, group_catalog$query, group_catalog$matched_gene_id, group_catalog$gene_name, group_catalog$gene_display_label, group_catalog$biotype, group_catalog$chromosome, group_catalog$location, collapse = " ")
+    found_count <- sum(group_catalog$found_in_expression_matrix, na.rm = TRUE)
     paste0(
-      "<section class='searchable group-section' data-kind='group' data-search='", html_escape(tolower(group_search)), "' id='group_", sanitize(grp), "'><h2>Grupo: ", html_escape(grp), "</h2>",
+      "<details class='searchable group-section disclosure' data-kind='group' data-search='", html_escape(tolower(group_search)), "' id='group_", sanitize(grp), "'>",
+      "<summary><span><strong>", html_escape(grp), "</strong><small>", found_count, " de ", nrow(group_catalog), " genes encontrados</small></span><span class='summary-action'>Explorar grupo</span></summary>",
+      "<div class='disclosure-body'>",
+      "<div class='figure-grid'>",
+      img_tag(file.path(group_dir, "expression_heatmap.png"), "Expressão média por contexto biológico", deferred = TRUE),
+      img_tag(file.path(group_dir, "expression_dotplot.png"), "Expressão média e fração expressa por contexto", deferred = TRUE),
+      img_tag(file.path(group_dir, "sample_heatmap.png"), "Expressão nas amostras individuais", deferred = TRUE),
+      img_tag(file.path(group_dir, "sample_heatmap_annotated.png"), "Heatmap gene × amostra com anotações informativas", deferred = TRUE),
+      img_tag(file.path(group_dir, "gene_correlation.png"), "Correlação de expressão entre genes do grupo", deferred = TRUE),
+      img_tag(file.path(group_dir, "sample_pca.png"), "PCA das amostras usando apenas genes do grupo", deferred = TRUE),
+      img_tag(file.path(group_dir, "sample_mds.png"), "MDS das amostras usando apenas genes do grupo", deferred = TRUE),
+      img_tag(file.path(group_dir, "aggregate_profile.png"), "Perfil agregado do grupo", deferred = TRUE),
+      img_tag(file.path(group_dir, "ovary_testis_panel.png"), "Comparação ovário versus testículo", deferred = TRUE),
+      img_tag(file.path(group_dir, "batch_project_boxplot.png"), "Distribuição por covariáveis técnicas", deferred = TRUE),
+      img_tag(file.path(group_dir, "deg_log2fc_heatmap.png"), "log2FC dos genes do grupo nos contrastes DEG", deferred = TRUE),
+      img_tag(file.path(group_dir, "deg_context_tile.png"), "Significância e efeito por contraste", deferred = TRUE),
+      img_tag(file.path(group_dir, "deg_direction_summary.png"), "Direção DEG por contraste", deferred = TRUE),
+      "</div>",
+      "<details class='data-disclosure'><summary><strong>Catálogo completo do grupo</strong><span>", nrow(group_catalog), " entradas</span></summary><div>",
       table_to_html(group_catalog, 100),
-      img_tag(file.path(group_dir, "expression_heatmap.png"), "Expressao media por contexto biologico, projeto e batch"),
-      img_tag(file.path(group_dir, "expression_dotplot.png"), "Media de expressao e fracao expressa por contexto"),
-      img_tag(file.path(group_dir, "sample_heatmap.png"), "Expressao nas amostras individuais"),
-      img_tag(file.path(group_dir, "sample_heatmap_annotated.png"), "Heatmap gene x amostra com anotacoes de projeto, batch e biologia"),
-      img_tag(file.path(group_dir, "gene_correlation.png"), "Correlacao de expressao entre genes do grupo"),
-      img_tag(file.path(group_dir, "sample_pca.png"), "PCA das amostras usando apenas genes do grupo"),
-      img_tag(file.path(group_dir, "sample_mds.png"), "MDS das amostras usando apenas genes do grupo"),
-      img_tag(file.path(group_dir, "aggregate_profile.png"), "Perfil agregado medio do grupo"),
-      img_tag(file.path(group_dir, "ovary_testis_panel.png"), "Comparacao ovario versus testiculo"),
-      img_tag(file.path(group_dir, "batch_project_boxplot.png"), "Distribuicao de expressao por batch e projeto"),
-      img_tag(file.path(group_dir, "deg_log2fc_heatmap.png"), "log2FC dos genes do grupo nos contrastes DEG"),
-      img_tag(file.path(group_dir, "deg_context_tile.png"), "Consistencia dos sinais DEG por contraste/projeto"),
-      img_tag(file.path(group_dir, "deg_direction_summary.png"), "Direcao DEG por contraste/projeto"),
-      "</section>"
+      "</div></details></div></details>"
     )
   }, character(1)), collapse = "\n")
 
   gene_sections <- paste(vapply(seq_len(nrow(catalog)), function(i) {
     row <- catalog[i, ]
-    gene_dir <- file.path("genes", sanitize(row$group), sanitize(row$matched_gene_id))
+    gene_dir <- file.path("genes", sanitize(row$matched_gene_id))
     deg_table <- deg_hits %>%
       dplyr::filter(gene_id == row$matched_gene_id) %>%
       dplyr::select(gene_display_label, deg_project, deg_mode, contrast, log2FoldChange_num, padj_num, significant) %>%
       dplyr::arrange(padj_num)
     gene_search <- paste(row$group, row$query, row$matched_gene_id, row$gene_name, row$gene_display_label, row$biotype, row$description, row$chromosome, row$location, paste(deg_table$contrast, collapse = " "))
+    found <- isTRUE(row$found_in_expression_matrix)
+    status_class <- if (found) "found" else "missing"
+    status_text <- if (found) "Encontrado na matriz" else "Ausente da matriz"
+    figures <- if (found) paste0(
+      "<div class='figure-grid'>",
+      img_tag(file.path(gene_dir, "expression_tissue_sex_condition.png"), "Distribuição da expressão nos contextos biológicos", deferred = TRUE),
+      img_tag(file.path(gene_dir, "expression_batch_project.png"), "Expressão por covariável técnica", deferred = TRUE),
+      img_tag(file.path(gene_dir, "expression_stage_profile.png"), "Perfil por estágio", deferred = TRUE),
+      img_tag(file.path(gene_dir, "expression_sample_tile.png"), "Expressão por amostra individual", deferred = TRUE),
+      img_tag(file.path(gene_dir, "deg_lollipop.png"), "Efeito DEG nos contrastes disponíveis", deferred = TRUE),
+      img_tag(file.path(gene_dir, "deg_scatter.png"), "Magnitude e significância nos contrastes DEG", deferred = TRUE),
+      "</div>"
+    ) else paste0(
+      "<div class='missing-note'><strong>Sem figuras de expressão.</strong> O identificador não foi localizado na matriz fornecida. ",
+      "Verifique a versão da anotação, aliases e a política de normalização de IDs.</div>"
+    )
     paste0(
-      "<section class='searchable gene' data-kind='gene' data-search='", html_escape(tolower(gene_search)), "' id='gene_", sanitize(row$group), "_", sanitize(row$matched_gene_id), "'>",
-      "<h3>", html_escape(row$gene_display_label), "</h3>",
-      "<p><b>Grupo:</b> ", html_escape(row$group),
+      "<details class='searchable gene disclosure ", status_class, "' data-kind='gene' data-status='", status_class,
+      "' data-search='", html_escape(tolower(gene_search)), "' id='gene_", sanitize(row$group), "_", sanitize(row$matched_gene_id), "'>",
+      "<summary><span><strong>", html_escape(row$gene_display_label), "</strong><small>", html_escape(row$group), " · ", html_escape(row$biotype), "</small></span>",
+      "<span class='badge ", status_class, "'>", status_text, "</span></summary>",
+      "<div class='disclosure-body'>",
+      "<p class='gene-meta'><b>Grupo:</b> ", html_escape(row$group),
       " | <b>Query:</b> ", html_escape(row$query),
-      " | <b>Biotipo:</b> ", html_escape(row$biotype),
-      " | <b>Localizacao:</b> ", html_escape(row$location),
-      " | <b>Na matriz ", html_escape(expression_unit), ":</b> ", html_escape(row$found_in_expression_matrix), "</p>",
+      " | <b>Localização:</b> ", html_escape(row$location), "</p>",
       "<p>", html_escape(row$description), "</p>",
-      img_tag(file.path(gene_dir, "expression_tissue_sex_condition.png"), "Expressao por tecido, sexo, condicao, estagio e projeto"),
-      img_tag(file.path(gene_dir, "expression_batch_project.png"), "Expressao por batch/projeto"),
-      img_tag(file.path(gene_dir, "expression_stage_profile.png"), "Perfil medio por estagio, tecido, batch e condicao"),
-      img_tag(file.path(gene_dir, "expression_sample_tile.png"), "Expressao por amostra individual"),
-      img_tag(file.path(gene_dir, "deg_lollipop.png"), "Efeito DEG do gene nos contrastes disponiveis"),
-      img_tag(file.path(gene_dir, "deg_scatter.png"), "log2FC versus -log10(padj) nos contrastes DEG"),
-      "<h4>DEG do gene</h4>",
+      figures,
+      "<h4>Resultados diferenciais do gene</h4>",
       table_to_html(deg_table, 50),
-      "</section>"
+      "</div></details>"
     )
   }, character(1)), collapse = "\n")
 
@@ -1128,121 +1297,127 @@ write_html_report <- function(path, title, catalog, gene_summary, deg_hits, glob
     "<!doctype html><html><head><meta charset='utf-8'>",
     paste0("<title>", html_escape(title), "</title>"),
     "<style>
-      body{font-family:Arial,sans-serif;max-width:1320px;margin:32px auto;line-height:1.45;color:#222}
-      nav{position:sticky;top:0;background:#fff;border-bottom:1px solid #ddd;padding:10px 0;margin-bottom:24px;z-index:2}
-      nav a{margin-right:16px;color:#1d4e89;text-decoration:none;font-weight:600}
-      h1,h2{color:#17324d} h2{border-top:2px solid #e6e6e6;padding-top:22px;margin-top:36px}
-      h3{margin-top:30px;color:#17324d}
-      .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:18px 0}
-      .card{background:#f7f9fb;border:1px solid #dde5ed;border-radius:6px;padding:14px}
-      .card .num{font-size:28px;font-weight:700;color:#17324d}
-      .toolbar{position:sticky;top:46px;background:#fff;border:1px solid #d8e1ea;border-radius:6px;padding:12px;margin:14px 0 24px 0;z-index:2;box-shadow:0 2px 10px rgba(20,45,70,.06)}
-      .toolbar input{box-sizing:border-box;width:100%;font-size:16px;padding:10px 12px;border:1px solid #bdc9d6;border-radius:4px}
-      .filters{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:13px;color:#34495e}
-      .filters label{display:inline-flex;gap:6px;align-items:center}
-      .search-count{font-size:13px;color:#5d6d7e;margin-top:8px}
-      .gene-index{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;margin:14px 0 24px 0}
-      .gene-chip{display:block;border:1px solid #d8e1ea;border-radius:6px;padding:9px 10px;text-decoration:none;color:#17324d;background:#fbfcfd}
-      .gene-chip span{display:block;font-weight:700;overflow-wrap:anywhere}.gene-chip small{display:block;color:#697b8c;margin-top:2px}
-      .guide{background:#fbfcfd;border:1px solid #d8e1ea;border-radius:6px;padding:14px;margin:18px 0}
-      .guide h2{border:0;margin-top:0;padding-top:0}.guide dl{display:grid;grid-template-columns:minmax(150px,240px) 1fr;gap:8px 16px;margin:0}.guide dt{font-weight:700;color:#17324d}.guide dd{margin:0}
-      .table-wrap{overflow-x:auto}
-      table{border-collapse:collapse;width:100%;font-size:12px;margin:10px 0 22px 0}
-      th,td{border:1px solid #ddd;padding:5px;vertical-align:top} th{background:#f3f3f3}
-      code{background:#f6f6f6;padding:2px 4px}
-      figure{margin:18px 0 30px 0} figcaption{font-size:13px;color:#555;margin-top:6px}
-      figcaption strong{display:block;color:#2a3f53} figcaption span{display:block;margin-top:3px}
-      img{max-width:100%;border:1px solid #ddd;margin:8px 0 18px 0}
-      .gene{border-top:1px solid #e6e6e6;padding-top:10px}
-      .hidden-by-search{display:none!important}
-      ul{columns:2}
+      :root{--ink:#152536;--muted:#617385;--navy:#173a5e;--blue:#256a9d;--line:#dce4eb;--soft:#f5f8fa;--success:#167453;--success-bg:#e9f7f0;--warn:#a44b20;--warn-bg:#fff1e8;--shadow:0 12px 35px rgba(20,46,70,.09)}
+      *{box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;margin:0;background:#edf2f5;color:var(--ink);line-height:1.55}
+      .page{max-width:1440px;margin:0 auto;background:#fff;min-height:100vh;box-shadow:0 0 55px rgba(20,46,70,.10)}
+      .hero{padding:48px 6vw 36px;background:linear-gradient(135deg,#102d49 0%,#1c527d 62%,#287da0 100%);color:#fff}.eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:12px;font-weight:800;opacity:.78}.hero h1{font-size:clamp(30px,4vw,52px);line-height:1.08;margin:8px 0 12px}.hero p{max-width:850px;margin:0;color:#dbe9f3;font-size:17px}
+      nav{position:sticky;top:0;display:flex;gap:4px;align-items:center;overflow-x:auto;background:rgba(255,255,255,.97);border-bottom:1px solid var(--line);padding:10px 5vw;z-index:20;backdrop-filter:blur(12px)}nav a{white-space:nowrap;padding:8px 11px;border-radius:8px;color:var(--navy);text-decoration:none;font-weight:700;font-size:14px}nav a:hover{background:#eaf2f8}
+      main{padding:28px 5vw 70px}section{scroll-margin-top:72px}.section-heading{display:flex;align-items:end;justify-content:space-between;gap:20px;margin:52px 0 18px}.section-heading h2{margin:0;color:var(--navy);font-size:28px}.section-heading p{margin:0;color:var(--muted);max-width:700px}
+      .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin:20px 0}.card{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:18px}.card .num{font-size:32px;line-height:1;font-weight:800;color:var(--navy);margin-bottom:8px}.card.warn{background:var(--warn-bg);border-color:#f2ccb7}.card.warn .num{color:var(--warn)}.card.success{background:var(--success-bg);border-color:#bde6d4}.card.success .num{color:var(--success)}
+      .notice{background:#eef6fb;border-left:4px solid var(--blue);padding:15px 18px;border-radius:0 10px 10px 0;margin:22px 0;color:#29465f}.missing-note{background:var(--warn-bg);border:1px solid #f2ccb7;padding:14px 16px;border-radius:10px;color:#713a20}
+      .toolbar{position:sticky;top:58px;background:rgba(255,255,255,.97);border:1px solid var(--line);border-radius:12px;padding:12px;margin:18px 0 24px;z-index:15;box-shadow:0 6px 18px rgba(20,45,70,.08);backdrop-filter:blur(10px)}.toolbar-row{display:flex;gap:10px}.toolbar input[type=search]{width:100%;font-size:15px;padding:11px 13px;border:1px solid #b9c7d3;border-radius:8px}.filters{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:13px;color:#34495e}.filters label{display:inline-flex;gap:6px;align-items:center}.search-count{font-size:13px;color:var(--muted);margin-top:8px}
+      .gene-index{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:9px}.gene-chip{position:relative;display:block;border:1px solid var(--line);border-radius:10px;padding:12px 92px 11px 12px;text-decoration:none;color:var(--navy);background:#fff;min-height:72px}.gene-chip:hover{transform:translateY(-1px);box-shadow:0 6px 15px rgba(20,45,70,.08)}.gene-chip.missing{background:#fffaf7}.gene-chip-title{display:block;font-weight:750;overflow-wrap:anywhere}.gene-chip small{display:block;color:var(--muted);margin-top:4px}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:800;white-space:nowrap}.gene-chip .badge{position:absolute;right:9px;top:10px}.badge.found{background:var(--success-bg);color:var(--success)}.badge.missing{background:var(--warn-bg);color:var(--warn)}
+      .figure-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,480px),1fr));gap:18px;align-items:start}.report-figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 5px 18px rgba(20,45,70,.06)}.report-figure.featured{grid-column:1/-1}.figure-link{display:block;background:#f6f8fa;min-height:180px}.report-figure img{display:block;width:100%;height:auto;border:0;margin:0}.report-figure.featured img{max-height:720px;object-fit:contain}.report-figure img:not([src]){min-height:260px;background:linear-gradient(110deg,#eef2f5 8%,#f7f9fa 18%,#eef2f5 33%);background-size:200% 100%;animation:shimmer 1.4s linear infinite}figcaption{padding:14px 16px 15px;font-size:13px;color:var(--muted)}figcaption strong{display:block;color:var(--ink);font-size:15px}figcaption span{display:block;margin-top:5px}.download-link{display:inline-block;margin-top:10px;color:var(--blue);font-weight:750;text-decoration:none}@keyframes shimmer{to{background-position-x:-200%}}
+      .disclosure{border:1px solid var(--line);border-radius:12px;margin:10px 0;background:#fff;overflow:hidden;scroll-margin-top:130px}.disclosure>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 18px}.disclosure>summary::-webkit-details-marker{display:none}.disclosure>summary:hover{background:var(--soft)}.disclosure>summary strong{display:block;color:var(--navy);font-size:16px}.disclosure>summary small{display:block;color:var(--muted);margin-top:3px}.summary-action{font-size:12px;color:var(--blue);font-weight:800}.disclosure[open]>summary{border-bottom:1px solid var(--line);background:var(--soft)}.disclosure-body{padding:18px}.gene.missing{border-color:#f2ccb7}.data-disclosure{margin-top:20px;border-top:1px solid var(--line);padding-top:10px}.data-disclosure>summary{cursor:pointer;display:flex;justify-content:space-between;color:var(--navy);padding:10px 2px}.data-disclosure>div{padding-top:4px}
+      .guide{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:20px}.guide dl{display:grid;grid-template-columns:minmax(160px,230px) 1fr;gap:10px 18px;margin:0}.guide dt{font-weight:800;color:var(--navy)}.guide dd{margin:0;color:#42576a}
+      .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px;margin:10px 0 22px}table{border-collapse:collapse;width:100%;font-size:12px}th,td{border-bottom:1px solid #e6ebef;padding:8px;vertical-align:top;text-align:left}th{position:sticky;top:0;background:#f3f6f8;color:#33495e}tr:last-child td{border-bottom:0}code{background:#eef2f5;padding:2px 5px;border-radius:4px}.hidden-by-search{display:none!important}.group-links{display:flex;flex-wrap:wrap;gap:8px;padding:0;list-style:none}.group-links a{display:block;background:#eef5fa;color:var(--navy);padding:8px 11px;border-radius:8px;text-decoration:none;font-weight:700}
+      @media(max-width:720px){.hero{padding:36px 22px 28px}main{padding:22px 16px 55px}nav{padding:8px 12px}.toolbar{top:54px}.guide dl{grid-template-columns:1fr}.figure-grid{grid-template-columns:1fr}.disclosure>summary{align-items:flex-start;flex-direction:column}.gene-chip{padding-right:12px}.gene-chip .badge{position:static;margin-top:8px}}
+      @media print{body{background:#fff}.page{box-shadow:none}nav,.toolbar,.download-link{display:none!important}.disclosure:not([open])>.disclosure-body{display:block}.report-figure{break-inside:avoid}}
     </style>",
     "<script>
       document.addEventListener('DOMContentLoaded', function(){
         var input = document.getElementById('geneSearch');
         var count = document.getElementById('searchCount');
-        var toggles = Array.prototype.slice.call(document.querySelectorAll('[data-filter-kind]'));
-        var items = Array.prototype.slice.call(document.querySelectorAll('.searchable'));
-        function activeKinds(){
-          return toggles.filter(function(t){return t.checked;}).map(function(t){return t.getAttribute('data-filter-kind');});
+        var statusToggles = Array.prototype.slice.call(document.querySelectorAll('[data-filter-status]'));
+        var items = Array.prototype.slice.call(document.querySelectorAll('.gene-chip,.group-section,.gene'));
+        function hydrate(container){
+          Array.prototype.slice.call(container.querySelectorAll('img[data-src]')).forEach(function(img){
+            img.setAttribute('src', img.getAttribute('data-src'));
+            img.removeAttribute('data-src');
+          });
         }
         function applySearch(){
           var query = (input.value || '').trim().toLowerCase();
-          var kinds = activeKinds();
+          var statuses = statusToggles.filter(function(t){return t.checked;}).map(function(t){return t.getAttribute('data-filter-status');});
           var visible = 0;
           items.forEach(function(el){
-            var kind = el.getAttribute('data-kind') || '';
             var text = el.getAttribute('data-search') || el.textContent.toLowerCase();
-            var kindOk = kind === '' || kinds.indexOf(kind) !== -1;
+            var status = el.getAttribute('data-status') || '';
+            var statusOk = status === '' || statuses.indexOf(status) !== -1;
             var queryOk = query === '' || text.indexOf(query) !== -1;
-            var show = kindOk && queryOk;
+            var show = statusOk && queryOk;
             el.classList.toggle('hidden-by-search', !show);
-            if (show && kind !== '') visible += 1;
+            if (show && el.classList.contains('gene-chip')) visible += 1;
+            if (show && query !== '' && el.tagName === 'DETAILS') el.open = true;
           });
-          items.forEach(function(el){
-            if (!el.classList.contains('hidden-by-search')) {
-              var parent = el.closest('.group-section.hidden-by-search,.gene.hidden-by-search');
-              if (parent) parent.classList.remove('hidden-by-search');
-            }
-          });
-          count.textContent = query === '' ? 'Filtro inativo.' : visible + ' itens encontrados para \"' + query + '\".';
+          count.textContent = query === '' ? visible + ' entradas disponíveis.' : visible + ' entradas encontradas para \"' + query + '\".';
         }
         input.addEventListener('input', applySearch);
-        toggles.forEach(function(t){t.addEventListener('change', applySearch);});
+        statusToggles.forEach(function(t){t.addEventListener('change', applySearch);});
+        Array.prototype.slice.call(document.querySelectorAll('details')).forEach(function(detail){
+          detail.addEventListener('toggle', function(){if(detail.open) hydrate(detail);});
+        });
+        document.addEventListener('click', function(event){
+          var link = event.target.closest('a[href^=\"#gene_\"],a[href^=\"#group_\"]');
+          if(!link) return;
+          var target = document.querySelector(link.getAttribute('href'));
+          if(target && target.tagName === 'DETAILS'){target.open = true;hydrate(target);}
+        });
+        if(location.hash){var target=document.querySelector(location.hash);if(target&&target.tagName==='DETAILS'){target.open=true;hydrate(target);}}
         applySearch();
       });
     </script>",
-    "</head><body>",
+    "</head><body><div class='page'>",
+    "<header class='hero'><div class='eyebrow'>HelixForge · RNA-seq Report API</div>",
     paste0("<h1>", html_escape(title), "</h1>"),
-    "<nav><a href='#overview'>Visao geral</a><a href='#guide'>Como ler</a><a href='#groups'>Grupos</a><a href='#genes'>Genes</a><a href='#tables'>Tabelas</a></nav>",
+    paste0("<p>Relatório exploratório de genes candidatos com expressão em ", html_escape(expression_unit), ", resultados diferenciais, metadados e artefatos auditáveis.</p></header>"),
+    "<nav aria-label='Navegação do relatório'><a href='#overview'>Visão geral</a><a href='#global'>Evidências globais</a><a href='#genes'>Genes</a><a href='#groups'>Grupos</a><a href='#guide'>Como interpretar</a><a href='#tables'>Dados</a></nav>",
+    "<main>",
     "<div class='toolbar' role='search'>",
-    "<input id='geneSearch' type='search' placeholder='Buscar por gene, ID, grupo, biotipo, descricao ou contraste'>",
+    "<div class='toolbar-row'><input id='geneSearch' type='search' placeholder='Buscar por gene, ID, grupo, biotipo, descrição ou contraste' aria-label='Buscar no relatório'></div>",
     "<div class='filters'>",
-    "<label><input type='checkbox' data-filter-kind='gene' checked>Genes</label>",
-    "<label><input type='checkbox' data-filter-kind='group' checked>Grupos</label>",
-    "<label><input type='checkbox' data-filter-kind='figure' checked>Figuras</label>",
-    "<label><input type='checkbox' data-filter-kind='table' checked>Tabelas</label>",
+    "<strong>Status:</strong>",
+    "<label><input type='checkbox' data-filter-status='found' checked>Encontrados</label>",
+    "<label><input type='checkbox' data-filter-status='missing' checked>Ausentes</label>",
     "</div>",
-    "<div class='search-count' id='searchCount'>Filtro inativo.</div>",
+    "<div class='search-count' id='searchCount' aria-live='polite'>Índice completo.</div>",
     "</div>",
     "<section id='overview'>",
+    "<div class='section-heading'><div><h2>Visão geral</h2><p>Dimensões do painel e cobertura dos identificadores solicitados.</p></div></div>",
     "<div class='cards'>",
-    paste0("<div class='card'><div class='num'>", nrow(catalog), "</div><div>entradas no genes.txt</div></div>"),
-    paste0("<div class='card'><div class='num'>", length(unique(catalog$matched_gene_id)), "</div><div>genes unicos</div></div>"),
-    paste0("<div class='card'><div class='num'>", length(unique(catalog$group)), "</div><div>grupos</div></div>"),
-    paste0("<div class='card'><div class='num'>", length(unique(deg_hits$contrast_label)), "</div><div>contrastes DEG com estes genes</div></div>"),
+    paste0("<div class='card'><div class='num'>", unique_gene_count, "</div><div>genes únicos solicitados</div></div>"),
+    paste0("<div class='card success'><div class='num'>", found_gene_count, "</div><div>encontrados na matriz</div></div>"),
+    paste0("<div class='card warn'><div class='num'>", missing_gene_count, "</div><div>ausentes da matriz</div></div>"),
+    paste0("<div class='card'><div class='num'>", sample_count, "</div><div>amostras analisadas</div></div>"),
+    paste0("<div class='card'><div class='num'>", length(unique(catalog$group)), "</div><div>grupos funcionais</div></div>"),
+    paste0("<div class='card'><div class='num'>", contrast_count, "</div><div>contrastes disponíveis</div></div>"),
+    paste0("<div class='card'><div class='num'>", significant_gene_count, "</div><div>genes candidatos com sinal DEG</div></div>"),
     "</div>",
-    paste0("<p>Este relatorio nao classifica genes. Ele organiza evidencias visuais e tabelas para explorar expressao em ", html_escape(expression_unit), ", localizacao genomica, batch/projeto, contexto biologico e resultados DEG de cada gene e grupo.</p>"),
-    "<div class='gene-index'>", gene_index, "</div>",
-    img_tag(global_plots$heatmap, "Expressao media integrada por contexto"),
-    img_tag(global_plots$dotplot, "Expressao media e fracao expressa"),
-    img_tag(global_plots$annotated_sample_heatmap, "Heatmap gene x amostra com anotacoes"),
-    img_tag(global_plots$gene_correlation, "Correlacao de expressao entre genes"),
-    img_tag(global_plots$sample_pca, "PCA das amostras usando os genes de interesse"),
-    img_tag(global_plots$sample_mds, "MDS das amostras usando os genes de interesse"),
-    img_tag(global_plots$tissue_sex_heatmap, "Padroes por tecido e sexo"),
-    img_tag(global_plots$ovary_testis, "Comparacao ovario versus testiculo"),
-    img_tag(global_plots$group_aggregate, "Perfil agregado por grupo"),
-    img_tag(global_plots$batch_project, "Distribuicao de expressao por batch e projeto"),
-    img_tag(global_plots$deg_heatmap, "log2FC integrado nos contrastes DEG"),
-    img_tag(global_plots$deg_tile, "Sinais DEG por contraste/projeto"),
-    img_tag(global_plots$deg_direction, "Direcao DEG por contraste/projeto"),
+    paste0("<div class='notice'><strong>Escopo.</strong> Este relatório organiza evidências exploratórias; ele não classifica genes nem substitui a análise diferencial completa. A PCA/MDS usa somente os genes candidatos, e matrizes corrigidas para visualização não são usadas automaticamente na inferência.</div>"),
     "</section>",
-    "<section class='guide' id='guide'><h2>Como ler as visualizacoes</h2>",
+    "<section id='global'>",
+    "<div class='section-heading'><div><h2>Evidências globais</h2><p>Primeiro, revise os padrões do painel completo. Clique em qualquer figura para abrir a resolução original.</p></div></div>",
+    "<div class='figure-grid'>",
+    img_tag(global_plots$annotated_sample_heatmap, "Heatmap gene × amostra com anotações informativas", featured = TRUE),
+    img_tag(global_plots$heatmap, "Expressão média integrada por contexto"),
+    img_tag(global_plots$sample_pca, "PCA das amostras usando os genes candidatos"),
+    img_tag(global_plots$deg_heatmap, "Efeitos diferenciais nos contrastes disponíveis"),
+    img_tag(global_plots$dotplot, "Expressão média e fração expressa"),
+    img_tag(global_plots$gene_correlation, "Correlação de expressão entre genes"),
+    img_tag(global_plots$sample_mds, "MDS das amostras usando os genes candidatos"),
+    img_tag(global_plots$tissue_sex_heatmap, "Padrões por tecido e sexo"),
+    img_tag(global_plots$ovary_testis, "Comparação ovário versus testículo"),
+    img_tag(global_plots$group_aggregate, "Perfil agregado por grupo"),
+    img_tag(global_plots$batch_project, "Distribuição por covariáveis técnicas"),
+    img_tag(global_plots$deg_tile, "Significância e efeito por contraste"),
+    img_tag(global_plots$deg_direction, "Direção DEG por contraste"),
+    "</div></section>",
+    "<section id='genes'><div class='section-heading'><div><h2>Genes candidatos</h2><p>Use a busca e os filtros de status. Genes ausentes permanecem visíveis para preservar a auditoria da lista solicitada.</p></div></div><div class='gene-index'>", gene_index, "</div>", gene_sections, "</section>",
+    "<section id='groups'><div class='section-heading'><div><h2>Grupos funcionais</h2><p>As visualizações detalhadas são carregadas somente quando o grupo é aberto.</p></div></div><ul class='group-links'>", group_links, "</ul>", group_sections, "</section>",
+    "<section class='guide' id='guide'><div class='section-heading'><div><h2>Como interpretar</h2><p>Definições essenciais para evitar interpretações além do que os dados permitem.</p></div></div>",
     "<dl>",
-    paste0("<dt>", html_escape(expression_unit), " e log2(", html_escape(expression_unit), " + 1)</dt><dd>A matriz de expressao normalizada e usada para comparar padroes entre amostras; a escala log reduz o peso de genes muito altos.</dd>"),
-    "<dt>Heatmaps</dt><dd>Use para localizar blocos de alta/baixa expressao e checar se grupos biologicos ou projetos dominam o sinal.</dd>",
-    "<dt>PCA/MDS</dt><dd>Servem como controle exploratorio: separacoes por batch/projeto merecem cautela antes de interpretar diferencas biologicas.</dd>",
-    "<dt>DEG</dt><dd>log2FC mostra direcao e tamanho do efeito; padj considera multiplos testes. Priorize genes com efeito coerente e padj baixo.</dd>",
-    "<dt>Busca</dt><dd>Digite ID, nome, grupo, biotipo, descricao ou contraste para reduzir o relatorio aos itens relevantes.</dd>",
+    paste0("<dt>", html_escape(expression_unit), " e log2(", html_escape(expression_unit), " + 1)</dt><dd>A transformação logarítmica reduz a dominância dos genes muito abundantes. Quando o heatmap usa z-score por linha, ele compara o padrão relativo de cada gene, não sua abundância absoluta.</dd>"),
+    "<dt>Heatmaps</dt><dd>Use para localizar blocos de expressão e avaliar consistência entre replicatas. Metadados invariantes são omitidos automaticamente.</dd>",
+    "<dt>PCA/MDS</dt><dd>São ordenações do painel de candidatos, não controles transcriptômicos globais. Separações podem refletir condição, estágio, lote ou confundimento.</dd>",
+    "<dt>DEG</dt><dd>log2FC mostra direção e magnitude do efeito; padj considera múltiplos testes. Significância estatística não implica relevância biológica isoladamente.</dd>",
+    "<dt>Genes ausentes</dt><dd>Um gene ausente pode refletir versão da referência, alias ou política de normalização de IDs; sua ausência é mantida como evidência auditável.</dd>",
+    "<dt>Busca</dt><dd>Digite ID, nome, grupo, biotipo, descrição ou contraste. Abrir uma seção carrega apenas as imagens necessárias.</dd>",
     "</dl></section>",
-    "<section id='groups'><h2>Grupos</h2><ul>", group_links, "</ul>", group_sections, "</section>",
-    "<section id='genes'><h2>Genes individuais</h2>", gene_sections, "</section>",
-    "<section id='tables'><h2>Tabelas</h2>",
-    "<p>Arquivos completos: <code>tables/gene_catalog.tsv</code>, <code>tables/gene_expression_summary.tsv</code>, <code>tables/expression_long.tsv</code>, <code>tables/expression_summary_by_context.tsv</code> e <code>tables/deg_hits.tsv</code>.</p>",
+    "<section id='tables'><div class='section-heading'><div><h2>Dados e auditoria</h2><p>As tabelas completas permanecem disponíveis ao lado do HTML e são a fonte primária para reanálise.</p></div></div>",
+    "<p>Arquivos: <code>tables/gene_catalog.tsv</code>, <code>tables/gene_expression_summary.tsv</code>, <code>tables/expression_long.tsv</code>, <code>tables/expression_summary_by_context.tsv</code> e <code>tables/deg_hits.tsv</code>.</p>",
     table_to_html(gene_summary, 100),
     "</section>",
-    "</body></html>"
+    "</main></div></body></html>"
   )
   writeLines(html, path, useBytes = TRUE)
 }
