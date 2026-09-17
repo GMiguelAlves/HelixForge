@@ -72,6 +72,29 @@ with tempfile.TemporaryDirectory(prefix="helixforge-scientific-review-") as temp
     run(SAMPLE_TABLE, ["--metadata", str(duplicated_samples), "--provider", "star",
                        "--output", "samples.tsv", str(source)], case, False, "duplicated metadata sample")
 
+    technical_runs = case / "technical_runs.csv"
+    technical_runs.write_text(
+        "dataset,sample_id,run_accession,technical_unit,condition\n"
+        "D,S1,R1,technical_run_1,control\n"
+        "D,S1,R2,technical_run_2,control\n",
+        encoding="utf-8",
+    )
+    run(SAMPLE_TABLE, ["--metadata", str(technical_runs), "--provider", "star",
+                       "--output", "technical_samples.tsv", str(source)], case, True)
+    technical_output = (case / "technical_samples.tsv").read_text(encoding="utf-8").splitlines()
+    assert len(technical_output) == 2
+
+    conflicting_runs = case / "conflicting_runs.csv"
+    conflicting_runs.write_text(
+        "dataset,sample_id,run_accession,technical_unit,condition\n"
+        "D,S1,R1,technical_run_1,control\n"
+        "D,S1,R2,technical_run_2,treated\n",
+        encoding="utf-8",
+    )
+    run(SAMPLE_TABLE, ["--metadata", str(conflicting_runs), "--provider", "star",
+                       "--output", "conflicting_samples.tsv", str(source)], case, False,
+        "inconsistent metadata")
+
     artifact = source / "artifact"
     artifact.write_text("gene:ABC.1\t1\t1\t1\nABC\t2\t2\t2\n", encoding="utf-8")
     star_samples = case / "star_samples.tsv"

@@ -61,7 +61,10 @@ def main() -> None:
                 raise ValueError(f"duplicated metadata sample at row {line_number}: {key[0]}/{key[1]}")
             if run in seen_runs:
                 raise ValueError(f"duplicated run_accession at row {line_number}: {run}")
-            run_specific = {"run_accession", "lane"}
+            # These fields identify the technical run and are expected to vary
+            # when multiple runs are aggregated into one biological sample.
+            # They must not be interpreted as conflicting sample metadata.
+            run_specific = {"run_accession", "lane", "technical_unit"}
             conflicts = [
                 field for field in fields
                 if field not in run_specific
