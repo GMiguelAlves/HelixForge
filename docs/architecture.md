@@ -97,6 +97,10 @@ because the former tximport wrapper was intentionally removed.
 The terminal report is optional in `full` and explicit in `report` mode. It
 joins Import and DE artifacts through channels and manifest checksums; it does
 not search published result directories or alter the DESeq2 inference path.
+`report_reentry` enters directly at `RNASEQ_REPORT_CONTEXT` with explicit
+retained Import/DE artifacts and reference annotation. It schedules neither
+foundation/QC nor quantification, Import, or DE, and therefore remains usable
+after the originating FASTQs, work directory, and cache are removed.
 In `full`, `RUN_MANIFEST` projects those known artifacts, normalized metadata,
 the Reference Bundle and contrast specification into
 `rnaseq_run_manifest.json`.

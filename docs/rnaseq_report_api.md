@@ -92,6 +92,30 @@ Import and Differential Expression. `de` deliberately stops at DE aggregation.
 The default publish root is `<outdir>/rnaseq/090-search-gene`; override it with
 `--rnaseq_report_outdir`.
 
+### Terminal-only re-entry
+
+`--rnaseq_run_mode report_reentry` runs the Report API without scheduling any
+upstream RNA-seq process. It requires:
+
+- `--rnaseq_report_import_manifest`;
+- `--rnaseq_report_abundance`;
+- `--rnaseq_report_samples`;
+- `--rnaseq_report_annotation`;
+- `--rnaseq_report_de_results`;
+- `--rnaseq_report_de_manifest`;
+- `--rnaseq_report_genes`.
+
+The retained abundance and sample table must match the checksums declared by
+the Import manifest. The ordered `import_id` values must match the abundance
+columns exactly. The DE and Import manifest types, candidate syntax, gene IDs,
+numeric values, and annotation checksum are recorded in the new report
+context. The produced report manifest points back to the upstream manifest
+checksums and does not mutate the original terminal RNA-seq manifest.
+
+This mode is intended for post-cleanup reporting and independent review. It
+requires no FASTQs, quantifier outputs, Nextflow task cache, or originating
+work directory.
+
 ## Future providers
 
 KEGG, GO, Reactome and organism-specific pathway enrichment belong in the

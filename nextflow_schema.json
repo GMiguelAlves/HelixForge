@@ -62,7 +62,37 @@
     "rnaseq_report_genes": {
       "type": ["string", "null"],
       "default": null,
-      "description": "Tracked candidate-gene group file. Required when rnaseq_report_enabled=true."
+      "description": "Tracked candidate-gene group file. Required when rnaseq_report_enabled=true or rnaseq_run_mode=report_reentry."
+    },
+    "rnaseq_report_import_manifest": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "Import API manifest used by rnaseq_run_mode=report_reentry."
+    },
+    "rnaseq_report_abundance": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "Gene-level abundance matrix declared by the Import manifest for report re-entry."
+    },
+    "rnaseq_report_samples": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "Ordered Import API sample table for report re-entry."
+    },
+    "rnaseq_report_annotation": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "Reference Bundle GTF/GFF annotation for report re-entry."
+    },
+    "rnaseq_report_de_results": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "Aggregate Differential Expression API table for report re-entry."
+    },
+    "rnaseq_report_de_manifest": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "Differential Expression API manifest for report re-entry."
     },
     "rnaseq_report_provider": {
       "type": "string",
@@ -242,7 +272,7 @@
     "rnaseq_de_spec": { "type": ["string", "null"], "default": null },
     "rnaseq_run_mode": {
       "type": "string",
-      "enum": ["qc", "alignment", "quant", "quantification", "import", "de", "differential_expression", "report", "full"],
+      "enum": ["qc", "alignment", "quant", "quantification", "import", "de", "differential_expression", "report", "report_reentry", "full"],
       "default": "full"
     },
     "chipseq_min_mapq": { "type": ["integer", "null"], "minimum": 0, "maximum": 255, "default": null },
