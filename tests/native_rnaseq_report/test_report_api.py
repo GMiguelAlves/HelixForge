@@ -29,7 +29,7 @@ class ReportApiTest(unittest.TestCase):
     def test_native_r_provider_matches_certified_source_digest(self):
         self.assertEqual(
             canonical_text_digest(NATIVE_REPORT),
-            "be354e3846a7a4bac095a43c11d58058232801286a7008ab2dbe9b970bac2858",
+            "5561fb051c26c1c5b988d7aaa270177349c8f27bf9a175d36c11c35f6404a339",
         )
 
     def test_report_renderer_defers_detailed_images_and_exposes_status(self):
@@ -41,6 +41,8 @@ class ReportApiTest(unittest.TestCase):
         self.assertIn("data-filter-status='found'", source)
         self.assertIn("Genes ausentes", source)
         self.assertIn("Ordenação exploratória calculada somente com os genes candidatos", source)
+        self.assertNotIn("Relatório exploratório de genes candidatos com expressão em", source)
+        self.assertNotIn("<strong>Escopo.</strong>", source)
 
     def test_gene_figures_are_generated_once_per_unique_gene(self):
         source = NATIVE_REPORT.read_text(encoding="utf-8")

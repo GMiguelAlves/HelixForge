@@ -1358,9 +1358,6 @@ write_html_report <- function(path, title, catalog, gene_summary, deg_hits, glob
       });
     </script>",
     "</head><body><div class='page'>",
-    "<header class='hero'><div class='eyebrow'>HelixForge · RNA-seq Report API</div>",
-    paste0("<h1>", html_escape(title), "</h1>"),
-    paste0("<p>Relatório exploratório de genes candidatos com expressão em ", html_escape(expression_unit), ", resultados diferenciais, metadados e artefatos auditáveis.</p></header>"),
     "<nav aria-label='Navegação do relatório'><a href='#overview'>Visão geral</a><a href='#global'>Evidências globais</a><a href='#genes'>Genes</a><a href='#groups'>Grupos</a><a href='#guide'>Como interpretar</a><a href='#tables'>Dados</a></nav>",
     "<main>",
     "<div class='toolbar' role='search'>",
@@ -1383,7 +1380,6 @@ write_html_report <- function(path, title, catalog, gene_summary, deg_hits, glob
     paste0("<div class='card'><div class='num'>", contrast_count, "</div><div>contrastes disponíveis</div></div>"),
     paste0("<div class='card'><div class='num'>", significant_gene_count, "</div><div>genes candidatos com sinal DEG</div></div>"),
     "</div>",
-    paste0("<div class='notice'><strong>Escopo.</strong> Este relatório organiza evidências exploratórias; ele não classifica genes nem substitui a análise diferencial completa. A PCA/MDS usa somente os genes candidatos, e matrizes corrigidas para visualização não são usadas automaticamente na inferência.</div>"),
     "</section>",
     "<section id='global'>",
     "<div class='section-heading'><div><h2>Evidências globais</h2><p>Primeiro, revise os padrões do painel completo. Clique em qualquer figura para abrir a resolução original.</p></div></div>",
