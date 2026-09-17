@@ -1,16 +1,15 @@
 # Running with Nextflow
 
-The runtime certified for complete scientific execution is Nextflow `25.10.7`,
-enforced by the project manifest. This is a temporary exact pin while the
-demonstrated task-cache persistence failure is investigated. Java 21 and Java
-23 both resumed a one-task probe with 25.10.7, but the identical top-level RNA
-workflow did not persist task records; production `-resume` is not certified.
+The runtime certified for complete scientific execution and resume is Nextflow
+`25.10.7` with Java 21, enforced by the project manifest. Invoke it through the
+official `nextflow` launcher. Direct `java -jar nextflow-*-one.jar` execution
+is unsupported because it bypasses JVM options required for task-cache
+serialization.
 
 ## Safe resume preflight
 
-Do not add `-resume` blindly to a production invocation. Capture a cache
-receipt after the original run, while the task database and work directory are
-still present:
+For costly production runs, capture a cache receipt after the original run
+while the task database and work directory are still present:
 
 ```bash
 bin/helixforge-resume-guard capture \
@@ -37,7 +36,8 @@ submission when persistence is absent or partial. A receipt contains relative
 work paths rather than site-specific absolute paths and must be kept with the
 private run audit, not committed as project configuration.
 
-The controlled runtime matrix and the re-entry policy are recorded in the
+The former empty-cache incident, its direct-JAR root cause and the corrected
+runtime policy are recorded in the
 [resume-cache diagnostic](resume-cache-diagnostic.md).
 
 ## Available workflows

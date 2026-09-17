@@ -134,7 +134,10 @@ The regression writes `comparison.tsv` and `benchmark.tsv` under
 distribution is compared semantically because Salmon samples that distribution
 stochastically even when the command and inputs are identical.
 
-Set `NEXTFLOW_BIN` or `NEXTFLOW_JAR` when Nextflow is not on `PATH`. Cache
+Set `NEXTFLOW_BIN` to the official Nextflow launcher when Nextflow is not on
+`PATH`. Direct `java -jar nextflow-*-one.jar` execution is unsupported because
+it bypasses JVM options required by the launcher and can silently prevent task
+cache persistence. Cache
 validation is pinned to the certified official Nextflow 25.10.7 runtime; Docker
 must be available.
 

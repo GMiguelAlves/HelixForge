@@ -17,8 +17,8 @@ else
 fi
 case_root="${validation_root}/results/${case_name}"
 conda_root=$(cd "$(dirname "$conda_bin")/.." && pwd)
-runtime_path="${conda_root}/envs/${r_env}/bin:${conda_root}/envs/${rna_env}/bin:${conda_root}/envs/${python_env}/bin:/usr/bin:/bin"
-nextflow_jar="${HELIXFORGE_NEXTFLOW_JAR:-${validation_root}/nextflow.jar}"
+runtime_path="${conda_root}/envs/${rna_env}/bin:${conda_root}/envs/${r_env}/bin:${conda_root}/envs/${python_env}/bin:/usr/bin:/bin"
+nextflow_bin=${HELIXFORGE_NEXTFLOW_BIN:-nextflow}
 work_root="${validation_root}/work/${case_name}"
 cache_root="${HELIXFORGE_NXF_CACHE_DIR:-${repo_root}/.validation-cache/${case_name}}"
 
@@ -29,7 +29,11 @@ esac
 
 test -d "$repo_root/.git"
 test -x "$conda_bin"
-test -s "$nextflow_jar"
+if [[ "$nextflow_bin" == */* ]]; then
+    test -x "$nextflow_bin"
+else
+    nextflow_bin=$(command -v "$nextflow_bin")
+fi
 
 if [[ "$mode" == "preflight-job" ]]; then
     test -n "${SLURM_JOB_ID:-}"
@@ -73,11 +77,11 @@ if [[ "$mode" == "validate-job" ]]; then
     exit 0
 fi
 
-if [[ "$mode" != "driver" && "$mode" != "baseline-driver" && "$mode" != "resume-driver" && "$mode" != "recovery-driver" ]]; then
-    echo "mode must be driver, baseline-driver, resume-driver, recovery-driver, preflight-job, fixture-job, or validate-job" >&2
+if [[ "$mode" != "driver" && "$mode" != "short-matrix-driver" && "$mode" != "baseline-driver" && "$mode" != "resume-driver" && "$mode" != "recovery-driver" ]]; then
+    echo "mode must be driver, short-matrix-driver, baseline-driver, resume-driver, recovery-driver, preflight-job, fixture-job, or validate-job" >&2
     exit 2
 fi
-if [[ "$mode" == "driver" || "$mode" == "baseline-driver" ]]; then
+if [[ "$mode" == "driver" || "$mode" == "short-matrix-driver" || "$mode" == "baseline-driver" ]]; then
     if [[ -e "$case_root" ]]; then
         echo "Refusing to overwrite an existing validation case: $case_root" >&2
         exit 2
@@ -127,9 +131,7 @@ run_pipeline() {
     env PATH="$runtime_path" \
         NXF_HOME="${repo_root}/.nextflow-home" \
         NXF_CACHE_DIR="$cache_root" \
-        "${conda_root}/envs/${rna_env}/bin/java" \
-        -Xms128m -Xmx1g \
-        -jar "$nextflow_jar" \
+        "$nextflow_bin" \
         -log "$case_root/logs/${scenario}.nextflow.log" \
         run main.nf \
         -c tests/slurm/rnaseq-production.config \
@@ -163,14 +165,14 @@ run_pipeline() {
     cp "$case_root/results/pipeline_info/execution_trace.tsv" "$case_root/traces/${scenario}.tsv"
 }
 
-if [[ "$mode" == "driver" || "$mode" == "baseline-driver" || "$mode" == "resume-driver" || "$mode" == "recovery-driver" ]]; then
-    runtime_version=$("${conda_root}/envs/${rna_env}/bin/java" -Xms128m -Xmx1g -jar "$nextflow_jar" -version 2>&1)
+if [[ "$mode" == "driver" || "$mode" == "short-matrix-driver" || "$mode" == "baseline-driver" || "$mode" == "resume-driver" || "$mode" == "recovery-driver" ]]; then
+    runtime_version=$("$nextflow_bin" -version 2>&1)
     [[ "$runtime_version" == *"version 25.10.7"* ]] || {
         printf 'Expected certified Nextflow 25.10.7, observed:\n%s\n' "$runtime_version" >&2
         exit 4
     }
 fi
-if [[ "$mode" == "driver" || "$mode" == "baseline-driver" ]]; then
+if [[ "$mode" == "driver" || "$mode" == "short-matrix-driver" || "$mode" == "baseline-driver" ]]; then
     submit_helper hf-rna-preflight preflight-job
     submit_helper hf-rna-fixture fixture-job baseline
     run_pipeline baseline false true
@@ -204,22 +206,33 @@ run_pipeline transcriptome-change true true
     "$case_root/traces/transcriptome-change.tsv" transcriptome
 submit_helper hf-rna-validate-transcriptome validate-job transcriptome
 
-run_pipeline parameter-change true false
-"${conda_root}/envs/${python_env}/bin/python3" \
-    "$repo_root/tests/slurm/assert_rnaseq_cache.py" \
-    "$case_root/traces/parameter-change.tsv" parameters
-submit_helper hf-rna-validate-parameters validate-job parameters
+if [[ "$mode" != "short-matrix-driver" ]]; then
+    run_pipeline parameter-change true false
+    "${conda_root}/envs/${python_env}/bin/python3" \
+        "$repo_root/tests/slurm/assert_rnaseq_cache.py" \
+        "$case_root/traces/parameter-change.tsv" parameters
+    submit_helper hf-rna-validate-parameters validate-job parameters
+fi
 
 submit_helper hf-rna-contrast fixture-job contrast
-run_pipeline contrast-change true false
+downstream_validate_mappings=false
+if [[ "$mode" == "short-matrix-driver" ]]; then
+    downstream_validate_mappings=true
+fi
+run_pipeline contrast-change true "$downstream_validate_mappings"
 "${conda_root}/envs/${python_env}/bin/python3" \
     "$repo_root/tests/slurm/assert_rnaseq_cache.py" \
     "$case_root/traces/contrast-change.tsv" contrast
 
-run_pipeline qc-parameter-change true false 25
+run_pipeline qc-parameter-change true "$downstream_validate_mappings" 25
 "${conda_root}/envs/${python_env}/bin/python3" \
     "$repo_root/tests/slurm/assert_rnaseq_cache.py" \
     "$case_root/traces/qc-parameter-change.tsv" qc
+
+if [[ "$mode" == "short-matrix-driver" ]]; then
+    echo "[OK] Short RNA-seq cache invalidation matrix passed."
+    exit 0
+fi
 
 module_file="$repo_root/modules/local/salmon_quant/main.nf"
 module_backup="$case_root/salmon_quant.main.nf.original"

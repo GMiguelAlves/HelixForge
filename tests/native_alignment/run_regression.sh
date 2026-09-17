@@ -4,7 +4,6 @@ set -euo pipefail
 
 project_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 nextflow_bin=${NEXTFLOW_BIN:-nextflow}
-nextflow_jar=${NEXTFLOW_JAR:-}
 image=${STAR_CONTAINER:-community.wave.seqera.io/library/htslib_samtools_star_gawk:ae438e9a604351a4}
 case_root="${project_root}/results/test/native-alignment-regression"
 fixture_root="${project_root}/tests/fixtures/native_alignment"
@@ -20,11 +19,7 @@ esac
 rm -rf "$case_root"
 
 run_nextflow() {
-    if [[ -n "$nextflow_jar" ]]; then
-        java -jar "$nextflow_jar" "$@"
-    else
-        "$nextflow_bin" "$@"
-    fi
+    "$nextflow_bin" "$@"
 }
 
 mkdir -p "$input_dir" "$legacy_dir/index" "$legacy_dir/output" "$native_dir" "$nextflow_out"

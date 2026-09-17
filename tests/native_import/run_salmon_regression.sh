@@ -5,7 +5,6 @@ set -euo pipefail
 project_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 source "${project_root}/tests/lib/materialize_rnaseq_legacy.sh"
 nextflow_bin=${NEXTFLOW_BIN:-nextflow}
-nextflow_jar=${NEXTFLOW_JAR:-}
 fixture_root="${project_root}/tests/fixtures/native_import"
 case_root="${project_root}/results/test/native-import-salmon-regression"
 legacy_root="${case_root}/legacy_root"
@@ -15,11 +14,7 @@ nextflow_out="${case_root}/nextflow"
 image=${HELIXFORGE_IMPORT_CONTAINER:-ghcr.io/gmiguelalves/helixforge-import:1.0.0@sha256:e8bc49869f641cee2d538df058fb9afb8e7883c4b48b29d1f946a9761ff105f7}
 
 run_nextflow() {
-    if [[ -n "$nextflow_jar" ]]; then
-        java -jar "$nextflow_jar" "$@"
-    else
-        "$nextflow_bin" "$@"
-    fi
+    "$nextflow_bin" "$@"
 }
 
 case "$case_root" in

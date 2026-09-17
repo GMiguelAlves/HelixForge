@@ -4,7 +4,6 @@ set -euo pipefail
 
 project_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 nextflow_bin=${NEXTFLOW_BIN:-nextflow}
-nextflow_jar=${NEXTFLOW_JAR:-}
 image=${SALMON_CONTAINER:-quay.io/biocontainers/salmon@sha256:f83ebb158845ee8138d793347f83b92c75e83c58dd8f4600c6fea2a2453ef08e}
 case_root="${project_root}/results/test/native-quantification-regression"
 fixture_root="${project_root}/tests/fixtures/native_quantification"
@@ -19,11 +18,7 @@ esac
 rm -rf "$case_root"
 
 run_nextflow() {
-    if [[ -n "$nextflow_jar" ]]; then
-        java -jar "$nextflow_jar" "$@"
-    else
-        "$nextflow_bin" "$@"
-    fi
+    "$nextflow_bin" "$@"
 }
 
 mkdir -p "$legacy_dir/index" "$legacy_dir/quant" "$native_dir" "$nextflow_out"

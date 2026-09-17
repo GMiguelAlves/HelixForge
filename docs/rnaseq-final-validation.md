@@ -49,6 +49,6 @@ validation milestone, not as a claim inferred from this synthetic fixture.
 The annotated tag `rnaseq-legacy-v1.0.0` preserves the final executable legacy
 snapshot before its later removal from the default development path.
 
-Task-cache persistence on the institutional NFS remains an external runtime
-issue documented separately. It does not invalidate this successful complete
-scientific execution.
+The task-cache incident observed during this validation was later traced to a
+direct-JAR harness and resolved with the official Nextflow launcher. It never
+invalidated the successful scientific execution.

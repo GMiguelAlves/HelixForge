@@ -1,92 +1,104 @@
 # Nextflow resume-cache diagnostic
 
-## Operational decision
+## Resolution
 
-Production `-resume` is fail-closed in HelixForge. A launcher may add
-`-resume RUN_NAME` only after `bin/helixforge-resume-guard check` verifies a
-receipt captured from the same run, live task-cache records and preserved work
-directories. If the check fails, use a documented manifest re-entry boundary;
-do not retry the complete workflow with an unverified cache.
+The HelixForge cache-persistence incident is resolved. The affected validation
+harnesses invoked `nextflow-25.10.7-one.jar` directly with `java -jar` instead
+of using the official Nextflow launcher. That bypassed JVM module-opening
+options supplied by the launcher. Chill/Kryo serialization then raised a Java
+module-access exception inside the asynchronous cache writer. The workflow
+could finish successfully while its LevelDB database contained run indexes but
+no task entries.
 
-This control prevents accidental recomputation. It does not reconstruct
-LevelDB records and is not presented as a fix inside Nextflow.
+HelixForge now requires the official Nextflow launcher. Direct invocation of a
+Nextflow JAR is unsupported in production and test harnesses.
 
-## Controlled observations
+The correction was verified on the shared Slurm environment with Nextflow
+25.10.7 and Java 21:
 
-The original August 2026 investigation used Debian 12, Nextflow 25.10.7 and
-Java 21/23. Its one-task Slurm probe resumed correctly, while a complete RNA
-workflow finished with an empty task database. Nextflow 26.04.x also missed the
-one-task cache on NFS and local ext4. The behavior was reported upstream as
+- the minimal probe resumed with the original task hash and no new Slurm job;
+- the complete synthetic RNA-seq workflow persisted 59 task records;
+- an identical resume recovered all 58 scientific tasks as `CACHED`;
+- only the terminal `RUN_MANIFEST` process executed again because its declared
+  per-run provenance contains the dynamic Nextflow run identity;
+- QC, Salmon, Import, DESeq2 and Gene Report outputs passed their scientific
+  validators after resume.
+
+This result excludes NFS, Slurm, Debian 13, workflow scale and the scientific
+DAG as the root cause of the observed empty task databases. The selective
+invalidation matrix maintained by
+`tests/slurm/run_rnaseq_production_real.sh` also passed:
+
+| Change | Observed invalidation boundary |
+|---|---|
+| None | All 58 scientific tasks were `CACHED`; terminal run manifest regenerated |
+| One sample FASTQ | Only that sample's QC, quantification and dependent analyses reran |
+| Transcriptome | Salmon index, all quantifications and dependent analyses reran; QC stayed cached |
+| DESeq2 contrast | Import and model stayed cached; contrast, aggregation and reports reran |
+| QC trim quality | Raw FastQC and Salmon index stayed cached; affected QC and descendants reran |
+
+The short matrix deliberately keeps Salmon parameters constant while testing
+contrast and QC changes, so each scenario measures one invalidation boundary.
+
+## Historical investigation
+
+The original investigation observed that one small probe could resume while a
+complete workflow could not. A later diagnostic matrix reproduced an empty
+task database on NFS and local ext4, with deep/default cache modes and different
+task counts. Those observations were real, but their interpretation was
+incomplete: all failing cases used a direct-JAR wrapper, whereas the successful
+control used the official launcher.
+
+The direct-JAR wrapper later installed in the user's local runtime did not
+originate the problem. Earlier full-workflow harnesses already used the same
+unsupported `java -jar` pattern. The wrapper merely made that historical
+pattern the default for subsequent probes.
+
+The investigation was reported upstream as
 [nextflow-io/nextflow#7471](https://github.com/nextflow-io/nextflow/issues/7471).
+The cache failure itself was caused by the HelixForge runtime harness. A useful
+upstream diagnostic observation remains: the asynchronous writer retained the
+serialization exception without failing the workflow, allowing a successful
+run to leave an empty task database.
 
-The institutional cluster was subsequently upgraded to Debian 13. A focused
-rerun on 16 September 2026 produced the following matrix:
-
-| Nextflow | Java | Driver/cache filesystem | Probe | Task records |
-|---|---|---|---|---:|
-| 25.10.7 build 12755 | Temurin 21.0.12+8 | NFS/NFS | 16 trivial Slurm tasks | 0 |
-| 25.10.7 build 12755 | Temurin 21.0.12+8 | NFS/local ext4 | 16 trivial Slurm tasks | 0 |
-| 25.10.7 build 12755 | Temurin 21.0.12+8 | NFS/local ext4 | 2 serialized trivial tasks | 0 |
-| 25.10.7 build 12755 | Temurin 21.0.12+8 | NFS/local ext4 | exact original one-task probe | 0 |
-| 25.10.7 build 12755 | Temurin 21.0.12+8 | local ext4/default local cache | exact original one-task probe | 0 |
-| 25.10.7 build 12755 | Temurin 21.0.12+8 | NFS/local ext4 | default rather than deep cache mode | 0 |
-
-Every task completed with exit status zero and retained its work directory and
-`.exitcode`. Every cache database opened and closed without a reported error,
-wrote the history and run index, but retained an empty LevelDB log with no task
-records. An actual `-resume` of the exact original probe submitted a new Slurm
-task with a new work hash.
-
-This is not the missing-history scenario described in
+This was not the missing-history scenario described in
 [Nextflow discussion #4876](https://github.com/nextflow-io/nextflow/discussions/4876).
-In that cloud case, a new launch directory/container cannot discover the prior
-session because `.nextflow/history` was not preserved; an explicit session and
-`NXF_IGNORE_RESUME_HISTORY=true` can bypass history lookup. In this controlled
-case, both invocations used the same launch directory and history, explicit
-`-resume RUN_NAME` resolved the original UUID, and the corresponding LevelDB
-still had no task values to recover. Ignoring history cannot restore absent
-task records.
+The launch directory, session history, cache directory and work outputs were
+all preserved. The missing component was the serialized task entry.
 
-The Nextflow JAR and Java installation predate the cluster upgrade and remained
-fixed during this matrix. The result rules out the scientific DAG, task count,
-concurrency, `cache 'deep'`, NFS cache placement and `NXF_CACHE_DIR` as a
-sufficient explanation. It identifies a site/runtime regression after the OS
-upgrade, but does not establish which external component causes Nextflow to
-discard task records silently.
+## Supported launcher contract
 
-## Guard contract
+Use the official launcher and keep the certified version explicit:
 
-`helixforge-resume-guard capture` must run after the original Nextflow process
-returns and before cache/work cleanup. It writes a private receipt containing:
+```bash
+export NXF_VER=25.10.7
+nextflow -version
+nextflow run . [arguments]
+```
 
-- schema and explicit Nextflow run name;
-- exact task count;
-- task hash/name identities;
-- work paths relative to the declared work root.
+When the launcher is installed under a site-specific name, pass its executable
+path through `NEXTFLOW_BIN` for local test harnesses or
+`HELIXFORGE_NEXTFLOW_BIN` for controlled Slurm harnesses. The value must be an
+official launcher executable, not a script that delegates to `java -jar`.
 
-`helixforge-resume-guard check` reruns `nextflow log` in the same launch/cache
-context and requires:
+## Resume guard
 
-- at least one task record;
-- at least one recoverable record (`COMPLETED` or `CACHED`, exit zero), while
-  failed/aborted attempts are reported and excluded from the receipt;
-- the exact captured task inventory;
-- every task work directory below the declared root;
-- `.exitcode=0` in every recorded work directory.
+`helixforge-resume-guard` remains available as defense in depth for expensive
+production runs. It validates a private receipt against live task records and
+preserved work outputs before a resume is attempted. It is no longer a
+workaround for a known HelixForge cache defect.
 
-No absolute site path is written to the receipt. The receipt belongs in the
-private execution audit, not in the public repository.
+The receipt contains relative work paths and belongs in the private execution
+audit, not in the public repository. The guard fails closed when task records
+or work outputs have been removed, which protects users from an accidental
+full recomputation after manual cleanup.
 
-## Safe continuation policy
+## Operational policy
 
-Until an upstream or site-runtime correction passes the probes:
-
-1. do not use bare `-resume` in production launchers;
-2. stop before submission when the guard fails;
-3. preserve completed terminal manifests and published results;
-4. restart from the narrowest supported re-entry mode rather than from raw
-   FASTQs;
-5. keep the upstream issue open and attach only sanitized diagnostics.
-
-Selective cache invalidation remains uncertified. Scientific results already
-validated from completed executions are unaffected by this operational defect.
+1. invoke Nextflow only through its official launcher;
+2. preserve `.nextflow`, the configured cache directory and `work` outputs for
+   as long as resume is required;
+3. use the same launch directory and runtime version when resuming;
+4. run the resume guard for costly production executions;
+5. use manifest re-entry when the original task cache or work directory has
+   intentionally been retired.

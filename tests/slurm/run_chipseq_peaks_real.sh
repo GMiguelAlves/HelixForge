@@ -23,7 +23,6 @@ esac
 test -d "$repo_root/.git"
 test -x "${conda_root}/envs/${rna_env}/bin/java"
 test -x "${conda_root}/envs/${chip_env}/bin/macs3"
-test -s "$validation_root/nextflow.jar"
 
 if [[ "$mode" == "prepare-job" ]]; then
     test -n "${SLURM_JOB_ID:-}"
@@ -83,7 +82,7 @@ printf '%s\n' "$prepare_job" > "$case_root/prepare_job_id.txt"
 mkdir -p "$nextflow_out"
 cd "$repo_root"
 env PATH="$runtime_path" NXF_HOME="$validation_root/.nextflow-home" \
-    "${conda_root}/envs/${rna_env}/bin/java" -jar "$validation_root/nextflow.jar" \
+    "${HELIXFORGE_NEXTFLOW_BIN:-nextflow}" \
     -log "$case_root/nextflow.log" run tests/native_chipseq_peaks/main.nf \
     -c tests/native_chipseq_peaks/nextflow.config \
     -c tests/slurm/native-runtime.config \

@@ -91,8 +91,9 @@ biological benchmark.
 ## Final classification
 
 - `RC_BLOCKER`: none.
-- `KNOWN_LIMITATION`: environment-specific Nextflow/LevelDB resume behavior;
-  experimental STAR, Apptainer/Singularity, Conda and external manifests.
+- `KNOWN_LIMITATION`: experimental STAR, Apptainer/Singularity, Conda and
+  external manifests. The former Nextflow/LevelDB resume limitation was later
+  resolved as a direct-JAR harness defect.
 - `POST_RC`: reviewed biological benchmarks, Batch Effect Assessment, pathway
   enrichment, base-image/action SHA hardening and additional providers.
 

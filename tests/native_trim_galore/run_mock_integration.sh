@@ -4,18 +4,13 @@ set -euo pipefail
 
 project_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 nextflow_bin=${NEXTFLOW_BIN:-nextflow}
-nextflow_jar=${NEXTFLOW_JAR:-}
 case_root="${project_root}/results/test/trim-galore-mock-integration"
 input_dir="${case_root}/input"
 native_dir="${case_root}/native"
 nextflow_out="${case_root}/nextflow"
 
 run_nextflow() {
-    if [[ -n "$nextflow_jar" ]]; then
-        java -jar "$nextflow_jar" "$@"
-    else
-        "$nextflow_bin" "$@"
-    fi
+    "$nextflow_bin" "$@"
 }
 
 mkdir -p "$input_dir" "$native_dir" "$nextflow_out"

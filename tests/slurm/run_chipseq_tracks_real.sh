@@ -81,7 +81,7 @@ printf '%s\n' "$prepare_job" > "$case_root/prepare_job_id.txt"
 mkdir -p "$nextflow_out"
 cd "$repo_root"
 env PATH="$runtime_path" NXF_HOME="$validation_root/.nextflow-home" \
-    "${conda_root}/envs/${rna_env}/bin/java" -jar "$validation_root/nextflow.jar" \
+    "${HELIXFORGE_NEXTFLOW_BIN:-nextflow}" \
     -log "$case_root/nextflow.log" run tests/native_chipseq_tracks/main.nf \
     -c tests/native_chipseq_tracks/nextflow.config -c tests/slurm/native-runtime.config \
     -ansi-log false -process.executor=slurm -process.queue="$queue" \
@@ -101,4 +101,3 @@ printf 'implementation\telapsed_ms\ntrack_generation_slurm\t%s\n' "$((native_sec
 
 echo "[OK] Real ChIP-seq track-generation Slurm validation passed."
 echo "[OK] Case root: $case_root"
-

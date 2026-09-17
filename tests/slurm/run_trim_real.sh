@@ -23,7 +23,6 @@ esac
 
 test -d "$repo_root/.git"
 test -x "$conda_bin"
-test -s "$validation_root/nextflow.jar"
 
 if [[ -z "$cache_dir" ]]; then
     cache_dir="$repo_root/.nextflow"
@@ -93,10 +92,12 @@ fi
 
 cd "$repo_root"
 native_start=$(date +%s%N)
+nextflow_bin=${HELIXFORGE_NEXTFLOW_BIN:-nextflow}
+[[ "$nextflow_bin" == */* ]] || nextflow_bin=$(command -v "$nextflow_bin")
+test -x "$nextflow_bin"
 env NXF_HOME="$validation_root/.nextflow-home" \
     NXF_CACHE_DIR="$cache_dir" \
-    "$conda_bin" run -n "$runtime_env" java \
-    -jar "$validation_root/nextflow.jar" \
+    "$nextflow_bin" \
     -log "$case_root/nextflow.log" \
     run tests/native_trim_galore/main.nf \
     -c tests/native_trim_galore/nextflow.config \

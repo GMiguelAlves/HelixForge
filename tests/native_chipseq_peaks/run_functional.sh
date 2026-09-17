@@ -4,15 +4,10 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TEST_ROOT="${ROOT}/tests/native_chipseq_peaks"
 NEXTFLOW_BIN="${NEXTFLOW_BIN:-nextflow}"
-NEXTFLOW_JAR="${NEXTFLOW_JAR:-}"
 MACS3_IMAGE="${MACS3_TEST_IMAGE:-quay.io/biocontainers/macs3:3.0.4--py312h71493bf_0}"
 
 run_nextflow() {
-    if [[ -n "$NEXTFLOW_JAR" ]]; then
-        java -jar "$NEXTFLOW_JAR" "$@"
-    else
-        "$NEXTFLOW_BIN" "$@"
-    fi
+    "$NEXTFLOW_BIN" "$@"
 }
 
 if ! docker image inspect "$MACS3_IMAGE" >/dev/null 2>&1; then

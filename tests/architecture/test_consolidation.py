@@ -109,6 +109,20 @@ def test_manifest_identity_and_lineage_guards() -> None:
         assert "upstream_manifests" in source
 
 
+def test_nextflow_harnesses_use_official_launcher() -> None:
+    violations: list[str] = []
+    for script in (ROOT / "tests").rglob("*.sh"):
+        source = script.read_text(encoding="utf-8")
+        direct_jar = (
+            "java" in source
+            and "-jar" in source
+            and "nextflow" in source.lower()
+        )
+        if "NEXTFLOW_JAR" in source or "nextflow.jar" in source or direct_jar:
+            violations.append(str(script.relative_to(ROOT)))
+    assert not violations, f"direct Nextflow JAR invocation is unsupported: {violations}"
+
+
 def test_branding_and_legacy_boundary() -> None:
     old_brand = "omics" + "flow"
     violations: list[str] = []

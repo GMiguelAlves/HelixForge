@@ -78,9 +78,9 @@ scientific equivalence is claimed.
   current evidence.
 - Renamed OCI images may not exist until the updated CI publishes them.
 - Historical Integrative identifier/reference and ChIP `full` validation gaps
-  were closed by the native contracts and benchmark campaigns. Selective
-  `-resume` behavior on the institutional NFS remains tracked separately as an
-  operational issue.
+  were closed by the native contracts and benchmark campaigns. The former
+  selective `-resume` incident was traced to direct JAR invocation and is
+  resolved by the official-launcher contract.
 - Exact numerical/serialization equivalence for tximport, DESeq2, MACS3,
   featureCounts, annotations and BigWig tracks remains unproven here.
 

@@ -45,9 +45,9 @@ on shared storage; no pre-existing scratch data was removed. The existing
 without modification. The RNA driver used the Java 23 runtime already present
 in `rna-tools`; Java 25 was used only for one minimal cache probe.
 
-The project declares Nextflow `>=24.10.0`; this pass used a newer runtime. The
-cache result below must be repeated on native Linux storage and the production
-Nextflow version before it is interpreted as a pipeline cache defect.
+The project now certifies Nextflow 25.10.7 with Java 21 through the official
+launcher. The historical cache interpretation in this report was corrected
+after the direct-JAR harness defect was isolated.
 
 The final top-level ChIP-seq pass used the certified temporary runtime
 Nextflow 25.10.7. It reused the cluster's existing `chipseq`, `r-analysis`,
@@ -67,7 +67,7 @@ packages. At most five scientific jobs were queued concurrently.
 | Salmon Import | Yes, container and Slurm Conda runtime | Yes | CONDITIONAL | Workflow-level normalization/count policy still requires a release decision |
 | STAR Import | Yes | Yes | CONDITIONAL | Native provider ran on host; current Python production image was unavailable |
 | DESeq2 | Yes on Slurm and CI image | Yes | CONDITIONAL | Image 1.0.1 passed regression/cache tests; Slurm used the existing 1.42.1 environment |
-| ChIP BAM processing | Yes, including Slurm | Expected metrics validated | CONDITIONAL | Reduced fixture passed; cache reuse remains unresolved |
+| ChIP BAM processing | Yes, including Slurm | Expected metrics validated | CONDITIONAL | Reduced fixture passed; resume is covered by the corrected launcher contract |
 | Bowtie2 index | Yes on Slurm, cluster 2.5.5 | Yes, same cluster runtime | CONDITIONAL | Direct compiled binary bypassed a broken Conda Perl wrapper |
 | Bowtie2 alignment | Yes on Slurm, cluster 2.5.5 | Yes, same cluster runtime | CONDITIONAL | BAM records, flagstat and idxstats passed; pinned 2.5.4 image remains uncertified |
 | MACS3 | Yes, 3.0.4, including top-level Slurm | No full legacy pair | CONDITIONAL | Four replicates and matched control passed |
@@ -79,7 +79,7 @@ packages. At most five scientific jobs were queued concurrently.
 | Report | Yes on Slurm | Contract and content checks | CONDITIONAL | Full IDR path produced and validated a 37,472-byte HTML report |
 | Top-level ChIP-seq | Yes on Slurm | Scientific invariants | READY_TO_RETIRE | Native `full` passed through report; IDR also passed as an optional branch |
 | Integrative | Manifest contract only | Legacy implementation retained | CONDITIONAL | No new analytic implementation was in scope |
-| Top-level RNA-seq | Yes on Slurm | Scientific invariants | READY_TO_RETIRE | QC -> Salmon -> Import -> DESeq2 -> Gene Report passed; runtime cache remains an external operational issue |
+| Top-level RNA-seq | Yes on Slurm | Scientific invariants | READY_TO_RETIRE | QC -> Salmon -> Import -> DESeq2 -> Gene Report and identical resume passed |
 
 `READY_TO_RETIRE` applies to the supported complete RNA-seq and ChIP-seq
 production paths. It does not apply to the Integrative legacy pipeline.
@@ -342,69 +342,28 @@ validated consensus provider.
 
 ## Cache and invalidation
 
-`-resume` did not reuse scientific tasks in this environment. Focused and
-top-level diagnostics showed:
+The earlier validation pass observed successful workflows with empty task
+databases and therefore blocked claims about resume and selective invalidation.
+The retained diagnostics later identified the cause: affected harnesses
+invoked the Nextflow JAR directly and bypassed JVM module-opening options
+provided by the official launcher. Chill/Kryo serialization failed inside the
+asynchronous cache writer without failing the workflow.
 
-- the resumed run reused the same Nextflow session UUID;
-- `cache 'deep'` was active;
-- the complete dumped input fingerprint was identical;
-- the prior work directory and outputs existed;
-- Nextflow nevertheless submitted a new task.
+After replacing direct-JAR invocations with the official Nextflow 25.10.7
+launcher on Java 21, the complete synthetic RNA-seq workflow persisted 59 task
+records. An identical resume recovered all 58 scientific tasks as `CACHED`;
+only the terminal `RUN_MANIFEST` process executed again because its declared
+provenance includes the dynamic run identity. The scientific validator passed
+after resume. A subsequent selective matrix also passed: one FASTQ invalidated
+only its sample branch and descendants; a transcriptome change rebuilt Salmon
+index and dependent outputs while preserving QC; a contrast change preserved
+Import and the DESeq2 model; and a trim-quality change preserved raw FastQC and
+the Salmon index while invalidating affected QC descendants.
 
-Cache and invalidation are therefore **BLOCKED**, not silently accepted.
-
-The initial production Slurm pass reproduced the miss for the complete RNA
-workflow. A one-process probe then demonstrated that:
-
-- the same session UUID and logical cache hash were reused;
-- every hash entry reported by `-dump-hashes json` was identical;
-- all declared outputs and `.exitcode` files remained present in the workdir;
-- the task cache database contained run indexes but no persisted task records;
-- both NFS (`/home`) and head-local ext4 (`/tmp`) cache stores behaved the same;
-- Nextflow 26.04.4 and 26.04.6, Java 21, 23 and 25, and syntax parsers v1 and
-  v2 reproduced the miss;
-- the same probe resumed correctly with Nextflow 25.10.7 on both Java 21 and
-  Java 23 (`cached: 1`, with the original work hash and no second Slurm task).
-
-The controlled version/JVM matrix was:
-
-| Nextflow | JVM | Identical `-resume` | Interpretation |
-|---|---|---|---|
-| 25.10.7 | Temurin 21.0.12 | PASS | Task recovered from cache |
-| 25.10.7 | Conda OpenJDK 23.0.2 | PASS | Task recovered from cache |
-| 26.04.6 | Temurin 21.0.12 | FAIL | Task submitted again |
-| 26.04.6 | Conda OpenJDK 23.0.2 | FAIL | Task submitted again |
-| 26.04.4/26.04.6 | Conda OpenJDK 25.0.2 | FAIL | Prior focused probes |
-
-This proves that 26.04.x regressed even the one-task case in this environment
-and excludes Java 23/25 as the sole cause. It did not yet prove that 25.10.7
-would persist a larger workflow cache. The official
-[Caching and resuming](https://docs.seqera.io/nextflow/cache-and-resume)
-documentation states that completed tasks are automatically persisted and
-that a resumed task requires both its task-cache entry and preserved workdir
-outputs. The 25.10.7 probe demonstrated both conditions; 26.04.x preserved the
-workdir but failed to persist the matching task entry.
-
-The full RNA workflow was subsequently rerun with Nextflow 25.10.7, Java 23,
-an explicit persistent `NXF_CACHE_DIR` on `/home`, and the existing workdir on
-`/scratch`. The baseline completed through QC, Salmon, Import and DESeq2 and
-passed the scientific validator. Its identical resume kept session UUID
-`3170ba4a-cc0e-4f7c-bfa1-3fb1080ce718`, but began submitting scientific tasks
-again. The dedicated LevelDB contained run indexes but no task records: its
-log remained zero bytes and no SST task table was created. The repeated run
-was stopped as soon as re-submissions were established, with no more than five
-jobs active concurrently.
-
-Therefore 25.10.7 is certified here for complete scientific execution and is
-temporarily pinned to hold the runtime stable, but **top-level cache and
-selective invalidation remain BLOCKED-RUNTIME**. The FASTQ, transcriptome,
-contrast, QC-parameter and module-script scenarios were deliberately not run
-after the unchanged prerequisite failed. The 26.04.x behavior is still a
-regression relative to the one-task probe, while the full-DAG result indicates
-an additional task-cache persistence interaction involving workflow scale,
-configuration or the shared environment. No system or Conda environment was
-modified. The retained probe and driver are ready for administrator or
-upstream reproduction.
+The incident is therefore **RESOLVED** and was not caused by NFS, Slurm,
+Debian, task count or the scientific DAG. Direct Nextflow JAR invocation is
+now unsupported. The complete investigation and operational contract are in
+[`resume-cache-diagnostic.md`](resume-cache-diagnostic.md).
 
 ## Execution environments
 
@@ -493,9 +452,8 @@ scientific execution document.
 The RNA-seq and ChIP-seq legacy paths completed their retirement gates. The
 annotated tags `rnaseq-legacy-v1.0.0` and `chipseq-legacy-v1.0.0` preserve their
 final executable snapshots. Integrative remains available until its dedicated
-retirement pass. The remaining technical blocker recorded here is:
-
-1. unresolved task-cache persistence in the available Nextflow runtime.
+retirement pass. The former task-cache blocker has been resolved by requiring
+the official Nextflow launcher.
 
 The missing Slurm Apptainer runtime is recorded as an external site limitation,
 not a release gate. OCI providers have independent functional certification.
@@ -508,7 +466,6 @@ The detailed decisions and deviations are tracked in
 ## Next controlled pass
 
 1. Complete the dedicated retirement review for Integrative.
-2. Reproduce the task-cache issue with an administrator-supported runtime and
-   continue the upstream report.
+2. Keep the corrected resume and invalidation matrix in runtime validation.
 3. After release, run the top-level RNA-seq and ChIP-seq workflows on reviewed
    biological datasets and record comparative benchmarks.
