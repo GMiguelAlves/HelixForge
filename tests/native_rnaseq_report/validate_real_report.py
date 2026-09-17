@@ -38,10 +38,17 @@ def main() -> int:
         raise ValueError(f"Expected 2 genes x 4 samples, observed {len(expression)} rows.")
     if {row["gene_id"] for row in deg_hits} != {"gene_alpha", "gene_beta"}:
         raise ValueError("DE results were not joined to both candidate genes.")
+    if any(row.get("result_dir", "").startswith(("/", "\\")) or ":\\" in row.get("result_dir", "") for row in deg_hits):
+        raise ValueError("DE report table leaked an absolute runtime path.")
 
     html = (root / "gene_set_report.html").read_text(encoding="utf-8")
     if "Stub candidate gene report" not in html or "gene_alpha" not in html or "gene_beta" not in html:
         raise ValueError("Rendered HTML is missing its title or candidate genes.")
+    for marker in ("Evidências globais", "data-filter-status='found'", "loading='lazy'", "<details"):
+        if marker not in html:
+            raise ValueError(f"Rendered HTML is missing report-v2 marker: {marker}")
+    if not (root / "genes" / "gene_alpha").is_dir() or not (root / "genes" / "gene_beta").is_dir():
+        raise ValueError("Per-gene figures were not deduplicated into unique gene directories.")
     plots = [path for path in (root / "plots").glob("*.png") if path.stat().st_size > 100]
     if not plots:
         raise ValueError("No non-empty scientific PNG was generated.")

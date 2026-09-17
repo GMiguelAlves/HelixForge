@@ -29,8 +29,23 @@ class ReportApiTest(unittest.TestCase):
     def test_native_r_provider_matches_certified_source_digest(self):
         self.assertEqual(
             canonical_text_digest(NATIVE_REPORT),
-            "76a565898d54701f20c5795e200d938484e2e5661783087ae33ca534cd130434",
+            "be354e3846a7a4bac095a43c11d58058232801286a7008ab2dbe9b970bac2858",
         )
+
+    def test_report_renderer_defers_detailed_images_and_exposes_status(self):
+        source = NATIVE_REPORT.read_text(encoding="utf-8")
+        self.assertIn('loading_mode <- if (featured) "eager" else "lazy"', source)
+        self.assertIn("decoding='async'", source)
+        self.assertIn("data-src=", source)
+        self.assertIn("<details class='searchable gene disclosure", source)
+        self.assertIn("data-filter-status='found'", source)
+        self.assertIn("Genes ausentes", source)
+        self.assertIn("Ordenação exploratória calculada somente com os genes candidatos", source)
+
+    def test_gene_figures_are_generated_once_per_unique_gene(self):
+        source = NATIVE_REPORT.read_text(encoding="utf-8")
+        self.assertIn('file.path(out_dir, "genes", sanitize(key$gene_id))', source)
+        self.assertNotIn('file.path(out_dir, "genes", sanitize(key$group), sanitize(key$gene_id))', source)
 
     def build_request(self, root: Path) -> list[str]:
         abundance = root / "abundance.tsv"
