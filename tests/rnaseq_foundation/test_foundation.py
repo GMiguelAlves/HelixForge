@@ -114,6 +114,77 @@ class RnaSeqFoundationTest(unittest.TestCase):
             reference = next(csv.DictReader(handle, delimiter="\t"))
         self.assertEqual(reference["reference_id"], "Test organism")
 
+    def test_single_end_metadata_has_no_mate_and_records_fragment_prior(self):
+        metadata, settings = self.write_context()
+        text = metadata.read_text(encoding="utf-8")
+        text = text.replace("fastq_1,fastq_2", "fastq_1,fastq_2,library_layout,fragment_length_mean,fragment_length_sd")
+        text = text.replace("sample_RUN1_R2.fastq\n", "sample_RUN1_R2.fastq,single,200,80\n")
+        # Explicit single-end input has an empty mate field.
+        text = text.replace(str(self.fastq / "sample_RUN1_R2.fastq") + ",single", ",single")
+        metadata.write_text(text, encoding="utf-8")
+        result = subprocess.run([
+            sys.executable, str(METADATA), "--metadata", str(metadata), "--settings", str(settings),
+            "--normalized", str(self.root / "validated.csv"), "--plan-dir", str(self.root),
+            "--reference-plan", str(self.root / "references.tsv"), "--report", str(self.root / "report.json"),
+        ], text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        with (self.root / "TEST_qc_plan.csv").open(newline="", encoding="utf-8") as handle:
+            row = next(csv.DictReader(handle))
+        self.assertEqual(row["library_layout"], "single")
+        self.assertEqual(row["raw_r2"], "")
+        self.assertEqual(row["merged_sample_r2"], "")
+        self.assertEqual(row["fragment_length_mean"], "200")
+        self.assertEqual(row["fragment_length_sd"], "80")
+
+    def test_single_end_metadata_rejects_mate_and_invalid_prior(self):
+        metadata, settings = self.write_context()
+        text = metadata.read_text(encoding="utf-8")
+        text = text.replace("fastq_1,fastq_2", "fastq_1,fastq_2,library_layout,fragment_length_mean,fragment_length_sd")
+        text = text.replace("sample_RUN1_R2.fastq\n", "sample_RUN1_R2.fastq,single,200,80\n")
+        metadata.write_text(text, encoding="utf-8")
+        command = [
+            sys.executable, str(METADATA), "--metadata", str(metadata), "--settings", str(settings),
+            "--normalized", str(self.root / "validated.csv"), "--plan-dir", str(self.root),
+            "--reference-plan", str(self.root / "references.tsv"), "--report", str(self.root / "report.json"),
+        ]
+        result = subprocess.run(command, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("must not define fastq_2", result.stderr)
+        metadata.write_text(
+            text.replace(str(self.fastq / "sample_RUN1_R2.fastq") + ",single,200,80", ",single,0,80"),
+            encoding="utf-8",
+        )
+        result = subprocess.run(command, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("fragment_length_mean", result.stderr)
+
+    def test_single_end_metadata_rejects_inconsistent_technical_runs(self):
+        metadata, settings = self.write_context()
+        second = self.fastq / "sample_RUN2_R1.fastq"
+        second.write_text("@read\nACGT\n+\nIIII\n", encoding="ascii")
+        with metadata.open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=[
+                "dataset", "sample_id", "run_accession", "condition", "fastq_1",
+                "library_layout", "fragment_length_mean", "fragment_length_sd",
+            ])
+            writer.writeheader()
+            for run, path, mean in (
+                ("RUN1", self.fastq / "sample_RUN1_R1.fastq", 200),
+                ("RUN2", second, 210),
+            ):
+                writer.writerow({
+                    "dataset": "TEST", "sample_id": "sample", "run_accession": run,
+                    "condition": "control", "fastq_1": path, "library_layout": "single",
+                    "fragment_length_mean": mean, "fragment_length_sd": 80,
+                })
+        result = subprocess.run([
+            sys.executable, str(METADATA), "--metadata", str(metadata), "--settings", str(settings),
+            "--normalized", str(self.root / "validated.csv"), "--plan-dir", str(self.root),
+            "--reference-plan", str(self.root / "references.tsv"), "--report", str(self.root / "report.json"),
+        ], text=True, capture_output=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("inconsistent library layout or fragment parameters", result.stderr)
+
     def test_reference_bundle_records_content_checksums(self):
         manifest = self.root / "manifest.json"
         result = subprocess.run([

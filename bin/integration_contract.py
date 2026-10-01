@@ -127,12 +127,17 @@ def samples_from_metadata(assay: str, path: Path) -> list[dict[str, Any]]:
                 if len(values) > 1:
                     raise ValueError(f"RNA sample {sample_id} has conflicting {field}: {values}")
                 return values[0] if values else None
-            result.append({
+            sample = {
                 "sample_id": sample_id, "dataset": dataset, "condition": one("condition"),
                 "stage": one("stage") or one("life_stage"), "batch": one("batch"),
                 "biological_replicate": one("biological_replicate") or one("replicate"),
                 "technical_runs": _unique([record.get("run_accession", "") or record.get("record_id", "") for record in records]),
-            })
+            }
+            if one("library_layout") == "single":
+                sample["library_layout"] = "single"
+                sample["fragment_length_mean"] = int(one("fragment_length_mean") or 0)
+                sample["fragment_length_sd"] = int(one("fragment_length_sd") or 0)
+            result.append(sample)
         if any(not sample["technical_runs"] for sample in result):
             raise ValueError("RNA sample is missing run_accession/record_id")
         return result

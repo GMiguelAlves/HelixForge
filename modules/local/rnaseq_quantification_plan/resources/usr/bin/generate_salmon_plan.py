@@ -35,7 +35,8 @@ def build_salmon_plan(
     project: str,
     output_root,
 ) -> pd.DataFrame:
-    required = {"dataset", "sample_id", "merged_sample_r1", "merged_sample_r2"}
+    required = {"dataset", "sample_id", "merged_sample_r1", "merged_sample_r2", "library_layout",
+                "fragment_length_mean", "fragment_length_sd"}
     missing = sorted(required - set(qc_plan.columns))
     if missing:
         raise ValueError(f"qc_plan missing required columns: {', '.join(missing)}")
@@ -45,7 +46,8 @@ def build_salmon_plan(
         raise ValueError(f"no rows found for project {project}")
 
     sample_rows = (
-        df[["dataset", "sample_id", "merged_sample_r1", "merged_sample_r2"]]
+        df[["dataset", "sample_id", "merged_sample_r1", "merged_sample_r2",
+            "library_layout", "fragment_length_mean", "fragment_length_sd"]]
         .drop_duplicates()
         .sort_values("sample_id")
         .reset_index(drop=True)
@@ -56,6 +58,11 @@ def build_salmon_plan(
             sample_rows.loc[sample_rows["sample_id"].duplicated(), "sample_id"].unique()
         )
         raise ValueError("duplicated sample_id in sample-level plan: " + ", ".join(duplicated[:10]))
+    for row in sample_rows.to_dict("records"):
+        if row["library_layout"] not in {"single", "paired"}:
+            raise ValueError(f"invalid library layout for {row['sample_id']}")
+        if (row["library_layout"] == "single") != (not row["merged_sample_r2"]):
+            raise ValueError(f"inconsistent library layout for {row['sample_id']}")
 
     sample_rows["quant_dir"] = sample_rows["sample_id"].apply(
         lambda sample: str(output_root / project / sample)
@@ -71,6 +78,9 @@ def build_salmon_plan(
             "num_runs",
             "merged_sample_r1",
             "merged_sample_r2",
+            "library_layout",
+            "fragment_length_mean",
+            "fragment_length_sd",
             "quant_dir",
         ]
     ]
@@ -78,8 +88,11 @@ def build_salmon_plan(
 
 def validate_plan(plan: pd.DataFrame, allow_missing: bool) -> None:
     missing = []
-    for col in ["merged_sample_r1", "merged_sample_r2"]:
-        missing.extend(path for path in plan[col] if not path_exists(path))
+    for row in plan.to_dict("records"):
+        for col in (["merged_sample_r1"] if row["library_layout"] == "single"
+                    else ["merged_sample_r1", "merged_sample_r2"]):
+            if not path_exists(row[col]):
+                missing.append(row[col])
 
     if missing and not allow_missing:
         raise FileNotFoundError(

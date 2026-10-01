@@ -23,6 +23,9 @@ gene reports.
 `differential_expression` are accepted aliases. Salmon is the production
 quantifier. STAR is an explicit experimental provider and is independent from
 Salmon.
+Single-end Salmon inputs use an explicit layout and fragment-length prior; see
+the [single-end extension](rnaseq-single-end.md) for its current certification
+status and samplesheet contract.
 
 ```bash
 nextflow run . -profile docker \

@@ -121,6 +121,9 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
         star_sample_specs = star_samples_by_project
             .combine(star_settings_by_project, by: 0)
             .map { project, sample, settings ->
+                if (sample.library_layout == 'single') {
+                    error 'Single-end STAR alignment is outside the certified RNA-seq extension; select Salmon quantification.'
+                }
                 def safe_dataset = project.replaceAll(/[^A-Za-z0-9_.-]/, '_')
                 def safe_sample = sample.sample_id.replaceAll(/[^A-Za-z0-9_.-]/, '_')
                 def meta = [
@@ -243,17 +246,20 @@ workflow RNASEQ_ALIGNMENT_QUANTIFICATION {
                     quantifier: 'salmon',
                     dataset   : project,
                     sample_id : sample.sample_id,
-                    single_end: false,
+                    single_end: sample.library_layout == 'single',
+                    library_layout: sample.library_layout,
                     index_key : settings.index_dir,
                     target_dir: sample.quant_dir
                 ]
-                def reads = [
-                    file(sample.merged_sample_r1, checkIfExists: true),
-                    file(sample.merged_sample_r2, checkIfExists: true)
-                ]
+                def reads = [file(sample.merged_sample_r1, checkIfExists: true)]
+                if (sample.library_layout != 'single') {
+                    reads << file(sample.merged_sample_r2, checkIfExists: true)
+                }
                 def quantification_params = [
                     lib_type         : settings.lib_type,
-                    validate_mappings: settings.validate_mappings.toBoolean()
+                    validate_mappings: settings.validate_mappings.toBoolean(),
+                    fragment_length_mean: sample.fragment_length_mean,
+                    fragment_length_sd: sample.fragment_length_sd
                 ]
                 tuple(meta, reads, file(settings.transcriptome, checkIfExists: true), quantification_params)
             }

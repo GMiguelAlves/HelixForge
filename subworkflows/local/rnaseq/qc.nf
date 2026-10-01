@@ -1,7 +1,9 @@
 include { FASTQC as FASTQC_RAW }                from '../../../modules/local/fastqc/main'
 include { TRIM_GALORE }                         from '../../../modules/local/trim_galore/main'
+include { TRIM_GALORE_SINGLE }                  from '../../../modules/local/trim_galore_single/main'
 include { FASTQC as FASTQC_TRIMMED }            from '../../../modules/local/fastqc/main'
 include { MERGE_FASTQ }                         from '../../../modules/local/merge_fastq/main'
+include { MERGE_FASTQ_SINGLE }                  from '../../../modules/local/merge_fastq_single/main'
 include { FASTQC as FASTQC_MERGED }             from '../../../modules/local/fastqc/main'
 include { MULTIQC }                             from '../../../modules/local/multiqc/main'
 
@@ -23,6 +25,8 @@ workflow RNASEQ_QC {
 
     qc_rows = qc_plans
         .splitCsv(header: true)
+    paired_rows = qc_rows.filter { row -> row.library_layout != 'single' }
+    single_rows = qc_rows.filter { row -> row.library_layout == 'single' }
 
     raw_fastqc_inputs = qc_rows.flatMap { row ->
             def project_scratch = file(row.trimmed_run_r1).parent.parent.toString()
@@ -30,7 +34,7 @@ workflow RNASEQ_QC {
             def safe_dataset = row.dataset.replaceAll(/[^A-Za-z0-9_.-]/, '_')
             def safe_sample = row.sample_id.replaceAll(/[^A-Za-z0-9_.-]/, '_')
             def safe_run = row.run_accession.replaceAll(/[^A-Za-z0-9_.-]/, '_')
-            [
+            def records = [
                 tuple(
                     [
                         id             : "${safe_dataset}.${safe_sample}.${safe_run}.raw.R1",
@@ -42,8 +46,10 @@ workflow RNASEQ_QC {
                         target_dir     : target_dir
                     ],
                     file(row.raw_r1, checkIfExists: true)
-                ),
-                tuple(
+                )
+            ]
+            if (row.library_layout != 'single') {
+                records << tuple(
                     [
                         id             : "${safe_dataset}.${safe_sample}.${safe_run}.raw.R2",
                         dataset        : row.dataset,
@@ -55,10 +61,11 @@ workflow RNASEQ_QC {
                     ],
                     file(row.raw_r2, checkIfExists: true)
                 )
-            ]
+            }
+            records
         }
 
-    trim_inputs = qc_rows.map { row ->
+    trim_inputs = paired_rows.map { row ->
             def safe_dataset = row.dataset.replaceAll(/[^A-Za-z0-9_.-]/, '_')
             def safe_sample = row.sample_id.replaceAll(/[^A-Za-z0-9_.-]/, '_')
             def safe_run = row.run_accession.replaceAll(/[^A-Za-z0-9_.-]/, '_')
@@ -93,17 +100,40 @@ workflow RNASEQ_QC {
                 file(row.raw_r2, checkIfExists: true)
             )
         }
+    single_trim_inputs = single_rows.map { row ->
+            def safe_dataset = row.dataset.replaceAll(/[^A-Za-z0-9_.-]/, '_')
+            def safe_sample = row.sample_id.replaceAll(/[^A-Za-z0-9_.-]/, '_')
+            def safe_run = row.run_accession.replaceAll(/[^A-Za-z0-9_.-]/, '_')
+            def trim_r1 = file(row.trimmed_run_r1)
+            def merged_r1 = file(row.merged_sample_r1)
+            def meta = [
+                id: "${safe_dataset}.${safe_sample}.${safe_run}.trim_galore",
+                dataset: row.dataset, sample_id: row.sample_id, run_accession: row.run_accession,
+                library_layout: 'single', trim_quality: row.trim_quality, trim_length: row.trim_length,
+                trimmed_r1: trim_r1.toString(), trimmed_dir: trim_r1.parent.toString(),
+                trimmed_r1_name: trim_r1.name, merged_r1: merged_r1.toString(),
+                merged_r1_name: merged_r1.name, project_scratch: trim_r1.parent.parent.toString(),
+                safe_dataset: safe_dataset, safe_sample: safe_sample, safe_run: safe_run
+            ]
+            tuple(meta, file(row.raw_r1, checkIfExists: true))
+        }
 
     FASTQC_RAW(raw_fastqc_inputs)
     TRIM_GALORE(trim_inputs)
+    TRIM_GALORE_SINGLE(single_trim_inputs)
 
-    trimmed_fastqc_inputs = TRIM_GALORE.out.artifacts.flatMap { meta, trimmed_r1, trimmed_r2 ->
+    paired_trimmed_fastqc_inputs = TRIM_GALORE.out.artifacts.flatMap { meta, trimmed_r1, trimmed_r2 ->
             def target_dir = "${meta.project_scratch}/fastqc_trimmed_runs"
             [
                 tuple(meta + [id: "${meta.safe_dataset}.${meta.safe_sample}.${meta.safe_run}.trimmed.R1", phase: 'trimmed', target_dir: target_dir], trimmed_r1),
                 tuple(meta + [id: "${meta.safe_dataset}.${meta.safe_sample}.${meta.safe_run}.trimmed.R2", phase: 'trimmed', target_dir: target_dir], trimmed_r2)
             ]
         }
+    single_trimmed_fastqc_inputs = TRIM_GALORE_SINGLE.out.artifacts.map { meta, trimmed_r1 ->
+            tuple(meta + [id: "${meta.safe_dataset}.${meta.safe_sample}.${meta.safe_run}.trimmed.R1",
+                phase: 'trimmed', target_dir: "${meta.project_scratch}/fastqc_trimmed_runs"], trimmed_r1)
+        }
+    trimmed_fastqc_inputs = paired_trimmed_fastqc_inputs.mix(single_trimmed_fastqc_inputs)
 
     merge_inputs = TRIM_GALORE.out.artifacts
             .map { meta, trimmed_r1, trimmed_r2 ->
@@ -134,17 +164,38 @@ workflow RNASEQ_QC {
                     ordered.collect { record -> record[2] }
                 )
             }
+    single_merge_inputs = TRIM_GALORE_SINGLE.out.artifacts
+            .map { meta, trimmed_r1 -> tuple(meta.dataset, meta.sample_id, tuple(meta, trimmed_r1)) }
+            .groupTuple(by: [0, 1])
+            .map { dataset, sample_id, run_records ->
+                def ordered = run_records.sort { left, right -> left[0].run_accession <=> right[0].run_accession }
+                def first = ordered[0][0]
+                def merge_meta = [
+                    id: "${first.safe_dataset}.${first.safe_sample}.merge",
+                    dataset: dataset, sample_id: sample_id, safe_dataset: first.safe_dataset,
+                    safe_sample: first.safe_sample, project_scratch: first.project_scratch,
+                    target_dir: file(first.merged_r1).parent.toString(),
+                    output_r1: first.merged_r1, output_r1_name: first.merged_r1_name
+                ]
+                tuple(merge_meta, ordered.collect { record -> record[1] })
+            }
 
     FASTQC_TRIMMED(trimmed_fastqc_inputs)
     MERGE_FASTQ(merge_inputs)
+    MERGE_FASTQ_SINGLE(single_merge_inputs)
 
-    merged_fastqc_inputs = MERGE_FASTQ.out.artifacts.flatMap { meta, merged_r1, merged_r2 ->
+    paired_merged_fastqc_inputs = MERGE_FASTQ.out.artifacts.flatMap { meta, merged_r1, merged_r2 ->
             def target_dir = "${meta.project_scratch}/fastqc_merged"
             [
                 tuple(meta + [id: "${meta.safe_dataset}.${meta.safe_sample}.merged.R1", phase: 'merged', target_dir: target_dir], merged_r1),
                 tuple(meta + [id: "${meta.safe_dataset}.${meta.safe_sample}.merged.R2", phase: 'merged', target_dir: target_dir], merged_r2)
             ]
         }
+    single_merged_fastqc_inputs = MERGE_FASTQ_SINGLE.out.artifacts.map { meta, merged_r1 ->
+            tuple(meta + [id: "${meta.safe_dataset}.${meta.safe_sample}.merged.R1",
+                phase: 'merged', target_dir: "${meta.project_scratch}/fastqc_merged"], merged_r1)
+        }
+    merged_fastqc_inputs = paired_merged_fastqc_inputs.mix(single_merged_fastqc_inputs)
 
     FASTQC_MERGED(merged_fastqc_inputs)
 
@@ -173,8 +224,10 @@ workflow RNASEQ_QC {
     qc_status = MULTIQC.out.status
     qc_logs = FASTQC_RAW.out.reports
         .mix(TRIM_GALORE.out.reports)
+        .mix(TRIM_GALORE_SINGLE.out.reports)
         .mix(FASTQC_TRIMMED.out.reports)
         .mix(MERGE_FASTQ.out.reports)
+        .mix(MERGE_FASTQ_SINGLE.out.reports)
         .mix(FASTQC_MERGED.out.reports)
         .mix(MULTIQC.out.reports)
     emit:

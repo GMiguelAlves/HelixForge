@@ -75,9 +75,15 @@ process RNASEQ_QUANTIFICATION_PLAN {
         "\$PWD" '${params.outdir}' '${params.outdir}' \
         >> STUB.quantification_settings.tsv
     printf '%s\n%s\n' \
-        'dataset,sample_id,num_runs,merged_sample_r1,merged_sample_r2,quant_dir' \
-        'STUB,stub_sample,1,${params.outdir}/stub/trimmed_merged/stub_sample_R1_trimmed.fastq.gz,${params.outdir}/stub/trimmed_merged/stub_sample_R2_trimmed.fastq.gz,${params.outdir}/stub/quants/STUB/stub_sample' \
+        'dataset,sample_id,num_runs,merged_sample_r1,merged_sample_r2,library_layout,fragment_length_mean,fragment_length_sd,quant_dir' \
+        'STUB,stub_sample,1,${params.outdir}/stub/trimmed_merged/stub_sample_R1_trimmed.fastq.gz,${params.outdir}/stub/trimmed_merged/stub_sample_R2_trimmed.fastq.gz,paired,,,${params.outdir}/stub/quants/STUB/stub_sample' \
         > STUB_salmon_plan.csv
+    if [[ '${params.rnaseq_stub_layout ?: 'paired'}' == 'single' ]]; then
+        printf '%s\n%s\n' \
+            'dataset,sample_id,num_runs,merged_sample_r1,merged_sample_r2,library_layout,fragment_length_mean,fragment_length_sd,quant_dir' \
+            'STUB,stub_sample,1,${params.outdir}/stub/trimmed_merged/stub_sample_R1_trimmed.fastq.gz,,single,200,80,${params.outdir}/stub/quants/STUB/stub_sample' \
+            > STUB_salmon_plan.csv
+    fi
     printf '[STUB] RNA-seq quantification plan\n' > rnaseq.quantification_plan.log
     """
 }

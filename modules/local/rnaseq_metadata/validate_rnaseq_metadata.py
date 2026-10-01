@@ -145,6 +145,7 @@ def main() -> int:
 
         seen_runs: set[str] = set()
         sample_prefixes: defaultdict[tuple[str, str], set[str]] = defaultdict(set)
+        sample_layouts: defaultdict[tuple[str, str], set[tuple[str, str, str]]] = defaultdict(set)
         normalized: list[dict[str, str]] = []
         plans: defaultdict[str, list[dict[str, str]]] = defaultdict(list)
         optional_missing: Counter[str] = Counter()
@@ -166,16 +167,35 @@ def main() -> int:
 
             prefix = clean(row.get("file_prefix")) or sample
             sample_prefixes[(dataset, sample)].add(prefix)
+            layout = clean(row.get("library_layout")).lower()
+            if not layout:
+                # Existing paired-end sheets remain valid. Single-end must be declared.
+                layout = "paired"
+            if layout not in {"single", "paired"}:
+                raise ValueError(f"row {line}: library_layout must be single or paired")
+            fragment_mean = clean(row.get("fragment_length_mean"))
+            fragment_sd = clean(row.get("fragment_length_sd"))
+            if layout == "single":
+                for label, value in (("fragment_length_mean", fragment_mean), ("fragment_length_sd", fragment_sd)):
+                    if not value.isdigit() or int(value) <= 0:
+                        raise ValueError(f"row {line}: {label} must be a positive integer for single-end reads")
+                if clean(row.get("fastq_2")) or clean(row.get("raw_r2")):
+                    raise ValueError(f"row {line}: single-end record must not define fastq_2")
+            elif fragment_mean or fragment_sd:
+                raise ValueError(f"row {line}: fragment length parameters are only valid for single-end reads")
+            sample_layouts[(dataset, sample)].add((layout, fragment_mean, fragment_sd))
             raw_dir = scratch_root / dataset / "fastq_ftp"
             explicit_r1 = clean(row.get("fastq_1")) or clean(row.get("raw_r1"))
             explicit_r2 = clean(row.get("fastq_2")) or clean(row.get("raw_r2"))
             raw_r1 = resolve_path(explicit_r1, metadata_base) if explicit_r1 else first_existing([
                 raw_dir / f"{prefix}_{run}_R1.fastq.gz", raw_dir / f"{run}_1.fastq.gz"
             ])
-            raw_r2 = resolve_path(explicit_r2, metadata_base) if explicit_r2 else first_existing([
+            raw_r2 = (resolve_path(explicit_r2, metadata_base) if explicit_r2 else first_existing([
                 raw_dir / f"{prefix}_{run}_R2.fastq.gz", raw_dir / f"{run}_2.fastq.gz"
-            ])
+            ])) if layout == "paired" else None
             for label, path in (("fastq_1", raw_r1), ("fastq_2", raw_r2)):
+                if path is None:
+                    continue
                 if not path.is_file():
                     raise ValueError(f"row {line}: {label} does not exist: {path}")
             if raw_r1 == raw_r2:
@@ -184,7 +204,9 @@ def main() -> int:
             normalized_row = dict(row)
             normalized_row.update({
                 "dataset": dataset, "sample_id": sample, "run_accession": run,
-                "file_prefix": prefix, "fastq_1": str(raw_r1), "fastq_2": str(raw_r2),
+                "file_prefix": prefix, "fastq_1": str(raw_r1), "fastq_2": str(raw_r2) if raw_r2 else "",
+                "library_layout": layout, "fragment_length_mean": fragment_mean,
+                "fragment_length_sd": fragment_sd,
             })
             normalized.append(normalized_row)
             for field in ("condition", "batch"):
@@ -199,11 +221,14 @@ def main() -> int:
                 "file_prefix": prefix,
                 "run_accession": run,
                 "raw_r1": str(raw_r1),
-                "raw_r2": str(raw_r2),
+                "raw_r2": str(raw_r2) if raw_r2 else "",
+                "library_layout": layout,
+                "fragment_length_mean": fragment_mean,
+                "fragment_length_sd": fragment_sd,
                 "trimmed_run_r1": str(trimmed_dir / f"{prefix}_{run}_R1_trimmed.fastq.gz"),
-                "trimmed_run_r2": str(trimmed_dir / f"{prefix}_{run}_R2_trimmed.fastq.gz"),
+                "trimmed_run_r2": str(trimmed_dir / f"{prefix}_{run}_R2_trimmed.fastq.gz") if raw_r2 else "",
                 "merged_sample_r1": str(merged_dir / f"{sample}_R1_trimmed.fastq.gz"),
-                "merged_sample_r2": str(merged_dir / f"{sample}_R2_trimmed.fastq.gz"),
+                "merged_sample_r2": str(merged_dir / f"{sample}_R2_trimmed.fastq.gz") if raw_r2 else "",
                 "trim_quality": quality,
                 "trim_length": length,
             })
@@ -211,9 +236,12 @@ def main() -> int:
         inconsistent = [f"{dataset}/{sample}" for (dataset, sample), values in sample_prefixes.items() if len(values) > 1]
         if inconsistent:
             raise ValueError("samples have inconsistent file_prefix values: " + ", ".join(inconsistent))
+        inconsistent_layouts = [f"{dataset}/{sample}" for (dataset, sample), values in sample_layouts.items() if len(values) > 1]
+        if inconsistent_layouts:
+            raise ValueError("samples have inconsistent library layout or fragment parameters: " + ", ".join(inconsistent_layouts))
 
         normalized_fields = list(fields)
-        for field in ("file_prefix", "fastq_1", "fastq_2"):
+        for field in ("file_prefix", "fastq_1", "fastq_2", "library_layout", "fragment_length_mean", "fragment_length_sd"):
             if field not in normalized_fields:
                 normalized_fields.append(field)
         normalized.sort(key=lambda row: (row["dataset"], row["sample_id"], row["run_accession"]))
@@ -222,7 +250,7 @@ def main() -> int:
         plan_fields = [
             "dataset", "sample_id", "file_prefix", "run_accession", "raw_r1", "raw_r2",
             "trimmed_run_r1", "trimmed_run_r2", "merged_sample_r1", "merged_sample_r2",
-            "trim_quality", "trim_length",
+            "trim_quality", "trim_length", "library_layout", "fragment_length_mean", "fragment_length_sd",
         ]
         for dataset in projects:
             dataset_rows = sorted(plans[dataset], key=lambda row: (row["sample_id"], row["run_accession"]))

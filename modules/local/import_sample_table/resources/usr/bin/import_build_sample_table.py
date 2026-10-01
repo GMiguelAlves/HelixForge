@@ -91,6 +91,14 @@ def main() -> None:
             if args.allow_missing:
                 continue
             raise ValueError(f"provider artifact missing for {key[0]}/{key[1]}")
+        source_layout = source.get("library_layout", "paired")
+        metadata_layout = (row.get("library_layout") or "paired").strip().lower()
+        if source_layout != metadata_layout:
+            raise ValueError(f"library layout mismatch for {key[0]}/{key[1]}")
+        if source_layout == "single":
+            for field in ("fragment_length_mean", "fragment_length_sd"):
+                if str(source.get(field)) != (row.get(field) or "").strip():
+                    raise ValueError(f"{field} mismatch for {key[0]}/{key[1]}")
         import_id = key[1] if args.project else f"{key[0]}__{key[1]}"
         out = dict(row)
         out["dataset"] = key[0]
