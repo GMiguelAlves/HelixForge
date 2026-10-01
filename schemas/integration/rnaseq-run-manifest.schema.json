@@ -39,7 +39,10 @@
       "properties": {
         "sample_id": {"type": "string", "minLength": 1}, "dataset": {"type": "string", "minLength": 1}, "condition": {"type": "string", "minLength": 1},
         "stage": {"type": ["string", "null"]}, "batch": {"type": ["string", "null"]}, "biological_replicate": {"type": ["string", "integer", "null"]},
-        "technical_runs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+        "technical_runs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "library_layout": {"const": "single"},
+        "fragment_length_mean": {"type": "integer", "minimum": 1},
+        "fragment_length_sd": {"type": "integer", "minimum": 1}
       }
     }
   }

@@ -71,6 +71,14 @@ process RNASEQ_CONTEXT {
         > rnaseq_context/reference/annotation.gtf
     printf 'dataset,sample_id,file_prefix,run_accession,condition,batch,fastq_1,fastq_2\nSTUB,stub,stub,RUN1,control,B1,%s/rnaseq_context/fastq/stub_RUN1_R1.fastq,%s/rnaseq_context/fastq/stub_RUN1_R2.fastq\n' \
         "\$PWD" "\$PWD" > rnaseq_context/source_metadata.csv
+    if [[ '${params.rnaseq_stub_layout ?: 'paired'}' == 'single' ]]; then
+        printf 'dataset,sample_id,file_prefix,run_accession,condition,batch,fastq_1,fastq_2,library_layout,fragment_length_mean,fragment_length_sd\nSTUB,stub,stub,RUN1,control,B1,%s/rnaseq_context/fastq/stub_RUN1_R1.fastq,,single,200,80\n' \
+            "\$PWD" > rnaseq_context/source_metadata.csv
+    fi
+    if [[ '${params.rnaseq_stub_layout ?: 'paired'}' == 'single' ]]; then
+        printf 'dataset,sample_id,file_prefix,run_accession,condition,batch,fastq_1,fastq_2,library_layout,fragment_length_mean,fragment_length_sd\nSTUB,stub,stub,RUN1,control,B1,%s/rnaseq_context/fastq/stub_RUN1_R1.fastq,,single,200,80\n' \
+            "\$PWD" > rnaseq_context/source_metadata.csv
+    fi
     printf 'key\tvalue\n' > rnaseq_context/settings.tsv
     printf 'NATIVE_RUN_MODE\tfull\nNATIVE_ANALYSIS_MODE\tquantification\nPIPELINE_PROJECTS\tSTUB\nSCRATCH_ROOT\t%s/rnaseq_context\nORGANISM_NAME\tstub organism\nREFERENCE_ID\tstub_v1\nQUANT_METHOD\tsalmon\n' "\$PWD" >> rnaseq_context/settings.tsv
     printf 'REF_GENOME_FA\t%s/rnaseq_context/reference/genome.fa\nREF_TRANSCRIPTS_FA\t%s/rnaseq_context/reference/transcriptome.fa\nREF_GTF\t%s/rnaseq_context/reference/annotation.gtf\nREF_GFF3\t\n' "\$PWD" "\$PWD" "\$PWD" >> rnaseq_context/settings.tsv

@@ -11,6 +11,7 @@ the versioned source of truth.
 - [Licensing and third-party software](licensing.md)
 - [Quick Start](quickstart.md)
 - [Workflows and required inputs](workflows.md)
+- [RNA-seq single-end extension](rnaseq-single-end.md)
 - [Outputs and terminal manifests](outputs.md)
 - [Advanced Nextflow execution and stage modes](nextflow.md)
 - [Limitations](limitations.md)

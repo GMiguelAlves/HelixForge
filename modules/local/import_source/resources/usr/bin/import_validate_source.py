@@ -70,6 +70,10 @@ def main() -> None:
         "artifact_sha256": observed_sha,
         "compatibility_path": compatibility_path,
     }
+    if document.get("library_layout") == "single":
+        source["library_layout"] = "single"
+        source["fragment_length_mean"] = document["fragment_length_mean"]
+        source["fragment_length_sd"] = document["fragment_length_sd"]
     (args.output / "source.json").write_text(
         json.dumps(source, sort_keys=True, separators=(",", ":")) + "\n",
         encoding="utf-8",

@@ -47,7 +47,7 @@ def gzip_text(path: Path, text: str) -> None:
             compressed.write(text.encode("ascii"))
 
 
-def write_fastqs(input_root: Path, genes: list[str], counts: dict[str, dict[str, int]]) -> None:
+def write_fastqs(input_root: Path, genes: list[str], counts: dict[str, dict[str, int]], layout: str = "paired") -> None:
     sequences = {gene: transcript_sequence(i) for i, gene in enumerate(genes, start=1)}
     for sample in SAMPLES:
         run = f"RUN_{sample}"
@@ -66,7 +66,8 @@ def write_fastqs(input_root: Path, genes: list[str], counts: dict[str, dict[str,
                 r2_records.append(f"{name}/2\n{r2}\n+\n{quality}\n")
         raw_dir = input_root / "SYNTHETIC" / "fastq_ftp"
         gzip_text(raw_dir / f"{sample}_{run}_R1.fastq.gz", "".join(r1_records))
-        gzip_text(raw_dir / f"{sample}_{run}_R2.fastq.gz", "".join(r2_records))
+        if layout == "paired":
+            gzip_text(raw_dir / f"{sample}_{run}_R2.fastq.gz", "".join(r2_records))
 
 
 def write_reference(reference_root: Path, genes: list[str], mutate: bool) -> None:
@@ -96,7 +97,7 @@ def write_reference(reference_root: Path, genes: list[str], mutate: bool) -> Non
     (reference_root / "annotation.gff3").write_text("".join(gff), encoding="ascii")
 
 
-def write_tables(case_root: Path, genes: list[str], counts: dict[str, dict[str, int]]) -> None:
+def write_tables(case_root: Path, genes: list[str], counts: dict[str, dict[str, int]], layout: str = "paired") -> None:
     metadata = case_root / "metadata.csv"
     with metadata.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(
@@ -104,6 +105,7 @@ def write_tables(case_root: Path, genes: list[str], counts: dict[str, dict[str, 
             fieldnames=[
                 "dataset", "sample_id", "file_prefix", "run_accession",
                 "condition", "batch", "stage", "tissue", "sex",
+                * (["library_layout", "fragment_length_mean", "fragment_length_sd"] if layout == "single" else []),
             ],
         )
         writer.writeheader()
@@ -119,6 +121,8 @@ def write_tables(case_root: Path, genes: list[str], counts: dict[str, dict[str, 
                     "stage": "adult",
                     "tissue": "synthetic_tissue",
                     "sex": "unknown",
+                    **({"library_layout": "single", "fragment_length_mean": 200,
+                        "fragment_length_sd": 80} if layout == "single" else {}),
                 }
             )
 
@@ -252,6 +256,7 @@ def main() -> None:
     parser.add_argument(
         "--variant", choices=("baseline", "fastq", "transcriptome", "contrast"), default="baseline"
     )
+    parser.add_argument("--layout", choices=("paired", "single"), default="paired")
     args = parser.parse_args()
 
     counts_path = args.repo_root / "tests/fixtures/native_de/counts_matrix.tsv"
@@ -259,8 +264,8 @@ def main() -> None:
     args.case_root.mkdir(parents=True, exist_ok=True)
 
     if args.variant in {"baseline", "fastq"}:
-        write_fastqs(args.case_root / "inputs", genes, counts)
-        write_tables(args.case_root, genes, counts)
+        write_fastqs(args.case_root / "inputs", genes, counts, args.layout)
+        write_tables(args.case_root, genes, counts, args.layout)
     if args.variant in {"baseline", "transcriptome"}:
         write_reference(args.case_root / "reference", genes, mutate=args.variant == "transcriptome")
     if args.variant == "baseline":

@@ -44,6 +44,12 @@ process SALMON_QUANT {
     def validate_value = quantification_params.validate_mappings
     def validate_mappings = validate_value instanceof Boolean ? validate_value : validate_value.toString().toBoolean()
     def validate_arg = validate_mappings ? '--validateMappings' : ''
+    def fragment_mean = quantification_params.fragment_length_mean?.toString() ?: ''
+    def fragment_sd = quantification_params.fragment_length_sd?.toString() ?: ''
+    if (meta.single_end && (!(fragment_mean ==~ /[1-9][0-9]*/) || !(fragment_sd ==~ /[1-9][0-9]*/))) {
+        error "Single-end Salmon requires positive integer fragment_length_mean and fragment_length_sd for ${meta.id}"
+    }
+    def fragment_args = meta.single_end ? "--fldMean ${fragment_mean} --fldSD ${fragment_sd}" : ''
     def target_dir = meta.target_dir ?: ''
     """
     start_epoch=\$(date +%s)
@@ -57,6 +63,7 @@ process SALMON_QUANT {
         -l '${lib_type}'
         ${read_args}
         -p ${task.cpus}
+        ${fragment_args}
     )
     if [[ -n '${validate_arg}' ]]; then
         CMD+=('${validate_arg}')
@@ -134,6 +141,10 @@ process SALMON_QUANT {
         '${meta.id}' '${meta.dataset}' '${meta.sample_id}' '${target_dir}' "\$quant_sha" "\$cmd_sha" \
         "\$library_sha" "\$auxiliary_sha" "\$transcriptome_sha" "\$index_sha" \
         > '${meta.id}.manifest.json'
+    if [[ '${meta.single_end}' == 'true' ]]; then
+        sed -i 's/}\$/,"library_layout":"single","fragment_length_mean":${fragment_mean},"fragment_length_sd":${fragment_sd}}/' \
+            '${meta.id}.execution.json' '${meta.id}.manifest.json'
+    fi
     printf '{"id":"%s","process":"%s","status":"complete"}\n' \
         '${meta.id}' '${task.process}' > '${meta.id}.salmon_quant.done'
     """
@@ -167,6 +178,10 @@ process SALMON_QUANT {
     printf '"SALMON_QUANT":\n    salmon: "stub"\n' > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"SALMON_QUANT","status":"stub"}\n' '${meta.id}' > '${meta.id}.execution.json'
     printf '{"schema_version":"1.0","type":"quantification","id":"%s","status":"stub","quantifier":"salmon"}\n' '${meta.id}' > '${meta.id}.manifest.json'
+    if [[ '${meta.single_end}' == 'true' ]]; then
+        sed -i 's/}\$/,"library_layout":"single","fragment_length_mean":${quantification_params.fragment_length_mean},"fragment_length_sd":${quantification_params.fragment_length_sd}}/' \
+            '${meta.id}.execution.json' '${meta.id}.manifest.json'
+    fi
     printf '{"id":"%s","process":"SALMON_QUANT","status":"stub"}\n' '${meta.id}' > '${meta.id}.salmon_quant.done'
     """
 }
