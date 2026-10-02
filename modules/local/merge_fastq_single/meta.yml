@@ -1,0 +1,12 @@
+name: MERGE_FASTQ_SINGLE
+description: Concatenate technical single-end FASTQs for one biological sample.
+keywords: [fastq, merge, single-end, rnaseq]
+tools:
+  - coreutils: {description: Deterministic byte-preserving concatenation and checksums}
+input:
+  - reads_r1: Ordered single-end FASTQs and their sample metadata map.
+output:
+  - artifacts: Merged single-end FASTQ.
+  - reports: Input and output SHA-256 table.
+  - versions: Coreutils version YAML.
+  - status: Completion JSON including the single-end layout.

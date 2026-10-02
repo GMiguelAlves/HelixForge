@@ -116,6 +116,19 @@ def main() -> None:
 
     if not selected:
         raise ValueError("no provider artifacts available to import")
+    layouts_by_dataset: dict[str, set[str]] = {}
+    for row in selected:
+        layouts_by_dataset.setdefault(row["dataset"], set()).add(
+            (row.get("library_layout") or "paired").strip().lower()
+        )
+    mixed_datasets = sorted(
+        dataset for dataset, layouts in layouts_by_dataset.items() if len(layouts) > 1
+    )
+    if mixed_datasets:
+        raise ValueError(
+            "a dataset cannot mix paired-end and single-end libraries: "
+            + ", ".join(mixed_datasets)
+        )
     selected.sort(key=lambda row: (row["dataset"], row["sample_id"]))
     import_ids = [row["import_id"] for row in selected]
     if len(import_ids) != len(set(import_ids)):

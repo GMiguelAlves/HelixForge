@@ -7,6 +7,12 @@ contract/model versions evolve independently as documented in
 
 ## [Unreleased]
 
+### Added
+
+- Added the native Salmon single-end RNA-seq path across metadata, QC,
+  trimming, technical-run merge, quantification, Import, DESeq2, reporting and
+  terminal manifests, with an end-to-end release stub smoke.
+
 ### Changed
 
 - Redesigned the RNA-seq Gene Report around a compact scientific overview,
@@ -18,6 +24,9 @@ contract/model versions evolve independently as documented in
 
 ### Fixed
 
+- Aligned the single-end trimming and merge modules with the common native
+  module contract, removed duplicated stub branches, and reject mixed library
+  layouts within one dataset.
 - Replaced direct Nextflow JAR invocation in validation harnesses with the
   official launcher, restoring task-cache persistence and complete-workflow
   `-resume` under the certified Nextflow 25.10.7/Java 21 runtime.

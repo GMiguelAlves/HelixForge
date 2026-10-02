@@ -5,8 +5,14 @@ process TRIM_GALORE_SINGLE {
     memory 24.GB
     time 8.h
     cache 'deep'
+    errorStrategy { task.exitStatus in 130..145 ? 'retry' : 'terminate' }
+    maxRetries 2
     container params.trim_galore_container
-    conda "${moduleDir}/../trim_galore/environment.yml"
+    conda "${moduleDir}/environment.yml"
+
+    publishDir "${params.outdir}/pipeline_info/native_qc/trim_galore",
+        mode: 'copy', overwrite: true,
+        pattern: '*.{done,yml}'
 
     input:
     tuple val(meta), path(raw_r1)
@@ -28,8 +34,9 @@ process TRIM_GALORE_SINGLE {
     mv '${generated}' '${meta.trimmed_r1_name}'
     cp '${meta.trimmed_r1_name}' '${meta.trimmed_r1}.nextflow.tmp'
     mv '${meta.trimmed_r1}.nextflow.tmp' '${meta.trimmed_r1}'
-    printf '"%s":\n    trim_galore: "%s"\n' '${task.process}' \
+    printf '"%s":\n    trim_galore: "%s"\n    cutadapt: "%s"\n' '${task.process}' \
         "\$(trim_galore --version 2>&1 | awk 'tolower(\$1)=="version" {print \$2; exit}')" \
+        "\$(cutadapt --version 2>&1 | awk 'NF {print \$NF; exit}')" \
         > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"%s","status":"complete","library_layout":"single"}\n' \
         '${meta.id}' '${task.process}' > '${meta.id}.trim_galore.done'
@@ -41,7 +48,7 @@ process TRIM_GALORE_SINGLE {
     mkdir -p '${meta.id}.trim_galore_reports' '${meta.trimmed_dir}'
     cp '${meta.trimmed_r1_name}' '${meta.trimmed_r1}'
     printf '[STUB] single-end trim\n' > '${meta.id}.trim_galore_reports/trim_galore.log'
-    printf '"TRIM_GALORE_SINGLE":\n    trim_galore: stub\n' > '${meta.id}.versions.yml'
-    printf '{"id":"%s","status":"stub","library_layout":"single"}\n' '${meta.id}' > '${meta.id}.trim_galore.done'
+    printf '"TRIM_GALORE_SINGLE":\n    trim_galore: stub\n    cutadapt: stub\n' > '${meta.id}.versions.yml'
+    printf '{"id":"%s","process":"TRIM_GALORE_SINGLE","status":"stub","library_layout":"single"}\n' '${meta.id}' > '${meta.id}.trim_galore.done'
     """
 }

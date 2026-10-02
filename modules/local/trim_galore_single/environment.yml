@@ -1,0 +1,6 @@
+name: helixforge-trim-galore-single
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - trim-galore=0.6.10

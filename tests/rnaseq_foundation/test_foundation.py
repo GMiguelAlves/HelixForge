@@ -185,6 +185,37 @@ class RnaSeqFoundationTest(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertIn("inconsistent library layout or fragment parameters", result.stderr)
 
+    def test_metadata_rejects_mixed_layouts_within_dataset(self):
+        metadata, settings = self.write_context()
+        second_r1 = self.fastq / "second_RUN2_R1.fastq"
+        second_r2 = self.fastq / "second_RUN2_R2.fastq"
+        for path in (second_r1, second_r2):
+            path.write_text("@read\nACGT\n+\nIIII\n", encoding="ascii")
+        with metadata.open("w", encoding="utf-8", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=[
+                "dataset", "sample_id", "run_accession", "condition", "fastq_1", "fastq_2",
+                "library_layout", "fragment_length_mean", "fragment_length_sd",
+            ])
+            writer.writeheader()
+            writer.writerow({
+                "dataset": "TEST", "sample_id": "single", "run_accession": "RUN1",
+                "condition": "control", "fastq_1": self.fastq / "sample_RUN1_R1.fastq",
+                "fastq_2": "", "library_layout": "single",
+                "fragment_length_mean": 200, "fragment_length_sd": 80,
+            })
+            writer.writerow({
+                "dataset": "TEST", "sample_id": "paired", "run_accession": "RUN2",
+                "condition": "control", "fastq_1": second_r1, "fastq_2": second_r2,
+                "library_layout": "paired", "fragment_length_mean": "", "fragment_length_sd": "",
+            })
+        result = subprocess.run([
+            sys.executable, str(METADATA), "--metadata", str(metadata), "--settings", str(settings),
+            "--normalized", str(self.root / "validated.csv"), "--plan-dir", str(self.root),
+            "--reference-plan", str(self.root / "references.tsv"), "--report", str(self.root / "report.json"),
+        ], text=True, capture_output=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("cannot mix paired-end and single-end", result.stderr)
+
     def test_reference_bundle_records_content_checksums(self):
         manifest = self.root / "manifest.json"
         result = subprocess.run([

@@ -76,14 +76,15 @@ manifest, versions, execution metadata, and provenance.
 
 ## RNA-seq single-end extension
 
-Status: **planned as an isolated post-v1 certification** ([issue #76](https://github.com/GMiguelAlves/HelixForge/issues/76)).
+Status: **implemented; isolated Slurm certification pending**.
 
-The paired-end Salmon path remains the certified v1 production route.
-Single-end support must extend samplesheet, QC, trimming, channel, manifest,
-and re-entry contracts so `read1` is valid without `read2`. Salmon fragment
-length mean and standard deviation must be explicit, validated, and recorded
-in provenance. Dedicated functional, regression, Slurm, and cache tests must
-demonstrate the extension without changing paired-end behavior.
+The paired-end Salmon path remains the certified v1 production route. The
+single-end extension now covers samplesheet validation, QC, trimming, technical
+run merging, Salmon `-r`, Import, DESeq2, reports, terminal manifests and CI
+stub regression. Fragment-length mean and standard deviation are explicit,
+validated and retained in provenance; layouts cannot be mixed within one
+dataset. A real Slurm run, identical cached `-resume`, and site-level paired-end
+regression remain the final operational certification gate.
 
 ## Release order
 
@@ -97,8 +98,8 @@ scientific work is:
 
 1. Implement Batch Effect Assessment as an optional exploratory subworkflow.
 2. Implement Pathway Enrichment providers behind the common downstream API.
-3. Implement and separately certify RNA-seq single-end execution while
-   preserving the paired-end baseline.
+3. Complete the isolated Slurm certification of the implemented RNA-seq
+   single-end path while preserving the paired-end baseline.
 
 RNA-seq and ChIP-seq reviewed biological benchmarks are complete. Their frozen
 administrative entry points are

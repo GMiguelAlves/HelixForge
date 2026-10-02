@@ -1,0 +1,13 @@
+name: TRIM_GALORE_SINGLE
+description: Trim one single-end FASTQ while preserving the native QC contract.
+keywords: [fastq, trimming, single-end, rnaseq]
+tools:
+  - trim_galore: {description: Adapter and quality trimming wrapper}
+  - cutadapt: {description: Read trimming engine}
+input:
+  - raw_r1: Single-end FASTQ and its metadata map.
+output:
+  - artifacts: Trimmed single-end FASTQ.
+  - reports: Trim Galore log and report directory.
+  - versions: Trim Galore and Cutadapt versions YAML.
+  - status: Completion JSON including the single-end layout.

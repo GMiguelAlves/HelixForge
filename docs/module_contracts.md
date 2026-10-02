@@ -74,7 +74,8 @@ Optional identity fields should be retained when available:
 - `technical_replicate`
 - `genome_id`
 - `build`
-- `single_end`
+- `library_layout`
+- `fragment_length_mean` and `fragment_length_sd` for single-end RNA-seq
 
 Tool-specific values may be added to `meta`, but a module must not silently
 remove or rename fields received from its caller.

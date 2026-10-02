@@ -68,14 +68,6 @@ process RNASEQ_METADATA {
         printf 'dataset,sample_id,file_prefix,run_accession,condition,batch,fastq_1,fastq_2,library_layout,fragment_length_mean,fragment_length_sd\nSTUB,stub_sample,stub_sample,stub_run,control,B1,%s/stub_input_R1.fastq,,single,200,80\n' \
             "\$PWD" > validated_metadata.csv
     fi
-    if [[ '${params.rnaseq_stub_layout ?: 'paired'}' == 'single' ]]; then
-        printf '%s\n%s\n' \
-            'dataset,sample_id,file_prefix,run_accession,raw_r1,raw_r2,trimmed_run_r1,trimmed_run_r2,merged_sample_r1,merged_sample_r2,trim_quality,trim_length,library_layout,fragment_length_mean,fragment_length_sd' \
-            'STUB,stub_sample,stub_sample,stub_run,'"\$PWD"'/stub_input_R1.fastq,,${params.outdir}/stub/trimmed_runs/stub_sample_stub_run_R1_trimmed.fastq.gz,,${params.outdir}/stub/trimmed_merged/stub_sample_R1_trimmed.fastq.gz,,20,20,single,200,80' \
-            > STUB_qc_plan.csv
-        printf 'dataset,sample_id,file_prefix,run_accession,condition,batch,fastq_1,fastq_2,library_layout,fragment_length_mean,fragment_length_sd\nSTUB,stub_sample,stub_sample,stub_run,control,B1,%s/stub_input_R1.fastq,,single,200,80\n' \
-            "\$PWD" > validated_metadata.csv
-    fi
     printf '{"schema_version":"1.0","status":"stub","rows":1,"biological_samples":1}\n' > metadata_validation.json
     printf '[STUB] RNA-seq metadata\n' > rnaseq.metadata.log
     printf '"RNASEQ_METADATA":\n    python: stub\n' > rnaseq.metadata.versions.yml
