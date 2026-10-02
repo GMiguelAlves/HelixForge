@@ -5,8 +5,14 @@ process MERGE_FASTQ_SINGLE {
     memory 16.GB
     time 6.h
     cache 'deep'
+    errorStrategy { task.exitStatus in 130..145 ? 'retry' : 'terminate' }
+    maxRetries 2
     container params.merge_fastq_container
-    conda "${moduleDir}/../merge_fastq/environment.yml"
+    conda "${moduleDir}/environment.yml"
+
+    publishDir "${params.outdir}/pipeline_info/native_qc/merge_fastq",
+        mode: 'copy', overwrite: true,
+        pattern: '*.{tsv,yml,done}'
 
     input:
     tuple val(meta), path(reads_r1)
@@ -33,7 +39,8 @@ process MERGE_FASTQ_SINGLE {
     } > '${meta.id}.merge.tsv'
     printf '"MERGE_FASTQ_SINGLE":\n    coreutils: "%s"\n' \
         "\$(cat --version | awk 'NR==1 {print \$NF}')" > '${meta.id}.versions.yml'
-    printf '{"id":"%s","status":"complete","library_layout":"single"}\n' '${meta.id}' > '${meta.id}.merge.done'
+    printf '{"id":"%s","process":"%s","status":"complete","library_layout":"single"}\n' \
+        '${meta.id}' '${task.process}' > '${meta.id}.merge.done'
     """
 
     stub:
@@ -43,6 +50,6 @@ process MERGE_FASTQ_SINGLE {
     cp '${meta.output_r1_name}' '${meta.output_r1}'
     printf 'role\tpath\tsha256\noutput_r1\t%s\tstub\n' '${meta.output_r1_name}' > '${meta.id}.merge.tsv'
     printf '"MERGE_FASTQ_SINGLE":\n    coreutils: stub\n' > '${meta.id}.versions.yml'
-    printf '{"id":"%s","status":"stub","library_layout":"single"}\n' '${meta.id}' > '${meta.id}.merge.done'
+    printf '{"id":"%s","process":"MERGE_FASTQ_SINGLE","status":"stub","library_layout":"single"}\n' '${meta.id}' > '${meta.id}.merge.done'
     """
 }

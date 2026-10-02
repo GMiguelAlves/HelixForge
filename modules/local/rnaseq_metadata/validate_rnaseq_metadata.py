@@ -239,6 +239,15 @@ def main() -> int:
         inconsistent_layouts = [f"{dataset}/{sample}" for (dataset, sample), values in sample_layouts.items() if len(values) > 1]
         if inconsistent_layouts:
             raise ValueError("samples have inconsistent library layout or fragment parameters: " + ", ".join(inconsistent_layouts))
+        dataset_layouts: defaultdict[str, set[str]] = defaultdict(set)
+        for row in normalized:
+            dataset_layouts[row["dataset"]].add(row["library_layout"])
+        mixed_datasets = sorted(dataset for dataset, layouts in dataset_layouts.items() if len(layouts) > 1)
+        if mixed_datasets:
+            raise ValueError(
+                "a dataset cannot mix paired-end and single-end libraries: "
+                + ", ".join(mixed_datasets)
+            )
 
         normalized_fields = list(fields)
         for field in ("file_prefix", "fastq_1", "fastq_2", "library_layout", "fragment_length_mean", "fragment_length_sd"):

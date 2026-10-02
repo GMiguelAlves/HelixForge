@@ -21,6 +21,9 @@ python3 tests/integrative_workflow/prepare_fixture.py --output "${smoke_root}/fi
     --workflow rnaseq --rnaseq_run_mode full --outdir "${smoke_root}/rnaseq"
 test -s "${smoke_root}/rnaseq/rnaseq/rnaseq_run_manifest.json"
 
+NEXTFLOW_BIN="${nextflow_bin}" \
+    tests/rnaseq_foundation/run_single_end_stub.sh "${smoke_root}/rnaseq-single"
+
 "${nextflow_bin}" run . -profile test -stub-run \
     --workflow chipseq --chipseq_run_mode full --outdir "${smoke_root}/chipseq"
 test -s "${smoke_root}/chipseq/chipseq/chipseq_run_manifest.json"

@@ -115,11 +115,23 @@ def samples_from_metadata(assay: str, path: Path) -> list[dict[str, Any]]:
         raise ValueError("normalized metadata contains no records")
     if assay == "rnaseq":
         grouped: dict[tuple[str, str], list[dict[str, str]]] = {}
+        layouts_by_dataset: dict[str, set[str]] = {}
         for row in rows:
             key = (row.get("dataset", ""), row.get("sample_id", ""))
             if not all(key) or not row.get("condition"):
                 raise ValueError("RNA metadata requires dataset, sample_id, and condition")
             grouped.setdefault(key, []).append(row)
+            layouts_by_dataset.setdefault(key[0], set()).add(
+                (row.get("library_layout") or "paired").strip().lower()
+            )
+        mixed_datasets = sorted(
+            dataset for dataset, layouts in layouts_by_dataset.items() if len(layouts) > 1
+        )
+        if mixed_datasets:
+            raise ValueError(
+                "a dataset cannot mix paired-end and single-end libraries: "
+                + ", ".join(mixed_datasets)
+            )
         result = []
         for (dataset, sample_id), records in sorted(grouped.items()):
             def one(field: str) -> str | None:
