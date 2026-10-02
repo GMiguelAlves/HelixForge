@@ -26,6 +26,9 @@ Salmon.
 Single-end Salmon inputs use an explicit layout and fragment-length prior; see
 the [single-end extension](rnaseq-single-end.md) for its current certification
 status and samplesheet contract.
+Each dataset must use a single library layout. Separate paired-end and
+single-end studies can be processed by the same installation and later joined
+at the atlas/evidence layer, but a dataset mixing both layouts is rejected.
 
 ```bash
 nextflow run . -profile docker \
