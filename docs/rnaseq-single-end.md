@@ -1,7 +1,8 @@
 # RNA-seq single-end extension
 
-Status: implemented for the native Salmon path; **not yet operationally certified
-on Slurm**. The paired-end Salmon route remains the certified production baseline.
+Status: implemented for the native Salmon path and validated with a reduced
+real-tool synthetic fixture on Slurm. This does not replace a future biological
+single-end validation. The paired-end Salmon route remains the production baseline.
 
 ## Metadata contract
 
@@ -56,13 +57,19 @@ and Docker: QC, trimming, merge, Salmon, tximport, DESeq2, and the terminal
 RNA-seq manifest. The manifest contained all four single-end samples and nine
 integration artifacts. An identical `-resume` run cached all scientific tasks.
 The paired-end Salmon stub regression also passed. This Docker validation is
-local evidence; Slurm certification remains pending. The complete single-end
+local evidence. The complete single-end
 stub is also part of the release CI smoke, so metadata, QC, trimming, merge,
 Salmon, Import, DESeq2 and the terminal manifest are checked together on each
 release candidate.
 
-Production certification additionally requires a completed Slurm run, an
-identical `-resume` with cached tasks, and paired-end regression evidence.
-The site harness is `tests/slurm/run_rnaseq_single_end_real.sh`; pass a new
-persistent case directory and partition, with `CONDA_BASE` and
-`NEXTFLOW_BIN` set for the site.
+The reduced real-tool Slurm run also passed with four biological samples, 30
+genes, one contrast, and 12 Gene Report plots. A second Slurm case split one
+sample across two technical runs and confirmed lossless, ordered FASTQ merge
+before Salmon; quantification and DESeq2 still saw four biological samples.
+Identical `-resume` runs cached all scientific tasks in both cases. See
+[the Slurm validation record](rnaseq-single-end-slurm-validation.md) for
+evidence and limitations. The site harness is
+`tests/slurm/run_rnaseq_single_end_real.sh`; pass a new persistent case
+directory and partition, with `VALIDATION_BASE`, `CONDA_BASE`, and the official
+`NEXTFLOW_BIN` launcher set for the site. The site-only concurrency cap is
+`HELIXFORGE_MAX_SLURM_JOBS` (1–8, default 5).
