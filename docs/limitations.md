@@ -13,9 +13,11 @@ implementation and validation details are preserved separately in the
   was not available on the tested Slurm infrastructure.
 - STAR is an experimental RNA-seq Alignment provider. Salmon is the supported
   production quantification path.
-- The paired-end Salmon path is certified. The
-  [single-end extension](rnaseq-single-end.md) has passed local functional
-  validation but still requires separate Slurm certification.
+- The paired-end Salmon path is the established biological production baseline.
+  The [single-end extension](rnaseq-single-end.md) passed a full reduced
+  synthetic Slurm run, including technical-run aggregation and `-resume`.
+  Biological single-end datasets and other fragment-length priors have not
+  been validated by that result.
 
 ## Cache and shared filesystems
 

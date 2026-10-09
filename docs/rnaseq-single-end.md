@@ -1,8 +1,10 @@
 # RNA-seq single-end extension
 
-Status: implemented for the native Salmon path and validated with a reduced
-real-tool synthetic fixture on Slurm. This does not replace a future biological
-single-end validation. The paired-end Salmon route remains the production baseline.
+Status: included in HelixForge v1.1.0 for the native Salmon path and validated
+with reduced real-tool synthetic fixtures on Slurm. This certifies the tested
+workflow behavior, not a biological single-end dataset or every library
+preparation. The paired-end Salmon route remains the established biological
+production baseline.
 
 ## Metadata contract
 

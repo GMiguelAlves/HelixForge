@@ -76,15 +76,16 @@ manifest, versions, execution metadata, and provenance.
 
 ## RNA-seq single-end extension
 
-Status: **implemented; isolated Slurm certification pending**.
+Status: **implemented; reduced synthetic Slurm validation passed**.
 
-The paired-end Salmon path remains the certified v1 production route. The
+The paired-end Salmon path remains the established biological production route. The
 single-end extension now covers samplesheet validation, QC, trimming, technical
 run merging, Salmon `-r`, Import, DESeq2, reports, terminal manifests and CI
 stub regression. Fragment-length mean and standard deviation are explicit,
 validated and retained in provenance; layouts cannot be mixed within one
-dataset. A real Slurm run, identical cached `-resume`, and site-level paired-end
-regression remain the final operational certification gate.
+dataset. Two reduced real-tool Slurm cases, including technical-run merge,
+and identical cached `-resume` passed. Biological single-end validation with
+a reviewed study and its justified fragment prior remains a separate gate.
 
 ## Release order
 
@@ -98,8 +99,8 @@ scientific work is:
 
 1. Implement Batch Effect Assessment as an optional exploratory subworkflow.
 2. Implement Pathway Enrichment providers behind the common downstream API.
-3. Complete the isolated Slurm certification of the implemented RNA-seq
-   single-end path while preserving the paired-end baseline.
+3. Validate the single-end path with a reviewed biological study and its
+   fragment-length prior while preserving the paired-end baseline.
 
 RNA-seq and ChIP-seq reviewed biological benchmarks are complete. Their frozen
 administrative entry points are

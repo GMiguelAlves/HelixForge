@@ -5,7 +5,7 @@ and cross-assay molecular evidence integration. It preserves explicit
 scientific contracts, provenance, and deterministic outputs while remaining
 ready for future assay providers.
 
-**Current stable release: HelixForge v1.0.2.** The validated release retains an
+**Current stable release: HelixForge v1.1.0.** The validated release retains an
 overall benchmark classification of `PASS_WITH_LIMITATIONS`; the documented
 limitations bound the validated scope without indicating a central scientific
 implementation failure.
@@ -23,6 +23,10 @@ Salmon is the certified RNA-seq production provider. STAR implements the
 Alignment API but remains experimental and is never selected implicitly.
 IDR is an optional ChIP-seq branch for exactly two compatible biological
 replicates.
+The native single-end Salmon path passed a complete reduced synthetic Slurm
+validation, including technical-run aggregation and `-resume`. Biological
+single-end studies still require their own reviewed validation; see the
+[scope and evidence](docs/rnaseq-single-end.md).
 
 ## Requirements
 
@@ -115,6 +119,7 @@ Start at the [documentation index](docs/index.md):
 - [Architecture](docs/architecture.md)
 - [Roadmap](docs/roadmap.md)
 - [Developer guide](docs/developer-guide.md)
+- [HelixForge v1.1.0 release notes](docs/release-notes-v1.1.0.md)
 - [HelixForge v1.0.2 release notes](docs/release-notes-v1.0.2.md)
 - [HelixForge v1.0.1 release notes](docs/release-notes-v1.0.1.md)
 - [HelixForge v1.0.0 release notes](docs/release-notes-v1.0.0.md)
