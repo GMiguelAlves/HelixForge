@@ -8,5 +8,5 @@ content and index parameters participate in the deep cache key. A verified
 cached index is published at `meta.target_dir` for legacy compatibility.
 
 The OCI and Conda environments use the same Bioconda build,
-`salmon=1.10.3=h6dccd9a_2`. See `docs/quantification_api.md` for the provider
+`salmon=1.10.3=h6dccd9a_2`. See `docs/api/quantification_api.md` for the provider
 contract.

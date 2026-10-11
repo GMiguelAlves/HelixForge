@@ -22,6 +22,6 @@ records the source commit, commands, environment and input/output checksums.
 
 R 4.5.1 was present when the baseline was created, but `ggplot2` was not. No R
 dependency chain was installed for this characterization pass. Plot files are
-specified in `docs/integrative-legacy-audit.md` and classified as
+specified in `docs/audit/integrative-legacy-audit.md` and classified as
 `VISUAL_NOT_REGRESSION_CRITICAL`; the Python-generated report is characterized
 without figures.

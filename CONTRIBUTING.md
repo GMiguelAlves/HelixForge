@@ -49,4 +49,4 @@ Use the repository template. A reviewer should be able to distinguish:
 - byte-exact from semantic regression expectations.
 
 Do not create release tags in feature pull requests. See
-`docs/release-checklist.md` for release authority and gates.
+`docs/releases/release-checklist.md` for release authority and gates.

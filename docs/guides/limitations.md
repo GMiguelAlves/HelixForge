@@ -1,0 +1,67 @@
+# Current limitations
+
+This page lists limitations that can affect current users. Historical
+implementation and validation details are preserved separately in the
+[validation records](../index.md#historical-and-validation-records).
+
+## Platforms and runtimes
+
+- Linux x86_64 and WSL2 are supported. Native Windows execution is not.
+- Nextflow 25.10.7 with Java 21 is the certified runtime baseline.
+- Docker is the recommended local container runtime. Apptainer/Singularity and
+  Conda profiles are experimental because a complete site-level certification
+  was not available on the tested Slurm infrastructure.
+- STAR is an experimental RNA-seq Alignment provider. Salmon is the supported
+  production quantification path.
+- The paired-end Salmon path is certified. The
+  [single-end extension](rnaseq-single-end.md) has passed local functional
+  validation but still requires separate Slurm certification.
+
+## Cache and shared filesystems
+
+Nextflow `-resume` depends on both its task database and unchanged work
+outputs. The earlier empty-cache incident was traced to HelixForge validation
+harnesses invoking the Nextflow JAR directly and is resolved. All supported
+launch paths now require the official Nextflow launcher, whose JVM options are
+necessary for task-cache serialization on Java 21.
+
+`bin/helixforge-resume-guard` remains an optional fail-closed check for costly
+production executions. It detects caches or work outputs that were removed
+after a run; it is not required to compensate for a current runtime defect.
+See the [controlled diagnostic](../validation/resume-cache-diagnostic.md) for the root cause,
+correction and operational policy.
+
+Compatibility outputs may retain configured absolute scratch paths. Docker
+runs must bind those paths consistently, while shared HPC filesystems must be
+visible to the selected container runtime. Manually deleting work-directory
+outputs invalidates the corresponding cache entries.
+
+## Scientific scope
+
+- Frozen RNA-seq and ChIP-seq baselines include synthetic and reviewed public
+  biological data. They validate the declared v1 scenarios, not universal
+  performance, and make no superiority claim over other pipelines.
+- The ChIP-seq baseline is `PASS_WITH_LIMITATIONS`: RN3 is not evaluable under
+  its frozen control requirements, synthetic broad fragmentation is a methods
+  follow-up, and the real H3K27me3 dataset has strong replicate asymmetry.
+- RNA-seq batch variables are modeled through an estimable DESeq2 formula.
+  Corrected matrices are exploratory only; the planned Batch Effect Assessment
+  API is not part of the current workflow.
+- Pathway enrichment providers such as GO, KEGG and Reactome are planned but
+  are not yet part of the RNA-seq Report API.
+- ChIP-seq technical sequencing records are aligned independently. A general
+  biological-library BAM merge policy is not yet available, so input metadata
+  must match the supported record/replicate model.
+- STAR gene counts do not provide transcript effective lengths. The Import API
+  marks length-dependent products unavailable instead of inventing values.
+
+## Interoperability
+
+Complete HelixForge runs emit portable terminal manifests and
+`integration_artifacts/` bundles. Independently authored manifests must satisfy
+the same schemas, semantic identity rules, checksums and mount-visible paths;
+format-specific external adapters remain experimental.
+
+Historical RNA-seq, ChIP-seq and Integrative implementations are available
+only from their immutable retirement tags. They are audit and regression
+references, not fallbacks in current workflows.

@@ -1,0 +1,401 @@
+# Module contracts
+
+This document defines the interface required for every new native Nextflow DSL2
+module in HelixForge. The contract standardizes orchestration and provenance; it
+does not force unrelated scientific tools to produce the same file types.
+
+Contract version: `3.0`
+
+This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
+later native module.
+
+Input-foundation modules obey the same report/version/status envelope.
+`RNASEQ_METADATA` accepts only supplied samplesheet/FASTQ inputs and emits a
+normalized plan. `REFERENCE_BUNDLE` receives references as tracked `path`
+inputs and records SHA-256 checksums. Neither module may download, decompress,
+edit, or index inputs; acquisition utilities cannot be dependencies of the
+scientific workflow.
+
+Cross-assay modules receive complete Evidence Model bundles as staged `path`
+inputs. `EVIDENCE_HARMONIZATION` additionally receives an explicit policy file;
+`MOLECULAR_EVIDENCE_INTEGRATION` receives the resulting harmonization bundle.
+Both reject incompatible references and may not scan a published results tree,
+infer identity from filenames, or silently normalize biological IDs.
+
+Interpretation modules receive only staged Integration API bundles and
+versioned policy/catalog inputs. Regulatory observations, interpretations and
+prioritization components remain separate datasets. A candidate score must
+state that it is non-inferential and expose every additive component.
+
+Downstream Integrative modules continue the same envelope. Functional analysis must distinguish
+descriptive legacy-compatible summaries from inferential tests; visualization
+and report modules may only render declared structured products; the terminal
+manifest module must checksum every exported artifact and preserve all upstream
+manifest identities. None may scan a published result tree.
+
+## Module layout
+
+Each module must live under `modules/local/<tool>/` and contain:
+
+```text
+modules/local/<tool>/
+├── main.nf
+├── environment.yml
+├── meta.yml
+├── README.md
+└── tests/
+```
+
+The process name must be uppercase and unambiguous. Scientific logic must remain
+in the tool command; the process may only stage inputs, prepare command-line
+arguments, validate expected outputs, and materialize compatibility paths.
+
+## Common channel envelope
+
+Every data item must carry a `meta` map as the first tuple element:
+
+```nextflow
+tuple val(meta), path(input_artifacts)
+```
+
+Required `meta` field:
+
+- `id`: stable, filesystem-safe identifier for the task.
+
+Optional identity fields should be retained when available:
+
+- `dataset`
+- `sample_id`
+- `run_accession`
+- `record_id`
+- `condition`
+- `target`
+- `biological_replicate`
+- `technical_replicate`
+- `genome_id`
+- `build`
+- `library_layout`
+- `fragment_length_mean` and `fragment_length_sd` for single-end RNA-seq
+
+Tool-specific values may be added to `meta`, but a module must not silently
+remove or rename fields received from its caller.
+
+## Inputs
+
+The first input must use the common envelope:
+
+```nextflow
+input:
+tuple val(meta), path(input_artifacts)
+```
+
+Paired or heterogeneous inputs may use multiple `path` elements while keeping
+`meta` first:
+
+```nextflow
+tuple val(meta), path(read_r1), path(read_r2)
+```
+
+Additional parameters must be explicit `val` or `path` inputs. Scientific
+parameters must come from the authoritative pipeline configuration or the
+calling workflow; modules must not introduce hidden scientific defaults.
+
+Biological identifiers and categorical metadata values must be preserved.
+Normalization of versions, prefixes, case, punctuation, or missing values is a
+scientific input parameter, never an implicit convenience. A requested
+normalization must detect collisions and record the policy in execution
+metadata. Invalid numeric values must fail; they must not be replaced with zero.
+
+## Outputs
+
+Modules must expose the following named emissions when applicable:
+
+```nextflow
+output:
+tuple val(meta), path(primary_artifacts), emit: artifacts
+tuple val(meta), path(report_artifacts),  emit: reports, optional: true
+tuple val(meta), path(version_file),      emit: versions
+tuple val(meta), path(status_file),       emit: status
+```
+
+- `artifacts`: primary outputs consumed by downstream processes.
+- `reports`: human- or machine-readable reports; optional only when the tool
+  genuinely produces no report.
+- `versions`: one YAML file describing every scientific executable used.
+- `status`: one small JSON completion record for orchestration and provenance.
+
+The `meta` map must be emitted unchanged with every tuple output. Modules that
+transform reads still use `artifacts`; the caller assigns the biological role
+through `meta` rather than relying on tool-specific channel names.
+
+### Versions format
+
+```yaml
+"PROCESS_NAME":
+  tool_name: "1.2.3"
+```
+
+### Status format
+
+```json
+{
+  "id": "sample_or_run_id",
+  "process": "PROCESS_NAME",
+  "status": "complete"
+}
+```
+
+Primary scientific outputs must retain the names, formats, compression, and
+directory contract of the pipeline being migrated. Temporary files must be
+written first and atomically renamed when materializing compatibility outputs.
+
+### Native manifest envelope
+
+Every manifest exchanged between API boundaries must validate against
+`schemas/manifest-v1.schema.json` and contain at least:
+
+```json
+{
+  "schema_version": "1.0",
+  "type": "alignment",
+  "id": "dataset.sample.alignment",
+  "status": "complete"
+}
+```
+
+`id` is a stable semantic identity, not a staged filename. `status` must be
+honest (`complete`, `complete_empty`, `incomplete`, `not_implemented`, `stub`,
+or `failed`). Cross-API inputs must be represented in `upstream_manifests` by
+checksum. Domain-specific artifact fields remain extensible in manifest v1,
+but paths alone must never be used to infer biological identity.
+
+## Process directives
+
+Every module must declare:
+
+```nextflow
+tag "${meta.id}"
+label 'native_module'
+cpus <default>
+memory <default>
+time <default>
+cache 'deep'
+maxRetries 2
+```
+
+It must also define an `errorStrategy`. Retries should be limited to transient
+termination or infrastructure failures; deterministic scientific failures must
+terminate immediately. Resource defaults must match the existing pipeline until
+a controlled benchmark justifies a change.
+
+Each module must use `publishDir` for lightweight reports, versions, and status
+records. Large primary artifacts should remain tracked Nextflow outputs and be
+materialized separately only when legacy compatibility requires an exact
+external path.
+
+## Software support
+
+Every module must define both:
+
+```nextflow
+container params.<tool>_container
+conda "${moduleDir}/environment.yml"
+```
+
+Requirements:
+
+- Conda package versions must be pinned.
+- Docker must use a versioned OCI image, preferably with a recorded digest.
+- The same OCI image must work through Singularity or Apptainer.
+- Local or Slurm execution without environment management may use the tool on
+  `PATH`, but its version must still be recorded.
+- Container and Conda versions must represent the same scientific tool release.
+
+Cluster partition, account, and QoS remain profile or site configuration, never
+scientific module logic.
+
+## Stub contract
+
+Every module must implement a `stub:` block that:
+
+- creates every required output;
+- preserves expected filenames and tuple shape;
+- creates syntactically valid small files where practical;
+- never invokes scientific software;
+- writes `versions` with `stub` values and status `stub`.
+
+## Required tests
+
+Every new module must provide:
+
+1. `stub`: graph compilation and output-contract validation.
+2. `integration`: execution on a reduced deterministic dataset.
+3. `regression`: comparison with the unchanged legacy implementation.
+
+Regression tests must compare the representation appropriate to each artifact:
+
+- byte checksum for deterministic files;
+- decompressed checksum for gzip files with variable headers;
+- extracted tables and statistics for ZIP, HTML, or timestamped reports;
+- numeric tolerances only when the scientific format requires them.
+
+Test fixtures must be small, versioned, and independent of production data.
+
+## Review checklist
+
+Before a module is accepted, confirm:
+
+- [ ] `meta.id` is present and propagated unchanged.
+- [ ] Named emissions follow `artifacts`, `reports`, `versions`, and `status`.
+- [ ] Scientific parameters and resources match the legacy implementation.
+- [ ] Output names, formats, compression, and compatibility paths are preserved.
+- [ ] Conda and OCI versions are pinned and consistent.
+- [ ] No `sbatch` or nested scheduler call exists.
+- [ ] Stub, integration, and regression tests pass.
+- [ ] `nextflow lint` reports no new warnings.
+- [ ] Module reuse does not depend on RNA-seq-specific paths or assumptions.
+
+Changes to this contract require a documented contract-version increment and a
+migration note for existing native modules.
+
+## Domain contracts
+
+Modules may participate in a stricter domain API in addition to this common
+envelope. Domain APIs must define stable semantic roles independently from a
+specific tool. The Alignment API is defined in `docs/api/alignment_api.md`; the
+Quantification API is defined in `docs/api/quantification_api.md`; the Import API
+is defined in `docs/api/import_api.md`; the Differential Expression API is defined
+in `docs/api/differential_expression_api.md`.
+
+The ChIP-seq domain contracts are defined in `docs/api/chipseq-api.md`. They add
+explicit control relationships, biological/technical replicate identity and
+separate post-alignment policies for selection, duplicates and blacklist
+exclusion.
+
+Contract 1.1 adds `meta.yml`, module-local documentation, tests, and formal
+domain contracts. Existing QC modules remain valid under 1.0 and can adopt the
+additional layout incrementally; all modules created after 1.1 must use it.
+
+Contract 1.2 adds the independent transcriptome-index and abundance-estimation
+roles of the Quantification API. Quantification providers must preserve their
+complete native output directory while also projecting stable semantic
+channels for downstream workflows.
+
+Contract 1.3 adds aggregation modules. An aggregation item carries a global
+`meta` map followed by content-tracked manifests, provider artifacts, sample
+metadata, and explicit parameters. Aggregators must expose matrices through
+semantic emissions (`counts`, `abundance`, and `lengths`) and must not discover
+provider files by reconstructing pipeline-specific directory names. A semantic
+role unavailable from a provider is represented in its manifest as
+`available: false`; modules must not fabricate scientific values to satisfy an
+interface.
+
+Contract 1.4 adds statistical-provider modules. A statistical model and its
+contrasts must be separate cache boundaries. Designs and contrasts are explicit
+versioned values, while counts, metadata, and their Import manifest are tracked
+files. Providers emit common statistical field names without removing
+provider-native compatibility files. Unsupported statistical tests must fail
+explicitly and must never be approximated silently.
+
+Contract 1.5 adds scientific input integrity. Metadata keys must be non-empty
+and unique at their declared granularity. Design, contrasts, expression filter,
+fractional-count handling, gene/transcript ID normalization, and stranded count
+selection are explicit versioned values. Modules fail on collisions, unmapped
+required identifiers, negative counts, and missing design values.
+Library protocol and transcript-length correction strategy are also explicit
+when transcript abundance estimates feed gene-level inference.
+
+Contract 1.6 adds multi-assay alignment providers and ChIP-seq experiment
+identity. Generic Alignment API providers may omit annotation and gene counts
+when those roles do not apply, but they must still emit sorted BAM, index,
+logs, statistics, versions, execution metadata, manifest and status. ChIP-seq
+modules must not hide MAPQ, duplicate, blacklist or peak-type policy inside an
+aligner process.
+
+Contract 1.7 adds BAM transformation providers. Selection, duplicate policy,
+blacklist exclusion and final index/QC are separate deep-cache boundaries.
+Every policy is an explicit value or tracked file; disabled optional stages
+still emit a manifest describing the no-op. BAM/reference and blacklist/BAM
+contig mismatches fail without automatic renaming. Final BAM providers must
+emit integrity evidence, compact read metrics, checksums and a matching index.
+
+Contract 1.8 adds peak-calling providers. One request represents one treatment
+replicate and carries explicit control identity, genome/reference identity,
+effective genome size, peak type, significance cutoff, input format and
+duplicate policy. Context validation, provider execution and caller-neutral
+aggregation are separate cache boundaries. Providers emit semantic peaks,
+caller-native artifacts, logs, versions, execution metadata, provenance,
+manifest and status. Optional outputs use `available: false`; consensus and
+FRiP are not implicit parts of this contract.
+
+Contract 1.9 adds Peak QC providers. Final BAM and semantic peak artifacts are
+joined only through stable record/peak identities and validated manifests.
+Read/fragment unit, denominator, MAPQ/SAM filters, duplicate handling, overlap
+semantics and blacklist policy are explicit versioned inputs. FRiP and peak
+statistics are independent cache boundaries. Aggregation preserves one row per
+replicate and must not pool, rank, remove outliers, call consensus, or run IDR.
+
+Contract 2.0 adds Consensus/IDR providers. Peak Calling and Peak QC artifacts
+must be joined by stable manifest identifiers and a complete scientific group
+key; file order and globs are forbidden associations. Replicate mode and policy
+are explicit cache inputs. Consensus providers preserve atomic interval support
+and source evidence without synthesizing caller metrics. IDR providers use a
+distinct type, exactly two ranked biological narrowPeak inputs, an explicit
+threshold/rank metric and a deterministic random seed. They must publish raw
+provider output plus normalized peak roles; `complete_empty` must remain
+distinct from an unavailable or failed provider.
+
+Contract 2.1 adds Differential Binding providers. Raw peak counting is separate
+from filtering, normalization and inference. One model column maps through
+manifests to one premerged biological replicate; technical records are never
+silently promoted. Design and contrast specifications are distinct cache inputs.
+Changing one contrast must not invalidate counting or a reusable model. Model
+providers consume raw counts and expose normalized counts only as outputs.
+
+Contract 2.2 adds Peak Annotation providers. Peak sets, references, and genomic
+annotations are associated only through manifests and stable IDs. Annotation
+mode, overlap semantics, promoter windows, feature priority, gene assignment,
+strand handling, intergenic policy, and TSS-distance policy are explicit cache
+inputs. Context validation, provider execution, statistics, and provider-neutral
+aggregation are separate boundaries. Providers must not repair contigs, builds,
+coordinates, IDs, or annotation versions silently.
+
+Contract 2.3 adds Track Generation providers. Final BAMs, indexes, reference
+identity, and metadata are associated only through stable IDs and manifests.
+Track format, binning, normalization, scale, unit, extension, strand, effective
+genome size, aggregate scope, and provider version are explicit cache inputs.
+Providers must not repeat final-BAM filters. Context, provider execution, track
+statistics, and provider-neutral aggregation are independent boundaries.
+
+Contract 2.4 adds terminal Report/Integration providers. Report inputs are
+explicit manifests and checksum-declared semantic artifacts; module directories,
+globs, filenames, and channel order are forbidden identity sources. Context,
+scientific aggregation, and presentation are separate cache boundaries.
+Optional components retain `not_requested`, `not_implemented`, `failed`, or
+`incomplete` status, and missing scientific values remain null rather than
+zero. Presentation providers must emit structured JSON beside their rendered
+format and must not schedule upstream analyses.
+
+Contract 2.5 specializes the terminal contract for RNA-seq reporting. A report
+request must carry Import and Differential Expression manifests plus explicit
+semantic artifacts; providers may not scan published directories. Candidate
+gene, enrichment and other presentation providers remain independently
+versioned. Report outputs must include rendered content, machine-readable
+tables, figures, manifest, execution metadata, versions, session information
+and input lineage. Exploratory matrices or figures must never become implicit
+inputs to differential inference.
+
+Contract 2.6 adds Integration API terminal run manifests. Terminal assemblers
+receive normalized metadata, a Reference Bundle manifest, upstream manifests,
+tracked artifacts and semantic descriptors directly from the DAG. They may not
+scan published result trees or infer assay, sample, contrast, condition, stage,
+mark, peak type or scientific role from a filename. Locations must declare
+their resolution kind, and schema, semantic and filesystem validation remain
+separate operations.
+
+Contract 2.7 adds Evidence Provider modules. Their input is a terminal run
+manifest, an explicit `artifact_id` binding document and the corresponding
+tracked `path` inputs. A provider may open only bound staged files, must omit
+unavailable optional datasets, and must emit an Evidence Manifest plus typed
+datasets, validation, versions and status. BAMs and visualization tracks are
+not staged merely because they occur in the terminal catalog.

@@ -1,0 +1,471 @@
+# Controlled real validation report
+
+> **Historical validation record.** This report preserves dated runtime and
+> scientific evidence; it is not an installation or execution guide.
+
+> **Stable-release update (2026-09-14).** The later RNA-seq, ChIP-seq, and
+> Integrative benchmark programs are complete and frozen as
+> `PASS_WITH_LIMITATIONS`. Integrative legacy retirement is complete. The
+> `BLOCKED` decision below belongs to this earlier validation checkpoint and is
+> not the current HelixForge v1.0.0 release decision.
+
+> Update (2026-08-13): IDR 2.0.4.2 is implemented as an optional provider and
+> passed both immutable-OCI certification and a complete reduced top-level
+> Slurm execution. Statements below that IDR was `not_implemented` describe an
+> earlier recorded union pass and are retained as historical evidence.
+
+The later native RNA-seq input-foundation pass is recorded in
+[RNA-seq native foundation validation](rnaseq-foundation-validation.md).
+
+Date: 2026-08-13
+Branch: `contrib/final-validation`  
+Overall decision: **BLOCKED for global legacy retirement**
+
+This report records the first controlled real validation pass after the native
+API consolidation. It distinguishes a missing test from a demonstrated defect.
+No large dataset or new dependency chain was introduced for this pass. After
+the local pass, the reduced fixtures were also executed on an institutional
+Slurm cluster using pre-existing Conda environments.
+
+## Environment
+
+- Windows host with Ubuntu under WSL2.
+- Nextflow 26.04.6, build 12646, executed from the existing local JAR.
+- Java 21.0.11.
+- Docker Engine 29.1.3.
+- WSL filesystem: about 929 GB free; Windows volume: about 28 GB free at audit.
+- No Apptainer/Singularity, Conda/Mamba, or Micromamba runtime was added.
+- R 4.3.3 and Python 3 with pandas 2.1.4 were already available in WSL.
+
+The controlled Slurm pass used Nextflow 26.04.6 on the head node strictly as
+the scheduler driver. Every scientific command ran in Slurm allocations on
+compute nodes. Work and results were isolated under a new validation directory
+on shared storage; no pre-existing scratch data was removed. The existing
+`rna-tools`, `chipseq`, and `r-analysis` environments were inspected and used
+without modification. The RNA driver used the Java 23 runtime already present
+in `rna-tools`; Java 25 was used only for one minimal cache probe.
+
+The project now certifies Nextflow 25.10.7 with Java 21 through the official
+launcher. The historical cache interpretation in this report was corrected
+after the direct-JAR harness defect was isolated.
+
+The final top-level ChIP-seq pass used the certified temporary runtime
+Nextflow 25.10.7. It reused the cluster's existing `chipseq`, `r-analysis`,
+`rna-tools`, and `python-list` environments without installing or modifying
+packages. At most five scientific jobs were queued concurrently.
+
+## Capacity and decision matrix
+
+| Component | Real native evidence | Legacy comparison | Status | Blocker or qualification |
+|---|---|---|---|---|
+| Trim Galore | Yes, including Slurm | Yes | READY_TO_RETIRE | Minimal paired-end fixture only |
+| FastQC | Yes, 0.12.1 | Contract/mock comparison only | CONDITIONAL | Real report generated; no real legacy pair in this pass |
+| MultiQC | Yes on Slurm 1.30 and Docker 1.17 | Contract comparison | CONDITIONAL | Immutable OCI image certified on two reduced FastQC records; no real legacy pair in this pass |
+| FASTQ merge | Native mock/regression evidence | Yes | CONDITIONAL | Not rerun with a fully real QC chain |
+| STAR | Yes locally; cluster index blocked | Yes locally | CONDITIONAL | Cluster Conda STAR 2.7.11b aborts after index generation |
+| Salmon | Yes, 1.10.3, including Slurm | Yes | READY_TO_RETIRE | Semantic outputs passed on compute nodes |
+| Salmon Import | Yes, container and Slurm Conda runtime | Yes | CONDITIONAL | Workflow-level normalization/count policy still requires a release decision |
+| STAR Import | Yes | Yes | CONDITIONAL | Native provider ran on host; current Python production image was unavailable |
+| DESeq2 | Yes on Slurm and CI image | Yes | CONDITIONAL | Image 1.0.1 passed regression/cache tests; Slurm used the existing 1.42.1 environment |
+| ChIP BAM processing | Yes, including Slurm | Expected metrics validated | CONDITIONAL | Reduced fixture passed; resume is covered by the corrected launcher contract |
+| Bowtie2 index | Yes on Slurm, cluster 2.5.5 | Yes, same cluster runtime | CONDITIONAL | Direct compiled binary bypassed a broken Conda Perl wrapper |
+| Bowtie2 alignment | Yes on Slurm, cluster 2.5.5 | Yes, same cluster runtime | CONDITIONAL | BAM records, flagstat and idxstats passed; pinned 2.5.4 image remains uncertified |
+| MACS3 | Yes, 3.0.4, including top-level Slurm | No full legacy pair | CONDITIONAL | Four replicates and matched control passed |
+| FRiP | Yes on top-level Slurm | Semantic invariants | CONDITIONAL | Four real BAM/peak pairs passed; no full legacy regression |
+| Consensus | Yes, union and IDR on top-level Slurm | Semantic invariants | CONDITIONAL | IDR 2.0.4.2 produced 12 control and 15 treated regions from two replicates per condition |
+| Differential binding | Yes on top-level Slurm | Semantic invariants | CONDITIONAL | featureCounts, DESeq2, one requested contrast and aggregate passed in the available runtime |
+| Annotation | Yes on Slurm | Semantic invariants | CONDITIONAL | Coordinates, configured promoter window and aggregate passed |
+| Tracks | Yes on Slurm | Semantic invariants | CONDITIONAL | Three individual and one aggregate BigWig passed |
+| Report | Yes on Slurm | Contract and content checks | CONDITIONAL | Full IDR path produced and validated a 37,472-byte HTML report |
+| Top-level ChIP-seq | Yes on Slurm | Scientific invariants | READY_TO_RETIRE | Native `full` passed through report; IDR also passed as an optional branch |
+| Integrative | Manifest contract only | Legacy implementation retained | CONDITIONAL | No new analytic implementation was in scope |
+| Top-level RNA-seq | Yes on Slurm | Scientific invariants | READY_TO_RETIRE | QC -> Salmon -> Import -> DESeq2 -> Gene Report and identical resume passed |
+
+`READY_TO_RETIRE` applies to the supported complete RNA-seq and ChIP-seq
+production paths. It does not apply to the Integrative legacy pipeline.
+
+## Real scientific results
+
+### RNA-seq QC
+
+Trim Galore produced identical decompressed FASTQ content and read counts for
+the legacy command and native process:
+
+| Mate | SHA-256 of decompressed output | Reads |
+|---|---|---:|
+| R1 | `98384f001538af22fc484c62836dd83ed21aec7a8c791100214b3ad73ac5a10e` | 2 |
+| R2 | `7942f4a2e16a3090728cbfe0566275e55083858eb771915530c0c01c59298eac` | 2 |
+
+FastQC 0.12.1 and MultiQC 1.30 ran through the complete native QC subworkflow
+on Slurm. The top-level run covered raw and post-trim FastQC, four paired-end
+Trim Galore tasks, merged FASTQs, merged-read FastQC, and a non-empty MultiQC
+report. Re-execution exposed an idempotence defect when replacing an existing
+MultiQC data directory; publication now uses Nextflow `publishDir`, including
+inside Docker where arbitrary host paths are not automatically mounted.
+
+The same Trim Galore fixture passed on Slurm using jobs 12088 and 12089. A
+provenance defect was found: the multiline `trim_galore --version` banner was
+parsed by taking the first non-empty line. The parser now selects the explicit
+`version` line and records Trim Galore 0.6.10 and Cutadapt 5.1. Scientific
+FASTQ content and report statistics were unchanged.
+
+### STAR Alignment API
+
+The legacy command and native STAR process were semantically equivalent for:
+
+- `ReadsPerGene.out.tab`;
+- flagstat and idxstats;
+- sorted BAM records;
+- MAPQ distribution;
+- `Log.final.out`;
+- presence of `Log.out` and `Log.progress.out`.
+
+The real test found and fixed an orchestration bug: an unescaped Bash regex end
+anchor in `STAR_ALIGN` shifted subsequent Nextflow interpolations. No STAR
+algorithm or scientific parameter changed.
+
+On the target Slurm cluster, the pre-existing Conda STAR 2.7.11b binary aborted
+with `double free or corruption` after writing the suffix-array index. The same
+failure occurred with its AVX2 and plain binaries and with the working directory
+on shared scratch (jobs 12097-12099). No native alignment job was submitted.
+This is an environment/runtime blocker, not evidence against the locally
+validated Alignment API.
+
+### Salmon Quantification API
+
+The legacy command and native Salmon process passed semantic comparison for:
+
+- `quant.sf` numeric values;
+- `cmd_info.json` and `lib_format_counts.json`;
+- the `aux_info` file set and `meta_info.json`;
+- `ambig_info.tsv` and fragment-length distribution;
+- Salmon log presence and mapping statistics.
+
+The Slurm regression (jobs 12094-12096) repeated every semantic check and
+passed. Both native processes recorded Salmon 1.10.3. The native index and
+quantification ran sequentially with a one-task queue limit.
+
+### Import API
+
+Salmon Import passed with the current production-name image
+`ghcr.io/gmiguelalves/helixforge-import:1.0.0`:
+
+- counts: maximum delta 0;
+- abundance: maximum delta 0;
+- sample table and manifest: equivalent;
+- `tx2gene`: equivalent;
+- length matrix and `SummarizedExperiment`: present and validated.
+
+STAR Import passed with identical counts and CPM values, sample metadata, and
+provider manifest. The legacy side used the already installed host pandas
+2.1.4; no package installation occurred.
+
+The regression fixtures exposed missing LF policies for `.sf` and `.tab`.
+Those extensions are now normalized so manifest checksums remain stable across
+Windows and Linux checkouts.
+
+The Salmon Import regression also passed on Slurm. Two source adapters,
+`TX2GENE_BUILD`, sample-table construction, and `TXIMPORT` ran as five
+sequential tasks. Counts and abundance had maximum delta 0, `tx2gene` had two
+identical rows, and the emitted `SummarizedExperiment` contained the expected
+counts, abundance, and length assays in the expected sample order.
+
+### DESeq2
+
+The original fixture was statistically degenerate and DESeq2 correctly refused
+to fit the dispersion curve. The synthetic matrix was adjusted to include
+realistic replicate variability while preserving three conditions, three
+replicates per condition, and `~ batch + condition`.
+
+The obsolete local image then failed while drawing the volcano plot because its
+ggrepel/ggplot2 combination calls the unavailable `replace_null` function. That
+image contains ggplot2 3.4.4 and is not the declared production environment.
+It is not valid release evidence.
+
+The production Dockerfile creates one solver-consistent Micromamba environment
+from `modules/local/deseq2_model/environment.yml` rather than mutating
+`/usr/local` in a Biocontainers image. Image
+`ghcr.io/gmiguelalves/helixforge-deseq2:1.0.1` adds `procps`, was built and
+published by CI, and passed the native scientific regression and cache suite in
+GitHub Actions run `31526144851`.
+
+The pre-existing cluster `r-analysis` environment allowed the scientific code
+to be tested independently of that image build. The legacy script and native
+DE API produced semantically equivalent aggregate results for one model and
+three contrasts (jobs 12107-12114). R reported 4.3.3, Bioconductor 3.18.1, and
+DESeq2 1.42.1. This validates the model/contrast/aggregation architecture but
+uses a different package patch level from the separately certified OCI image.
+
+The top-level RNA-seq validation subsequently exercised one DESeq2 model and
+one contrast after Salmon/tximport. It found and fixed missing optional
+`Name`/`biotype` handling in sparse GFF3 annotations. The final contrast table
+was produced for 30 genes without changing the Wald test, design, thresholds,
+or count policy.
+
+### Official top-level RNA-seq path
+
+Case `rnaseq-production-03` completed the official production path on Slurm:
+
+`FASTQ -> native QC -> Salmon -> Import/tximport -> DESeq2 -> results`
+
+STAR was explicitly disabled. Four paired-end samples and 30 genes passed.
+Per-sample count correlations ranged from 0.9999999999999998 to
+1.0000000000000002, and total-count ratios ranged from 0.9999999999999997 to
+1.0000000000000002. Salmon mapped more than 98% of processed fragments for
+every sample, the Import API emitted all three matrices plus a
+`SummarizedExperiment`, and DESeq2 emitted the requested contrast table.
+
+The final release fixture, case `rnaseq-final-synthetic-20260813-02`, extended
+that path through the native Gene Report. All 58 processes completed with zero
+failures and peak concurrency of five. It retained the same four samples and
+30 genes, used design `~ batch + condition`, preserved count correlations and
+totals effectively equal to 1.0, and produced a complete report manifest,
+HTML, 12 non-empty scientific PNGs and 24 report files. See
+`docs/validation/rnaseq-final-validation.md`.
+
+### ChIP-seq BAM processing
+
+The real paired-end fixture validated:
+
+| Stage | Before | After | Removed |
+|---|---:|---:|---:|
+| Selection | 12 | 8 | 4 |
+| Duplicate removal | 8 | 6 | 2 |
+| Fragment blacklist | 6 | 4 | 2 reads / 1 template |
+
+Both final BAMs passed `samtools quickcheck`; blacklist-disabled behavior was
+also exercised. BED validation now accepts CRLF without changing coordinates.
+
+### Bowtie2
+
+The configured Docker image remains unsuitable because it contains Bowtie2 but
+not samtools. On Slurm, the existing `chipseq` Conda environment supplied both.
+Its Perl dispatch wrapper was broken because the absolute environment prefix
+contains `@`; Perl interpreted the path while loading `Config_heavy.pl`.
+
+One isolated compatibility directory under the validation root exposed the
+unchanged compiled `bowtie2-align-s` and `bowtie2-build-s` binaries. The same
+compatibility path was used by the reference command and the native API. The
+index and alignment passed on compute nodes: BAM records were semantically
+identical, and flagstat/idxstats were byte-identical. The runtime reports
+Bowtie2 2.5.5, so this is strong orchestration evidence but not certification
+of the pinned 2.5.4 production image.
+
+The run also found a test-workflow integration defect: the STAR-only
+`--outTmpDir` default was forwarded to Bowtie2. Provider-specific
+`bowtie2_extra_args` now defaults independently. No scientific parameter was
+changed.
+
+### MACS3
+
+MACS3 3.0.4 ran on two treatment replicates against one matched input. Each
+replicate produced one valid narrowPeak plus summit and signal artifacts. The
+manifests retained distinct biological replicate identifiers, fixed parameters,
+checksums, metrics, caller version, and matched-control provenance.
+
+The Python slim adapter image lacks `ps`, which Nextflow requires to collect
+task metrics. For this isolated scientific test only, adapters ran on the WSL
+host while MACS3 remained containerized. The production Docker profile needs a
+small adapter image containing `procps` or an equivalent supported solution.
+
+The same two-replicate fixture then passed on Slurm with MACS3 3.0.4. Five
+native tasks validated context, two independent peak calls and their aggregate
+outputs. Peak files were non-empty, used the ten-column narrowPeak format, and
+retained matched-control identity.
+
+### ChIP-seq downstream APIs
+
+The Slurm pass connected real reduced artifacts rather than independent stubs:
+
+- BAM processing ran eight native tasks. Selection reduced 12 reads to 8,
+  duplicate removal detected 2, fragment blacklist filtering removed 2 reads,
+  and final counts were 4 with blacklist and 8 without it.
+- FRiP and peak statistics ran for both MACS3 replicates. Each FRiP was in
+  `(0, 1]`, and the two-record aggregate passed.
+- Consensus union consumed those same peak and FRiP manifests. One group with
+  two biological replicates emitted a non-empty consolidated BED. A staging
+  collision between homonymous `manifest.json` files was fixed with unique
+  staging directories.
+- Differential binding used 30 reduced peaks and four biological samples.
+  featureCounts, the DESeq2 model, both reciprocal contrasts and the aggregate
+  passed. The original two-peak fixture was correctly rejected by DESeq2 as
+  statistically degenerate; the provider algorithm was not weakened. A real
+  `args.models`/`args.model` typo in the aggregate was fixed.
+- Peak annotation completed context, provider, statistics and aggregate. With
+  the configured 2 kb/500 bp promoter window on the 100 bp fixture, all three
+  peaks correctly associated with `gene1` as promoters.
+- Track generation completed four contexts, four providers, four statistics
+  tasks and one aggregate. Three individual and one aggregate BigWig were
+  non-empty and opened with `pyBigWig` with exact `chrTest:2000` metadata.
+- Report context, aggregation and HTML generation passed. The self-contained
+  report contains Differential Binding, Annotation and Tracks sections. Its
+  manifest deliberately reports `incomplete` because IDR is declared
+  `not_implemented`; this is expected fail-honest behavior.
+
+The annotation/track/report pass exposed missing executable bits on packaged
+resource scripts. Directly invoked resource executables now carry Git mode
+`100755`; stages that pipe validators through `tee` also use `pipefail`, so
+permission or provider errors cannot be masked.
+
+### Official top-level ChIP-seq path
+
+Case `chipseq-production-real-06` completed the supported production path on
+the institutional Slurm cluster:
+
+`FASTQ -> FastQC/MultiQC -> Bowtie2 -> BAM processing -> MACS3 -> FRiP/QC -> union consensus -> Differential Binding -> Annotation -> Tracks -> Report`
+
+The execution used five paired-end records: one input and two biological
+replicates for each of the control and treated conditions. It completed 100
+scientific process executions across four supported top-level modes (71 + 4 +
+22 + 3). All commands ran in Slurm allocations; the head node hosted only the
+Nextflow scheduler driver.
+
+Semantic validation passed for ten FastQC archives, one real MultiQC report,
+five indexed BAMs, four non-empty MACS3 peak sets, four FRiP values from
+0.8339 to 0.9146, two union consensus groups, one DESeq2 contrast with 14
+reported regions, 29 annotated peaks, seven BigWigs including two aggregates,
+and a 32,397-byte self-contained report. The ten source FASTQ checksums were
+unchanged.
+
+Summed task realtime from the Nextflow traces was 107.380 seconds for the
+foundation-through-differential-binding stage, 1.073 seconds for annotation,
+33.687 seconds for tracks, and 0.899 seconds for report generation. These are
+small-fixture task totals, not a production throughput benchmark.
+
+The pass found three validation-harness defects and one fixture limitation:
+Python/R environment precedence, the published Differential Binding manifest
+path, use of individual `consensus` manifests where the Report API requires
+the aggregate `consensus_idr` manifest, and an initially degenerate four-region
+DESeq2 fixture. Each was corrected without changing pipeline algorithms or
+scientific parameters. IDR itself was not exercised; union remains the
+validated consensus provider.
+
+## Cache and invalidation
+
+The earlier validation pass observed successful workflows with empty task
+databases and therefore blocked claims about resume and selective invalidation.
+The retained diagnostics later identified the cause: affected harnesses
+invoked the Nextflow JAR directly and bypassed JVM module-opening options
+provided by the official launcher. Chill/Kryo serialization failed inside the
+asynchronous cache writer without failing the workflow.
+
+After replacing direct-JAR invocations with the official Nextflow 25.10.7
+launcher on Java 21, the complete synthetic RNA-seq workflow persisted 59 task
+records. An identical resume recovered all 58 scientific tasks as `CACHED`;
+only the terminal `RUN_MANIFEST` process executed again because its declared
+provenance includes the dynamic run identity. The scientific validator passed
+after resume. A subsequent selective matrix also passed: one FASTQ invalidated
+only its sample branch and descendants; a transcriptome change rebuilt Salmon
+index and dependent outputs while preserving QC; a contrast change preserved
+Import and the DESeq2 model; and a trim-quality change preserved raw FastQC and
+the Salmon index while invalidating affected QC descendants.
+
+The incident is therefore **RESOLVED** and was not caused by NFS, Slurm,
+Debian, task count or the scientific DAG. Direct Nextflow JAR invocation is
+now unsupported. The complete investigation and operational contract are in
+[`resume-cache-diagnostic.md`](resume-cache-diagnostic.md).
+
+## Execution environments
+
+- Docker: real reduced execution is validated for Trim Galore, FastQC,
+  MultiQC, STAR, Salmon, current Salmon Import, Bowtie2/Samtools, interval
+  operations, featureCounts, MACS3, annotation, tracks and report. The four
+  dedicated ChIP images and three immutable upstream runtimes passed run
+  `32368534261`.
+- Slurm: real submission validated. Preflight job 12083 ran on a compute node;
+  RNA-seq plus Bowtie2, BAM processing, MACS3, FRiP, consensus, Differential
+  Binding, annotation, tracks, and report tasks completed under the Nextflow
+  Slurm executor. No scientific command ran directly on the head node and no
+  nested submission was found in native modules.
+- Apptainer/Singularity: not tested because no runtime is installed.
+- Local WSL Conda profile: not tested because no runtime is installed there.
+- Conda on Slurm: existing environments were used without installation.
+  Results are conditional where their package versions differ from declared
+  module environments.
+- MultiQC: real Slurm execution passed with the existing 1.30 runtime. The
+  production 1.17 BioContainer was independently certified with Java 21,
+  Nextflow 25.10.7 and Docker in GitHub Actions run `31726522504`, then pinned
+  by OCI digest `sha256:fb7d6625fb5adaed43ced8bd051a875038714180bcfcd7c8e467204f72882de9`.
+
+## Lint and static validation
+
+At the time of this validation, Nextflow 26.04.6 linted 87 project files
+without errors and reported one warning from the compatibility-only
+`LEGACY_STEP`. That historical module was removed during Integrative legacy
+retirement and is not present in the current source tree.
+
+Python discovery is no longer ambiguous: `tests/run_unit_tests.py` and the
+GitHub Actions run `31520434883` both reported `Discovered 62 tests`, `Ran 62
+tests`, and `OK`. The clean DESeq2 1.0.1 build plus regression/cache workflow
+passed in run `31526144851`. The current branch revision was then revalidated
+successfully by contracts, unit tests, and the published image regression in
+run `31532483855`. After the runtime pin, manual branch run `31537899176`
+confirmed Nextflow 25.10.7 installation, 62 unit tests, contract/lint checks and
+the published DESeq2 image regression.
+
+## Preliminary benchmark
+
+These values measure tiny fixtures and mostly reflect container and Nextflow
+startup. They must not be used as performance claims.
+
+| Component | Legacy ms | Native ms |
+|---|---:|---:|
+| Trim Galore | 4,063 | 16,035 |
+| STAR | 4,978 | 31,249 |
+| Salmon | 4,810 | 20,572 |
+| Salmon Import | 24,414 | 126,983 |
+| STAR Import | 2,448 | 17,356 |
+
+Slurm task elapsed times are scheduler measurements rounded to seconds:
+
+| Component | Legacy ms | Native task ms |
+|---|---:|---:|
+| Trim Galore | 10,013 | 25,904 end-to-end driver |
+| Salmon | 11,000 | 1,000 summed tasks |
+| Salmon Import | 15,000 | 20,000 summed tasks |
+| DESeq2 | 17,000 | 48,000 summed tasks |
+| Bowtie2 | 1,000 | 2,000 summed tasks |
+
+Additional ChIP-seq native task sums on Slurm were: BAM processing 1,000 ms,
+MACS3 4,000 ms, Peak QC 2,000 ms, consensus union 1,000 ms, Differential
+Binding 32,000 ms, annotation 1,000 ms, tracks 14,000 ms, and report 1,000 ms.
+
+The cluster allocates a minimum of two CPUs even when one CPU is requested, so
+these fixtures are correctness evidence rather than efficiency claims.
+
+The successful top-level RNA baseline ran 58 processes with zero failures,
+peak concurrency of five tasks, five requested CPUs, and 10 GB requested
+memory. Nextflow reported 2m22s of summed successful task duration; wall time
+was about six minutes including Slurm polling and report generation.
+
+## Provenance assessment
+
+The real runs emitted versions, command/execution metadata, manifests and
+checksums at the tested API boundaries. The Import checksum validation detected
+both line-ending changes before analysis, demonstrating fail-closed behavior.
+Production ChIP scientific runtimes are now pinned by OCI digest in config and
+schema. Runtime manifests do not yet propagate every resolved digest into each
+scientific execution document.
+
+## Retirement decision
+
+The RNA-seq and ChIP-seq legacy paths completed their retirement gates. The
+annotated tags `rnaseq-legacy-v1.0.0` and `chipseq-legacy-v1.0.0` preserve their
+final executable snapshots. Integrative remains available until its dedicated
+retirement pass. The former task-cache blocker has been resolved by requiring
+the official Nextflow launcher.
+
+The missing Slurm Apptainer runtime is recorded as an external site limitation,
+not a release gate. OCI providers have independent functional certification.
+The reviewed biological RNA-seq and ChIP-seq regressions are post-release
+validation milestones and do not block legacy retirement.
+
+The detailed decisions and deviations are tracked in
+`docs/audit/scientific-deviation-log.md`.
+
+## Next controlled pass
+
+1. Complete the dedicated retirement review for Integrative.
+2. Keep the corrected resume and invalidation matrix in runtime validation.
+3. After release, run the top-level RNA-seq and ChIP-seq workflows on reviewed
+   biological datasets and record comparative benchmarks.
