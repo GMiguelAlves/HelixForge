@@ -12,5 +12,5 @@ invalidation; reuse is controlled only by Nextflow.
 Software is pinned to STAR 2.7.11b, SAMtools/HTSlib 1.21, and gawk 5.1.0. The
 container is the combined image maintained for the nf-core STAR module.
 
-See `docs/alignment_api.md` for the channel contract and `tests/` for the
+See `docs/api/alignment_api.md` for the channel contract and `tests/` for the
 module-local harness.

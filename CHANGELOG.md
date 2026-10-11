@@ -3,7 +3,7 @@
 All notable HelixForge changes are recorded here. The project follows
 [Semantic Versioning](https://semver.org/) for software releases; scientific
 contract/model versions evolve independently as documented in
-`docs/versioning.md`.
+`docs/releases/versioning.md`.
 
 ## [Unreleased]
 

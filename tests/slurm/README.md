@@ -95,7 +95,7 @@ not filesystem or Slurm. With the official Nextflow 25.10.7 launcher and Java
 recovers all scientific tasks from cache. The short selective matrix also
 passes FASTQ, transcriptome, contrast and trim-quality boundaries. The
 corrected evidence and operational policy are maintained in
-`docs/resume-cache-diagnostic.md`.
+`docs/validation/resume-cache-diagnostic.md`.
 
 All harnesses must receive an official launcher through `NEXTFLOW_BIN` or
 `HELIXFORGE_NEXTFLOW_BIN`. A wrapper that delegates to `java -jar` is not a

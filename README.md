@@ -26,7 +26,7 @@ replicates.
 The native single-end Salmon path passed a complete reduced synthetic Slurm
 validation, including technical-run aggregation and `-resume`. Biological
 single-end studies still require their own reviewed validation; see the
-[scope and evidence](docs/rnaseq-single-end.md).
+[scope and evidence](docs/guides/rnaseq-single-end.md).
 
 ## Requirements
 
@@ -37,7 +37,7 @@ single-end studies still require their own reviewed validation; see the
 - Docker for the recommended local container profile, or an appropriate
   site-specific Slurm/container setup.
 
-See [Installation](docs/installation.md) for the tested support matrix.
+See [Installation](docs/guides/installation.md) for the tested support matrix.
 
 ## Quick start
 
@@ -60,7 +60,7 @@ within a few minutes.
 
 For a small real, deterministic Integrative execution using generated fixture
 data, and for individual workflow commands, follow the
-[Quick Start guide](docs/quickstart.md).
+[Quick Start guide](docs/guides/quickstart.md).
 
 ## Run a workflow
 
@@ -91,7 +91,7 @@ nextflow run . -profile local \
 
 These examples show the public entry points; real analyses also require the
 references, samples and explicit scientific parameters described in
-[Workflows](docs/workflows.md). HelixForge never acquires input data inside the
+[Workflows](docs/guides/workflows.md). HelixForge never acquires input data inside the
 scientific DAG.
 
 ## Results and reproducibility
@@ -99,30 +99,30 @@ scientific DAG.
 Terminal manifests are the stable integration boundary. Downstream consumers
 must use their semantic roles rather than infer meaning from paths. Every run
 also produces Nextflow trace, timeline, report and DAG artifacts. See
-[Outputs](docs/outputs.md), [Terminal manifests](docs/terminal_manifests.md),
-and [Versioning](docs/versioning.md).
+[Outputs](docs/guides/outputs.md), [Terminal manifests](docs/api/terminal_manifests.md),
+and [Versioning](docs/releases/versioning.md).
 
 HelixForge distinguishes byte-exact artifacts (for example FASTQ and BAM),
 semantic artifacts (JSON/TSV where paths or serialization may vary), and
 generated presentation artifacts. Scientific policies and validation evidence
-are documented in the [Scientific reference](docs/scientific-reference.md).
+are documented in the [Scientific reference](docs/science/scientific-reference.md).
 
 ## Documentation
 
 Start at the [documentation index](docs/index.md):
 
-- [Installation](docs/installation.md)
-- [Quick Start](docs/quickstart.md)
-- [Workflow guide](docs/workflows.md)
-- [Output guide](docs/outputs.md)
-- [Public API](docs/public-api.md)
-- [Architecture](docs/architecture.md)
+- [Installation](docs/guides/installation.md)
+- [Quick Start](docs/guides/quickstart.md)
+- [Workflow guide](docs/guides/workflows.md)
+- [Output guide](docs/guides/outputs.md)
+- [Public API](docs/api/public-api.md)
+- [Architecture](docs/architecture/architecture.md)
 - [Roadmap](docs/roadmap.md)
-- [Developer guide](docs/developer-guide.md)
-- [HelixForge v1.1.0 release notes](docs/release-notes-v1.1.0.md)
-- [HelixForge v1.0.2 release notes](docs/release-notes-v1.0.2.md)
-- [HelixForge v1.0.1 release notes](docs/release-notes-v1.0.1.md)
-- [HelixForge v1.0.0 release notes](docs/release-notes-v1.0.0.md)
+- [Developer guide](docs/guides/developer-guide.md)
+- [HelixForge v1.1.0 release notes](docs/releases/release-notes-v1.1.0.md)
+- [HelixForge v1.0.2 release notes](docs/releases/release-notes-v1.0.2.md)
+- [HelixForge v1.0.1 release notes](docs/releases/release-notes-v1.0.1.md)
+- [HelixForge v1.0.0 release notes](docs/releases/release-notes-v1.0.0.md)
 
 The same curated user documentation is published in the
 [GitHub Wiki](https://github.com/GMiguelAlves/HelixForge/wiki).
@@ -225,4 +225,4 @@ records all four arms as `PASS_WITH_LIMITATIONS`.
 Citation metadata is provided in `CITATION.cff`. HelixForge is licensed under
 the [Apache License 2.0](LICENSE).
 Third-party tools and container components retain their own licenses; see the
-[licensing and third-party software policy](docs/licensing.md).
+[licensing and third-party software policy](docs/guides/licensing.md).

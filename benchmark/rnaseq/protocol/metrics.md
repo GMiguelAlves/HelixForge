@@ -92,7 +92,7 @@ The synthetic depth series additionally compares every level to ground truth.
 ## Reproducibility
 
 Classify each artifact as byte, numeric or semantic according to
-`docs/outputs.md`. Report changed file count, mismatched IDs/fields and maximum
+`docs/guides/outputs.md`. Report changed file count, mismatched IDs/fields and maximum
 numeric delta. Volatile paths, run/session IDs and timestamps are normalized by
 an explicit allowlist; unknown differences fail comparison.
 
