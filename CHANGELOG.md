@@ -7,11 +7,16 @@ contract/model versions evolve independently as documented in
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-09
+
 ### Added
 
 - Added the native Salmon single-end RNA-seq path across metadata, QC,
   trimming, technical-run merge, quantification, Import, DESeq2, reporting and
   terminal manifests, with an end-to-end release stub smoke.
+- Validated the full reduced synthetic single-end path on Slurm, including
+  technical-run aggregation and identical-run cache reuse. Biological
+  single-end datasets remain a separate validation gate.
 
 ### Changed
 
@@ -32,6 +37,13 @@ contract/model versions evolve independently as documented in
   `-resume` under the certified Nextflow 25.10.7/Java 21 runtime.
 - Prevented absolute staged-file paths and redundant provider labels from
   leaking into RNA-seq Gene Report differential-expression summaries.
+
+## [1.0.2] - 2026-09-17
+
+### Added
+
+- Added RNA-seq Report API re-entry from retained Import and Differential
+  Expression artifacts without requiring FASTQs or the original workdir.
 
 ## [1.0.1] - 2026-09-15
 

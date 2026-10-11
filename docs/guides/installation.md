@@ -2,14 +2,14 @@
 
 ## Supported environment
 
-HelixForge v1.0.0 certifies a deliberately narrow runtime baseline.
+HelixForge v1.1.0 retains the deliberately narrow v1 runtime baseline.
 
 | Component | Status | Notes |
 |---|---|---|
 | Linux x86_64 | Supported | Primary execution platform |
 | WSL2 | Supported for development | Used for local checks; native Windows is unsupported |
 | Java 21 | Supported | Full validated baseline |
-| Nextflow 25.10.7 | Supported | Exact scientifically validated version for v1.0.0 |
+| Nextflow 25.10.7 | Supported | Exact runtime used for v1.1.0 single-end Slurm validation |
 | Newer Nextflow/Java | Experimental | May work, but is not the release baseline |
 | Docker profile | Supported | Recommended local container runtime |
 | Slurm profile | Supported with site configuration | Validated with a maximum of five concurrent submissions |
