@@ -33,7 +33,8 @@ available when they were written.
 ## Architecture and contracts — `architecture/` and `api/`
 
 - [Platform architecture](architecture/architecture.md) ·
-  [ChIP-seq architecture](architecture/chipseq-architecture.md)
+  [ChIP-seq architecture](architecture/chipseq-architecture.md) ·
+  [Conceptual data model](architecture/conceptual-data-model.md)
 - [Public API classification](api/public-api.md) ·
   [Module contracts](api/module_contracts.md) ·
   [Terminal manifests](api/terminal_manifests.md) ·
