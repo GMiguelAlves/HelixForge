@@ -32,6 +32,12 @@ before creating an import source. Import modules never search `QUANT_DIR` or
 The input sample table is ordered by `dataset, sample_id`, contains one row per
 `import_id`, and maps every row to a validated import source. Compatibility
 columns written to `quant_samples.tsv` retain the legacy order and values.
+When several declared technical libraries share one `sample_id`, run-level
+`biosample` and `library_name` values may differ only if every differing row
+has a `technical_unit`. The sample-table output retains all such identifiers
+as sorted, semicolon-separated values. Biological descriptors such as
+condition, stage, sex, and batch must still agree across runs; this rule does
+not authorize pooling independent biological replicates.
 
 ## TX2GENE provider
 
