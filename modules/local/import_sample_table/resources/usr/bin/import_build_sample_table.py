@@ -49,6 +49,9 @@ def main() -> None:
     selected: list[dict[str, str]] = []
     seen: dict[tuple[str, str], dict[str, str]] = {}
     seen_runs: set[str] = set()
+    identifier_fields = ("biosample", "library_name")
+    technical_identifiers: dict[tuple[str, str], dict[str, set[str]]] = {}
+    missing_technical_units: dict[tuple[str, str], bool] = {}
     for line_number, row in enumerate(metadata, start=2):
         key = ((row.get("dataset") or "").strip(), (row.get("sample_id") or "").strip())
         if not key[0] or not key[1]:
@@ -64,7 +67,7 @@ def main() -> None:
             # These fields identify the technical run and are expected to vary
             # when multiple runs are aggregated into one biological sample.
             # They must not be interpreted as conflicting sample metadata.
-            run_specific = {"run_accession", "lane", "technical_unit"}
+            run_specific = {"run_accession", "lane", "technical_unit", *identifier_fields}
             conflicts = [
                 field for field in fields
                 if field not in run_specific
@@ -76,11 +79,20 @@ def main() -> None:
                     f"inconsistent metadata across technical runs for {key[0]}/{key[1]}: "
                     + ", ".join(conflicts)
                 )
+            for field in identifier_fields:
+                value = (row.get(field) or "").strip()
+                if value:
+                    technical_identifiers[key][field].add(value)
+            missing_technical_units[key] |= not (row.get("technical_unit") or "").strip()
             seen_runs.add(run)
             continue
         if args.project and key[0] != args.project:
             continue
         seen[key] = row
+        technical_identifiers[key] = {
+            field: {(row.get(field) or "").strip()} - {""} for field in identifier_fields
+        }
+        missing_technical_units[key] = not (row.get("technical_unit") or "").strip()
         run = (row.get("run_accession") or "").strip()
         if run:
             if run in seen_runs:
@@ -116,6 +128,20 @@ def main() -> None:
 
     if not selected:
         raise ValueError("no provider artifacts available to import")
+    for row in selected:
+        key = (row["dataset"], row["sample_id"])
+        differing_identifiers = [
+            field for field in identifier_fields
+            if len(technical_identifiers[key][field]) > 1
+        ]
+        if differing_identifiers and missing_technical_units[key]:
+            raise ValueError(
+                f"different technical-library identifiers for {key[0]}/{key[1]} "
+                "require technical_unit on every run: " + ", ".join(differing_identifiers)
+            )
+        for field in identifier_fields:
+            if field in fields:
+                row[field] = ";".join(sorted(technical_identifiers[key][field]))
     layouts_by_dataset: dict[str, set[str]] = {}
     for row in selected:
         layouts_by_dataset.setdefault(row["dataset"], set()).add(

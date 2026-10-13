@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import csv
 import json
 import subprocess
 import sys
@@ -83,6 +84,45 @@ with tempfile.TemporaryDirectory(prefix="helixforge-scientific-review-") as temp
                        "--output", "technical_samples.tsv", str(source)], case, True)
     technical_output = (case / "technical_samples.tsv").read_text(encoding="utf-8").splitlines()
     assert len(technical_output) == 2
+
+    distinct_libraries = case / "distinct_libraries.csv"
+    distinct_libraries.write_text(
+        "dataset,sample_id,run_accession,technical_unit,biosample,library_name,condition\n"
+        "D,S1,R1,library_1,BIO2,LIB2,control\n"
+        "D,S1,R2,library_2,BIO1,LIB1,control\n"
+        "D,S1,R3,library_3,BIO3,LIB3,control\n",
+        encoding="utf-8",
+    )
+    run(SAMPLE_TABLE, ["--metadata", str(distinct_libraries), "--provider", "star",
+                       "--output", "pooled_samples.tsv", str(source)], case, True)
+    with (case / "pooled_samples.tsv").open(newline="", encoding="utf-8") as handle:
+        pooled = list(csv.DictReader(handle, delimiter="\t"))
+    assert len(pooled) == 1
+    assert pooled[0]["biosample"] == "BIO1;BIO2;BIO3"
+    assert pooled[0]["library_name"] == "LIB1;LIB2;LIB3"
+
+    ambiguous_libraries = case / "ambiguous_libraries.csv"
+    ambiguous_libraries.write_text(
+        "dataset,sample_id,run_accession,biosample,library_name,condition\n"
+        "D,S1,R1,BIO1,LIB1,control\n"
+        "D,S1,R2,BIO2,LIB2,control\n",
+        encoding="utf-8",
+    )
+    run(SAMPLE_TABLE, ["--metadata", str(ambiguous_libraries), "--provider", "star",
+                       "--output", "ambiguous_samples.tsv", str(source)], case, False,
+        "require technical_unit on every run")
+
+    incomplete_pool = case / "incomplete_pool.csv"
+    incomplete_pool.write_text(
+        "dataset,sample_id,run_accession,technical_unit,biosample,library_name,condition\n"
+        "D,S1,R1,library_1,BIO1,LIB1,control\n"
+        "D,S1,R2,library_2,BIO2,LIB2,control\n"
+        "D,S1,R3,,BIO1,LIB1,control\n",
+        encoding="utf-8",
+    )
+    run(SAMPLE_TABLE, ["--metadata", str(incomplete_pool), "--provider", "star",
+                       "--output", "incomplete_samples.tsv", str(source)], case, False,
+        "require technical_unit on every run")
 
     conflicting_runs = case / "conflicting_runs.csv"
     conflicting_runs.write_text(
