@@ -105,6 +105,9 @@ In `full`, `RUN_MANIFEST` projects those known artifacts, normalized metadata,
 the Reference Bundle and contrast specification into
 `rnaseq_run_manifest.json`.
 
+See the [RNA-seq architecture](rnaseq-architecture.md) for the layout,
+provider, mode and re-entry boundaries without duplicating the API contracts.
+
 ## ChIP-seq workflow
 
 ```mermaid

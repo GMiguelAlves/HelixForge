@@ -121,9 +121,10 @@ flowchart TD
 - `annotation`, `tracks`, and `report` remain standalone manifest-inventory
   re-entry modes. Under `full`, they are composed directly by channels and do
   not discover published result directories.
-- The `full` workflow is an architectural composition. Its scientific status
-  remains limited to reduced controlled Slurm validation until the reviewed
-  biological regression is complete.
+- The `full` coordinator completed a reduced end-to-end Slurm run. Separately,
+  the frozen ChIP-seq benchmark includes synthetic and reviewed biological
+  narrow/broad evaluations and is classified `PASS_WITH_LIMITATIONS`; these
+  results validate the tested scenarios, not every possible dataset.
 
 The Nextflow executor owns all scheduling. Modules contain no Slurm submission,
 partition, account or host-specific path logic. Profiles select local, Slurm,
@@ -131,6 +132,8 @@ Docker, Conda, Singularity or Apptainer execution.
 
 Top-level validation evidence is recorded in
 [chipseq-full-native-validation.md](../validation/chipseq-full-native-validation.md).
+The broader scientific baseline is documented in the
+[ChIP-seq benchmark report](../../benchmark/chipseq/reports/chipseq_benchmark_final_report.md).
 
 ## Component composition
 
