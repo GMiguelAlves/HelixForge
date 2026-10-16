@@ -94,6 +94,11 @@ references, samples and explicit scientific parameters described in
 [Workflows](docs/guides/workflows.md). HelixForge never acquires input data inside the
 scientific DAG.
 
+Existing indexes can be reused without reconstruction through the explicit
+Bowtie2 ChIP-seq or Salmon RNA-seq prebuilt-index options. A matching provenance
+manifest is required; see [Bowtie2 reuse](docs/api/alignment_api.md#reusing-a-bowtie2-index)
+and [Salmon reuse](docs/api/quantification_api.md#reusing-a-prebuilt-salmon-index).
+
 ## Results and reproducibility
 
 Terminal manifests are the stable integration boundary. Downstream consumers

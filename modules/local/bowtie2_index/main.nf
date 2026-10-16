@@ -19,8 +19,8 @@ process BOWTIE2_INDEX {
         pattern: '*.{json,yml,done,bowtie2_index_reports}'
     publishDir { meta.target_dir ?: "${params.outdir}/alignment_index/${meta.id}" },
         mode: 'copy', overwrite: true,
-        pattern: 'bowtie2_index/*',
-        saveAs: { filename -> filename.replaceFirst('^bowtie2_index/', '') }
+        pattern: 'bowtie2_index',
+        saveAs: { _filename -> meta.target_dir ?: "${params.outdir}/alignment_index/${meta.id}" }
 
     input:
     tuple val(meta), path(reference), path(annotation), val(index_params)
@@ -36,7 +36,11 @@ process BOWTIE2_INDEX {
     script:
     def extra_args = index_params.extra_args ?: ''
     def basename = index_params.basename ?: 'genome'
+    def request = groovy.json.JsonOutput.toJson([meta: meta, parameters: index_params]).getBytes('UTF-8').encodeBase64().toString()
+    def helper_hash = java.security.MessageDigest.getInstance('SHA-256').digest(file("${moduleDir}/index_bundle.py").bytes).encodeHex().toString()
+    def helper_source = file("${moduleDir}/index_bundle.py").text
     """
+    # index_bundle.py SHA256: ${helper_hash}
     set -o pipefail
     start_epoch=\$(date +%s)
     mkdir -p bowtie2_index '${meta.id}.bowtie2_index_reports'
@@ -71,8 +75,11 @@ process BOWTIE2_INDEX {
         '${meta.id}' '${task.process}' '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         "\$reference_sha" "\$index_sha" "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" \
         > '${meta.id}.execution.json'
-    printf '{"schema_version":"1.1","type":"alignment_index","id":"%s","status":"complete","aligner":"bowtie2","basename":"%s","artifact":"bowtie2_index","sha256":"%s","reference_sha256":"%s"}\n' \
-        '${meta.id}' '${basename}' "\$index_sha" "\$reference_sha" > '${meta.id}.manifest.json'
+    python3 - build-manifest \
+        --index bowtie2_index --reference '${reference}' --request-base64 '${request}' \
+        --legacy-sha256 "\$index_sha" --output '${meta.id}.manifest.json' <<'HELIXFORGE_INDEX_PY'
+${helper_source}
+HELIXFORGE_INDEX_PY
     printf '{"id":"%s","process":"%s","status":"complete"}\n' '${meta.id}' '${task.process}' \
         > '${meta.id}.bowtie2_index.done'
     """

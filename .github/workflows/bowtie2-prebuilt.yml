@@ -1,0 +1,57 @@
+name: Reusable Bowtie2 index
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'modules/local/bowtie2*/**'
+      - 'containers/chipseq-alignment/**'
+      - 'subworkflows/local/alignment/reference_index.nf'
+      - 'subworkflows/local/chipseq/native_foundation.nf'
+      - 'tests/native_bowtie2_prebuilt/**'
+      - 'tests/native_alignment/**'
+      - '.github/workflows/bowtie2-prebuilt.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'modules/local/bowtie2*/**'
+      - 'containers/chipseq-alignment/**'
+      - 'subworkflows/local/alignment/reference_index.nf'
+      - 'subworkflows/local/chipseq/native_foundation.nf'
+      - 'tests/native_bowtie2_prebuilt/**'
+      - 'tests/native_alignment/**'
+      - '.github/workflows/bowtie2-prebuilt.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  reuse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install certified Nextflow launcher
+        run: curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
+      - name: Check Bowtie2 and Salmon index contracts
+        run: python3 -m unittest tests.native_bowtie2_prebuilt.test_index_bundle tests.native_quantification.test_salmon_prebuilt_index -v
+      - name: Build alignment runtime with Nextflow metrics support
+        run: docker build -t helixforge-bowtie2-reuse-test -f containers/chipseq-alignment/Dockerfile .
+      - name: Real build, independent reuse, resume and rejected bundles
+        env:
+          NEXTFLOW_BIN: ${{ github.workspace }}/nextflow
+        run: python3 tests/native_bowtie2_prebuilt/run_functional.py --docker --image helixforge-bowtie2-reuse-test --output "$RUNNER_TEMP/bowtie2-reuse"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bowtie2-reuse-validation
+          path: |
+            ${{ runner.temp }}/bowtie2-reuse/**/validation.json
+            ${{ runner.temp }}/bowtie2-reuse/**/trace.tsv
+            ${{ runner.temp }}/bowtie2-reuse/**/console.log
+            ${{ runner.temp }}/bowtie2-reuse/**/.command.err
+          if-no-files-found: warn

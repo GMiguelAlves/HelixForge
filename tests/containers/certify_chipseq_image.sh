@@ -29,6 +29,8 @@ ACGTTGCATGTCAGTACGATCGATGCTAGC
 IIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 EOF
         docker run --rm -v "$case_root:/case" "$image" bash -euo pipefail -c '
+            command -v ps
+            ps -o pid= -p $$ > /case/metrics-ps.txt
             bowtie2-build --threads 1 /case/reference.fa /case/genome > /case/bowtie2-build.log 2>&1
             bowtie2 -x /case/genome -U /case/reads.fastq -p 1 2> /case/bowtie2.log \
                 | samtools sort -@ 1 -o /case/aligned.bam -

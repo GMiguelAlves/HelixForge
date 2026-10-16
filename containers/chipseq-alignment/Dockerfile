@@ -1,5 +1,11 @@
 FROM mambaorg/micromamba:2.8.1-debian13-slim
 
+USER root
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends procps \
+    && rm -rf /var/lib/apt/lists/*
+USER $MAMBA_USER
+
 COPY --chown=$MAMBA_USER:$MAMBA_USER \
     modules/local/bowtie2_align/environment.yml /tmp/environment.yml
 RUN micromamba install --yes --name base --file /tmp/environment.yml \

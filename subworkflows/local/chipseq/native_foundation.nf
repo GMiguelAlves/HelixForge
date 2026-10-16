@@ -25,6 +25,11 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
 
     main:
     mode = params.chipseq_run_mode.toString().toLowerCase()
+    has_prebuilt_index = params.chipseq_bowtie2_prebuilt_index != null && params.chipseq_bowtie2_prebuilt_index.toString().trim()
+    has_prebuilt_manifest = params.chipseq_bowtie2_prebuilt_index_manifest != null && params.chipseq_bowtie2_prebuilt_index_manifest.toString().trim()
+    if (has_prebuilt_index != has_prebuilt_manifest) {
+        error '--chipseq_bowtie2_prebuilt_index and --chipseq_bowtie2_prebuilt_index_manifest must be supplied together'
+    }
     context_meta = channel.value([id: 'chipseq.context'])
     CHIPSEQ_CONTEXT(config_file, pipeline_root, context_meta)
     CHIPSEQ_METADATA(CHIPSEQ_CONTEXT.out.artifacts)
@@ -243,14 +248,18 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                     index_key : "${row.genome_id}|${prefix.parent}|${prefix.name}",
                     target_dir: prefix.parent
                 ]
+                def index_params = [basename: prefix.name, extra_args: row.bowtie2_build_opts]
+                if (has_prebuilt_index) {
+                    index_params = index_params + [
+                        prebuilt_index: file(params.chipseq_bowtie2_prebuilt_index, checkIfExists: true),
+                        prebuilt_manifest: file(params.chipseq_bowtie2_prebuilt_index_manifest, checkIfExists: true)
+                    ]
+                }
                 tuple(
                     reference_meta,
                     file(row.genome_fasta, checkIfExists: true),
                     [],
-                    [
-                        basename  : prefix.name,
-                        extra_args: row.bowtie2_build_opts
-                    ]
+                    index_params
                 )
             }
             .unique { index_meta, _reference, _annotation, index_params ->

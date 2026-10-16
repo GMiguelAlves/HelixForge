@@ -41,6 +41,57 @@ therefore invalidates the index and only the alignments consuming it.
 
 ## Alignment provider
 
+### Reusing a Bowtie2 index
+
+ChIP-seq accepts a verified index independently of its original Nextflow workdir:
+
+```bash
+nextflow run . --workflow chipseq --chipseq_run_mode alignment \
+  --chipseq_bowtie2_prebuilt_index /path/to/bowtie2_index \
+  --chipseq_bowtie2_prebuilt_index_manifest /path/to/reference.manifest.json
+```
+
+Both options are required together. Keep the configured index-prefix basename
+and build arguments identical to those in the supplied manifest. The generic
+`REFERENCE_INDEX` envelope also accepts `prebuilt_index` and `prebuilt_manifest`
+in its Bowtie2 `index_params` map; these become declared staged `path` inputs
+to `BOWTIE2_INDEX_VALIDATE`, not untracked files used by a value-only task.
+
+The enhanced `BOWTIE2_INDEX` publishes schema 1.2 manifests under
+`pipeline_info/native_alignment/bowtie2_index/`. Preserve that manifest beside
+the six published index shards. It records the FASTA SHA-256, optional genome
+ID, basename, Bowtie2 version, tokenized build arguments and all six file hashes.
+`bundle_sha256` is independent of the bundle directory name. The legacy `sha256`
+field is retained on build manifests; use the portable bundle digest for reuse.
+
+Reuse requires exact Bowtie2 build/runtime version equality, matching reference
+identity and parameters, and exactly one complete six-shard `.bt2` or `.bt2l`
+set. This conservative compatibility policy does not assert that other versions
+are inherently incompatible. Missing, mixed, corrupt, old schema 1.1 or stub
+bundles fail validation; they never trigger an automatic build. Historical
+manifests lack the necessary provenance and must not be silently upgraded.
+
+A valid supplied bundle schedules validation but no `BOWTIE2_INDEX` task, even
+in a fresh execution without `-resume`. Validation may reread and hash the index;
+that is not index reconstruction. The task-local alias does not modify or
+republish the external index. Validation reports record source-manifest checksum,
+compatibility policy, runtime version, requested resources and elapsed time.
+
+Without these options, existing build/cache behavior remains. Existing files at
+an output prefix alone are never treated as proof of compatibility. Updating
+the new Python bundle helper participates in both tasks' cache keys.
+
+Bowtie2 specifies six `.bt2` files, or `.bt2l` for a large index; see the
+[official manual](https://bowtie-bio.sourceforge.net/bowtie2/manual.shtml#the-bowtie2-build-indexer).
+
+The production RNA-seq Salmon path already has the analogous explicit
+`salmon_prebuilt_index`/`salmon_prebuilt_index_manifest` branch; supplying a valid
+bundle routes to `SALMON_INDEX_VALIDATE`, not `SALMON_INDEX`. See the
+[Quantification API](quantification_api.md#reusing-a-prebuilt-salmon-index).
+
+This feature does not reuse BAMs across independent run sets and does not alter
+trimming, alignment arguments, peak calling, DB or downstream scientific policy.
+
 Input envelope:
 
 ```nextflow
