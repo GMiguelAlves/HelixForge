@@ -75,6 +75,14 @@ failure. The PR tests the rebuilt candidate; the old published digest is not
 claimed to have changed, and publication/pinning of the rebuilt image belongs
 to the release process.
 
+Once metrics support was restored, the OCI negative-reference case also exposed
+an undeclared host-script mount dependency: when all data inputs were external
+to the checkout, the Python helper was no longer visible inside the container.
+Both index tasks now embed the single helper source in their generated commands.
+It therefore participates in the task hash and needs no incidental checkout
+mount. The negative tests still require the precise validation error and no
+alignment execution; unrelated container failures cannot count as a pass.
+
 Private logs, fixtures and outputs were archived with a Portuguese README in
 user-controlled home storage, ZIP integrity and SHA-256 were checked, and only
 the new validation scratch directory was removed. No private paths or raw logs

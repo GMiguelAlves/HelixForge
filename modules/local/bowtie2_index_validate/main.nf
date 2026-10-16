@@ -28,15 +28,18 @@ process BOWTIE2_INDEX_VALIDATE {
     def request = groovy.json.JsonOutput.toJson([meta: meta, parameters: clean_params,
         resources: [cpus: task.cpus, memory_bytes: task.memory.toBytes(), time: task.time.toString()]]).getBytes('UTF-8').encodeBase64().toString()
     def helper_hash = java.security.MessageDigest.getInstance('SHA-256').digest(file("${moduleDir}/../bowtie2_index/index_bundle.py").bytes).encodeHex().toString()
+    def helper_source = file("${moduleDir}/../bowtie2_index/index_bundle.py").text
     """
     # index_bundle.py SHA256: ${helper_hash}
     set -o pipefail
     mkdir -p '${meta.id}.bowtie2_index_reports'
-    python3 '${moduleDir}/../bowtie2_index/index_bundle.py' validate \
+    python3 - validate \
         --index '${supplied_index}' --reference '${reference}' \
         --source-manifest '${source_manifest}' --request-base64 '${request}' \
         --output '${meta.id}.manifest.json' --execution-output '${meta.id}.execution.json' \
-        2>&1 | tee '${meta.id}.bowtie2_index_reports/validation.log'
+        2>&1 <<'HELIXFORGE_INDEX_PY' | tee '${meta.id}.bowtie2_index_reports/validation.log'
+${helper_source}
+HELIXFORGE_INDEX_PY
     ln -s "\$(readlink -f '${supplied_index}')" bowtie2_index
     printf '"%s":\\n    bowtie2: "%s"\\n' '${task.process}' \
         "\$(bowtie2 --version | sed -n '1s/.*version //p')" > '${meta.id}.versions.yml'
