@@ -8,11 +8,13 @@ import shutil
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
+IMAGE = 'ghcr.io/gmiguelalves/helixforge-chipseq-alignment:1.0.0@sha256:9c4e4169e498f72e9c9f123f2f5eb05a18bc2fabd5a3446beeac10df1514928e'
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True, type=Path)
+    parser.add_argument('--docker', action='store_true', help='Use the pinned joint Bowtie2/samtools image')
     args = parser.parse_args()
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=False)
@@ -36,6 +38,8 @@ def main():
                    '--trace_file', str(case / 'trace.tsv')]
         if reuse:
             command += ['--prebuilt_index', str(index), '--prebuilt_manifest', str(manifest)]
+        if args.docker:
+            command += ['-profile', 'docker', '--bowtie2_container', IMAGE]
         command += list(extra)
         completed = subprocess.run(command, cwd=case, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         (case / 'console.log').write_text(completed.stdout)
@@ -60,6 +64,8 @@ def main():
     manifest = out / 'build/results/pipeline_info/native_alignment/bowtie2_index/synthetic.bowtie2.index.manifest.json'
     source = json.loads(manifest.read_text())
     baseline_shards = dict(source['files'])
+    if source.get('status') != 'complete' or len(baseline_shards) != 6:
+        raise AssertionError('build did not publish a complete real index manifest')
     reused = run('reuse', reuse=True)
     if any('BOWTIE2_INDEX (' in r['name'] for r in reused):
         raise AssertionError('reusing the index unexpectedly built it')
@@ -69,12 +75,26 @@ def main():
     records = []
     for name in ('build', 'reuse'):
         path = out / name / 'target/bowtie2_output' / bam
-        records.append(sorted(subprocess.check_output(['samtools', 'view', str(path)], text=True).splitlines()))
+        samtools = ['samtools']
+        if args.docker:
+            samtools = ['docker', 'run', '--rm', '-v', f'{out}:{out}', IMAGE, 'samtools']
+        records.append(sorted(subprocess.check_output(samtools + ['view', str(path)], text=True).splitlines()))
     if not records[0] or records[0] != records[1]:
         raise AssertionError('real BAM records are empty or differ')
     resumed = run('reuse', ['-resume'], reuse=True)
     if not resumed or any(r['status'] != 'CACHED' for r in resumed):
         raise AssertionError('identical resume did not cache every eligible task')
+    changed_read = out / 'changed_R1.fastq'
+    lines = (fixture / 'reads_R1.fastq').read_text().splitlines()
+    lines[1] = ('T' if lines[1][0] != 'T' else 'A') + lines[1][1:]
+    changed_read.write_text('\n'.join(lines) + '\n')
+    changed = run('reuse', ['-resume', '--read1', str(changed_read)], reuse=True)
+    if not any('BOWTIE2_INDEX_VALIDATE' in r['name'] and r['status'] == 'CACHED' for r in changed):
+        raise AssertionError('FASTQ change invalidated index validation')
+    if not any('BOWTIE2_ALIGN' in r['name'] and r['status'] == 'COMPLETED' for r in changed):
+        raise AssertionError('FASTQ change did not rerun alignment')
+    if any('BOWTIE2_INDEX (' in r['name'] for r in changed):
+        raise AssertionError('FASTQ change rebuilt the index')
     # Independent runs below must fail validation before scheduling alignment.
     run('bad_parameters', ['--index_extra_args', '--offrate 5'], reuse=True, failure='parameters differ')
     altered = out / 'wrong_version.json'
@@ -94,7 +114,8 @@ def main():
     spec.loader.exec_module(bundle)
     if bundle.shards(index, 'genome') != baseline_shards:
         raise AssertionError('original supplied index was modified')
-    (out / 'validation.json').write_text(json.dumps({'status': 'PASS', 'bam_records_equal': True,
+    (out / 'validation.json').write_text(json.dumps({'status': 'PASS', 'bowtie2_version': source['bowtie2_version'],
+        'runtime': 'pinned_oci' if args.docker else 'tools_on_PATH', 'bam_records_equal': True,
         'source_unchanged': True, 'cases': results}, indent=2) + '\n')
     print(json.dumps({'status': 'PASS', 'cases': len(results)}))
 

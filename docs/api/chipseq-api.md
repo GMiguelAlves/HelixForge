@@ -52,6 +52,11 @@ counts and genome builds are never hard-coded. Bowtie2 indexing consumes only
 FASTA; annotation and blacklist remain independently tracked inputs for stages
 that require them.
 
+Explicit prebuilt Bowtie2 reuse is available through paired
+`chipseq_bowtie2_prebuilt_index` and `chipseq_bowtie2_prebuilt_index_manifest`
+options. Validation never schedules a rebuild on a supplied invalid bundle;
+see [Reference/Alignment API](alignment_api.md#reusing-a-bowtie2-index).
+
 ## QC API
 
 Raw QC receives `tuple(meta, FASTQ)` and uses the existing generic `FASTQC`

@@ -13,8 +13,11 @@ flowchart TD
     FQ --> MQ["MULTIQC (reused)"]
     CTX --> REF["Reference API"]
     REF --> BI["BOWTIE2_INDEX"]
+    EXT["Explicit prebuilt index + provenance"] --> BV["BOWTIE2_INDEX_VALIDATE"]
+    REF --> BV
     PLAN --> BA["BOWTIE2_ALIGN"]
     BI --> BA
+    BV --> BA
     BA --> BAM["Sorted BAM + BAI + statistics + manifest"]
 
     BAM --> SEL["BAM_SELECT"]
@@ -84,6 +87,10 @@ flowchart TD
 - Existing `FASTQC` and `MULTIQC` modules are reused unchanged.
 - Generic `REFERENCE_INDEX` and `ALIGNMENT` dispatch by `meta.aligner`; Bowtie2
   joins STAR as a provider without creating a ChIP-specific alignment API.
+- Bowtie2 reference dispatch selects construction or explicit prebuilt-index
+  validation, never both for the same request. Validation checks reference,
+  parameters, exact runtime version and all six shards before alignment. It
+  does not reconstruct an index, including in independent runs without cache.
 - `CHIPSEQ_BAM_PROCESSING` owns independent selection, duplicate, blacklist and
   final integrity/index boundaries. Policies are values/files, never aligner
   side effects.

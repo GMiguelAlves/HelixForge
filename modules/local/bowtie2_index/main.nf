@@ -19,8 +19,8 @@ process BOWTIE2_INDEX {
         pattern: '*.{json,yml,done,bowtie2_index_reports}'
     publishDir { meta.target_dir ?: "${params.outdir}/alignment_index/${meta.id}" },
         mode: 'copy', overwrite: true,
-        pattern: 'bowtie2_index/*',
-        saveAs: { filename -> filename.replaceFirst('^bowtie2_index/', '') }
+        pattern: 'bowtie2_index',
+        saveAs: { _filename -> meta.target_dir ?: "${params.outdir}/alignment_index/${meta.id}" }
 
     input:
     tuple val(meta), path(reference), path(annotation), val(index_params)
