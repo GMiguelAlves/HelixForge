@@ -15,6 +15,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--docker', action='store_true', help='Use the pinned joint Bowtie2/samtools image')
+    parser.add_argument('--image', default=IMAGE, help='Explicit container candidate, when validating a rebuilt runtime')
     args = parser.parse_args()
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=False)
@@ -39,7 +40,7 @@ def main():
         if reuse:
             command += ['--prebuilt_index', str(index), '--prebuilt_manifest', str(manifest)]
         if args.docker:
-            command += ['-profile', 'docker', '--bowtie2_container', IMAGE]
+            command += ['-profile', 'docker', '--bowtie2_container', args.image]
         command += list(extra)
         completed = subprocess.run(command, cwd=case, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         (case / 'console.log').write_text(completed.stdout)
@@ -77,7 +78,7 @@ def main():
         path = out / name / 'target/bowtie2_output' / bam
         samtools = ['samtools']
         if args.docker:
-            samtools = ['docker', 'run', '--rm', '-v', f'{out}:{out}', IMAGE, 'samtools']
+            samtools = ['docker', 'run', '--rm', '-v', f'{out}:{out}', args.image, 'samtools']
         records.append(sorted(subprocess.check_output(samtools + ['view', str(path)], text=True).splitlines()))
     if not records[0] or records[0] != records[1]:
         raise AssertionError('real BAM records are empty or differ')
@@ -115,7 +116,8 @@ def main():
     if bundle.shards(index, 'genome') != baseline_shards:
         raise AssertionError('original supplied index was modified')
     (out / 'validation.json').write_text(json.dumps({'status': 'PASS', 'bowtie2_version': source['bowtie2_version'],
-        'runtime': 'pinned_oci' if args.docker else 'tools_on_PATH', 'bam_records_equal': True,
+        'runtime': 'oci' if args.docker else 'tools_on_PATH', 'container': args.image if args.docker else None,
+        'bam_records_equal': True,
         'source_unchanged': True, 'cases': results}, indent=2) + '\n')
     print(json.dumps({'status': 'PASS', 'cases': len(results)}))
 

@@ -84,7 +84,8 @@ available when they were written.
   [final synthetic run](validation/rnaseq-final-validation.md) ·
   [single-end Slurm run](validation/rnaseq-single-end-slurm-validation.md)
 - ChIP-seq: [container certification](validation/chipseq-container-certification.md) ·
-  [full native run](validation/chipseq-full-native-validation.md)
+  [full native run](validation/chipseq-full-native-validation.md) ·
+  [prebuilt Bowtie2 index](validation/bowtie2-prebuilt-index.md)
 - [Architecture consolidation audit](audit/architecture-consolidation-audit.md) ·
   [release-candidate audit](audit/v1-rc-audit.md) ·
   [scientific deviation log](audit/scientific-deviation-log.md)

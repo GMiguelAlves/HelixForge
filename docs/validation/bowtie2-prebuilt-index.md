@@ -63,7 +63,17 @@ was retained, followed by a passing local publication stub and final real run.
 
 The cluster run used Bowtie2 2.5.5, so it does not certify the pinned 2.5.4 OCI
 image. The dedicated `Reusable Bowtie2 index` CI workflow runs the same real-tool
-suite using the pinned joint 2.5.4/samtools image. That CI evidence is separate.
+suite using a candidate built from the joint alignment Dockerfile, which fixes
+Bowtie2 2.5.4 and samtools 1.20. That CI evidence is separate.
+
+The first PR CI exposed two additional integration defects: this document was
+missing from the documentation index, and the existing published alignment
+digest lacked `ps`, required by Nextflow metrics. The index link was added and
+the alignment Dockerfile now installs `procps`. Container certification also
+checks `ps` explicitly. Metrics/trace assertions are not disabled to bypass the
+failure. The PR tests the rebuilt candidate; the old published digest is not
+claimed to have changed, and publication/pinning of the rebuilt image belongs
+to the release process.
 
 Private logs, fixtures and outputs were archived with a Portuguese README in
 user-controlled home storage, ZIP integrity and SHA-256 were checked, and only
