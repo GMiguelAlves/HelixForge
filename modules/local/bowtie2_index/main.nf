@@ -36,7 +36,10 @@ process BOWTIE2_INDEX {
     script:
     def extra_args = index_params.extra_args ?: ''
     def basename = index_params.basename ?: 'genome'
+    def request = groovy.json.JsonOutput.toJson([meta: meta, parameters: index_params]).getBytes('UTF-8').encodeBase64().toString()
+    def helper_hash = java.security.MessageDigest.getInstance('SHA-256').digest(file("${moduleDir}/index_bundle.py").bytes).encodeHex().toString()
     """
+    # index_bundle.py SHA256: ${helper_hash}
     set -o pipefail
     start_epoch=\$(date +%s)
     mkdir -p bowtie2_index '${meta.id}.bowtie2_index_reports'
@@ -71,8 +74,9 @@ process BOWTIE2_INDEX {
         '${meta.id}' '${task.process}' '${task.cpus}' '${task.memory.toBytes()}' '${task.time}' \
         "\$reference_sha" "\$index_sha" "\$start_epoch" "\$end_epoch" "\$((end_epoch-start_epoch))" \
         > '${meta.id}.execution.json'
-    printf '{"schema_version":"1.1","type":"alignment_index","id":"%s","status":"complete","aligner":"bowtie2","basename":"%s","artifact":"bowtie2_index","sha256":"%s","reference_sha256":"%s"}\n' \
-        '${meta.id}' '${basename}' "\$index_sha" "\$reference_sha" > '${meta.id}.manifest.json'
+    python3 '${moduleDir}/index_bundle.py' build-manifest \
+        --index bowtie2_index --reference '${reference}' --request-base64 '${request}' \
+        --legacy-sha256 "\$index_sha" --output '${meta.id}.manifest.json'
     printf '{"id":"%s","process":"%s","status":"complete"}\n' '${meta.id}' '${task.process}' \
         > '${meta.id}.bowtie2_index.done'
     """

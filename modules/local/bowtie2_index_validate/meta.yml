@@ -1,0 +1,16 @@
+name: BOWTIE2_INDEX_VALIDATE
+description: Validate and reuse a portable prebuilt Bowtie2 index without rebuilding it.
+keywords: [alignment, bowtie2, index, provenance]
+input:
+  - meta: Reference identity and index routing key.
+  - reference: Reference FASTA.
+  - supplied_index: Directory containing six bt2 or bt2l shards.
+  - source_manifest: Complete alignment_index schema 1.2 manifest.
+  - index_params: Expected basename and build arguments.
+output:
+  - artifacts: Read-only index directory alias.
+  - reports: Validation log.
+  - versions: Bowtie2 version YAML.
+  - execution_metadata: Validation timing, resources and provenance JSON.
+  - manifest: Validated reuse manifest with source checksum.
+  - status: Completion JSON, or explicitly stub in stub mode.

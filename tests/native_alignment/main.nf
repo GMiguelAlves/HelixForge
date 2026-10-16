@@ -28,7 +28,9 @@ workflow {
             aligner == 'star' ? [
                 genome_sa_index_nbases   : params.genome_sa_index_nbases,
                 limit_genome_generate_ram: params.limit_genome_generate_ram
-            ] : [basename: 'genome', extra_args: params.index_extra_args ?: '']
+            ] : ([basename: 'genome', extra_args: params.index_extra_args ?: ''] +
+                (params.prebuilt_index != null || params.prebuilt_manifest != null ?
+                    [prebuilt_index: params.prebuilt_index, prebuilt_manifest: params.prebuilt_manifest] : [:]))
         )
     )
     REFERENCE_INDEX(index_inputs)

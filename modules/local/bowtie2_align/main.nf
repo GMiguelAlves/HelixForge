@@ -75,7 +75,7 @@ process BOWTIE2_ALIGN {
     } > "\$stats_dir/mapq_distribution.tsv"
 
     reference_sha=\$(sha256sum '${reference}' | awk '{print \$1}')
-    index_sha=\$(find '${alignment_index}' -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print \$1}')
+    index_sha=\$(find -L '${alignment_index}' -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print \$1}')
     reads_sha=\$(sha256sum '${read_r1}' ${meta.single_end ? '' : "'${read_r2}'"} | awk '{print \$1}' | paste -sd, -)
     bam_sha=\$(sha256sum "\$bam" | awk '{print \$1}')
     bai_sha=\$(sha256sum "\$bai" | awk '{print \$1}')
