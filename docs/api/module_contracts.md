@@ -128,6 +128,29 @@ The `meta` map must be emitted unchanged with every tuple output. Modules that
 transform reads still use `artifacts`; the caller assigns the biological role
 through `meta` rather than relying on tool-specific channel names.
 
+### Shared read trimming
+
+`READ_TRIMMING` accepts `tuple(meta, ordered_reads, policy)`, with boolean
+`meta.single_end`, one SE or two ordered PE paths, and explicit `quality` and
+`minimum_length`. Optional `adapter`/`adapter2` contain IUPAC sequences.
+It emits the common artifact/report/version/status envelope plus a
+`read_trimming` manifest. The adapter adds only `read_processing: trimmed` to
+the original identity; internal tool metadata do not replace biological IDs.
+
+`READ_TRIMMING_AUDIT` accepts the same tuple with optional prior-manifest and
+tool-version path lists (zero or one each). Raw validation and post-trim
+validation are separate deep-cache boundaries. Complete FASTQ parsing checks
+compression, four-line record structure, mate synchronization and cardinality.
+Checksums, read/base counts and explicit policy are recorded without modifying
+inputs. An empty library fails rather than silently dropping a sample. Stubs
+report `status: stub` and never assert that real validation occurred.
+
+The shared Trim Galore modules retain RNA compatibility publication by default.
+The generic adapter explicitly disables that path (`trim_legacy_publish=false`)
+and enables Nextflow-managed publication (`trim_native_publish=true`). These
+flags control output handling, not scientific defaults. See the
+[ChIP-seq trimming contract](../implementation/native-chipseq-trimming.md).
+
 ### Versions format
 
 ```yaml

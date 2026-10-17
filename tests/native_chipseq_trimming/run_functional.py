@@ -103,7 +103,7 @@ def main():
             document = json.loads(path.read_text())
             expected = by_id[document['record_id']]['meta']
             for key in expected:
-                if key in document and document[key] != expected[key]:
+                if key != 'id' and document.get(key) != expected[key]:
                     raise AssertionError(f'metadata changed: {key}')
             if document['reads'][0]['records'] != 3 or document['reads'][0]['bases'] != 180:
                 raise AssertionError('fixture trimming did not remove the known adapter')

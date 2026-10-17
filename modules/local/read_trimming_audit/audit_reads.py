@@ -105,7 +105,7 @@ def audit(meta, reads, parameters, prior=None, versions=None):
     if prior:
         if prior.get('record_id') != meta['id'] or prior.get('policy') != selected_policy or prior.get('status') != 'complete':
             raise ValueError('raw preflight identity or policy differs from trimmed input')
-        for key in ('dataset', 'genome_id', 'sample_id', 'control_id', 'is_control', 'target',
+        for key in ('dataset', 'genome_id', 'organism', 'sample_id', 'control_id', 'is_control', 'target',
                     'single_end', 'biological_replicate', 'technical_replicate', 'condition'):
             if prior.get(key) != result.get(key):
                 raise ValueError(f'trimming metadata changed: {key}')

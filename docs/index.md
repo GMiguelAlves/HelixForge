@@ -64,7 +64,8 @@ available when they were written.
   [Import](implementation/native-rnaseq-import.md) ·
   [Differential Expression](implementation/native-rnaseq-de.md) ·
   [Report](implementation/native-rnaseq-report.md)
-- ChIP-seq: [BAM processing](implementation/native-chipseq-bam-processing.md) ·
+- ChIP-seq: [Optional read trimming](implementation/native-chipseq-trimming.md) ·
+  [BAM processing](implementation/native-chipseq-bam-processing.md) ·
   [Peak Calling](implementation/native-chipseq-peak-calling.md) ·
   [Peak QC](implementation/native-chipseq-peak-qc.md) ·
   [Consensus/IDR](implementation/native-chipseq-consensus-idr.md) ·
