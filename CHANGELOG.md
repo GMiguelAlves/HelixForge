@@ -27,6 +27,8 @@ contract/model versions evolve independently as documented in
   JSON serialization and include helper source in task hashing/container scope.
 - Pin the certified joint Bowtie2/SAMtools image with `procps` for task metrics.
 - Preserve optional-component `not_requested` states and report-only isolation.
+- Validate documentation links when the checkout is below a `work` ancestor;
+  reject empty checks instead of reporting success without inspecting links.
 
 ### Documentation and validation
 

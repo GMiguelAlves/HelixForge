@@ -61,7 +61,8 @@ Apptainer execution. See [full-workflow validation](../validation/chipseq-full-n
 ## Documentation and retained limitations
 
 The user guides now describe current modes, correct operational output names,
-runtime requirements and cache boundaries. Detailed historical release notes
+runtime requirements and cache boundaries. Documentation checks validate links
+inside runner workspaces and reject zero-link checks. Detailed historical release notes
 remain available from the documentation index; the README links only the two
 latest releases.
 
