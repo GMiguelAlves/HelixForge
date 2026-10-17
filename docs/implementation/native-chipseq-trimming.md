@@ -58,49 +58,14 @@ reports include trimming provenance; MultiQC receives raw/post FastQC ZIPs and
 Trim Galore reports. Raw mode retains `raw_fastq_multiqc.html`; enabled mode
 uses `trimmed_fastq_multiqc.html`.
 
-## Focused validation, not benchmarking
+## Tests and support boundaries
 
 - Twelve unit tests reject malformed, truncated, empty, unsynchronized and
   incorrectly oriented reads, invalid policies and changed identities.
 - Report tests verify that trimming manifests reach sequencing QC.
-- Nextflow 25.10.7 SE/PE stub fixture passes with trimming both off and on.
-- Existing RNA QC mock regression passes after shared-module integration.
-- Real-tool Slurm fixture: **PASS**, job `28937`, completed with exit `0:0`
-  on 2026-10-17. One compute allocation (2 CPUs, 6 GB) ran the tiny local
-  task executor; no scientific processing occurred on the head node.
-
-| Functional case | Tasks | Completed | Cached |
-|---|---:|---:|---:|
-| Trimming off | 12 | 12 | 0 |
-| Trimming on, quality 20 | 30 | 30 | 0 |
-| Identical resume | 30 | 0 | 30 |
-| Quality changed to 25 | 30 | 13 | 17 |
-
-Both SE and PE outputs removed the known adapter and matched decompressed
-direct-tool FASTQ records exactly. Published FASTQ SHA-256 matched the audit;
-all four trimmed BAMs passed integrity checks and contained the expected
-mapped records (3 SE reads or 6 PE alignments per library). MultiQC was present,
-all identity/control fields were retained and raw input checksums were unchanged.
-Changing quality reran trimming while preserving raw FastQC and the Bowtie2
-index. Descendants whose tracked content remained identical could remain cached.
-
-The recorded Conda tools were Trim Galore 0.6.10, Cutadapt 5.1, FastQC 0.12.1,
-MultiQC 1.35, Bowtie2 2.5.5, samtools 1.23.1 and Python 3.13.14; Nextflow
-25.10.7 used Java 21. This is evidence for that existing Slurm/Conda runtime,
-not certification of another OCI image. No environment was installed or modified.
-
-Preparatory attempts identified an unintended newer Trim Galore on `PATH`,
-an incorrect fixture ID comparison and a genuine conditional-publication bug.
-The final run used the intended version and corrected publication; the CI stub
-now requires the published SE/PE FASTQs and trimming report directories, not
-just successful task exits. Earlier diagnostics and final evidence were
-preserved together in a verified private ZIP with a Portuguese README.
-
-GitHub Actions discovered and ran the 349-test repository suite successfully.
-The local WSL broad-suite attempt retained an environment failure because its
-older JSON Schema installation lacked `referencing`; it is not reported as a
-successful local broad-suite run. Focused local tests and documentation links
-passed, and final Nextflow lint reported no errors.
+- SE/PE stubs check orchestration with trimming off/on and require published
+  FASTQs and trimming reports, not just successful task exits.
+- The RNA QC mock regression checks shared-module compatibility.
 
 The reproducible fixture driver is
 `tests/native_chipseq_trimming/run_functional.py --output /path/to/new-case`.
@@ -113,7 +78,6 @@ driver does not install environments or submit jobs.
 
 This is a small functionality check, not a biological benchmark, performance
 comparison, new peak-calling certification or OCI/Apptainer certification.
-Local tasks on the cluster run only inside a Slurm compute allocation. Private
-raw logs and audit archives are not committed. Full-stream validation adds I/O
-when trimming is enabled; it deliberately fails on an all-filtered library
-instead of silently changing the experimental design.
+When running the fixture on a cluster, use a compute allocation rather than a
+login node. Full-stream validation adds I/O when trimming is enabled; it fails
+on an all-filtered library instead of silently changing the experimental design.
