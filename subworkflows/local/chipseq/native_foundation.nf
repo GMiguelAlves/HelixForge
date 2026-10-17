@@ -302,7 +302,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                     organism  : row.organism,
                     aligner   : 'bowtie2',
                     index_key : "${row.genome_id}|${prefix.parent}|${prefix.name}",
-                    target_dir: prefix.parent
+                    target_dir: prefix.parent.toString()
                 ]
                 def index_params = [basename: prefix.name, extra_args: row.bowtie2_build_opts]
                 if (has_prebuilt_index) {
