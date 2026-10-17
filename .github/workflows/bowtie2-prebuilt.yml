@@ -4,6 +4,8 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - 'nextflow.config'
+      - 'nextflow_schema.json'
       - 'modules/local/bowtie2*/**'
       - 'containers/chipseq-alignment/**'
       - 'subworkflows/local/alignment/reference_index.nf'
@@ -14,6 +16,8 @@ on:
   push:
     branches: [master]
     paths:
+      - 'nextflow.config'
+      - 'nextflow_schema.json'
       - 'modules/local/bowtie2*/**'
       - 'containers/chipseq-alignment/**'
       - 'subworkflows/local/alignment/reference_index.nf'
@@ -45,6 +49,10 @@ jobs:
         env:
           NEXTFLOW_BIN: ${{ github.workspace }}/nextflow
         run: python3 tests/native_bowtie2_prebuilt/run_functional.py --docker --image helixforge-bowtie2-reuse-test --output "$RUNNER_TEMP/bowtie2-reuse"
+      - name: Validate the immutable release runtime
+        env:
+          NEXTFLOW_BIN: ${{ github.workspace }}/nextflow
+        run: python3 tests/native_bowtie2_prebuilt/run_functional.py --docker --output "$RUNNER_TEMP/bowtie2-pinned"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -54,4 +62,7 @@ jobs:
             ${{ runner.temp }}/bowtie2-reuse/**/trace.tsv
             ${{ runner.temp }}/bowtie2-reuse/**/console.log
             ${{ runner.temp }}/bowtie2-reuse/**/.command.err
+            ${{ runner.temp }}/bowtie2-pinned/**/validation.json
+            ${{ runner.temp }}/bowtie2-pinned/**/trace.tsv
+            ${{ runner.temp }}/bowtie2-pinned/**/console.log
           if-no-files-found: warn
