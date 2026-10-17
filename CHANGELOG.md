@@ -7,6 +7,12 @@ contract/model versions evolve independently as documented in
 
 ## [Unreleased]
 
+### Documentation
+
+- Add an RNA-seq API overview and symmetric RNA/ChIP contract navigation.
+- Clarify shared Alignment ownership and per-contract versioning; remove the
+  obsolete aggregate ChIP suite-version label without changing schema IDs.
+
 ## [1.2.0] - 2026-10-17
 
 ### Added

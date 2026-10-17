@@ -3,6 +3,7 @@
 The native ChIP-seq workflow composes explicit read-processing, alignment,
 filtering, peak, inference and reporting contracts. Differential Binding and
 trimming are optional; accepted artifacts can enter postprocessing directly.
+For the end-to-end contract map, see [ChIP-seq APIs](../api/chipseq-api.md).
 
 ```mermaid
 flowchart TD

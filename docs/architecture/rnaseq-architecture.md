@@ -4,6 +4,7 @@ This page is the RNA-seq counterpart to the [ChIP-seq architecture](chipseq-arch
 It describes composition and scientific boundaries, not module arguments or a
 second version of the API contracts. The [platform architecture](architecture.md)
 shows how RNA-seq connects to the other workflows.
+For the end-to-end contract map, see [RNA-seq APIs](../api/rnaseq-api.md).
 
 ```mermaid
 flowchart TD

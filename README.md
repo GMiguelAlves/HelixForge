@@ -130,6 +130,7 @@ Start at the [documentation index](docs/index.md):
 - [Workflow guide](docs/guides/workflows.md)
 - [Output guide](docs/guides/outputs.md)
 - [Public API](docs/api/public-api.md)
+- [RNA-seq APIs](docs/api/rnaseq-api.md) · [ChIP-seq APIs](docs/api/chipseq-api.md)
 - [Architecture](docs/architecture/architecture.md)
 - [Roadmap](docs/roadmap.md)
 - [Developer guide](docs/guides/developer-guide.md)

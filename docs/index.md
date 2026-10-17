@@ -41,7 +41,10 @@ available when they were written.
   [Module contracts](api/module_contracts.md) ·
   [Terminal manifests](api/terminal_manifests.md) ·
   [Evidence model](api/evidence_model.md)
-- RNA-seq: [Alignment](api/alignment_api.md) ·
+- Shared: [Reference/Alignment](api/alignment_api.md) ·
+  [Module contracts](api/module_contracts.md)
+- RNA-seq: [overview](api/rnaseq-api.md) ·
+  [Alignment](api/alignment_api.md) ·
   [Quantification](api/quantification_api.md) ·
   [Import](api/import_api.md) ·
   [Differential Expression](api/differential_expression_api.md) ·

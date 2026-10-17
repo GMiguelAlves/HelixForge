@@ -1,6 +1,8 @@
 # ChIP-seq APIs
 
-ChIP-seq API suite version: `0.9`
+This page is an overview, not a separately versioned API suite. Each linked
+contract declares its own API/model version, independently of the HelixForge
+software release. See also the equivalent [RNA-seq overview](rnaseq-api.md).
 
 These contracts define semantic roles independently from organism, aligner,
 peak caller and historical directory names. The suite covers metadata, QC,
@@ -85,7 +87,9 @@ See [implementation and validation](../implementation/native-chipseq-trimming.md
 
 ## Alignment API
 
-The existing generic Alignment API is extended with provider `bowtie2`.
+The [shared Alignment API](alignment_api.md) dispatches Bowtie2 for ChIP-seq
+and experimental STAR for RNA-seq; the assay workflow does not call aligner
+tools directly.
 
 ```nextflow
 tuple val(meta), path(reads), path(reference), path(annotation),
@@ -110,7 +114,7 @@ Post-alignment stages are independent cache boundaries:
 The implemented graph is selection → duplicate policy → optional blacklist →
 final index/QC. Each emits reports, versions, execution metadata, manifest and
 status. Policies are explicit cache inputs; a module may not silently adopt the
-legacy defaults. Full details are in `docs/implementation/native-chipseq-bam-processing.md`.
+legacy defaults. See [native BAM processing](../implementation/native-chipseq-bam-processing.md).
 
 ## Peak Calling API v1
 
@@ -125,7 +129,7 @@ Outputs: semantic peaks + caller-native artifacts + statistics + logs
 providers, MACS3 3.0.4 is the first implementation, and
 `PEAK_CALLING_AGGREGATE` validates/normalizes semantic artifacts. `peak_type`
 must be `narrow` or `broad`; no antibody/target inference is permitted. See
-`docs/api/peak_calling_api.md` for the complete contract.
+[Peak Calling API](peak_calling_api.md) for the complete contract.
 
 ## Peak QC API v1
 
@@ -137,7 +141,7 @@ caller-neutral distributions; `PEAK_QC_AGGREGATE` emits one row per replicate.
 The denominator, MAPQ/SAM flags, duplicate handling, overlap semantics and
 blacklist policy are explicit and recorded. The API does not calculate a pooled
 FRiP, consensus, IDR, replicate rank, or differential binding. See
-`docs/api/peak_qc_api.md` for the formal definition.
+[Peak QC API](peak_qc_api.md) for the formal definition.
 
 ## Consensus / IDR API v1
 
@@ -153,7 +157,7 @@ significance values are preserved as evidence rather than fabricated for the
 consolidated intervals. IDR is a separate statistical provider: it validates
 exactly two premerged biological narrowPeak replicates, an explicit threshold
 and rank metric, and emits filtered peaks plus local/global IDR evidence.
-See `docs/api/consensus_idr_api.md`.
+See [Consensus/IDR API](consensus_idr_api.md).
 
 ## Modes and current behavior
 
@@ -188,7 +192,7 @@ comparison universe and emits separate count/model/contrast specs.
 `PEAK_COUNTING_PROVIDER` dispatches featureCounts, `DESEQ2_DB_MODEL` fits one
 raw-count Wald model, `DESEQ2_DB_CONTRAST` fans out named directions and
 `DB_AGGREGATE` produces the downstream manifest. See
-`docs/api/differential_binding_api.md`. Functional coverage is separate from
+[Differential Binding API](differential_binding_api.md). Functional coverage is separate from
 the frozen [biological benchmark](../../benchmark/chipseq/reports/chipseq_benchmark_final_report.md).
 
 ## Peak Annotation API v1
@@ -198,7 +202,7 @@ manifest, FASTA, and GTF/GFF. Mode, overlap, promoter windows, feature priority,
 gene assignment, strand handling, intergenic policy, genome/build, and provider
 are versioned values. The initial `python_interval_v1` provider emits annotated
 peaks and peak-to-gene associations; metrics and aggregation are separate cache
-boundaries. See `docs/api/peak_annotation_api.md`.
+boundaries. See [Peak Annotation API](peak_annotation_api.md).
 
 ## Track Generation API v1
 
@@ -208,7 +212,7 @@ or unsupported behavior, `TRACK_PROVIDER` dispatches deepTools bamCoverage,
 `TRACK_STATISTICS` derives generic metrics, and `TRACK_AGGREGATE` publishes a
 provider-neutral inventory. All records receive individual tracks; aggregates
 contain explicitly grouped non-controls and perform no treatment/control
-subtraction. See `docs/api/track_generation_api.md`.
+subtraction. See [Track Generation API](track_generation_api.md).
 
 ## Report/Integration API v1
 
@@ -217,4 +221,4 @@ manifests, including optional and non-available component states.
 `REPORT_AGGREGATE` builds ordered provider-neutral scientific sections, while
 `REPORT_GENERATOR` renders self-contained HTML and structured JSON as a
 renderer-only cache boundary. No module scans producer directories or invokes
-an upstream stage. See `docs/api/chipseq_report_api.md`.
+an upstream stage. See [ChIP-seq Report API](chipseq_report_api.md).
