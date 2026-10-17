@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "type": "chipseq_continuation_input",
+  "project": {"project_id": "my_chip_study", "dataset": "my_chip_study", "genome_id": "my_reference", "build": "my_reference"},
+  "metadata": {"table": "metadata/validated_metadata.tsv", "manifest": "metadata/chipseq_metadata.manifest.json"},
+  "reference": {"fasta": "reference/genome.fa", "annotation": "reference/annotation.gtf", "manifest": "reference/reference_bundle.manifest.json"},
+  "peaks": [{"peaks": "consensus/consolidated_peaks.bed", "manifest": "consensus/provider.manifest.json"}],
+  "records": [
+    {"record_id": "input", "bam": "bam/input.filtered.bam", "bai": "bam/input.filtered.bam.bai", "manifest": "bam/input.bam_final.manifest.json"},
+    {"record_id": "ip1", "bam": "bam/ip1.filtered.bam", "bai": "bam/ip1.filtered.bam.bai", "manifest": "bam/ip1.bam_final.manifest.json"},
+    {"record_id": "ip2", "bam": "bam/ip2.filtered.bam", "bai": "bam/ip2.filtered.bam.bai", "manifest": "bam/ip2.bam_final.manifest.json"}
+  ],
+  "source_manifests": []
+}

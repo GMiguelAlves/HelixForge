@@ -15,7 +15,7 @@ implementation failure.
 | Workflow | Production path | Terminal contract |
 |---|---|---|
 | RNA-seq | QC -> Salmon -> tximport -> DESeq2 -> reports | `rnaseq_run_manifest.json` |
-| ChIP-seq | QC -> Bowtie2 -> BAM processing -> MACS3 -> peak QC/consensus or IDR -> differential binding -> annotation/tracks -> report | `chipseq_run_manifest.json` |
+| ChIP-seq | QC -> Bowtie2 -> BAM processing -> MACS3 -> peak QC/consensus or IDR -> optional differential binding -> annotation/tracks -> report | `chipseq_run_manifest.json` |
 | Integrative | RNA and ChIP manifests -> evidence normalization -> linkage -> ranking -> functional interpretation -> report | `integrative_run_manifest.json` |
 | All | Independent RNA-seq and ChIP-seq DAGs followed by Integrative | all three manifests |
 
@@ -23,6 +23,10 @@ Salmon is the certified RNA-seq production provider. STAR implements the
 Alignment API but remains experimental and is never selected implicitly.
 IDR is an optional ChIP-seq branch for exactly two compatible biological
 replicates.
+Differential Binding is optional: `full --chipseq_db_enabled false` completes
+annotation, tracks and reporting without contrasts. Accepted consensus/IDR
+artifacts can also enter `post_consensus` without repeating upstream work;
+see [stage composition and continuation](docs/guides/chipseq-stage-composition.md).
 ChIP-seq trimming is opt-in, using the shared SE/PE Trim Galore modules with
 an explicit ChIP-specific policy. Raw reads remain the default; see
 [configuration and validation scope](docs/implementation/native-chipseq-trimming.md).

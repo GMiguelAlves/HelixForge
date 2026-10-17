@@ -19,7 +19,7 @@ TYPE_COMPONENT = {
     "bam_final": "bam",
     "peak_calling": "peak",
     "peak_qc": "peak_qc", "peak_qc_summary": "peak_qc",
-    "consensus_idr": "consensus_idr", "consensus_idr_summary": "consensus_idr", "idr": "consensus_idr",
+    "consensus": "consensus_idr", "consensus_idr": "consensus_idr", "consensus_idr_summary": "consensus_idr", "idr": "consensus_idr",
     "differential_binding": "differential_binding",
     "differential_binding_contrast": "differential_binding",
     "peak_annotation": "annotation", "peak_annotation_aggregate": "annotation",

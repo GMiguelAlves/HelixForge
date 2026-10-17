@@ -1,0 +1,4 @@
+name: CHIPSEQ_EXECUTION_PLAN
+description: Validate stage composition and requested differential-binding design before scientific producers.
+input: [meta, metadata, db_spec, request]
+output: [artifacts, manifest, reports, versions, status]

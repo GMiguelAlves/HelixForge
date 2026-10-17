@@ -16,7 +16,7 @@ TYPE_SECTION = {
     "alignment": "alignment", "bam_aligned": "alignment",
     "bam_final": "bam_processing", "peak_calling": "peak_calling",
     "peak_qc": "peak_qc", "peak_qc_summary": "peak_qc",
-    "consensus_idr": "consensus_idr", "consensus_idr_summary": "consensus_idr", "idr": "consensus_idr",
+    "consensus": "consensus_idr", "consensus_idr": "consensus_idr", "consensus_idr_summary": "consensus_idr", "idr": "consensus_idr",
     "differential_binding": "differential_binding", "differential_binding_contrast": "differential_binding",
     "peak_annotation": "annotation", "peak_annotation_aggregate": "annotation",
     "track_generation": "tracks", "track_aggregate": "tracks",
@@ -121,7 +121,7 @@ def aggregate(context, documents, artifacts):
     bam_docs = select_docs(documents, "bam_final")
     peak_docs = select_docs(documents, "peak_calling")
     qc_docs = select_docs(documents, "peak_qc", "peak_qc_summary")
-    consensus_docs = select_docs(documents, "consensus_idr", "consensus_idr_summary", "idr")
+    consensus_docs = select_docs(documents, "consensus", "consensus_idr", "consensus_idr_summary", "idr")
     db_docs = select_docs(documents, "differential_binding", "differential_binding_contrast")
     annotation_docs = select_docs(documents, "peak_annotation", "peak_annotation_aggregate")
     track_docs = select_docs(documents, "track_generation", "track_aggregate")

@@ -102,5 +102,11 @@ without scheduling scientific producers.
 declared semantic artifacts, then executes this Report API without filesystem
 discovery.
 
+DB-disabled full, consensus/IDR with postprocessing, and `post_consensus`
+continuation use the same Report API. Their inventory requires the components
+requested by the validated execution plan, not a DB result. Omitted DB is
+`not_requested`; no contrast or zero-valued DB result is fabricated. See the
+[composition guide](../guides/chipseq-stage-composition.md).
+
 This contract defines architecture and executable validation only. It does not
 claim scientific equivalence to the legacy report.

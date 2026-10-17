@@ -1,5 +1,6 @@
 include { CHIPSEQ_CONTEXT }  from '../../../modules/local/chipseq_context/main'
 include { CHIPSEQ_METADATA } from '../../../modules/local/chipseq_metadata/main'
+include { CHIPSEQ_EXECUTION_PLAN } from '../../../modules/local/chipseq_execution_plan/main'
 include { FASTQC }           from '../../../modules/local/fastqc/main'
 include { FASTQC as FASTQC_TRIMMED } from '../../../modules/local/fastqc/main'
 include { READ_TRIMMING } from '../../local/qc/read_trimming'
@@ -27,6 +28,18 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
 
     main:
     mode = params.chipseq_run_mode.toString().toLowerCase()
+    def db_flag = params.chipseq_db_enabled
+    if (db_flag != null && !(db_flag.toString().toLowerCase() in ['true', 'false'])) {
+        error '--chipseq_db_enabled must be true or false'
+    }
+    db_enabled = db_flag == null ? (mode == 'differential_binding' || (mode == 'full' && params.chipseq_db_spec != null)) : db_flag.toString().toBoolean()
+    if (!(params.chipseq_postprocess.toString().toLowerCase() in ['true', 'false'])) { error '--chipseq_postprocess must be true or false' }
+    if (params.chipseq_postprocess.toString().toBoolean() && !(mode in ['consensus', 'idr', 'full'])) { error '--chipseq_postprocess requires consensus, idr or full mode' }
+    complete_outputs = mode == 'full' || (mode in ['consensus', 'idr'] && params.chipseq_postprocess.toString().toBoolean())
+    if (db_enabled && !(mode in ['full', 'differential_binding'])) { error 'DB requires full or differential_binding mode' }
+    if (mode == 'differential_binding' && !db_enabled) { error 'differential_binding mode cannot disable DB' }
+    if (db_enabled && !params.chipseq_db_spec) { error 'Requested DB requires --chipseq_db_spec' }
+    db_spec_file = db_enabled ? file(params.chipseq_db_spec, checkIfExists: true) : []
     trim_enabled = params.chipseq_trim.toString().toBoolean()
     if (trim_enabled && (params.chipseq_trim_quality == null || params.chipseq_trim_length == null)) {
         error '--chipseq_trim requires explicit --chipseq_trim_quality and --chipseq_trim_length'
@@ -39,6 +52,10 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     context_meta = channel.value([id: 'chipseq.context'])
     CHIPSEQ_CONTEXT(config_file, pipeline_root, context_meta)
     CHIPSEQ_METADATA(CHIPSEQ_CONTEXT.out.artifacts)
+    plan_inputs = CHIPSEQ_METADATA.out.artifacts.map { meta, plan ->
+        tuple(meta, plan, db_spec_file, [mode: mode, differential_binding: db_enabled, postprocess: complete_outputs])
+    }
+    CHIPSEQ_EXECUTION_PLAN(plan_inputs)
 
     peak_context_artifacts_ch = channel.empty()
     if (mode in ['peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'full']) {
@@ -55,12 +72,12 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             output_dir            : params.chipseq_peak_output_dir,
         ]
         def peak_spec_base64 = groovy.json.JsonOutput.toJson(peak_spec).getBytes('UTF-8').encodeBase64().toString()
-        peak_context_inputs = CHIPSEQ_METADATA.out.artifacts.map { meta, plan -> tuple(meta, plan, peak_spec_base64) }
+        peak_context_inputs = CHIPSEQ_EXECUTION_PLAN.out.artifacts.map { meta, plan, _execution_plan -> tuple(meta, plan, peak_spec_base64) }
         PEAK_CALLING_CONTEXT(peak_context_inputs)
         peak_context_artifacts_ch = PEAK_CALLING_CONTEXT.out.artifacts
         active_plan = PEAK_CALLING_CONTEXT.out.artifacts.map { _meta, validated_plan, _peak_plan -> validated_plan }
     } else {
-        active_plan = CHIPSEQ_METADATA.out.artifacts.map { _meta, plan -> plan }
+        active_plan = CHIPSEQ_EXECUTION_PLAN.out.artifacts.map { _meta, plan, _execution_plan -> plan }
     }
 
     plan_rows = active_plan
@@ -68,7 +85,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
 
     reference_bundle_artifacts_ch = channel.empty()
     reference_bundle_reports_ch = channel.empty()
-    if (mode == 'full') {
+    if (complete_outputs) {
         reference_bundle_inputs = plan_rows
             .map { row ->
                 if (!row.annotation_file) {
@@ -263,6 +280,9 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     differential_binding_artifacts_ch = channel.empty()
     differential_binding_manifest_ch = channel.empty()
     differential_binding_reports_ch = channel.empty()
+    db_contrast_manifest_ch = channel.empty()
+    db_results_ch = channel.empty()
+    db_contrast_results_ch = channel.empty()
     full_status_ch = channel.empty()
     full_reports_ch = channel.empty()
     full_annotation_artifacts_ch = channel.empty()
@@ -282,7 +302,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                     organism  : row.organism,
                     aligner   : 'bowtie2',
                     index_key : "${row.genome_id}|${prefix.parent}|${prefix.name}",
-                    target_dir: prefix.parent
+                    target_dir: prefix.parent.toString()
                 ]
                 def index_params = [basename: prefix.name, extra_args: row.bowtie2_build_opts]
                 if (has_prebuilt_index) {
@@ -426,8 +446,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                         consolidation_manifest_ch = CONSENSUS_IDR.out.manifest
                         consolidation_reports_ch = CONSENSUS_IDR.out.reports
 
-                        if (mode in ['differential_binding', 'full']) {
-                            def db_spec_file = file(params.chipseq_db_spec, checkIfExists: true)
+                        if (db_enabled) {
                             DIFFERENTIAL_BINDING(
                                 CONSENSUS_IDR.out.artifacts,
                                 CONSENSUS_IDR.out.provider_manifests,
@@ -440,8 +459,12 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                             differential_binding_artifacts_ch = DIFFERENTIAL_BINDING.out.artifacts
                             differential_binding_manifest_ch = DIFFERENTIAL_BINDING.out.manifest
                             differential_binding_reports_ch = DIFFERENTIAL_BINDING.out.reports
+                            db_contrast_manifest_ch = DIFFERENTIAL_BINDING.out.contrast_manifest
+                            db_results_ch = DIFFERENTIAL_BINDING.out.results
+                            db_contrast_results_ch = DIFFERENTIAL_BINDING.out.contrast_results
+                        }
 
-                            if (mode == 'full') {
+                            if (complete_outputs) {
                                 full_project_meta_ch = plan_rows
                                     .map { row ->
                                         tuple(row.dataset, row.genome_id, row.organism)
@@ -461,6 +484,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                             genome_id : project[1],
                                             build     : project[1],
                                             organism  : project[2],
+                                            required_components: ['metadata', 'reference', 'alignment', 'bam', 'peak', 'peak_qc', 'consensus_idr', 'annotation', 'tracks'] + (db_enabled ? ['differential_binding'] : []),
                                         ]
                                     }
 
@@ -608,13 +632,13 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                     .mix(PEAK_CALLING.out.manifests.map { _meta, manifest -> manifest })
                                     .mix(PEAK_QC.out.manifest.map { _meta, manifest -> manifest })
                                     .mix(CONSENSUS_IDR.out.manifest.map { _meta, manifest -> manifest })
-                                    .mix(DIFFERENTIAL_BINDING.out.manifest.map { _meta, manifest -> manifest })
-                                    .mix(DIFFERENTIAL_BINDING.out.contrast_manifest.map { _meta, manifest -> manifest })
+                                    .mix(differential_binding_manifest_ch.map { _meta, manifest -> manifest })
+                                    .mix(db_contrast_manifest_ch.map { _meta, manifest -> manifest })
                                     .mix(PEAK_ANNOTATION.out.manifest.map { _meta, manifest -> manifest })
                                     .mix(TRACK_GENERATION.out.manifest.map { _meta, manifest -> manifest })
                                 full_semantic_artifacts_ch = PEAK_QC.out.summary.map { _meta, summary_json, _summary_tsv -> summary_json }
                                     .mix(CONSENSUS_IDR.out.summary.map { _meta, summary_json, _summary_tsv -> summary_json })
-                                    .mix(DIFFERENTIAL_BINDING.out.artifacts.map { _meta, directory -> file("${directory}/differential_binding_summary.tsv", checkIfExists: true) })
+                                    .mix(differential_binding_artifacts_ch.map { _meta, directory -> file("${directory}/differential_binding_summary.tsv", checkIfExists: true) })
                                     .mix(PEAK_ANNOTATION.out.artifacts.map { _meta, directory -> file("${directory}/statistics.tsv", checkIfExists: true) })
                                     .mix(TRACK_GENERATION.out.artifacts.map { _meta, directory -> file("${directory}/tracks.tsv", checkIfExists: true) })
                                 full_report_materials_ch = full_manifest_files_ch
@@ -702,7 +726,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                         source: [type: 'helixforge', name: strategy, version: '1.0'], metadata: [strategy: strategy]
                                     ], file("${directory}/consolidated_peaks.bed", checkIfExists: true))
                                 }
-                                db_terminal_records = DIFFERENTIAL_BINDING.out.results
+                                db_terminal_records = db_results_ch
                                     .combine(full_marks_bundle_ch)
                                     .map { db_meta, results, mark_bundle ->
                                     def marks = mark_bundle.values
@@ -715,7 +739,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                         source: [type: 'helixforge', name: 'DESeq2', version: null], metadata: [:]
                                     ], results)
                                 }
-                                db_contrast_terminal_records = DIFFERENTIAL_BINDING.out.contrast_results
+                                db_contrast_terminal_records = db_contrast_results_ch
                                     .combine(full_marks_bundle_ch)
                                     .map { db_meta, results, mark_bundle ->
                                     def marks = mark_bundle.values
@@ -795,7 +819,8 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                             id: manifest_meta.id, run_id: workflow.sessionId.toString(), run_name: workflow.runName,
                                             helixforge_version: workflow.manifest.version ?: 'unknown', git_commit: workflow.commitId ?: 'unknown',
                                             nextflow_version: workflow.nextflow.version.toString(), profile: workflow.profile ?: '',
-                                            source: [type: 'helixforge', name: 'HelixForge', version: workflow.manifest.version ?: 'unknown']
+                                            source: [type: 'helixforge', name: 'HelixForge', version: workflow.manifest.version ?: 'unknown'],
+                                            parameters: [chipseq_run_mode: mode, differential_binding: db_enabled ? 'requested' : 'not_requested', postprocess: complete_outputs]
                                         ]
                                         def run_base64 = groovy.json.JsonOutput.toJson(run).bytes.encodeBase64().toString()
                                         tuple(manifest_meta, metadata, reference_manifest,
@@ -807,14 +832,13 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                 terminal_bundle_ch = RUN_MANIFEST.out.bundle
                                 full_reports_ch = full_reports_ch.mix(RUN_MANIFEST.out.reports)
                             }
-                        }
                     }
                 }
             }
         }
     }
 
-    completed_ch = mode == 'full' \
+    completed_ch = complete_outputs \
         ? full_status_ch \
         : (mode == 'qc' \
         ? MULTIQC.out.status \
@@ -828,6 +852,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
 
     emit:
     completed           = completed_ch
+    execution_plan      = CHIPSEQ_EXECUTION_PLAN.out.manifest
     metadata            = CHIPSEQ_METADATA.out.reports
     qc_reports          = FASTQC.out.reports.mix(MULTIQC.out.reports).mix(post_qc_reports_ch).mix(trimming_reports_ch)
     trimming_manifests  = trimming_manifests_ch
@@ -858,6 +883,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     terminal_manifest   = terminal_manifest_ch
     terminal_bundle     = terminal_bundle_ch
     logs                = CHIPSEQ_CONTEXT.out.reports
+        .mix(CHIPSEQ_EXECUTION_PLAN.out.reports)
         .mix(CHIPSEQ_METADATA.out.reports.map { metadata_meta, _normalized, _controls, _report, log -> tuple(metadata_meta, log) })
         .mix(FASTQC.out.reports.map { fastqc_meta, _html, log -> tuple(fastqc_meta, log) })
         .mix(post_qc_reports_ch.map { fastqc_meta, _html, log -> tuple(fastqc_meta, log) })
