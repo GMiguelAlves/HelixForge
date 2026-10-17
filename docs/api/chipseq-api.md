@@ -61,9 +61,22 @@ see [Reference/Alignment API](alignment_api.md#reusing-a-bowtie2-index).
 
 Raw QC receives `tuple(meta, FASTQ)` and uses the existing generic `FASTQC`
 module once per FASTQ. Generic `MULTIQC` consumes a collected set of compatible
-reports. Trimming is an explicit optional transformation, not an implicit QC
-requirement. The first native ChIP-seq foundation performs raw QC only; fastp
-and a controlled ChIP-seq trimming policy remain future work.
+reports. Raw reads remain the default. Opt-in `chipseq_trim=true` selects the
+assay-neutral `READ_TRIMMING` adapter, reusing `TRIM_GALORE` for paired-end and
+`TRIM_GALORE_SINGLE` for single-end libraries. Quality and minimum length must
+be supplied explicitly through `chipseq_trim_quality` and `chipseq_trim_length`;
+no RNA-seq policy is inherited. Optional `chipseq_trim_adapter` and
+`chipseq_trim_adapter2` specify adapters; otherwise Trim Galore's own adapter
+detection is recorded in provenance. Adapter 2 is paired-end only and requires
+adapter 1.
+
+Preflight validates complete FASTQs, layout, mate count and synchronized IDs.
+The post-trim audit preserves library/control/replicate identity and records
+read counts, bases, SHA-256 checksums, policy and tool versions. Selected reads
+flow by channel into Bowtie2; a failure never falls back to raw reads. FastQC
+runs before and after trimming, and MultiQC consumes both sets plus native
+trimming reports. Full reports retain the trimming manifests in sequencing QC.
+See [implementation and validation](../implementation/native-chipseq-trimming.md).
 
 ## Alignment API
 

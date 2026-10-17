@@ -1,0 +1,56 @@
+name: Optional ChIP read trimming
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'modules/local/trim_galore*/**'
+      - 'modules/local/read_trimming_audit/**'
+      - 'subworkflows/local/qc/read_trimming.nf'
+      - 'subworkflows/local/chipseq/native_foundation.nf'
+      - 'tests/native_chipseq_trimming/**'
+      - '.github/workflows/chipseq-trimming.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'modules/local/trim_galore*/**'
+      - 'modules/local/read_trimming_audit/**'
+      - 'subworkflows/local/qc/read_trimming.nf'
+      - 'subworkflows/local/chipseq/native_foundation.nf'
+      - 'tests/native_chipseq_trimming/**'
+      - '.github/workflows/chipseq-trimming.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install certified Nextflow launcher
+        run: curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
+      - name: Validate read and report contracts
+        run: python3 -m unittest tests.native_chipseq_trimming.test_trimming_contract tests.native_chipseq_report.test_report tests.native_chipseq_full.test_full_coordinator -v
+      - name: Exercise optional SE and PE orchestration
+        env:
+          NEXTFLOW_BIN: ${{ github.workspace }}/nextflow
+        run: python3 tests/native_chipseq_trimming/run_functional.py --stub --output "$RUNNER_TEMP/chipseq-trimming"
+      - name: Preserve RNA QC orchestration
+        env:
+          NEXTFLOW_BIN: ${{ github.workspace }}/nextflow
+        run: bash tests/native_qc/run_mock_regression.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chipseq-trimming-functional-checks
+          path: |
+            ${{ runner.temp }}/chipseq-trimming/validation.json
+            ${{ runner.temp }}/chipseq-trimming/**/trace.*.tsv
+            ${{ runner.temp }}/chipseq-trimming/**/console.*.log
+          if-no-files-found: warn

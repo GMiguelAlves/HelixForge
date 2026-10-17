@@ -11,11 +11,19 @@ flowchart TD
     META --> PLAN["Explicit record/control plan"]
     PLAN --> FQ["FASTQC (reused)"]
     FQ --> MQ["MULTIQC (reused)"]
+    PLAN --> TA["Optional FASTQ preflight"]
+    TA --> TR["READ_TRIMMING: shared SE/PE Trim Galore"]
+    TR --> TV["Post-trim audit + manifest"]
+    TV --> TQ["Post-trim FASTQC"]
+    TQ --> MQ
+    TR --> MQ
     CTX --> REF["Reference API"]
     REF --> BI["BOWTIE2_INDEX"]
     EXT["Explicit prebuilt index + provenance"] --> BV["BOWTIE2_INDEX_VALIDATE"]
     REF --> BV
-    PLAN --> BA["BOWTIE2_ALIGN"]
+    PLAN --> READS["Selected reads: raw by default, trimmed when requested"]
+    TV --> READS
+    READS --> BA["BOWTIE2_ALIGN"]
     BI --> BA
     BV --> BA
     BA --> BAM["Sorted BAM + BAI + statistics + manifest"]
@@ -64,6 +72,7 @@ flowchart TD
     TSTAT --> TAGG
 
     META --> RCTX["REPORT_CONTEXT"]
+    TV --> RCTX
     REF --> RCTX
     FINAL --> RCTX
     PAGG --> RCTX
@@ -85,6 +94,11 @@ flowchart TD
 - `CHIPSEQ_METADATA` is provider-neutral validation and planning. It resolves
   FASTQs, models controls and distinguishes biological from technical identity.
 - Existing `FASTQC` and `MULTIQC` modules are reused unchanged.
+- Optional `READ_TRIMMING` reuses the RNA-seq SE/PE tool modules, but receives
+  an explicit ChIP-seq policy. Pre/post audits validate complete read streams
+  and preserve control, biological and technical identities. Only selected
+  reads reach alignment. Trimming is disabled by default and never introduced
+  retrospectively into frozen benchmark claims.
 - Generic `REFERENCE_INDEX` and `ALIGNMENT` dispatch by `meta.aligner`; Bowtie2
   joins STAR as a provider without creating a ChIP-specific alignment API.
 - Bowtie2 reference dispatch selects construction or explicit prebuilt-index

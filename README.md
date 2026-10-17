@@ -23,6 +23,9 @@ Salmon is the certified RNA-seq production provider. STAR implements the
 Alignment API but remains experimental and is never selected implicitly.
 IDR is an optional ChIP-seq branch for exactly two compatible biological
 replicates.
+ChIP-seq trimming is opt-in, using the shared SE/PE Trim Galore modules with
+an explicit ChIP-specific policy. Raw reads remain the default; see
+[configuration and validation scope](docs/implementation/native-chipseq-trimming.md).
 The native single-end Salmon path passed a complete reduced synthetic Slurm
 validation, including technical-run aggregation and `-resume`. Biological
 single-end studies still require their own reviewed validation; see the

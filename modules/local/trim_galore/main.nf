@@ -15,6 +15,12 @@ process TRIM_GALORE {
     publishDir "${params.outdir}/pipeline_info/native_qc/trim_galore",
         mode: 'copy', overwrite: true,
         pattern: '*.{done,yml}'
+    publishDir { meta.trimmed_dir ?: "${params.outdir}/trimmed_reads/${meta.id}" },
+        mode: 'copy', overwrite: true, pattern: '*.fq.gz',
+        saveAs: { name -> meta.trim_native_publish == true ? name : null }
+    publishDir "${params.outdir}/pipeline_info/native_qc/trim_galore",
+        mode: 'copy', overwrite: true, pattern: '*.trim_galore_reports',
+        saveAs: { name -> meta.trim_native_publish == true ? name : null }
 
     input:
     tuple val(meta), path(raw_r1), path(raw_r2)
@@ -26,14 +32,18 @@ process TRIM_GALORE {
     tuple val(meta), path("${meta.id}.trim_galore.done"), emit: status
 
     script:
-    def generated_r1 = raw_r1.name.replaceFirst(/\.fastq\.gz$/, '') + '_val_1.fq.gz'
-    def generated_r2 = raw_r2.name.replaceFirst(/\.fastq\.gz$/, '') + '_val_2.fq.gz'
+    def generated_r1 = raw_r1.name.replaceFirst(/\.(fastq|fq)(\.gz)?$/, '') + '_val_1.fq.gz'
+    def generated_r2 = raw_r2.name.replaceFirst(/\.(fastq|fq)(\.gz)?$/, '') + '_val_2.fq.gz'
     def report_r1 = raw_r1.name + '_trimming_report.txt'
     def report_r2 = raw_r2.name + '_trimming_report.txt'
+    def adapter_args = meta.trim_adapter ? "--adapter '${meta.trim_adapter}'" : ''
+    if (meta.trim_adapter2) { adapter_args += " --adapter2 '${meta.trim_adapter2}'" }
     """
+    set -o pipefail
     mkdir -p '${meta.id}.trim_galore_reports'
 
     trim_galore --paired \
+        ${meta.trim_force_gzip == true ? '--gzip' : ''} ${adapter_args} \
         --quality '${meta.trim_quality}' \
         --length '${meta.trim_length}' \
         --cores ${task.cpus} \
@@ -45,6 +55,7 @@ process TRIM_GALORE {
     mv '${generated_r1}' '${meta.trimmed_r1_name}'
     mv '${generated_r2}' '${meta.trimmed_r2_name}'
 
+    if [[ '${meta.trim_legacy_publish != false}' == 'true' ]]; then
     mkdir -p '${meta.trimmed_dir}'
     cp '${meta.trimmed_r1_name}' '${meta.trimmed_r1}.nextflow.tmp'
     cp '${meta.trimmed_r2_name}' '${meta.trimmed_r2}.nextflow.tmp'
@@ -58,6 +69,7 @@ process TRIM_GALORE {
                 "${meta.trimmed_dir}/\${report}"
         fi
     done
+    fi
 
     cp '${meta.id}.trim_galore.log' '${meta.id}.trim_galore_reports/'
     for report in '${report_r1}' '${report_r2}'; do

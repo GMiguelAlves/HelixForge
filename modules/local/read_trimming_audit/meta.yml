@@ -1,0 +1,16 @@
+name: READ_TRIMMING_AUDIT
+description: Stream FASTQ records to validate integrity/pairing and record before/after trimming provenance.
+keywords: [fastq, trimming, paired-end, single-end, provenance]
+input:
+  - meta: Stable record, biological/technical identity, layout and control association.
+  - reads: One SE or two ordered PE FASTQs, compressed or plain.
+  - policy: Explicit quality, minimum length and optional adapter sequences.
+  - prior: Optional raw validation manifest for output audit.
+  - tool_versions: Optional tool versions YAML, required for output audit.
+output:
+  - artifacts: Original staged reads and audit manifest.
+  - manifest: Raw validation or read-trimming manifest with checksums and counts.
+  - reports: Validation log.
+  - versions: Runtime version YAML.
+  - execution_metadata: Resources, timing, version and command JSON.
+  - status: Explicit complete or stub status.

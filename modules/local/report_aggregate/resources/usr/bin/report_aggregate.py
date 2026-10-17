@@ -11,6 +11,7 @@ from pathlib import Path
 
 TYPE_SECTION = {
     "metadata": "project", "chipseq_metadata": "project",
+    "read_trimming": "sequencing_qc",
     "reference": "reference", "reference_bundle": "reference",
     "alignment": "alignment", "bam_aligned": "alignment",
     "bam_final": "bam_processing", "peak_calling": "peak_calling",
@@ -114,6 +115,7 @@ def artifact_content(artifacts, expected_type=None, role_fragment=None):
 def aggregate(context, documents, artifacts):
     project = context["project"]
     metadata_docs = select_docs(documents, "metadata", "chipseq_metadata")
+    metadata_docs += select_docs(documents, "read_trimming")
     reference_docs = select_docs(documents, "reference", "reference_bundle")
     alignment_docs = select_docs(documents, "alignment", "bam_aligned")
     bam_docs = select_docs(documents, "bam_final")

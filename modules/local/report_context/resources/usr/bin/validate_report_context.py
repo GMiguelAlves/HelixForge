@@ -13,6 +13,7 @@ COMPONENTS = (
 
 TYPE_COMPONENT = {
     "metadata": "metadata", "chipseq_metadata": "metadata",
+    "read_trimming": "metadata",
     "reference": "reference", "reference_bundle": "reference",
     "alignment": "alignment", "bam_aligned": "alignment",
     "bam_final": "bam",

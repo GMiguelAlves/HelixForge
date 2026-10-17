@@ -22,7 +22,7 @@ legacy downstream policy scientifically optimal.
 
 | Topic | Legacy behaviour | Native decision |
 |---|---|---|
-| Trimming | always scheduled; raw fallback | optional, deferred; raw input is explicit in foundation 0.1 |
+| Trimming | always scheduled; raw fallback | opt-in shared SE/PE Trim Galore, explicit ChIP policy, no raw fallback on failure |
 | MAPQ | 30 | explicit `BAM_SELECT` input; config-compatible default, overrideable |
 | Secondary/supplementary | removed | explicit exclude mask 2308; never hidden in aligner |
 | Duplicates | removed by default | native default `none`; explicit `mark/remove`, always measure before removal |
@@ -64,8 +64,9 @@ scientifically validated merely because its stub succeeds.
 
 ## Known limitations retained after retirement
 
-- Native ChIP-seq trimming remains unimplemented. BAM processing and
-  downstream analysis consume the declared FASTQs directly.
+- Native ChIP-seq trimming is optional; raw FASTQs remain the default.
+  [Reduced functional validation](../implementation/native-chipseq-trimming.md)
+  does not extend or relabel the frozen untrimmed biological benchmarks.
 - Technical replicate merging is not implemented; records align independently.
 - The supported alignment provider is Bowtie2; BWA is not exposed as a fallback.
 - FRiP and IDR are implemented. Cross-correlation, library-complexity estimates
