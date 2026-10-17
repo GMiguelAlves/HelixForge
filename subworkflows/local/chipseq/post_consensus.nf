@@ -8,9 +8,9 @@ include { RUN_MANIFEST } from '../../../modules/local/run_manifest/main'
 def continuation_descriptor(meta, type, artifact, level, role, producer) {
     [artifact_id: "${meta.id}.${type}", artifact_type: type, assay: 'chipseq', format: artifact.toFile().isDirectory() ? 'directory' : (type == 'aligned_bam' ? 'bam' : (type in ['consensus_peaks', 'idr_peaks'] ? 'bed' : 'tsv')),
      entity_level: level, contrast_id: null, sample_ids: meta.sample_ids ?: [], condition: meta.condition,
-     stage: null, mark_or_factor: meta.target, marks_or_factors: [], peak_type: meta.peak_type,
+     stage: null, mark_or_factor: meta.target, marks_or_factors: meta.marks_or_factors ?: [], peak_type: meta.peak_type,
      role: role, producer_manifest_id: meta.source_manifest_id ?: meta.id, producer_process: producer,
-     location: [kind: 'producer_relative', path: artifact.toFile().isDirectory() ? '.' : artifact.name, base_path: null, producer_manifest_id: meta.source_manifest_id ?: meta.id],
+     location: [kind: 'producer_relative', path: type == 'chipseq_report' ? '.' : artifact.name, base_path: null, producer_manifest_id: meta.source_manifest_id ?: meta.id],
      source: [type: 'helixforge', name: 'ChIP-seq API', version: '1.0'], metadata: [:]]
 }
 
@@ -95,9 +95,10 @@ workflow CHIPSEQ_POST_CONSENSUS {
             tuple(continuation_descriptor(entry.meta, entry.meta.artifact_type, paths[entry.peaks], 'peak', 'consolidated_peaks', 'CONSENSUS_IDR'), paths[entry.peaks])
         }
     }
-    annotation_records = PEAK_ANNOTATION.out.artifacts.map { meta, directory ->
+    marks_bundle = bundle.map { _meta, plan, _paths -> [values: plan.peaks.collect { entry -> entry.meta.target }.unique()] }
+    annotation_records = PEAK_ANNOTATION.out.artifacts.combine(marks_bundle).map { meta, directory, marks ->
         def artifact = file("${directory}/peak_gene_associations.tsv", checkIfExists: true)
-        tuple(continuation_descriptor(meta, 'peak_gene_annotation', artifact, 'peak', 'peak_gene_associations', 'PEAK_ANNOTATION_AGGREGATE'), artifact)
+        tuple(continuation_descriptor(meta + [marks_or_factors: marks.values], 'peak_gene_annotation', artifact, 'peak', 'peak_gene_associations', 'PEAK_ANNOTATION_AGGREGATE'), artifact)
     }
     track_records = TRACK_GENERATION.out.artifacts.map { meta, directory ->
         def artifact = file("${directory}/tracks", checkIfExists: true)
