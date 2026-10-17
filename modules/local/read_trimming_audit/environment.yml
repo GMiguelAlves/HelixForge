@@ -1,0 +1,4 @@
+name: helixforge-read-trimming-audit
+channels: [conda-forge]
+dependencies:
+  - python=3.12

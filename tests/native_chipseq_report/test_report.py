@@ -88,6 +88,29 @@ class ReportContextTest(unittest.TestCase):
             self.assertEqual(differential_binding["data"]["manifests"][0]["type"], "differential_binding_contrast")
 
 
+    def test_trimming_provenance_is_available_in_sequencing_qc(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            document = {
+                'schema_version': '1.0', 'type': 'read_trimming', 'id': 'r1.trimming',
+                'record_id': 'r1', 'sample_id': 's1', 'dataset': 'd', 'genome_id': 'g',
+                'status': 'complete', 'policy': {'quality': 20, 'minimum_length': 20},
+                'read_processing': 'trimmed', 'reads': [{'records': 3, 'bases': 180}],
+                'versions': {'trim_galore': '0.6.10', 'cutadapt': '4.9'},
+            }
+            manifest = self.write(root, 'trim.json', document)
+            inventory = {'schema_version': '1.0', 'type': 'chipseq_report_input',
+                         'project': self.project, 'required_components': ['metadata'],
+                         'components': [{'component': 'metadata', 'manifest': 'trim.json'}]}
+            context = CONTEXT.validate(inventory, [manifest])
+            result = AGGREGATE.aggregate(context, [document], [])
+            qc = result['sections']['sequencing_qc']
+            self.assertEqual(qc['status'], 'available')
+            self.assertEqual(qc['data']['metadata'], [document])
+            html = GENERATOR.generate_html(result, {'provider': 'html_v1', 'title': 'QC', 'language': 'en'})
+            self.assertIn('read_trimming', html)
+
+
 class ReportPresentationTest(unittest.TestCase):
     def test_missing_and_idr_status_are_explicit_and_html_is_self_contained(self):
         data = {"project": {"project_id": "p", "dataset": "d", "genome_id": "g", "build": "b"}, "sections": {key: {"status": "not_requested", "data": None} for key, _label in GENERATOR.SECTION_ORDER}}

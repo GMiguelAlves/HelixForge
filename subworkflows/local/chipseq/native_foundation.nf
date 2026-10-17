@@ -1,6 +1,8 @@
 include { CHIPSEQ_CONTEXT }  from '../../../modules/local/chipseq_context/main'
 include { CHIPSEQ_METADATA } from '../../../modules/local/chipseq_metadata/main'
 include { FASTQC }           from '../../../modules/local/fastqc/main'
+include { FASTQC as FASTQC_TRIMMED } from '../../../modules/local/fastqc/main'
+include { READ_TRIMMING } from '../../local/qc/read_trimming'
 include { MULTIQC }          from '../../../modules/local/multiqc/main'
 include { REFERENCE_INDEX }  from '../../local/alignment/reference_index'
 include { ALIGNMENT }        from '../../local/alignment/alignment'
@@ -25,6 +27,10 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
 
     main:
     mode = params.chipseq_run_mode.toString().toLowerCase()
+    trim_enabled = params.chipseq_trim.toString().toBoolean()
+    if (trim_enabled && (params.chipseq_trim_quality == null || params.chipseq_trim_length == null)) {
+        error '--chipseq_trim requires explicit --chipseq_trim_quality and --chipseq_trim_length'
+    }
     has_prebuilt_index = params.chipseq_bowtie2_prebuilt_index != null && params.chipseq_bowtie2_prebuilt_index.toString().trim()
     has_prebuilt_manifest = params.chipseq_bowtie2_prebuilt_index_manifest != null && params.chipseq_bowtie2_prebuilt_index_manifest.toString().trim()
     if (has_prebuilt_index != has_prebuilt_manifest) {
@@ -174,6 +180,34 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     }
     FASTQC(qc_reads)
 
+    selected_records = records
+    trimming_manifests_ch = channel.empty()
+    trimming_reports_ch = channel.empty()
+    trimming_logs_ch = channel.empty()
+    post_qc_artifacts_ch = channel.empty()
+    post_qc_reports_ch = channel.empty()
+    if (trim_enabled) {
+        def trim_policy = [quality: params.chipseq_trim_quality, minimum_length: params.chipseq_trim_length,
+            adapter: params.chipseq_trim_adapter, adapter2: params.chipseq_trim_adapter2]
+        READ_TRIMMING(records.map { meta, reads, _reference, _annotation, _alignment, _bam -> tuple(meta, reads, trim_policy) })
+        selected_records = records
+            .map { meta, _reads, reference, annotation, alignment, bam -> tuple(meta.id, reference, annotation, alignment, bam) }
+            .join(READ_TRIMMING.out.artifacts.map { meta, reads -> tuple(meta.id, meta, reads) })
+            .map { _id, reference, annotation, alignment, bam, meta, reads -> tuple(meta, reads, reference, annotation, alignment, bam) }
+        trimming_manifests_ch = READ_TRIMMING.out.manifest
+        trimming_reports_ch = READ_TRIMMING.out.reports
+        trimming_logs_ch = READ_TRIMMING.out.logs
+        post_qc_inputs = READ_TRIMMING.out.artifacts.flatMap { meta, reads ->
+            reads.withIndex().collect { read, index ->
+                tuple(meta + [id: "${meta.id}.trimmed.R${index + 1}",
+                    target_dir: "${meta.qc_dir}/trimmed/${meta.id}"], read)
+            }
+        }
+        FASTQC_TRIMMED(post_qc_inputs)
+        post_qc_artifacts_ch = FASTQC_TRIMMED.out.artifacts
+        post_qc_reports_ch = FASTQC_TRIMMED.out.reports
+    }
+
     qc_target = plan_rows
         .map { row -> row.qc_dir }
         .unique()
@@ -185,7 +219,9 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             directories[0]
         }
     multiqc_inputs = FASTQC.out.artifacts
+        .mix(post_qc_artifacts_ch)
         .map { _meta, zip -> zip }
+        .mix(trimming_reports_ch.map { _meta, directory -> directory })
         .collect()
         .combine(qc_target)
         .map { combined ->
@@ -194,8 +230,8 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             def artifacts = values[0..-2]
             tuple(
                 [
-                    id         : 'chipseq.raw.multiqc',
-                    report_name: 'raw_fastq_multiqc.html',
+                    id         : trim_enabled ? 'chipseq.trimmed.multiqc' : 'chipseq.raw.multiqc',
+                    report_name: trim_enabled ? 'trimmed_fastq_multiqc.html' : 'raw_fastq_multiqc.html',
                     target_dir : "${target}/multiqc"
                 ],
                 artifacts
@@ -267,7 +303,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
             }
         REFERENCE_INDEX(reference_inputs)
 
-        records_by_index = records.map {
+        records_by_index = selected_records.map {
             record_meta, record_reads, reference_text, annotation_path, alignment_params, bam_params ->
             tuple(alignment_params.index_key, record_meta, record_reads, reference_text, annotation_path, alignment_params, bam_params)
         }
@@ -565,6 +601,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                 full_track_manifest_ch = TRACK_GENERATION.out.manifest
 
                                 full_manifest_files_ch = CHIPSEQ_METADATA.out.manifest.map { _meta, manifest -> manifest }
+                                    .mix(trimming_manifests_ch.map { _meta, manifest -> manifest })
                                     .mix(reference_bundle_artifacts_ch.map { _meta, _reference, _annotation, manifest -> manifest })
                                     .mix(ALIGNMENT.out.manifest.map { _meta, manifest -> manifest })
                                     .mix(CHIPSEQ_BAM_PROCESSING.out.final_manifest.map { _meta, manifest -> manifest })
@@ -792,7 +829,8 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     emit:
     completed           = completed_ch
     metadata            = CHIPSEQ_METADATA.out.reports
-    qc_reports          = FASTQC.out.reports.mix(MULTIQC.out.reports)
+    qc_reports          = FASTQC.out.reports.mix(MULTIQC.out.reports).mix(post_qc_reports_ch).mix(trimming_reports_ch)
+    trimming_manifests  = trimming_manifests_ch
     alignment_reports   = alignment_reports_ch
     alignment_manifests = alignment_manifest_ch
     final_bams          = bam_artifacts_ch
@@ -822,6 +860,8 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
     logs                = CHIPSEQ_CONTEXT.out.reports
         .mix(CHIPSEQ_METADATA.out.reports.map { metadata_meta, _normalized, _controls, _report, log -> tuple(metadata_meta, log) })
         .mix(FASTQC.out.reports.map { fastqc_meta, _html, log -> tuple(fastqc_meta, log) })
+        .mix(post_qc_reports_ch.map { fastqc_meta, _html, log -> tuple(fastqc_meta, log) })
+        .mix(trimming_logs_ch)
         .mix(MULTIQC.out.reports.map { multiqc_meta, _html, log -> tuple(multiqc_meta, log) })
         .mix(reference_bundle_reports_ch)
         .mix(full_reports_ch)

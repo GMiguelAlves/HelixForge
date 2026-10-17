@@ -13,6 +13,10 @@ process TRIM_GALORE_SINGLE {
     publishDir "${params.outdir}/pipeline_info/native_qc/trim_galore",
         mode: 'copy', overwrite: true,
         pattern: '*.{done,yml}'
+    publishDir { meta.trimmed_dir ?: "${params.outdir}/trimmed_reads/${meta.id}" },
+        enabled: { meta.trim_native_publish == true }, mode: 'copy', overwrite: true, pattern: '*.fq.gz'
+    publishDir "${params.outdir}/pipeline_info/native_qc/trim_galore",
+        enabled: { meta.trim_native_publish == true }, mode: 'copy', overwrite: true, pattern: '*.trim_galore_reports'
 
     input:
     tuple val(meta), path(raw_r1)
@@ -25,15 +29,23 @@ process TRIM_GALORE_SINGLE {
 
     script:
     def generated = raw_r1.name.replaceFirst(/\.(fastq|fq)(\.gz)?$/, '') + '_trimmed.fq.gz'
+    def adapter_args = meta.trim_adapter ? "--adapter '${meta.trim_adapter}'" : ''
     """
-    mkdir -p '${meta.id}.trim_galore_reports' '${meta.trimmed_dir}'
+    set -o pipefail
+    mkdir -p '${meta.id}.trim_galore_reports'
+    if [[ '${meta.trim_legacy_publish != false}' == 'true' ]]; then mkdir -p '${meta.trimmed_dir}'; fi
     trim_galore --gzip --quality '${meta.trim_quality}' --length '${meta.trim_length}' \
-        --cores ${task.cpus} --output_dir . '${raw_r1}' \
+        ${adapter_args} --cores ${task.cpus} --output_dir . '${raw_r1}' \
         2>&1 | tee '${meta.id}.trim_galore_reports/trim_galore.log'
     [[ -s '${generated}' ]]
     mv '${generated}' '${meta.trimmed_r1_name}'
-    cp '${meta.trimmed_r1_name}' '${meta.trimmed_r1}.nextflow.tmp'
-    mv '${meta.trimmed_r1}.nextflow.tmp' '${meta.trimmed_r1}'
+    if [[ '${meta.trim_legacy_publish != false}' == 'true' ]]; then
+        cp '${meta.trimmed_r1_name}' '${meta.trimmed_r1}.nextflow.tmp'
+        mv '${meta.trimmed_r1}.nextflow.tmp' '${meta.trimmed_r1}'
+    fi
+    if [[ -s '${raw_r1.name}_trimming_report.txt' ]]; then
+        cp '${raw_r1.name}_trimming_report.txt' '${meta.id}.trim_galore_reports/'
+    fi
     printf '"%s":\n    trim_galore: "%s"\n    cutadapt: "%s"\n' '${task.process}' \
         "\$(trim_galore --version 2>&1 | awk 'tolower(\$1)=="version" {print \$2; exit}')" \
         "\$(cutadapt --version 2>&1 | awk 'NF {print \$NF; exit}')" \
@@ -46,7 +58,7 @@ process TRIM_GALORE_SINGLE {
     """
     printf '@stub\nACGT\n+\nIIII\n' | gzip -c > '${meta.trimmed_r1_name}'
     mkdir -p '${meta.id}.trim_galore_reports' '${meta.trimmed_dir}'
-    cp '${meta.trimmed_r1_name}' '${meta.trimmed_r1}'
+    if [[ '${meta.trim_legacy_publish != false}' == 'true' ]]; then cp '${meta.trimmed_r1_name}' '${meta.trimmed_r1}'; fi
     printf '[STUB] single-end trim\n' > '${meta.id}.trim_galore_reports/trim_galore.log'
     printf '"TRIM_GALORE_SINGLE":\n    trim_galore: stub\n    cutadapt: stub\n' > '${meta.id}.versions.yml'
     printf '{"id":"%s","process":"TRIM_GALORE_SINGLE","status":"stub","library_layout":"single"}\n' '${meta.id}' > '${meta.id}.trim_galore.done'
