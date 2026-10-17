@@ -16,9 +16,11 @@ process TRIM_GALORE {
         mode: 'copy', overwrite: true,
         pattern: '*.{done,yml}'
     publishDir { meta.trimmed_dir ?: "${params.outdir}/trimmed_reads/${meta.id}" },
-        enabled: { meta.trim_native_publish == true }, mode: 'copy', overwrite: true, pattern: '*.fq.gz'
+        mode: 'copy', overwrite: true, pattern: '*.fq.gz',
+        saveAs: { name -> meta.trim_native_publish == true ? name : null }
     publishDir "${params.outdir}/pipeline_info/native_qc/trim_galore",
-        enabled: { meta.trim_native_publish == true }, mode: 'copy', overwrite: true, pattern: '*.trim_galore_reports'
+        mode: 'copy', overwrite: true, pattern: '*.trim_galore_reports',
+        saveAs: { name -> meta.trim_native_publish == true ? name : null }
 
     input:
     tuple val(meta), path(raw_r1), path(raw_r2)

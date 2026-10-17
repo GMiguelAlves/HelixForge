@@ -94,6 +94,16 @@ def main():
     trimmed = run('trimmed', True)
     if not any('TRIM_GALORE_SINGLE' in row['name'] for row in trimmed) or not any('TRIM_GALORE (' in row['name'] for row in trimmed):
         raise AssertionError('SE or PE trimmer not executed')
+    # Publication must also be exercised in stubs, not merely process exit codes.
+    for row in rows:
+        identifier = row['meta']['id']
+        for mate in range(1, len(row['reads']) + 1):
+            published = root / 'trimmed/results/trimmed_reads' / identifier / f'{identifier}.trimmed_R{mate}.fq.gz'
+            if not published.is_file() or not published.stat().st_size:
+                raise AssertionError(f'missing published trimmed FASTQ: {identifier}, mate {mate}')
+        reports = root / 'trimmed/results/pipeline_info/native_qc/trim_galore' / f'{identifier}.trim_galore_reports'
+        if not reports.is_dir() or not any(reports.iterdir()):
+            raise AssertionError(f'missing published trimming reports: {identifier}')
     if not args.stub:
         manifests = list((root / 'trimmed/results/pipeline_info/native_qc/read_trimming').glob('*.trimming.manifest.json'))
         if len(manifests) != 4:
