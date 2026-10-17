@@ -2,6 +2,7 @@ include { CHIPSEQ_NATIVE_FOUNDATION } from '../subworkflows/local/chipseq/native
 include { PEAK_ANNOTATION } from '../subworkflows/local/chipseq/peak_annotation'
 include { TRACK_GENERATION } from '../subworkflows/local/chipseq/tracks'
 include { CHIPSEQ_REPORT } from '../subworkflows/local/chipseq/report'
+include { CHIPSEQ_POST_CONSENSUS } from '../subworkflows/local/chipseq/post_consensus'
 
 
 def resolve_track_inventory_location(inventory_file, value) {
@@ -19,16 +20,49 @@ workflow CHIPSEQ {
     seed
 
     main:
-    config_file = file(params.chipseq_config, checkIfExists: true)
     pipeline_root = "${projectDir}/pipelines/chipseq"
     run_mode = params.chipseq_run_mode.toString().toLowerCase()
     terminal_manifest_ch = channel.empty()
     terminal_bundle_ch = channel.empty()
-    if (!(run_mode in ['qc', 'alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'annotation', 'tracks', 'report', 'full'])) {
-        error "Unknown chipseq_run_mode '${params.chipseq_run_mode}'. Use qc, alignment, post_alignment, peaks, peak_qc, consensus, idr, differential_binding, annotation, tracks, report, or full."
+    if (!(run_mode in ['qc', 'alignment', 'post_alignment', 'peaks', 'peak_qc', 'consensus', 'idr', 'differential_binding', 'annotation', 'tracks', 'report', 'post_consensus', 'full'])) {
+        error "Unknown chipseq_run_mode '${params.chipseq_run_mode}'. Use qc, alignment, post_alignment, peaks, peak_qc, consensus, idr, differential_binding, annotation, tracks, report, post_consensus, or full."
     }
 
-    if (run_mode == 'report') {
+    if (run_mode == 'post_consensus') {
+        if (!params.chipseq_continuation_manifest) { error 'post_consensus requires --chipseq_continuation_manifest' }
+        if (params.chipseq_db_enabled != null && params.chipseq_db_enabled.toString().toLowerCase() != 'false') {
+            error 'post_consensus does not run Differential Binding'
+        }
+        def inventory_file = file(params.chipseq_continuation_manifest, checkIfExists: true)
+        def document = new groovy.json.JsonSlurper().parse(inventory_file.toFile())
+        if (document.schema_version != '1.0' || document.type != 'chipseq_continuation_input') {
+            error 'Continuation inventory must declare schema_version=1.0 and type=chipseq_continuation_input'
+        }
+        if (!(document.project instanceof Map) || !(document.metadata instanceof Map) || !(document.reference instanceof Map) ||
+            !(document.peaks instanceof List) || !document.peaks || !(document.records instanceof List) || !document.records ||
+            (document.source_manifests != null && !(document.source_manifests instanceof List))) {
+            error 'Continuation requires project, metadata, reference, peaks and records'
+        }
+        def paths = []
+        def register = { value ->
+            if (!(value instanceof String) || !value.trim()) { error 'Continuation path roles must be nonempty strings' }
+            def path = file(resolve_report_inventory_location(inventory_file, value), checkIfExists: true)
+            def index = paths.indexOf(path)
+            if (index < 0) { paths << path; index = paths.size() - 1 }
+            index
+        }
+        def request = [project: document.project,
+            metadata: [table: register.call(document.metadata.table), manifest: register.call(document.metadata.manifest)],
+            reference: [fasta: register.call(document.reference.fasta), annotation: register.call(document.reference.annotation), manifest: register.call(document.reference.manifest)],
+            peaks: document.peaks.collect { entry -> [peaks: register.call(entry.peaks), manifest: register.call(entry.manifest)] },
+            records: document.records.collect { record -> [record_id: record.record_id, bam: register.call(record.bam), bai: register.call(record.bai), manifest: register.call(record.manifest)] },
+            source_manifests: (document.source_manifests ?: []).collect { value -> register.call(value) }]
+        CHIPSEQ_POST_CONSENSUS(channel.value(tuple([id: 'chipseq.continuation'], request, paths)))
+        completed_ch = CHIPSEQ_POST_CONSENSUS.out.completed
+        logs_ch = CHIPSEQ_POST_CONSENSUS.out.logs
+        terminal_manifest_ch = CHIPSEQ_POST_CONSENSUS.out.terminal_manifest
+        terminal_bundle_ch = CHIPSEQ_POST_CONSENSUS.out.terminal_bundle
+    } else if (run_mode == 'report') {
         if (params.chipseq_report_input_manifest == null || params.chipseq_report_input_manifest.toString().trim() == '') {
             error 'Native report mode requires --chipseq_report_input_manifest'
         }
@@ -212,6 +246,7 @@ workflow CHIPSEQ {
         completed_ch = PEAK_ANNOTATION.out.status
         logs_ch = PEAK_ANNOTATION.out.reports
     } else {
+        config_file = file(params.chipseq_config, checkIfExists: true)
         CHIPSEQ_NATIVE_FOUNDATION(config_file, pipeline_root, seed)
         completed_ch = CHIPSEQ_NATIVE_FOUNDATION.out.completed
         logs_ch = CHIPSEQ_NATIVE_FOUNDATION.out.logs

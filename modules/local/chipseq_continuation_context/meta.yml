@@ -1,0 +1,4 @@
+name: CHIPSEQ_CONTINUATION_CONTEXT
+description: Validate explicitly declared accepted consensus/IDR, final BAMs, metadata and reference inputs before postprocessing.
+input: [meta, request, inputs]
+output: [artifacts, reports, versions, status]

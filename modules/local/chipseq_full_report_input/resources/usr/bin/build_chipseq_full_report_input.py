@@ -15,7 +15,7 @@ TYPE_COMPONENT = {
     "alignment": "alignment", "bam_aligned": "alignment",
     "bam_final": "bam", "peak_calling": "peak",
     "peak_qc": "peak_qc", "peak_qc_summary": "peak_qc",
-    "consensus_idr": "consensus_idr", "consensus_idr_summary": "consensus_idr", "idr": "consensus_idr",
+    "consensus": "consensus_idr", "consensus_idr": "consensus_idr", "consensus_idr_summary": "consensus_idr", "idr": "consensus_idr",
     "differential_binding": "differential_binding",
     "differential_binding_contrast": "differential_binding",
     "peak_annotation": "annotation", "peak_annotation_aggregate": "annotation",
@@ -83,7 +83,10 @@ def main() -> int:
             "manifest": str(path),
             "artifacts": [str(artifact) for digest, artifact in artifacts.items() if digest in declared],
         })
-    missing = sorted(set(REQUIRED) - detected)
+    required = meta.get('required_components', REQUIRED)
+    if not isinstance(required, list) or len(set(required)) != len(required) or any(role not in set(TYPE_COMPONENT.values()) for role in required):
+        raise ValueError('invalid required report components')
+    missing = sorted(set(required) - detected)
     if missing:
         raise ValueError("full report is missing required components: " + ", ".join(missing))
     undeclared = sorted(str(path) for digest, path in artifacts.items() if not any(digest in declared_hashes(json.loads(manifest.read_text(encoding="utf-8"))) for manifest in args.manifest))
@@ -93,7 +96,7 @@ def main() -> int:
     inventory = {
         "schema_version": "1.0", "type": "chipseq_report_input",
         "project": {field: meta[field] for field in ("project_id", "dataset", "genome_id", "build")},
-        "required_components": REQUIRED, "components": entries,
+        "required_components": required, "components": entries,
     }
     args.output.write_text(json.dumps(inventory, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(f"Prepared full report input with {len(entries)} manifests and {len(artifacts)} semantic artifacts")
