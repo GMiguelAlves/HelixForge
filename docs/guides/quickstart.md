@@ -5,6 +5,7 @@
 ```bash
 git clone https://github.com/GMiguelAlves/HelixForge.git
 cd HelixForge
+git checkout v1.2.0
 curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
 NEXTFLOW="$PWD/nextflow" bin/helixforge-doctor
 ./nextflow run . -profile test -stub-run \

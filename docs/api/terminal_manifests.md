@@ -27,6 +27,12 @@ associations and differential-binding results are scientific artifacts. BAMs,
 signal tracks and the report remain useful terminal products but their role is
 explicitly distinct from evidence integration.
 
+In DB-disabled `full` and `post_consensus`, DB is recorded as `not_requested`;
+there are no fabricated contrasts or DB artifacts. Accepted-artifact
+continuation retains original producer IDs/checksums. Report-only mode does
+not create a new assay terminal bundle. See
+[stage composition](../guides/chipseq-stage-composition.md).
+
 ## Generation
 
 `RUN_MANIFEST` receives the normalized metadata, Reference Bundle manifest,
@@ -34,6 +40,11 @@ upstream manifests and an ordered set of semantic artifact descriptors directly
 from the workflow. Paths are tracked Nextflow inputs. The process adds checksums
 and provenance, validates the result and publishes it without changing any
 scientific output directory or filename.
+
+The run identity includes the generated Nextflow execution name. Consequently,
+a resumed run may refresh the terminal manifest while every eligible scientific
+task remains cached. Consumers should use artifact checksums and source
+identities, not byte identity of run-level provenance across invocations.
 
 Normal executions validate the generated document against JSON Schema Draft
 2020-12 and then apply semantic checks. Dependency-free `-stub-run` execution

@@ -115,8 +115,14 @@ flowchart LR
     CTX["Context adapter"] --> META["Metadata and controls"]
     META --> FQC["FASTQC"]
     FQC --> MQC["MULTIQC"]
-    META --> IDX["BOWTIE2_INDEX keyed by reference"]
-    IDX --> ALN["BOWTIE2_ALIGN"]
+    META --> TA["Optional shared SE/PE read trimming + audits"]
+    TA --> FT["Post-trim FASTQC"]
+    FT --> MQC
+    META --> IDX{"Reference-keyed Bowtie2 index"}
+    IDX -->|build| BI["BOWTIE2_INDEX"]
+    IDX -->|prebuilt bundle| BV["BOWTIE2_INDEX_VALIDATE"]
+    BI --> ALN["BOWTIE2_ALIGN on selected raw/trimmed reads"]
+    BV --> ALN
     ALN --> SEL["BAM_SELECT"]
     SEL --> DUP["BAM_DUPLICATES"]
     DUP --> BL["BAM_BLACKLIST"]
@@ -124,8 +130,10 @@ flowchart LR
     FINAL --> PEAK["MACS3 Peak Calling API"]
     PEAK --> PQC["Peak QC API"]
     PQC --> CONS["Consensus or IDR context"]
-    CONS --> DB["Differential Binding API"]
-    PEAK -. manifest inventory .-> ANN["Peak Annotation API"]
+    CONS -->|when requested| DB["Differential Binding API"]
+    CONS -. manifest inventory .-> ANN["Peak Annotation API"]
+    CONT["Accepted consensus/IDR continuation"] --> ANN
+    CONT --> TRACK
     FINAL -. manifest inventory .-> TRACK["Track Generation API"]
     PQC -. component manifests .-> REPORT["ChIP-seq Report API"]
     CONS -. component manifests .-> REPORT
@@ -148,14 +156,17 @@ manifests and do not search result directories.
 
 Native staged modes are `qc`, `alignment`, `post_alignment`, `peaks`,
 `peak_qc`, `consensus`, `idr`, `differential_binding`, `annotation`, `tracks`,
-and `report`. ChIP-seq `full` composes those native APIs in one Nextflow session,
+`report`, and `post_consensus`. ChIP-seq `full` composes those native APIs in one Nextflow session,
 passing typed channels and manifests from QC through the final report. It has no
 legacy fallback. IDR is optional and selected explicitly; its completed
-provider-neutral artifacts flow through Differential Binding, Annotation and
+provider-neutral artifacts flow through optional Differential Binding, Annotation and
 Report without special filename discovery.
 The complete path also emits `chipseq_run_manifest.json` from explicit channels,
 including controls, marks/factors, terminal BAMs, consolidated peaks,
-differential binding, peak-gene annotation, tracks and report artifacts.
+requested differential binding, peak-gene annotation, tracks and report artifacts.
+Without a DB request, annotation, tracks and reporting still complete and DB
+is recorded as `not_requested`. The `post_consensus` inventory supports the
+same postprocessing from retained artifacts without any upstream producer.
 
 ## Contracts and provenance
 

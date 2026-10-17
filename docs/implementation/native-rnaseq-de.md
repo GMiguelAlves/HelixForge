@@ -1,76 +1,44 @@
 # Native RNA-seq differential expression
 
-> **Historical implementation record.** The current contract is documented in
-> the [Differential Expression API](../api/differential_expression_api.md).
-
-## Implemented flow
+The [Differential Expression API](../api/differential_expression_api.md)
+consumes provider-neutral Import outputs, not Salmon/STAR directories.
 
 ```mermaid
 flowchart LR
-    IMPORT["Import API manifest + counts + metadata"] --> CONTEXT["RNASEQ_DE_CONTEXT"]
-    CONTEXT --> PREFLIGHT["DE_PREFLIGHT"]
-    PREFLIGHT --> MODEL["DESEQ2_MODEL per design"]
-    MODEL --> C1["DESEQ2_CONTRAST 1"]
-    MODEL --> C2["DESEQ2_CONTRAST N"]
-    C1 --> AGG["DE_AGGREGATE"]
-    C2 --> AGG
-    AGG --> COMMON["Differential Expression API results"]
-    AGG --> LEGACY["Legacy-compatible DEG directory"]
+    I[Import manifest + counts + metadata] --> C[RNASEQ_DE_CONTEXT]
+    C --> P[DE_PREFLIGHT]
+    P --> M[DESEQ2_MODEL per design]
+    M --> X[DESEQ2_CONTRAST per comparison]
+    X --> A[DE_AGGREGATE]
+    A --> R[Native Report API and terminal manifest]
 ```
 
-`DE_PREFLIGHT` checks Import manifest checksums, sample identity, design
-fields, missing values, replicate counts, contrast levels, uniqueness, count
-validity, filtering policy and matrix rank. Only the Wald test is accepted.
-`DESEQ2_MODEL` applies the explicit fractional-count and filter policies,
-preserves formula ordering, and runs default `DESeq()` fitting, normalized
-counts, DDS, PCA, and heatmap behavior.
-`DESEQ2_CONTRAST` preserves `results(..., alpha=0.05)`, contrast direction,
-annotation, table layout, volcano plot, and significance thresholds.
+`DE_PREFLIGHT` validates checksums, sample identity, biological replication,
+contrast levels, count/filter policies and model rank. Only the supported Wald
+test is accepted. Batch belongs in an estimable design, such as
+`~ batch + condition`; corrected visualization matrices never replace the
+inferential Import counts.
 
-The model and each contrast have independent deep-cache keys. The aggregate
-restores `dds_<variable>.rds`, `normalized_counts_<variable>.tsv`,
-`contrasts/DEG_*.tsv`, plots, `deg_summary.tsv`, `DEGs_all_results.tsv`,
-`DEGs_significant.tsv`, and `analysis_summary.txt` under the unchanged
-`DEG_DIR/all_projects/raw` target. Provider-neutral results use `statistic`
-while compatibility tables retain DESeq2's `stat`.
+Model fitting, contrasts and aggregation are separate deep-cache boundaries.
+A contrast-only change preserves a compatible fitted model. The aggregate
+retains the documented count/DE tables, DDS objects and scientific figures.
+Provider-neutral results expose `statistic`; compatibility tables retain
+DESeq2's `stat`. Historical scripts remain only in `rnaseq-legacy-v1.0.0`;
+`--rnaseq_native_de false` cannot select a fallback.
 
-## Legacy mapping
+## Validation
 
-| Legacy responsibility | Native implementation |
-|---|---|
-| user DE JSON + validation | `RNASEQ_DE_CONTEXT` + `DE_PREFLIGHT` |
-| DESeq2 fit inside `deseq2_analysis.R` | `DESEQ2_MODEL` |
-| pairwise `results()` loop | one `DESEQ2_CONTRAST` per comparison |
-| concatenation and summary writes | `DE_AGGREGATE` |
-| Slurm array submission | Nextflow executor and `de_*` labels |
+The repository checks invalid designs/counts/contrasts, provider stubs,
+legacy-versus-native semantic regression, container execution and contrast-only
+cache behavior. Run the corresponding fixtures with the certified runtime:
 
-The original scripts are archived in `rnaseq-legacy-v1.0.0`. The current
-workflow rejects `--rnaseq_native_de false` rather than silently selecting an
-uncertified fallback.
+```bash
+NEXTFLOW=/path/to/official/nextflow tests/native_de/run_stub.sh
+NEXTFLOW=/path/to/official/nextflow tests/native_de/run_regression.sh
+```
 
-## Validation record
-
-- Nextflow 26.04.2 lint: passed; no new native-DE warnings.
-- Full hybrid RNA-seq `stub-run`: passed through the report wrapper.
-- Isolated native DE `stub-run`: passed.
-- Preflight cases for valid input, duplicate samples, unavailable contrast
-  level, missing design/contrast values, negative counts, and unsupported LRT:
-  passed.
-- R parse validation for both provider scripts: passed.
-- Contrast-only cache regression: prepared in `run_cache_tests.sh`; not run
-  locally because it requires the same complete image as scientific regression.
-- Scientific legacy-versus-native regression: prepared in
-  `tests/native_de/run_regression.sh`, but not executed locally. The exact
-  DESeq2 1.42.0 BioContainer was verified; the derived image build failed while
-  compiling `rtracklayer` because `XML` lacked system headers. The Dockerfile
-  was corrected, but its second build was intentionally stopped to avoid more
-  compute and credit use.
-
-No scientific-equivalence claim is made until `run_regression.sh` passes. No
-real benchmark is reported; stub timing is not scientifically useful.
-
-## Subsequent status
-
-The pinned DESeq2 runtime, regression path and downstream reporting were
-completed after this implementation record. Batch remains a design covariate;
-matrix correction is exploratory and never enters inference automatically.
+The regression uses the pinned DESeq2 image and requires its container runtime.
+It is separate from biological interpretation and from the frozen
+[RNA-seq benchmark](../../benchmark/rnaseq/README.md). Runtime versions and
+support boundaries are in the [inventory](../guides/runtime-inventory.md) and
+[limitations](../guides/limitations.md).

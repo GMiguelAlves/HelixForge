@@ -40,7 +40,7 @@ No native module invokes `sbatch`.
 
 ```mermaid
 flowchart TD
-    CFG["Legacy pipeline_config.sh"] --> REF["Reference wrapper: prepare FASTA/GTF only"]
+    CFG["pipeline_config.sh"] --> REF["Native Reference Bundle"]
     CFG --> PLAN["RNASEQ_ALIGNMENT_PLAN adapter"]
     QC["Native QC merged FASTQs"] --> PLAN
     REF --> RI["REFERENCE_INDEX interface"]
@@ -51,8 +51,8 @@ flowchart TD
     SA --> BAM["BAM + BAI"]
     SA --> COUNTS["ReadsPerGene.out.tab"]
     SA --> OBS["logs + statistics + versions + provenance"]
-    COUNTS --> TX["tximport/import_star_counts.py wrapper"]
-    TX --> DEG["DESeq2 wrapper"]
+    COUNTS --> TX["Native STAR Import API"]
+    TX --> DEG["Native Differential Expression API"]
 ```
 
 STAR is an optional, experimental provider. It runs in explicit `alignment` or
@@ -111,20 +111,20 @@ Cache tests with official Nextflow 26.04.2 pass these cases:
 2. changed STAR argument: index cached, alignment recomputed;
 3. changed FASTQs: index cached, alignment recomputed.
 
-The locally installed 26.04.6 development artifact did not restore even a
-one-line cache probe, so 26.04.2 is the validated runtime for this stage.
+These are historical provider-level checks, not the current runtime pin.
+Use Nextflow 25.10.7 and Java 21 through the official launcher; see
+[execution and cache policy](../guides/nextflow.md). STAR remains experimental.
 
 ## Reuse for ChIP-seq
 
-Add `BOWTIE2_INDEX` and `BOWTIE2_ALIGN` providers that implement the same two
-contracts, then extend only the dispatcher branches for `meta.aligner ==
-'bowtie2'`. The ChIP-seq workflow will translate its sample metadata into the
-same tuples and consume `aligned_bam`, `bam_index`, `logs`, and `statistics`.
-Existing ChIP filtering and peak-calling scripts need not change.
+`BOWTIE2_INDEX`, `BOWTIE2_INDEX_VALIDATE` and `BOWTIE2_ALIGN` implement the same
+reference/alignment contracts for ChIP-seq. The generic dispatcher selects them
+through `meta.aligner == 'bowtie2'`; ChIP filtering and peak calling remain
+separate native APIs.
 
-## Next migration
+## Downstream APIs
 
 The separate Quantification and Import APIs are now implemented. Import splits
 transcript-to-gene extraction from matrix construction and regresses STAR
-counts/CPM plus Salmon counts/TPM. The next boundary is a provider-neutral
-Differential Expression API.
+counts/CPM plus Salmon counts/TPM. The provider-neutral Differential Expression
+and Report APIs are also native; no analytic wrapper remains in this path.

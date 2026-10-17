@@ -1,6 +1,6 @@
 # Runtime and container inventory
 
-This inventory groups the module-declared runtimes used by HelixForge v1.0.0.
+This inventory groups the module-declared runtimes used by HelixForge v1.2.0.
 `nextflow.config` and `nextflow_schema.json` are the executable
 sources of truth; every process records its observed tool/version metadata.
 
@@ -16,7 +16,7 @@ sources of truth; every process records its observed tool/version metadata.
 | DE adapters / STAR import | `ghcr.io/gmiguelalves/helixforge-import-python:1.0.0@sha256:f09b...e456` | digest pinned, amd64 |
 | DESeq2 | `ghcr.io/gmiguelalves/helixforge-deseq2:1.0.1@sha256:0356...61eb` | digest pinned, amd64; SBOM/provenance published |
 | RNA gene report | `ghcr.io/gmiguelalves/helixforge-rnaseq-report:1.0.0@sha256:ec88...f863` | digest pinned |
-| Bowtie2 and BAM processing | `ghcr.io/gmiguelalves/helixforge-chipseq-alignment:1.0.0@sha256:9c4e...928e` | digest pinned |
+| Bowtie2 and BAM processing | `ghcr.io/gmiguelalves/helixforge-chipseq-alignment:1.0.0@sha256:3f7e...1876` | digest pinned; includes `procps` for task metrics |
 | MACS3 | `quay.io/biocontainers/macs3:3.0.4--py312h71493bf_0@sha256:1559...51cb` | digest pinned |
 | FRiP / interval consensus | `ghcr.io/gmiguelalves/helixforge-chipseq-intervals:1.0.0@sha256:9b22...e479` | digest pinned |
 | IDR | `quay.io/biocontainers/idr:2.0.4.2--py39h031d066_12@sha256:d6fb...61eb` | digest pinned |
@@ -37,11 +37,12 @@ hardening item. STAR uses its declared Seqera image and remains experimental.
 
 ## Apptainer and Conda
 
-Apptainer/Singularity references are declared alongside their OCI providers,
-and module Conda environments are versioned in module directories. They remain
-**experimental** because the validation cluster did not provide an
-administrator-supported Apptainer runtime with GHCR/Quay and required mount
-access, and a complete clean Conda smoke was not run.
+Apptainer/Singularity references are declared alongside their OCI providers.
+Before deployment, validate the runtime, registry access and input/output
+mounts on the target site. Module Conda environments are versioned in module
+directories. Reduced real-tool workflows have passed with existing Conda
+toolchains, which does not certify clean recreation of every environment by
+`-profile conda`. These profiles remain **experimental**.
 
 ## Container build workflows
 

@@ -99,7 +99,8 @@ available when they were written.
 
 ## Releases and legacy migration — `releases/` and `legacy/`
 
-- [v1.1.0 notes](releases/release-notes-v1.1.0.md) ·
+- [v1.2.0 notes](releases/release-notes-v1.2.0.md) ·
+  [v1.1.0 notes](releases/release-notes-v1.1.0.md) ·
   [v1.0.2 notes](releases/release-notes-v1.0.2.md) ·
   [v1.0.1 notes](releases/release-notes-v1.0.1.md) ·
   [v1.0.0 notes](releases/release-notes-v1.0.0.md) ·

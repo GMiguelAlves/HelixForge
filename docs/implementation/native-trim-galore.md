@@ -40,7 +40,7 @@ flowchart LR
 For each QC-plan row, the native task produces exactly the configured
 `trimmed_run_r1` and `trimmed_run_r2` paths. It also preserves the two Trim
 Galore `*_trimming_report.txt` files in the same directory. Copy-to-target uses
-a temporary filename followed by an atomic rename, so downstream wrappers do
+a temporary filename followed by an atomic rename, so downstream consumers do
 not observe partial files.
 
 The task command is equivalent to the legacy command:

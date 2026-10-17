@@ -8,7 +8,7 @@ import shutil
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
-IMAGE = 'ghcr.io/gmiguelalves/helixforge-chipseq-alignment:1.0.0@sha256:9c4e4169e498f72e9c9f123f2f5eb05a18bc2fabd5a3446beeac10df1514928e'
+IMAGE = 'ghcr.io/gmiguelalves/helixforge-chipseq-alignment:1.0.0@sha256:3f7e3008a39b85606109b056d75d7d4316086ff06cfd7e8ca230c2a0b9831876'
 
 
 def main():

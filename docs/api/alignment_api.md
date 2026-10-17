@@ -3,7 +3,7 @@
 Alignment API version: `1.1`
 
 This contract separates workflow semantics from the selected aligner. RNA-seq
-and future ChIP-seq workflows call `REFERENCE_INDEX` and `ALIGNMENT`; they do
+and ChIP-seq workflows call `REFERENCE_INDEX` and `ALIGNMENT`; they do
 not invoke STAR, Bowtie2, HISAT2, or minimap2 processes directly.
 
 ## Reference index provider

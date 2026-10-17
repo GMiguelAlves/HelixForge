@@ -1,98 +1,49 @@
-# Validação do coordenador ChIP-seq `full` nativo
+# Native ChIP-seq full-workflow validation
 
-> **Registro histórico de validação.** Os resultados abaixo descrevem a
-> execução controlada na data indicada, não um guia de uso atual.
+The native coordinator composes QC, optional trimming, Bowtie2, BAM
+processing, MACS3, Peak QC, consensus or optional IDR, optional Differential
+Binding, annotation, tracks, reporting and the terminal assay manifest.
+There is no legacy coordinator or fallback.
 
-## Escopo
+## Functional coverage
 
-Em 13 de agosto de 2026, o modo `chipseq_run_mode=full` foi executado como uma
-única sessão Nextflow no Slurm institucional. O teste usou o fixture sintético e
-`-stub-run`; portanto, valida a composição do DAG, contratos, associação de
-canais, submissão e produção do relatório final, mas não constitui validação
-científica ou biológica.
+- Complete reduced real-tool paths, including a separate optional-IDR case.
+- `full` with DB disabled and enabled, retaining compatible upstream cache.
+- Accepted consensus/IDR continuation into annotation, tracks and reporting.
+- Report-only re-entry without scientific producers.
+- Early rejection of incompatible continuation inputs.
+- Shared read trimming, pre/post FastQC and terminal artifacts.
 
-## Runtime e limites
+The consolidated trimmed, DB-enabled fixture completed 132 tasks. Its
+identical resume reused all 131 non-terminal tasks with unchanged hashes;
+only the terminal manifest refreshed its generated execution name.
 
-- commit validado: `539ddb3`;
-- Nextflow: `25.10.7` (JAR explícito);
-- Java: Temurin/OpenJDK 21;
-- executor: Slurm, fila `general`;
-- `executor.queueSize=5`;
-- workdir e resultados no scratch do usuário;
-- nenhuma submissão aninhada nos scripts científicos.
+| Controlled change | Required behavior verified |
+|---|---|
+| One FASTQ mate | Affected sample QC/trimming/alignment repeated; other sample branches and index retained |
+| Reference sequence | Index and alignments rebuilt; read QC/trimming retained |
+| Contrast direction | Count/model products retained; contrast and aggregation repeated |
+| Trimming quality | Trimming repeated; raw FastQC and reference index retained |
+| Alignment task script | Alignments repeated; QC/trimming and index retained |
 
-## Caminho exercitado
+Descendants are cached by their actual inputs. An upstream rerun does not
+force a descendant whose inputs remain unchanged to run again. See
+[cache and invalidation](../guides/nextflow.md#cache-and-invalidation).
 
-```mermaid
-flowchart LR
-    A["Metadata + Reference Bundle"] --> B["FastQC + MultiQC"]
-    A --> C["Bowtie2"]
-    C --> D["BAM processing"]
-    D --> E["MACS3"]
-    E --> F["FRiP + Peak QC"]
-    F --> G["Consensus"]
-    G --> H["Differential Binding"]
-    G --> I["Peak Annotation"]
-    D --> J["Tracks"]
-    H --> K["Report inventory"]
-    I --> K
-    J --> K
-    K --> L["Final ChIP-seq report"]
-```
+## Reproduction and scope
 
-Annotation e Tracks foram alimentados diretamente pelos canais de Consensus,
-FINAL_BAM e Reference Bundle. O inventário do relatório foi construído a partir
-dos manifests e artefatos com checksum da mesma execução; não houve descoberta
-de arquivos publicados nem invocação recursiva do Nextflow.
+The versioned composition fixture is documented in
+[`tests/native_chipseq_composition/`](../../tests/native_chipseq_composition/README.md).
+It exercises real tools, stubs, DB composition and continuation; the controlled
+mutation matrix is a separate release validation, not a new biological or
+performance benchmark. The complete native paths have Slurm coverage;
+the v1.2.0 mutation fixture used the local executor inside a Slurm allocation
+with existing Conda toolchains. It does not additionally certify per-task
+Slurm submission or automatic Conda environment creation.
 
-## Resultado
-
-- 68 tarefas registradas no trace;
-- 68 tarefas com status `COMPLETED` e saída zero;
-- quatro Track contexts, providers e coletores de estatísticas executados: três
-  trilhas individuais e uma trilha agregada;
-- `Execution complete` registrado no log;
-- relatório final HTML/JSON e manifest produzidos;
-- fila do usuário vazia após o término.
-
-Quatro falhas de integração foram encontradas e corrigidas antes da execução
-final: aridade opcional da blacklist, achatamento da identidade
-dataset/genoma/organismo por `collect()`, fan-out incorreto do Reference Bundle
-e ordenação mutável de um intervalo imutável no agrupamento de tracks. Nenhuma
-ferramenta científica foi executada nesse stub-run.
-
-## Evidência
-
-A evidência leve de auditoria foi preservada na home institucional em
-`helixforge-validation-audits/chipseq-full-native-stub-final-20260813.zip`, com
-README em português. Workdirs e resultados temporários do scratch não são
-evidência permanente.
-
-## Atualização: execução real com IDR
-
-O caso reduzido `chipseq-production-idr-real-07` executou o caminho completo
-com ferramentas reais no Slurm usando Nextflow 25.10.7, fila máxima de cinco
-jobs e IDR 2.0.4.2 em ambiente Conda isolado. As 105 tarefas concluíram sem
-falhas. O validador aprovou 12 grupos de verificações, incluindo 12 regiões IDR
-para controle, 15 para tratado, differential binding, annotation, sete tracks
-e o relatório HTML final de 37.472 bytes.
-
-## Validações posteriores
-
-- regressões K562 CTCF e H3K27me3 concluídas e congeladas no
-  [baseline ChIP-seq](../../benchmark/chipseq/reports/chipseq_benchmark_final_report.md);
-- execução top-level com o perfil Docker;
-- execução Apptainer em infraestrutura que disponibilize o runtime.
-
-Os runtimes OCI restantes foram construídos/fixados por digest e passaram
-testes funcionais reduzidos no GitHub Actions `32368534261`. A referência
-Apptainer usa as mesmas imagens OCI, mas não foi executada no cluster.
-
-Uma tentativa posterior em Debian 13 confirmou, pelos jobs Slurm `14748` e
-`14749`, que nenhum runtime de containers está instalado nos nós. O kernel
-oferece FUSE e user namespaces, mas não foi feita instalação ad hoc de
-Apptainer no ambiente compartilhado.
-
-A certificação de containers foi encerrada com limitação externa. Os itens de
-Docker/Apptainer são certificações operacionais futuras e não bloqueiam a
-release científica.
+OCI provider certification is separate from host-tool execution and does not
+establish full Apptainer certification. See the
+[container scope](chipseq-container-certification.md). Scientific acceptance
+remains bounded by the frozen
+[ChIP-seq benchmark](../../benchmark/chipseq/reports/chipseq_benchmark_final_report.md)
+and its `PASS_WITH_LIMITATIONS` classification.

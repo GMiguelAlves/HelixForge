@@ -1,8 +1,8 @@
 # Native ChIP-seq architecture
 
-The native foundation is deliberately smaller than the legacy workflow. It
-implements explicit filtering contracts, stable final-BAM semantics and a
-provider-neutral Peak Calling API.
+The native ChIP-seq workflow composes explicit read-processing, alignment,
+filtering, peak, inference and reporting contracts. Differential Binding and
+trimming are optional; accepted artifacts can enter postprocessing directly.
 
 ```mermaid
 flowchart TD
@@ -167,6 +167,6 @@ The broader scientific baseline is documented in the
 ## Component composition
 
 The workflow composes metadata and QC, Bowtie2 alignment, BAM processing,
-MACS3 peak calling, FRiP/Peak QC, Consensus or optional IDR, Differential
+MACS3 peak calling, FRiP/Peak QC, Consensus or optional IDR, optional Differential
 Binding, Peak Annotation, Track Generation and Report APIs. Each boundary is
 manifest-driven and independently cacheable.

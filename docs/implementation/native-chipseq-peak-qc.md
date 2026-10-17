@@ -88,4 +88,6 @@ Validated in this stage:
 After this initial stage, real FRiP, MACS3, consensus/IDR and Differential
 Binding completed in the reduced top-level Slurm DAG. The joint
 SAMtools/BEDTools image also passed a reduced Docker functional test. Apptainer,
-a large dataset and a biological legacy regression remain pending.
+and a full biological legacy-versus-native regression remain outside this
+provider fixture. The subsequent reviewed biological evidence is in the frozen
+[ChIP-seq baseline](../../benchmark/chipseq/README.md).

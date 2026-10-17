@@ -157,9 +157,9 @@ See `docs/api/consensus_idr_api.md`.
 
 ## Modes and current behavior
 
-| Mode | Behavior in 0.9 |
+| Mode | Current behavior |
 |---|---|
-| `qc` | metadata validation + raw FastQC + MultiQC |
+| `qc` | metadata validation + FastQC/MultiQC; optional explicit trimming and post-trim QC |
 | `alignment` | native QC + Bowtie2 index/alignment |
 | `post_alignment` | native QC + alignment + final BAM processing |
 | `peaks` | native QC + alignment + BAM processing + per-replicate MACS3 |
@@ -170,10 +170,14 @@ See `docs/api/consensus_idr_api.md`.
 | `annotation` | external Peak/Consensus manifest + native annotation provider/statistics/aggregate; no upstream rerun |
 | `tracks` | external FINAL_BAM inventory + native deepTools provider/statistics/aggregate; no upstream rerun |
 | `report` | external semantic manifest inventory + native context/aggregate/HTML+JSON provider; no upstream rerun |
-| `full` | native single-session QC → Bowtie2 → BAM → MACS3 → Peak QC → Consensus → Differential Binding → Annotation/Tracks → Report |
+| `post_consensus` | accepted consensus/IDR + final-BAM inventory → annotation/tracks → report and terminal manifest; no upstream rerun |
+| `full` | native single-session QC → Bowtie2 → BAM → MACS3 → Peak QC → Consensus/IDR → optional Differential Binding → Annotation/Tracks → Report |
 
 `full` and every dedicated stage mode now resolve exclusively to native
-providers. The retired implementation is available only from the immutable
+providers. `--chipseq_postprocess true` also appends annotation/tracks/report
+to `consensus` or `idr`; DB is enabled only when requested with a valid design.
+See [composition and continuation](../guides/chipseq-stage-composition.md).
+The retired implementation is available only from the immutable
 `chipseq-legacy-v1.0.0` tag.
 
 ## Differential Binding API v1
@@ -184,7 +188,8 @@ comparison universe and emits separate count/model/contrast specs.
 `PEAK_COUNTING_PROVIDER` dispatches featureCounts, `DESEQ2_DB_MODEL` fits one
 raw-count Wald model, `DESEQ2_DB_CONTRAST` fans out named directions and
 `DB_AGGREGATE` produces the downstream manifest. See
-`docs/api/differential_binding_api.md`. No biological validation is claimed.
+`docs/api/differential_binding_api.md`. Functional coverage is separate from
+the frozen [biological benchmark](../../benchmark/chipseq/reports/chipseq_benchmark_final_report.md).
 
 ## Peak Annotation API v1
 

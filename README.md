@@ -5,7 +5,7 @@ and cross-assay molecular evidence integration. It preserves explicit
 scientific contracts, provenance, and deterministic outputs while remaining
 ready for future assay providers.
 
-**Current stable release: HelixForge v1.1.0.** The validated release retains an
+**Current stable release: HelixForge v1.2.0.** The frozen v1 scientific baselines retain an
 overall benchmark classification of `PASS_WITH_LIMITATIONS`; the documented
 limitations bound the validated scope without indicating a central scientific
 implementation failure.
@@ -54,6 +54,7 @@ scientific analysis or download biological data.
 ```bash
 git clone https://github.com/GMiguelAlves/HelixForge.git
 cd HelixForge
+git checkout v1.2.0
 curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
 NEXTFLOW="$PWD/nextflow" bin/helixforge-doctor
 ./nextflow run . -profile test -stub-run \
@@ -114,8 +115,9 @@ also produces Nextflow trace, timeline, report and DAG artifacts. See
 [Outputs](docs/guides/outputs.md), [Terminal manifests](docs/api/terminal_manifests.md),
 and [Versioning](docs/releases/versioning.md).
 
-HelixForge distinguishes byte-exact artifacts (for example FASTQ and BAM),
-semantic artifacts (JSON/TSV where paths or serialization may vary), and
+HelixForge checks artifact integrity with checksums and distinguishes byte-exact
+comparisons from semantic comparisons (including BAM records, JSON/TSV and
+documented numerical tolerances), and
 generated presentation artifacts. Scientific policies and validation evidence
 are documented in the [Scientific reference](docs/science/scientific-reference.md).
 
@@ -131,10 +133,8 @@ Start at the [documentation index](docs/index.md):
 - [Architecture](docs/architecture/architecture.md)
 - [Roadmap](docs/roadmap.md)
 - [Developer guide](docs/guides/developer-guide.md)
+- [HelixForge v1.2.0 release notes](docs/releases/release-notes-v1.2.0.md)
 - [HelixForge v1.1.0 release notes](docs/releases/release-notes-v1.1.0.md)
-- [HelixForge v1.0.2 release notes](docs/releases/release-notes-v1.0.2.md)
-- [HelixForge v1.0.1 release notes](docs/releases/release-notes-v1.0.1.md)
-- [HelixForge v1.0.0 release notes](docs/releases/release-notes-v1.0.0.md)
 
 The same curated user documentation is published in the
 [GitHub Wiki](https://github.com/GMiguelAlves/HelixForge/wiki).

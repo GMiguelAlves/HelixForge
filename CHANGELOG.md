@@ -7,6 +7,38 @@ contract/model versions evolve independently as documented in
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-17
+
+### Added
+
+- Explicit manifest-validated Bowtie2 index reuse, independent of the original
+  task cache, with strict reference/version/parameter/shard integrity checks.
+- Optional ChIP-seq trimming through shared SE/PE Trim Galore modules, full-stream
+  read audits, pre/post FastQC and MultiQC, with explicit ChIP-specific policy.
+- Optional Differential Binding in `full`, postprocessing after consensus/IDR,
+  and accepted-artifact `post_consensus` continuation into annotation, tracks,
+  reporting and terminal manifests without repeating upstream producers.
+
+### Fixed
+
+- Preserve declared technical-library identities during Import sample-table
+  construction and reject incomplete or conflicting technical-unit metadata.
+- Publish complete Bowtie2 index bundles, normalize index metadata paths before
+  JSON serialization and include helper source in task hashing/container scope.
+- Pin the certified joint Bowtie2/SAMtools image with `procps` for task metrics.
+- Preserve optional-component `not_requested` states and report-only isolation.
+- Validate documentation links when the checkout is below a `work` ancestor;
+  reject empty checks instead of reporting success without inspecting links.
+
+### Documentation and validation
+
+- Refresh public guides, architecture, output paths, runtime support and release
+  navigation; keep only the two latest release links in the main README.
+- Document identical scientific-task cache reuse, expected terminal-provenance
+  refresh and selective FASTQ/reference/contrast/QC/module-script invalidation.
+- Retain all frozen benchmark decisions and scientific model versions. The
+  reduced functional validation does not extend biological or Apptainer claims.
+
 ## [1.1.0] - 2026-10-09
 
 ### Added

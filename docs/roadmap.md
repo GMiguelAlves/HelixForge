@@ -9,18 +9,29 @@ and documentation are complete.
 
 Status: **completed with an external operational limitation**.
 
-The RNA-seq and ChIP-seq OCI runtimes were certified with reduced functional
-Docker tests, and both complete synthetic scientific paths were validated on
-Slurm with controlled runtimes. The institutional cluster did not provide an
-administrator-supported Apptainer runtime on either the head node or compute
-nodes. Consequently, an end-to-end Apptainer run with registry pulls from GHCR
-and Quay and the required `/home` and `/scratch` mounts could not be performed.
+RNA-seq and ChIP-seq OCI providers have reduced functional Docker coverage,
+and reduced complete paths have passed inside Slurm allocations with controlled
+toolchains. Apptainer end-to-end certification remains pending and requires a
+supported runtime, GHCR/Quay access and consistent input/work/output mounts on
+both management and execution nodes. Container certification and host-tool
+execution are distinct evidence; neither implies the other.
 
-This infrastructure absence is documented and is not a scientific failure or
-a release gate for HelixForge. If the cluster later provides that complete
-runtime configuration, the versioned probe and full synthetic workflow should
-be repeated as an operational certification without reopening the pipeline
-architecture.
+## ChIP-seq composition and read processing
+
+Status: **implemented in v1.2.0; reduced functional validation passed**.
+
+- Explicit prebuilt Bowtie2 indexes are validated without reconstruction.
+- Trimming is optional and reuses shared single/paired-end Trim Galore modules
+  with an explicit ChIP policy; raw reads remain the default.
+- Differential Binding is optional in `full`; consensus/IDR can continue into
+  annotation, tracks and reporting without invented contrasts.
+- `post_consensus` supports accepted-artifact continuation without FASTQs or
+  the original work directory; report-only mode remains isolated.
+- Identical resume and selective FASTQ/reference/contrast/QC/script changes
+  have reduced functional coverage, separate from the frozen benchmarks.
+
+See [stage composition](guides/chipseq-stage-composition.md) and the
+[v1.2.0 release notes](releases/release-notes-v1.2.0.md).
 
 ## RNA-seq inference policy already adopted
 
@@ -37,7 +48,7 @@ architecture.
 
 ## Batch Effect Assessment API
 
-Status: **planned, post-retirement release**.
+Status: **planned for a future release**.
 
 The optional `BATCH_EFFECT_ASSESSMENT` subworkflow will consume the Import API
 manifest, uncorrected matrix, sample metadata, and the Differential Expression

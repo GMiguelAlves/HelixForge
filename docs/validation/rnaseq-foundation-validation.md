@@ -37,9 +37,6 @@ for `pipeline_config.sh`; it does not acquire or modify inputs.
 - `RNASEQ_METADATA`: executed successfully.
 - `REFERENCE_BUNDLE`: executed successfully.
 - Production Import policy: `full_length + lengthScaledTPM` accepted.
-- Queue was empty after completion.
-- Temporary validation directory (13 MB) was removed from
-  um diretório temporário dedicado no filesystem de scratch do site.
 
 The pass detected and resolved two implementation defects before completion:
 an invalid dynamic `publishDir` expression and a duplicated path segment in the
@@ -49,5 +46,6 @@ Reference Bundle stub fixture.
 
 This is structural/runtime validation, not scientific regression. Stub outputs
 prove DSL2 wiring, contracts, scheduling, stage boundaries, and report/DAG
-generation. Real biological validation remains intentionally deferred until
-the release-candidate pass with reviewed RNA-seq and ChIP-seq benchmarks.
+generation. The later reviewed biological evidence is recorded separately in
+the frozen [RNA-seq baseline](../../benchmark/rnaseq/README.md) and
+[ChIP-seq baseline](../../benchmark/chipseq/README.md).

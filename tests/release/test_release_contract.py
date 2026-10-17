@@ -14,9 +14,28 @@ class ReleaseContractTest(unittest.TestCase):
         config = (ROOT / "nextflow.config").read_text(encoding="utf-8")
         match = re.search(r"^\s*version\s*=\s*'([^']+)'", config, re.MULTILINE)
         self.assertIsNotNone(match)
-        self.assertEqual("1.1.0", match.group(1))
+        self.assertEqual("1.2.0", match.group(1))
         citation = (ROOT / "CITATION.cff").read_text(encoding="utf-8")
-        self.assertIn('version: "1.1.0"', citation)
+        self.assertIn('version: "1.2.0"', citation)
+
+    def test_readme_lists_only_two_latest_releases(self):
+        readme = (ROOT / 'README.md').read_text(encoding='utf-8')
+        notes = re.findall(r'\[HelixForge (v[\d.]+) release notes\]', readme)
+        self.assertEqual(['v1.2.0', 'v1.1.0'], notes)
+        for version in notes:
+            self.assertTrue((ROOT / f'docs/releases/release-notes-{version}.md').is_file())
+
+    def test_alignment_image_pin_matches_schema_and_functional_fixture(self):
+        config = (ROOT / 'nextflow.config').read_text(encoding='utf-8')
+        schema = json.loads((ROOT / 'nextflow_schema.json').read_text(encoding='utf-8'))
+        values = dict(re.findall(r'^\s*(\w+)\s*=\s*\x27([^\x27]+)\x27', config, re.MULTILINE))
+        for parameter in ('bowtie2_container', 'bowtie2_apptainer_container',
+                          'bam_samtools_container', 'bam_samtools_apptainer_container'):
+            self.assertEqual(schema['properties'][parameter]['default'], values[parameter])
+            self.assertIn('@sha256:', values[parameter])
+        self.assertEqual(values['bowtie2_container'], values['bam_samtools_container'])
+        fixture = (ROOT / 'tests/native_bowtie2_prebuilt/run_functional.py').read_text(encoding='utf-8')
+        self.assertIn(values['bowtie2_container'], fixture)
 
     def test_v1_benchmark_summary_preserves_all_limitations(self):
         summary = json.loads((ROOT / "benchmark/v1_benchmark_summary.json").read_text(encoding="utf-8"))
