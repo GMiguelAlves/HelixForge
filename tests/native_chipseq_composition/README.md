@@ -24,6 +24,7 @@ metadata/control/replicate identity, mandatory checksums, missing/incompatible
 inputs, omission semantics, terminal producer links, report-only isolation and
 cached reuse of compatible QC/alignment/peak tasks when DB is enabled later.
 Fixtures are artificial and do not measure biological accuracy or performance.
+Use `--only-full` to check only full composition with DB disabled/enabled.
 Unit tests use labelled placeholder files only to exercise checksum contracts;
 the real fixture creates actual BAM/BAI files with samtools. A stub explicitly
 does not certify file integrity or scientific outputs.

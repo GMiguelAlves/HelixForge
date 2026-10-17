@@ -2,8 +2,8 @@
 
 ## Scope and policy
 
-Issue #102 adds an optional, assay-neutral read-trimming adapter to the native
-ChIP-seq foundation. It reuses the existing RNA-seq `TRIM_GALORE` and
+The native ChIP-seq foundation provides an optional, assay-neutral read-trimming
+adapter. It reuses the shared `TRIM_GALORE` and
 `TRIM_GALORE_SINGLE` modules rather than introducing another trimming tool.
 Raw reads remain the default. No frozen benchmark or historical dataset is
 reprocessed or described as trimmed by this change.

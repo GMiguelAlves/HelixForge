@@ -38,7 +38,7 @@ def main():
                    '-ansi-log', 'false', '-work-dir', str(case / 'work'), '-with-trace', str(trace),
                    '--workflow', 'chipseq', '--outdir', str(case / 'results')] + options
         if args.stub:
-            command.append('-stub-run')
+            command += ['-stub-run', '--fixture_stub', 'true']
         if resume:
             command.append('-resume')
         result = subprocess.run(command, cwd=case, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
