@@ -106,10 +106,16 @@ def main():
     doc = json.loads((root / 'full/results/chipseq/chipseq_run_manifest.json').read_text())
     if doc['contrasts'] or doc['provenance']['parameters']['differential_binding'] != 'not_requested':
         raise AssertionError('full without DB invented inference')
+    expected_types = {'aligned_bam', 'peak_set', 'peak_qc', 'consensus_peaks', 'peak_gene_annotation', 'signal_track', 'chipseq_report'}
+    if not expected_types <= {a['artifact_type'] for a in doc['artifacts']}:
+        raise AssertionError('full without DB did not deliver all requested components')
     enabled = run('full', full_options + ['--chipseq_db_enabled', 'true'], resume=True)
     if not any('DB_PREFLIGHT' in task['name'] for task in enabled):
         raise AssertionError('explicit DB request was not executed')
-    if any(task['status'] != 'CACHED' for task in enabled if any(token in task['name'] for token in ('FASTQC', 'BOWTIE2', 'MACS3'))):
+    producer_tokens = ('FASTQC', 'BOWTIE2', 'MACS3')
+    initial = {task['name'] for task in disabled if any(token in task['name'] for token in producer_tokens)}
+    reused = [task for task in enabled if any(token in task['name'] for token in producer_tokens)]
+    if not initial or initial != {task['name'] for task in reused} or any(task['status'] != 'CACHED' for task in reused):
         raise AssertionError('compatible scientific producers were restarted when enabling DB')
     doc = json.loads((root / 'full/results/chipseq/chipseq_run_manifest.json').read_text())
     if not args.stub and (not doc['contrasts'] or not any(a['artifact_type'] == 'differential_binding' for a in doc['artifacts'])):

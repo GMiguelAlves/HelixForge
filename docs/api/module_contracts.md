@@ -52,6 +52,12 @@ arguments, validate expected outputs, and materialize compatibility paths.
 
 ## Common channel envelope
 
+`CHIPSEQ_EXECUTION_PLAN` gates normalized metadata with explicit requested and
+not-requested stages, reusing the DB specification/design policy when DB is
+selected. `CHIPSEQ_CONTINUATION_CONTEXT` accepts only staged, declared inputs;
+it validates checksums and identity before existing downstream providers run.
+Neither module may schedule, infer or reconstruct an upstream scientific stage.
+
 Every data item must carry a `meta` map as the first tuple element:
 
 ```nextflow

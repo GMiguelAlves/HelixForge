@@ -62,13 +62,17 @@ differential binding, annotation, tracks and reporting.
 - `--chipseq_config`: sample metadata, control relationships and references;
 - explicit peak parameters including `--chipseq_peak_type` and
   `--chipseq_effective_genome_size`;
-- `--chipseq_db_spec`: versioned design/contrast JSON for differential binding;
+- `--chipseq_db_spec`: versioned design/contrast JSON when differential binding is requested;
 - an explicit consensus strategy or optional IDR parameters when applicable.
 
 **Modes:** `qc`, `alignment`, `post_alignment`, `peaks`, `peak_qc`, `consensus`,
-`idr`, `differential_binding`, `annotation`, `tracks`, `report`, and `full`.
+`idr`, `differential_binding`, `annotation`, `tracks`, `report`, `post_consensus`, and `full`.
 Standalone annotation, tracks and report modes consume declared inventories and
 do not rerun upstream stages.
+Use `full --chipseq_db_enabled false` for complete postprocessing without DB,
+or `post_consensus` to continue from accepted consensus/IDR and final BAMs.
+See [stage composition](chipseq-stage-composition.md) for input contracts and
+`consensus`/`idr --chipseq_postprocess true`.
 
 ```bash
 nextflow run . -profile docker \

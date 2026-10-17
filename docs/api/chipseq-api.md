@@ -8,6 +8,11 @@ Bowtie2 alignment, BAM processing, MACS3 peak calling, FRiP/Peak QC, Consensus
 or optional IDR, Differential Binding, Peak Annotation, Track Generation and
 terminal Report/Integration APIs.
 
+Native stage composition supports `full` with DB explicitly disabled and
+`post_consensus` continuation from declared accepted artifacts. See the
+[composition guide](../guides/chipseq-stage-composition.md) for selection,
+validation, omission semantics and report-only re-entry.
+
 ## Common experiment metadata
 
 Each sequencing record carries a `meta` map. Required fields are:

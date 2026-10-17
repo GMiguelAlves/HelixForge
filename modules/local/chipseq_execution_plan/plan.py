@@ -20,6 +20,8 @@ def build_plan(rows, request, spec=None, db_helpers=None):
     postprocess = request['postprocess']
     if not isinstance(db, bool) or not isinstance(postprocess, bool):
         raise ValueError('stage selections must be boolean')
+    if (postprocess and mode not in {'full', 'consensus', 'idr'}) or (mode == 'full' and not postprocess):
+        raise ValueError('postprocessing selection disagrees with the requested mode')
     if db and mode not in {'full', 'differential_binding'}:
         raise ValueError('Differential Binding requires full or differential_binding mode')
     if mode == 'differential_binding' and not db:

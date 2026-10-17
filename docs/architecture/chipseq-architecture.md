@@ -51,7 +51,9 @@ flowchart TD
     INTER --> CAGG
     SUPPORT --> CAGG
     IDR --> CAGG
-    CAGG --> DBP["DB_PREFLIGHT"]
+    CAGG -->|DB requested| DBP["DB_PREFLIGHT"]
+    PLAN --> EP["Validated stage composition"]
+    EP -. "DB only when requested" .-> DBP
     DBP --> COUNT["PEAK_COUNTING_PROVIDER / featureCounts"]
     COUNT --> DBM["DESEQ2_DB_MODEL"]
     DBM --> DBC["DESEQ2_DB_CONTRAST x N"]
@@ -142,6 +144,12 @@ flowchart TD
 - `annotation`, `tracks`, and `report` remain standalone manifest-inventory
   re-entry modes. Under `full`, they are composed directly by channels and do
   not discover published result directories.
+- DB is independent from postprocessing. A validated plan gates scientific
+  inputs; full without DB and consensus/IDR with postprocessing still reach
+  annotation, tracks and reporting without a fabricated contrast.
+- `post_consensus` validates an explicit accepted-artifact inventory before
+  calling the existing annotation/track/report APIs. It contains no upstream
+  producer and preserves source IDs and not-requested component status.
 - The `full` coordinator completed a reduced end-to-end Slurm run. Separately,
   the frozen ChIP-seq benchmark includes synthetic and reviewed biological
   narrow/broad evaluations and is classified `PASS_WITH_LIMITATIONS`; these

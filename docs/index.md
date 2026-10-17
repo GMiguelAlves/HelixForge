@@ -14,6 +14,7 @@ available when they were written.
   [Output guide](guides/outputs.md)
 - [Advanced Nextflow execution](guides/nextflow.md) ·
   [Single-end RNA-seq](guides/rnaseq-single-end.md) ·
+  [ChIP-seq stage composition](guides/chipseq-stage-composition.md) ·
   [Runtime and container inventory](guides/runtime-inventory.md)
 - [Developer guide](guides/developer-guide.md) ·
   [Limitations](guides/limitations.md) ·

@@ -1,0 +1,56 @@
+name: Native ChIP stage composition
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'workflows/chipseq.nf'
+      - 'subworkflows/local/chipseq/**'
+      - 'modules/local/chipseq_execution_plan/**'
+      - 'modules/local/chipseq_continuation_context/**'
+      - 'modules/local/chipseq_full_report_input/**'
+      - 'modules/local/report_*/**'
+      - 'tests/native_chipseq_composition/**'
+      - '.github/workflows/chipseq-composition.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'workflows/chipseq.nf'
+      - 'subworkflows/local/chipseq/**'
+      - 'modules/local/chipseq_execution_plan/**'
+      - 'modules/local/chipseq_continuation_context/**'
+      - 'modules/local/chipseq_full_report_input/**'
+      - 'modules/local/report_*/**'
+      - 'tests/native_chipseq_composition/**'
+      - '.github/workflows/chipseq-composition.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  composition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install certified Nextflow launcher
+        run: curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
+      - name: Validate plans, continuation and report contracts
+        run: python3 -m unittest tests.native_chipseq_composition.test_plan tests.native_chipseq_composition.test_continuation tests.native_chipseq_full.test_full_coordinator tests.native_chipseq_report.test_report -v
+      - name: Exercise composition and isolated report re-entry
+        env:
+          NEXTFLOW_BIN: ${{ github.workspace }}/nextflow
+        run: python3 tests/native_chipseq_composition/run_functional.py --stub --output "$RUNNER_TEMP/chipseq-composition"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: chipseq-composition-functional-checks
+          path: |
+            ${{ runner.temp }}/chipseq-composition/validation.json
+            ${{ runner.temp }}/chipseq-composition/**/trace.*.tsv
+            ${{ runner.temp }}/chipseq-composition/**/console.*.log
+          if-no-files-found: warn
