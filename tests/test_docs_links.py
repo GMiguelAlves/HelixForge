@@ -11,6 +11,23 @@ SPEC.loader.exec_module(CHECK)
 
 
 class DocumentationLinksTest(unittest.TestCase):
+    def test_assay_overviews_are_linked_symmetrically(self):
+        readme = (ROOT / 'README.md').read_text(encoding='utf-8')
+        index = (ROOT / 'docs/index.md').read_text(encoding='utf-8')
+        for assay in ('rnaseq', 'chipseq'):
+            page = ROOT / f'docs/api/{assay}-api.md'
+            self.assertTrue(page.is_file(), assay)
+            self.assertIn(f'](docs/api/{assay}-api.md)', readme)
+            self.assertIn(f'](api/{assay}-api.md)', index)
+            architecture = (ROOT / f'docs/architecture/{assay}-architecture.md').read_text(encoding='utf-8')
+            self.assertIn(f'](../api/{assay}-api.md)', architecture)
+
+    def test_overviews_link_to_each_other_and_shared_alignment(self):
+        for assay, other in (('rnaseq', 'chipseq'), ('chipseq', 'rnaseq')):
+            content = (ROOT / f'docs/api/{assay}-api.md').read_text(encoding='utf-8')
+            self.assertIn(f']({other}-api.md)', content)
+            self.assertIn('](alignment_api.md)', content)
+
     def test_checkout_below_work_is_not_ignored(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary) / 'work' / 'checkout'

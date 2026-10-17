@@ -6,6 +6,8 @@ schema remains the authoritative type/default reference.
 
 ## RNA-seq
 
+Contract map: [RNA-seq APIs](../api/rnaseq-api.md).
+
 **Purpose:** transform validated local FASTQs into quantified expression,
 provider-neutral gene matrices, differential-expression results and optional
 gene reports.
@@ -52,6 +54,8 @@ does not require FASTQs, the originating work directory, or Nextflow cache.
 See [RNA-seq Report API](../api/rnaseq_report_api.md#terminal-only-re-entry).
 
 ## ChIP-seq
+
+Contract map: [ChIP-seq APIs](../api/chipseq-api.md).
 
 **Purpose:** transform validated local treatment/control FASTQs through QC,
 alignment, BAM processing, peak calling, peak quality/replicate analysis,

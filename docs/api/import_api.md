@@ -9,9 +9,10 @@ listed in that policy.
 Import API version: `1.0`
 
 The Import API converts provider-specific quantification artifacts into a
-stable gene-level representation. Downstream batch assessment, differential
-expression, and reporting consume only this representation and never inspect
-Salmon or STAR files directly.
+stable gene-level representation. Differential expression and reporting
+consume this representation and never inspect Salmon or STAR files directly.
+The planned [Batch Effect Assessment API](../roadmap.md#batch-effect-assessment-api)
+will reuse the same boundary; it is not an implemented Import consumer today.
 
 ## Boundary
 

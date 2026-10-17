@@ -3,6 +3,10 @@
 This document identifies what users and external consumers may rely on in v1.
 Anything not listed as public is an implementation detail.
 
+Assay contract maps: [RNA-seq APIs](rnaseq-api.md) and
+[ChIP-seq APIs](chipseq-api.md). These overviews organize existing contracts;
+they do not define new schema/model versions or replace the specifications.
+
 ## PUBLIC / STABLE
 
 ### Workflows
