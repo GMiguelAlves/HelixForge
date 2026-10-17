@@ -74,4 +74,6 @@ two aggregate tracks, 27 annotated peaks and a 37,472-byte final HTML report.
 The top-level validator reported `status=pass` for all 12 check groups.
 
 The reduced fixture validates runtime and contracts, not biological equivalence.
-A reviewed biological regression remains scheduled after legacy retirement.
+Subsequent biological consensus/IDR evidence is recorded in the frozen
+[ChIP-seq baseline](../../benchmark/chipseq/README.md), separately from this
+reduced runtime fixture.

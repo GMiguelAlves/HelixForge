@@ -54,8 +54,9 @@ The current migration preserves table, figure and HTML names. It does not add
 batch correction, enrichment databases or new biological interpretations.
 Certification proves the reduced provider contract and runtime. The full
 synthetic production path also passed on Slurm with 12 non-empty figures. A
-reviewed biological benchmark and broad result assessment remain a post-release
-validation milestone, as planned; they are not inferred from synthetic data.
+reviewed biological benchmark is documented separately in the frozen
+[RNA-seq baseline](../../benchmark/rnaseq/README.md);
+it is not inferred from synthetic data.
 
 ## Presentation validation
 

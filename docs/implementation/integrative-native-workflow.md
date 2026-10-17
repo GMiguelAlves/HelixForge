@@ -93,7 +93,8 @@ supported executions must use the official launcher.
   database or pathway provider;
 - externally generated absolute paths require matching mounts; portable
   manifest-relative bundles are the certified re-entry mechanism;
-- reviewed biological benchmark validation remains part of the v1 validation
-  cycle;
+- the frozen biological benchmark is `PASS_WITH_LIMITATIONS`; its IB4/IB5
+  qualifications remain in the
+  [baseline report](../../benchmark/integrative/reports/integrative_benchmark_final_report.md);
 - `-resume` requires the official Nextflow launcher and preserved cache/work
   artifacts; direct JAR execution is unsupported.

@@ -55,7 +55,7 @@ See [RNA-seq Report API](../api/rnaseq_report_api.md#terminal-only-re-entry).
 
 **Purpose:** transform validated local treatment/control FASTQs through QC,
 alignment, BAM processing, peak calling, peak quality/replicate analysis,
-differential binding, annotation, tracks and reporting.
+optional differential binding, annotation, tracks and reporting.
 
 **Primary inputs:**
 
@@ -73,6 +73,11 @@ Use `full --chipseq_db_enabled false` for complete postprocessing without DB,
 or `post_consensus` to continue from accepted consensus/IDR and final BAMs.
 See [stage composition](chipseq-stage-composition.md) for input contracts and
 `consensus`/`idr --chipseq_postprocess true`.
+
+Reads are untrimmed by default. To opt in, set `--chipseq_trim true` with
+explicit `--chipseq_trim_quality` and `--chipseq_trim_length`. The shared SE/PE
+Trim Galore modules preserve ChIP sample/control identity; see
+[trimming policy](../implementation/native-chipseq-trimming.md).
 
 ```bash
 nextflow run . -profile docker \

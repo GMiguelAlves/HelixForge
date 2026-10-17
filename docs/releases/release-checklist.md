@@ -1,5 +1,10 @@
 # Release checklist
 
+The checked entries record the original stable-v1 release gate. Each later
+release must rerun the applicable gates against its own commit; these boxes
+are not an automatic certification of a new tag. Current release scope is in
+the [v1.2.0 notes](release-notes-v1.2.0.md).
+
 ## Governance
 
 - [x] Release scope and version approved.

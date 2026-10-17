@@ -39,7 +39,7 @@ legacy compatibility path is preserved.
 
 ```mermaid
 flowchart TD
-    CFG["Legacy pipeline_config.sh"] --> REF["Reference wrapper: prepare inputs only"]
+    CFG["pipeline_config.sh"] --> REF["Native Reference Bundle"]
     QC["Native QC: merged FASTQs"] --> AP["RNASEQ_ALIGNMENT_PLAN"]
     QC --> QP["RNASEQ_QUANTIFICATION_PLAN"]
     REF --> RI["REFERENCE_INDEX API"]
@@ -59,7 +59,7 @@ flowchart TD
     SQ --> SALMONOUT["quant.sf + JSON + aux_info + logs"]
     STAROUT -. "configured import method" .-> TX["Native Import API"]
     SALMONOUT -. "configured import method" .-> TX
-    TX --> DEG["DESeq2 wrapper"]
+    TX --> DEG["Native Differential Expression API"]
 ```
 
 `--rnaseq_analysis_mode quantification` is the production default.
@@ -120,13 +120,16 @@ startup-overhead benchmark, not a production throughput comparison. The trace
 records task CPU and peak RSS; configured production resources remain the
 legacy 16/64 GB for index and 8/32 GB for quantification.
 
-Cache tests with official Nextflow 26.04.2 pass:
+Historical provider-level cache tests covered:
 
 1. identical resume: index and quantification cached;
 2. changed quantification parameter: index cached, quantification recomputed;
 3. changed FASTQs: index cached, quantification recomputed;
 4. changed transcriptome: index rebuilt and its dependent quantification
    recomputed.
+
+The current certified runtime is Nextflow 25.10.7 with Java 21 through the
+official launcher; see [execution and cache policy](../guides/nextflow.md).
 
 ## Future providers
 

@@ -44,8 +44,9 @@ experimental. Matrix batch correction is not part of inference: batch remains
 in the DESeq2 formula, while a future Batch Effect Assessment API is tracked in
 the roadmap. Pathway enrichment is also post-release roadmap work.
 
-The reviewed biological RNA-seq benchmark remains required as a post-release
-validation milestone, not as a claim inferred from this synthetic fixture.
+The reviewed biological RNA-seq benchmark was subsequently completed; see the
+[frozen baseline](../../benchmark/rnaseq/README.md). That evidence is separate
+from this reduced synthetic fixture.
 The annotated tag `rnaseq-legacy-v1.0.0` preserves the final executable legacy
 snapshot before its later removal from the default development path.
 

@@ -25,7 +25,7 @@ flowchart LR
     PROVIDER -->|STAR| STARIMPORT["STAR_IMPORT"]
     SALMONIMPORT --> COMMON["Provider-neutral matrices + metadata + manifest"]
     STARIMPORT --> COMMON
-    COMMON --> DOWNSTREAM["DESeq2 wrapper"]
+    COMMON --> DOWNSTREAM["Native Differential Expression API"]
 ```
 
 `RNASEQ_IMPORT_CONTEXT` is an adapter only: it reads the authoritative legacy
@@ -38,8 +38,9 @@ begins in the native providers.
 - `IMPORT_SAMPLE_TABLE`: joins legacy metadata to validated sources in stable
   dataset/sample order.
 - `TX2GENE_BUILD`: builds `tx2gene.tsv` independently from GTF/GFF.
-- `TXIMPORT`, exposed as `SALMON_IMPORT`: imports Salmon with the exact legacy
-  tximport arguments.
+- `TXIMPORT`, exposed as `SALMON_IMPORT`: imports Salmon with the explicit
+  [Import policy](../science/rnaseq_import_policy.md), including its separately
+  selectable legacy-compatibility mode.
 - `STAR_IMPORT`: normalizes STAR GeneCounts into counts and CPM.
 
 The removed wrapper chain is `RNASEQ_IMPORT_STEP` ->
@@ -98,10 +99,10 @@ direct gene-count pattern used by STAR. StringTie needs an adapter that binds
 its tables to the common counts/abundance roles. The RNA workflow and DESeq2
 consumer do not change when a provider is added.
 
-## Next migration: DESeq2
+## Downstream Differential Expression
 
-Create a Differential Expression API that accepts only the Import manifest,
-counts matrix, and normalized sample metadata. First characterize all contrast,
-design, filtering, reference-level, and output-name behavior in
-`deseq2_analysis.R`; then wrap that unchanged R entry point as a native process.
-Do not make DESeq2 read Salmon, STAR, or physical quantification directories.
+The native [Differential Expression API](../api/differential_expression_api.md)
+consumes the Import manifest, count matrix and normalized sample metadata.
+Separate model, contrast and aggregation processes preserve independent cache
+boundaries. DESeq2 does not read Salmon/STAR directories, and an exploratory
+batch-corrected matrix is never selected automatically for inference.

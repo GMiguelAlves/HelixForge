@@ -2,15 +2,16 @@
 
 This page lists limitations that can affect current users. Historical
 implementation and validation details are preserved separately in the
-[validation records](../index.md#historical-and-validation-records).
+[validation records](../index.md).
 
 ## Platforms and runtimes
 
 - Linux x86_64 and WSL2 are supported. Native Windows execution is not.
 - Nextflow 25.10.7 with Java 21 is the certified runtime baseline.
-- Docker is the recommended local container runtime. Apptainer/Singularity and
-  Conda profiles are experimental because a complete site-level certification
-  was not available on the tested Slurm infrastructure.
+- Docker is the recommended local container runtime. Apptainer/Singularity
+  need site-specific registry and mount validation. Existing Conda toolchains
+  have reduced functional coverage, but automatic recreation of all module
+  environments is not fully certified. These profiles remain experimental.
 - STAR is an experimental RNA-seq Alignment provider. Salmon is the supported
   production quantification path.
 - The paired-end Salmon path is the established biological production baseline.
@@ -37,6 +38,12 @@ Compatibility outputs may retain configured absolute scratch paths. Docker
 runs must bind those paths consistently, while shared HPC filesystems must be
 visible to the selected container runtime. Manually deleting work-directory
 outputs invalidates the corresponding cache entries.
+
+The terminal run manifest includes the generated execution name and can be
+refreshed on `-resume` even when every eligible scientific task is cached.
+Changes to scientific inputs, parameters or generated task scripts invalidate
+the affected processes; descendants whose actual inputs remain identical may
+still be reused. See [cache and invalidation](nextflow.md#cache-and-invalidation).
 
 ## Scientific scope
 

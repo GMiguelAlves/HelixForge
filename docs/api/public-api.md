@@ -20,6 +20,10 @@ Anything not listed as public is an implementation detail.
 - `--rna_manifest` and `--chip_manifest` for independent Integrative runs;
 - `--rnaseq_run_mode report_reentry` plus its explicit Import, DE, annotation,
   sample-table, abundance, and candidate-gene inputs;
+- `--chipseq_run_mode post_consensus` and its declared continuation inventory;
+- `--chipseq_db_enabled` and `--chipseq_postprocess` for ChIP stage composition;
+- explicit prebuilt Salmon/Bowtie2 index bundles and their provenance manifests;
+- opt-in ChIP trimming with an explicit quality, length and adapter policy;
 - versioned RNA DE, ChIP differential-binding, annotation, track, report, and
   Integrative policy/specification inputs documented in the user guide.
 

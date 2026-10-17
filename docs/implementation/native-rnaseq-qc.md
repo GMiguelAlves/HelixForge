@@ -60,13 +60,15 @@ The native branch no longer calls these step-030 wrappers:
 They are archived in `rnaseq-legacy-v1.0.0` as a regression reference.
 `RNASEQ_DOWNLOAD_STEP`, `RNASEQ_METADATA_STEP`, `RNASEQ_QC_PLAN`,
 and the complete QC fallback are no longer scheduled. STAR remains optional;
-Salmon, Import, and DESeq2 are native. Batch assessment and final reports are
-separate retirement items.
+Salmon, Import, DESeq2 and final reports are native. Exploratory batch assessment
+remains a planned API, not an inferential preprocessing stage.
 
 ## Compatibility details
 
 - FastQC uses the same input FASTQ names and `--threads` value.
-- Trim Galore keeps `--paired`, quality, minimum length, cores, and output names.
+- Trim Galore preserves explicit quality, minimum length, cores and output
+  names; the paired-end provider uses `--paired`, and single-end uses its
+  dedicated provider without paired input flags.
 - Runs are sorted by `run_accession` before merge.
 - Merge uses direct byte concatenation of gzip members, without recompression.
 - MultiQC keeps `<dataset>_multiqc_030.html` and its associated data directory.
@@ -83,7 +85,7 @@ fails explicitly because the legacy QC fallback has been retired.
 ## Validation status
 
 - Nextflow lint: no new errors or warnings in native modules/subworkflow.
-- Full RNA-seq `stub-run`: passed, including the downstream wrapper barrier.
+- Full RNA-seq `stub-run`: passed through the native downstream APIs.
 - Two-run mock integration: passed all native QC processes without stubs.
 - Regression: merged FASTQs, 10 FastQC HTML reports, and MultiQC table matched
   the equivalent legacy command sequence by SHA-256.
@@ -94,9 +96,8 @@ fails explicitly because the legacy QC fallback has been retired.
 - Mock benchmark: legacy commands 1.743 s; Nextflow graph 25.827 s. This tiny
   fixture measures JVM/scheduler startup, not scientific throughput.
 
-The development host has no Docker executable. Real MultiQC validation is
-therefore performed by its dedicated Linux GitHub Actions workflow; the broad
-biological regression remains a separate release gate.
+The broader scientific scope is recorded in the frozen
+[RNA-seq benchmark](../../benchmark/rnaseq/README.md).
 
 ## Downstream status
 

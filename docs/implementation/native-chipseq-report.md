@@ -28,7 +28,7 @@ states, and a directory list standing in for tracks.
 
 The native report preserves the useful scientific categories, not those
 discovery conventions. It additionally exposes FRiP, explicit component
-status, IDR `not_implemented`, tracks, reference identity, versions, parameters,
+status, optional IDR evidence, tracks, reference identity, versions, parameters,
 execution metadata, and provenance when supplied by native manifests. It does
 not reproduce the legacy automatic warnings as scientific rules and does not
 fabricate plots from incomplete inputs.
@@ -69,7 +69,7 @@ Context and intermediate aggregation records are published below
   declarations, IDR status, HTML escaping, and schema/example roles were tested;
 - isolated stub execution completed and all three tasks were cached by
   `-resume`;
-- top-level native and fallback stub modes completed;
+- top-level native stub modes completed; no legacy fallback remains;
 - Nextflow lint completed without errors or new warnings;
 - no nested scheduler command exists in the native report graph;
 - the legacy ChIP-seq directory was not modified.
@@ -77,11 +77,12 @@ Context and intermediate aggregation records are published below
 The later complete Slurm DAG produced the final 37,472-byte HTML report with
 real upstream artifacts. Docker certification run `32368534261` executed the
 report contracts and semantic aggregation inside the immutable Python runtime.
-A biological dataset, benchmark, scientific visual review and complete legacy
-comparison remain pending.
+Reviewed biological evidence is recorded separately in the frozen
+[ChIP-seq benchmark](../../benchmark/chipseq/reports/chipseq_benchmark_final_report.md).
 
 ## Remaining validation scope
 
-The complete DAG and retired-wrapper boundary are now established. Reviewed
-biological report interpretation and broader performance measurements remain
-part of the benchmark cycle.
+The complete native DAG and manifest-only report boundary are established.
+Requested components and explicit omission states are documented in the
+[stage-composition guide](../guides/chipseq-stage-composition.md). Frozen
+benchmark qualifications do not imply that every future dataset is validated.

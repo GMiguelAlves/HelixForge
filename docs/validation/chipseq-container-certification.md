@@ -3,6 +3,13 @@
 > **Registro histórico de validação.** Este documento preserva a evidência do
 > ambiente testado e não substitui o inventário de runtimes atual.
 
+Para v1.2.0, o runtime de alinhamento/BAM foi recertificado incluindo `procps`
+e fixado no digest `sha256:3f7e3008a39b85606109b056d75d7d4316086ff06cfd7e8ca230c2a0b9831876`.
+As versões Bowtie2 2.5.4 e samtools 1.20 foram preservadas. A tabela abaixo
+registra a certificação original; use o
+[inventário atual](../guides/runtime-inventory.md) e `nextflow.config` para
+selecionar imagens da release.
+
 ## Resultado
 
 Em 20 de agosto de 2026, os runtimes que ainda impediam o perfil de containers

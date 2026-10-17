@@ -18,8 +18,8 @@ must not search the results tree or infer meaning from filenames.
 
 - RNA-seq: differential-expression tables and the optional candidate-gene HTML
   report under the RNA results hierarchy.
-- ChIP-seq: peaks, QC, differential-binding tables, annotations, BigWig tracks,
-  and the self-contained ChIP report.
+- ChIP-seq: peaks, QC, annotations, BigWig tracks and the self-contained ChIP
+  report; differential-binding tables only when explicitly requested.
 - Integrative: `candidate_ranking.tsv`, functional interpretation tables, and
   `integration/100-report/integrative_report/integrative_report.html`.
 
@@ -30,8 +30,8 @@ names are intentionally not public API.
 
 | Class | Examples | Comparison rule |
 |---|---|---|
-| Byte-exact | FASTQ, BAM/BAI, fixed reference files | cryptographic checksum |
-| Semantic | JSON manifests, TSV matrices, statistics | schema, identifiers, values and documented numerical tolerance; ignore permitted path/timestamp serialization |
+| Byte-exact integrity | A retained FASTQ, BAM/BAI or reference artifact | its declared cryptographic checksum must match the retained file |
+| Semantic comparison across executions | BAM records, JSON manifests, TSV matrices, statistics | schema, identifiers, values and documented numerical tolerance; normalize only permitted headers, paths or timestamps |
 | Generated presentation | HTML, plots, Nextflow reports | required sections/artifacts and scientific values; byte identity is not guaranteed |
 
 Every native module emits version information and execution metadata according
@@ -42,11 +42,17 @@ and model versions independently from the HelixForge software version.
 
 Each top-level run enables:
 
-- `trace.txt`
-- `timeline.html`
-- `report.html`
-- `dag.html`
+- `<outdir>/pipeline_info/execution_trace.tsv`
+- `<outdir>/pipeline_info/execution_timeline.html`
+- `<outdir>/pipeline_info/execution_report.html`
+- `<outdir>/pipeline_info/pipeline_dag.html`
 
 These describe execution, not scientific meaning. Preserve them with the
 terminal manifests when auditing a run. The `work/` directory and `.nextflow/`
 cache are internal operational state and are not release artifacts.
+
+The test profile and individual test configurations may disable presentation
+reports or override these paths. On identical resume, scientific tasks with
+unchanged inputs and retained outputs can be cached while a terminal manifest
+is regenerated to record the new execution name. That provenance refresh is
+not a repeated scientific analysis.

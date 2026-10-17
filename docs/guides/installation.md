@@ -2,22 +2,24 @@
 
 ## Supported environment
 
-HelixForge v1.1.0 retains the deliberately narrow v1 runtime baseline.
+HelixForge v1.2.0 retains the deliberately narrow v1 runtime baseline.
 
 | Component | Status | Notes |
 |---|---|---|
 | Linux x86_64 | Supported | Primary execution platform |
 | WSL2 | Supported for development | Used for local checks; native Windows is unsupported |
 | Java 21 | Supported | Full validated baseline |
-| Nextflow 25.10.7 | Supported | Exact runtime used for v1.1.0 single-end Slurm validation |
+| Nextflow 25.10.7 | Supported | Certified workflow and cache/resume runtime |
 | Newer Nextflow/Java | Experimental | May work, but is not the release baseline |
 | Docker profile | Supported | Recommended local container runtime |
-| Slurm profile | Supported with site configuration | Validated with a maximum of five concurrent submissions |
+| Slurm profile | Supported with site configuration | Set queues, resources and concurrency for your allocation and site policy |
 | Apptainer/Singularity | Experimental | Declared, but the validation cluster lacked a supported runtime with registry and mount access |
-| Conda profile | Experimental | Module environments exist; no complete clean RC smoke is certified |
+| Conda profile | Experimental | Existing tool environments have reduced functional coverage; automatic recreation of every module environment is not fully certified |
 
-Git is required. Python and R do not need to be installed on the host when the
-selected provider runs in its pinned container.
+Git is required to clone/update the repository and run repository-level Git
+checks; scientific compute tasks do not require it. Python and R do not need
+to be installed on the host when every selected provider runs in its pinned
+container. Host-tool execution requires all declared provider dependencies.
 
 Contributors running the repository test suite also need Python 3 and the small
 pinned development dependency set:
@@ -31,6 +33,7 @@ python3 -m pip install -r requirements-dev.txt
 ```bash
 git clone https://github.com/GMiguelAlves/HelixForge.git
 cd HelixForge
+git checkout v1.2.0
 curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
 chmod +x nextflow
 ```
@@ -67,7 +70,7 @@ approved by the site. HelixForge processes never call `sbatch` themselves.
 Use the stable release tag rather than assuming that `master` is immutable:
 
 ```bash
-git checkout v1.0.0
+git checkout v1.2.0
 ```
 
 ## Troubleshooting
@@ -76,6 +79,7 @@ git checkout v1.0.0
 2. Confirm Java 21 and Nextflow 25.10.7.
 3. Confirm the chosen container runtime can read the input mounts and pull the
    pinned registry images.
-4. Inspect `.nextflow.log`, `trace.txt`, and the failing task work directory.
+4. Inspect `.nextflow.log`, `pipeline_info/execution_trace.tsv` under the output
+   directory, and the failing task work directory.
 5. On Slurm, inspect the allocation with `sacct`/`scontrol`; do not reproduce a
    compute task interactively on the head node.

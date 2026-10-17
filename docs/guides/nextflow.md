@@ -40,13 +40,33 @@ The former empty-cache incident, its direct-JAR root cause and the corrected
 runtime policy are recorded in the
 [resume-cache diagnostic](../validation/resume-cache-diagnostic.md).
 
+## Cache and invalidation
+
+With the official launcher, unchanged inputs and retained cache/work outputs,
+eligible tasks are reused by `-resume`. A changed FASTQ affects its sample
+branch and dependent products; a changed reference rebuilds its index and
+dependent alignments. Contrast-only changes preserve count/model products
+where their inputs are unchanged. A QC policy or module-script change affects
+the corresponding task cache keys.
+
+The terminal `RUN_MANIFEST` records `workflow.runName`. Nextflow can assign a
+new name on resume, so the manifest may be regenerated even when all
+scientific tasks are cached. This is expected provenance behavior, not an
+alignment, quantification or inference rerun. Descendants are invalidated by
+their actual inputs, not merely because an upstream task ran again.
+
+Do not rely on cache alone to reuse an index across independent executions.
+Use the explicit [Bowtie2](../api/alignment_api.md#reusing-a-bowtie2-index) or
+[Salmon](../api/quantification_api.md#reusing-a-prebuilt-salmon-index) bundle
+contract when the index must remain reusable after work-directory cleanup.
+
 ## Certified Python inheritance on Slurm
 
 Site launchers must prepend the certified tool environment to `PATH` **before**
 starting Nextflow. Nextflow processes then inherit that exact path. Checking
 only that a `python3` executable exists is insufficient: the selected
 interpreter must also provide the dependencies used by terminal manifest
-generation, including `jsonschema`.
+generation, including `jsonschema` and `referencing`.
 
 The production RNA-seq Slurm harness enforces this order:
 
@@ -55,7 +75,7 @@ certified RNA/Python environment -> PATH -> Nextflow -> RUN_MANIFEST
 ```
 
 Its compute-node preflight verifies that `python3` resolves to the certified
-environment and executes `python3 -c "import jsonschema"` in the same inherited
+environment and executes `python3 -c "import jsonschema, referencing"` in the same inherited
 environment before any scientific workflow is launched. A failed import or an
 unexpected interpreter aborts the run before analysis. Site-specific absolute
 paths remain private configuration and must not be committed to the repository.
@@ -98,12 +118,15 @@ nextflow run . -profile local --workflow chipseq --chipseq_run_mode report \
   --chipseq_report_input_manifest chipseq_report_input.json
 ```
 
-`qc` performs metadata validation, raw FastQC and MultiQC. `alignment` adds
+`qc` performs metadata validation, FastQC and MultiQC, plus trimming and
+post-trim QC when explicitly enabled. `alignment` adds
 Bowtie2 indexing and per-record alignment. `post_alignment` adds selection,
 duplicate, blacklist, integrity and final-QC providers. `peaks` adds validated
 per-replicate MACS3 3.0.4 calling and requires explicit peak type and numerical
 effective genome size. `full` is the native single-session coordinator and
-requires an explicit Consensus strategy and a Differential Binding spec. The
+requires explicit reference/annotation and consolidation policy. Differential
+Binding is optional: provide a DB spec to enable it or use
+`--chipseq_db_enabled false` to omit it. The
 current ChIP-seq workflow has no legacy coordinator or fallback.
 `differential_binding` advances through Peak QC and Consensus into explicit
 featureCounts/DESeq2 providers and requires a versioned DB specification.
@@ -113,6 +136,10 @@ and never reruns upstream analysis.
 and optional non-control aggregate BigWigs, and never reruns upstream stages.
 `report` consumes a versioned inventory of existing semantic manifests and
 does not rerun upstream stages.
+`post_consensus` consumes accepted consensus/IDR, final BAMs, metadata and
+reference manifests and executes only annotation, tracks and reporting. See
+[stage composition](chipseq-stage-composition.md) for the inventory and
+`--chipseq_postprocess true` option on `consensus`/`idr` modes.
 
 The existing configuration remains authoritative:
 
