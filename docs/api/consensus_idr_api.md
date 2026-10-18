@@ -62,6 +62,15 @@ there is no universal defensible aggregation rule. Exact per-replicate peak
 records are retained in an evidence table and referenced by the manifest.
 BroadPeak remains broadPeak evidence and is never converted to narrowPeak.
 
+For broad inputs, the consolidated intervals are **per-base support cores**,
+not inferred complete broad domains. Subintervals shorter than the caller's
+minimum peak length, including one-base overlaps, can arise legitimately from
+the intersection operation. A high fraction of discarded input-union coverage
+requires scientific review; it must not be described automatically as improved
+specificity. See the [broad-peak representation guide](../guides/broad-peak-consensus.md)
+and its controlled comparison tool before using this layer as an exhaustive
+gene-association or occupancy catalog.
+
 ## IDR provider
 
 IDR is a statistical reproducibility strategy, not interval intersection. The
