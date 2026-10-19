@@ -26,6 +26,13 @@ Classification:
 occupancy set. Downstream gene associations must preserve this interpretation.
 Scores/p-values are preserved per original call, not combined across libraries.
 
+The Peak Annotation API consumes `consolidated_bed` for this provider, not
+`core_supported_bed`. Candidate coordinates and association qualifiers are
+preserved through annotation/aggregation and displayed in the ChIP-seq
+report alongside candidate/core statistics. The core remains a separate
+source artifact. See the
+[annotation contract](../../../docs/api/peak_annotation_api.md#regional-broad-candidate-catalogs).
+
 Resources: 2 CPUs, 4 GB, 2 hours, deep cache, no automatic retries. The existing
 consensus Docker/Apptainer image settings are reused; Conda pins Python 3.12.4
 and BEDTools 2.31.1. The provider source is staged explicitly as a cache input.

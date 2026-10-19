@@ -76,7 +76,12 @@ separate core. It passed the
 [prospective synthetic validation](../../validation/broad_consensus/regional_catalog_v1/RESULTS.md)
 under a protocol frozen before generating new data.
 It does not infer quantitative enrichment or reproducible occupancy from
-spatial overlap alone. Existing providers and current defaults are unchanged. Any replacement
+spatial overlap alone. Annotation uses the complete candidate BED and preserves
+its coordinates and candidate-association labels through aggregation and the
+ChIP-seq report. The report distinguishes candidate coverage from support-core
+coverage; the core remains in the source Consensus output. See the
+[regional annotation contract](../api/peak_annotation_api.md#regional-broad-candidate-catalogs).
+Existing providers and current defaults are unchanged. Any replacement
 must declare its interval/support semantics, preserve source evidence,
 report unsupported tails/merging behavior, receive tests and an explicit
 scientific policy, and enter through a versioned release. Existing pinned

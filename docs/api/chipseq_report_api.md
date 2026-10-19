@@ -5,6 +5,17 @@ summary. It is a terminal consumer: it cannot schedule or infer an upstream
 analysis and receives only versioned manifests plus explicitly declared result
 artifacts.
 
+## Regional-catalog annotation
+
+When annotation originates from `regional_catalog_v1`, the structured report
+preserves `source_representations` per annotation/source ID. The HTML labels
+these as candidate associations and shows candidate counts/coverage, separate
+core coverage and the source core artifact/checksum. These values describe
+different evidence layers, not a combined occupancy significance test.
+Annotation includes complete candidate envelopes, not only their support
+cores. Per-library regional support remains available in the source Consensus
+output. Existing annotation parameters and non-regional reports are unchanged.
+
 ## Input contract
 
 The workflow receives one `chipseq_report_input` JSON document. Its immutable

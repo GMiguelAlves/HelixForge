@@ -77,6 +77,8 @@ def main():
             "peaks_by_chromosome": dict(sorted(chromosome_counts.items())),
             "status": "complete" if annotated else "complete_empty",
         }
+        if source.get("source_representation"):
+            metrics["source_representation"] = source["source_representation"]
         reports = Path(args.reports); reports.mkdir(parents=True, exist_ok=True)
         write_rows(reports / "category_distribution.tsv", ("category", "peak_count"), ({"category": key, "peak_count": value} for key, value in sorted(category_counts.items())))
         write_rows(reports / "peaks_by_chromosome.tsv", ("chromosome", "peak_count"), ({"chromosome": key, "peak_count": value} for key, value in sorted(chromosome_counts.items())))
@@ -93,6 +95,8 @@ def main():
         with open(args.versions, "w", encoding="utf-8") as handle:
             handle.write(f'"PEAK_ANNOTATION_STATISTICS":\n    python: "{sys.version.split()[0]}"\n')
         manifest = {"schema_version": "1.0", "type": "peak_annotation_statistics", "id": source["id"], "source_id": source["source_id"], "record_id": source.get("record_id"), "record_ids": source.get("record_ids", []), "statistics": metrics, "annotation_manifest_sha256": sha256(args.annotation_manifest), "artifacts": {"statistics_json": {"path": Path(args.output_json).name, "sha256": sha256(args.output_json)}, "statistics_tsv": {"path": Path(args.output_tsv).name, "sha256": sha256(args.output_tsv)}, "reports": {"path": reports.name, "available": True}}, "execution": execution, "status": metrics["status"]}
+        if source.get("source_representation"):
+            manifest["source_representation"] = source["source_representation"]
         with open(args.manifest, "w", encoding="utf-8") as handle:
             json.dump(manifest, handle, indent=2, sort_keys=True); handle.write("\n")
     except (ValueError, KeyError, json.JSONDecodeError, OSError) as error:
