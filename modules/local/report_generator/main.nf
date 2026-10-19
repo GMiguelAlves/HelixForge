@@ -20,6 +20,7 @@ process REPORT_GENERATOR {
 
     input:
     tuple val(meta), path(aggregate_dir), val(presentation_base64)
+    path(providerProgram)
 
     output:
     tuple val(meta), path('report_result'), emit: artifacts
@@ -31,7 +32,7 @@ process REPORT_GENERATOR {
     script:
     """
     set -o pipefail
-    generate_chipseq_report.py \
+    python3 '${providerProgram}' \
         --aggregate-dir '${aggregate_dir}' \
         --presentation-base64 '${presentation_base64}' \
         --output-dir report_result \

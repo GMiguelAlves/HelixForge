@@ -18,6 +18,7 @@ process PEAK_ANNOTATION_CONTEXT {
 
     input:
     tuple val(meta), path(peaks), path(peak_manifest), path(reference), path(reference_manifest), path(annotation), val(spec_base64)
+    path(providerProgram)
 
     output:
     tuple val(meta), path("${meta.id}.peak_annotation_request.json"), emit: artifacts
@@ -28,7 +29,7 @@ process PEAK_ANNOTATION_CONTEXT {
     script:
     """
     set -o pipefail
-    validate_peak_annotation_context.py \
+    python3 '${providerProgram}' \
         --meta-base64 '${groovy.json.JsonOutput.toJson(meta).getBytes('UTF-8').encodeBase64().toString()}' \
         --peaks '${peaks}' \
         --peak-manifest '${peak_manifest}' \

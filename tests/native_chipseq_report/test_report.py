@@ -121,6 +121,7 @@ class ReportPresentationTest(unittest.TestCase):
         self.assertIn("Not available", page)
         self.assertIn("A &lt; B", page)
         self.assertNotIn("src=\"http", page)
+        self.assertNotIn("Regional candidate associations", page)
 
     def test_semantic_aggregate_uses_declared_artifacts(self):
         with tempfile.TemporaryDirectory() as directory:

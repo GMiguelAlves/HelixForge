@@ -6,6 +6,7 @@ input:
   - peaks: Validated peak artifact.
   - annotation: Validated GTF/GFF.
   - request: PEAK_ANNOTATION_CONTEXT request.
+  - providerProgram: Versioned Python source staged as a separate deep-cache path input.
 output:
   - artifacts: Annotated peaks and peak-gene associations.
   - reports: Provider auxiliary reports.

@@ -5,6 +5,7 @@ input:
   - meta: Stable project report identity.
   - aggregate_dir: REPORT_AGGREGATE semantic output.
   - presentation_base64: Renderer-only versioned presentation options.
+  - providerProgram: Versioned Python source staged as a separate deep-cache path input.
 output:
   - artifacts: HTML, structured JSON, final manifest, provenance, versions, and execution metadata.
   - reports: Generator execution metadata and log.

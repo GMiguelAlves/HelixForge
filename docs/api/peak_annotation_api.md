@@ -147,6 +147,12 @@ provider version, and all annotation parameters are deep-cache inputs. A
 change invalidates only context, annotation, statistics, and aggregation for
 the affected peak set.
 
+The subworkflow stages each Python implementation as an explicit process
+`path` input (`providerProgram`). Modules execute that staged source with
+Python rather than resolving a potentially different program on `PATH`.
+Source changes therefore participate in deep-cache identity without changing
+the external `PEAK_ANNOTATION` channel contract.
+
 Peak Annotation API v1 does not claim scientific equivalence. Biological
 regression against the legacy implementation is deferred to the consolidated
 production-readiness validation.

@@ -18,6 +18,7 @@ process REPORT_AGGREGATE {
 
     input:
     tuple val(meta), path(context), path(manifests, stageAs: 'manifests??/*'), path(semantic_artifacts, stageAs: 'artifacts??/*', arity: '0..*')
+    path(providerProgram)
 
     output:
     tuple val(meta), path('report_aggregate'), emit: artifacts
@@ -30,7 +31,7 @@ process REPORT_AGGREGATE {
     def artifactArgs = semantic_artifacts.collect { value -> "--artifact '${value}'" }.join(' ')
     """
     set -o pipefail
-    report_aggregate.py \
+    python3 '${providerProgram}' \
         --context '${context}' \
         ${manifestArgs} \
         ${artifactArgs} \

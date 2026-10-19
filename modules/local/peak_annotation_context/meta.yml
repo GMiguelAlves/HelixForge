@@ -9,6 +9,7 @@ input:
   - reference_manifest: Reference identity and checksum manifest.
   - annotation: GTF or GFF annotation.
   - spec_base64: Versioned annotation parameters.
+  - providerProgram: Versioned Python source staged as a separate deep-cache path input.
 output:
   - artifacts: Validated provider request.
   - reports: Validation report and log.

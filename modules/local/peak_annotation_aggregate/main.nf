@@ -20,6 +20,7 @@ process PEAK_ANNOTATION_AGGREGATE {
 
     input:
     tuple val(meta), path(annotation_dirs), path(annotation_manifests), path(statistics_json), path(statistics_manifests)
+    path(providerProgram)
 
     output:
     tuple val(meta), path('peak_annotation_aggregate'), emit: artifacts
@@ -35,7 +36,7 @@ process PEAK_ANNOTATION_AGGREGATE {
     def statisticsArgs = statistics_json.collect { value -> "--statistics-json '${value}'" }.join(' ')
     def statisticsManifestArgs = statistics_manifests.collect { value -> "--statistics-manifest '${value}'" }.join(' ')
     """
-    peak_annotation_aggregate.py \
+    python3 '${providerProgram}' \
         ${dirArgs} \
         ${manifestArgs} \
         ${statisticsArgs} \

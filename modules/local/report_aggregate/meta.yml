@@ -6,6 +6,7 @@ input:
   - context: Immutable REPORT_CONTEXT output.
   - manifests: Explicit upstream semantic manifests.
   - semantic_artifacts: Optional checksum-declared result files.
+  - providerProgram: Versioned Python source staged as a separate deep-cache path input.
 output:
   - artifacts: Structured report data, tables, provenance, versions, and manifest.
   - reports: Execution metadata and log.

@@ -18,6 +18,7 @@ process PEAK_ANNOTATION_STATISTICS {
 
     input:
     tuple val(meta), path(annotation_dir), path(annotation_manifest)
+    path(providerProgram)
 
     output:
     tuple val(meta), path("${meta.id}.annotation_statistics.json"), path("${meta.id}.annotation_statistics.tsv"), emit: artifacts
@@ -29,7 +30,7 @@ process PEAK_ANNOTATION_STATISTICS {
 
     script:
     """
-    peak_annotation_statistics.py \
+    python3 '${providerProgram}' \
         --annotation-dir '${annotation_dir}' \
         --annotation-manifest '${annotation_manifest}' \
         --output-json '${meta.id}.annotation_statistics.json' \

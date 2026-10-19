@@ -5,6 +5,11 @@ summary. It is a terminal consumer: it cannot schedule or infer an upstream
 analysis and receives only versioned manifests plus explicitly declared result
 artifacts.
 
+The subworkflow stages its Python implementations as explicit process
+`path` inputs (`providerProgram`), preserving source identity in deep cache.
+It executes the staged code instead of resolving a different copy on `PATH`.
+The external `CHIPSEQ_REPORT` channel contract is unchanged.
+
 ## Regional-catalog annotation
 
 When annotation originates from `regional_catalog_v1`, the structured report

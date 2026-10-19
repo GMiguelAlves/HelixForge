@@ -7,6 +7,7 @@ input:
   - annotation_manifests: Provider manifests.
   - statistics_json: Per-set statistics.
   - statistics_manifests: Statistics manifests.
+  - providerProgram: Versioned Python source staged as a separate deep-cache path input.
 output:
   - artifacts: Combined annotated peaks, associations, statistics, and manifest.
   - reports: Combined statistics table.

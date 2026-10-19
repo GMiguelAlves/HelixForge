@@ -20,6 +20,7 @@ process PEAK_ANNOTATOR {
 
     input:
     tuple val(meta), path(peaks), path(annotation), path(request)
+    path(providerProgram)
 
     output:
     tuple val(meta), path("${meta.id}.peak_annotation"), emit: artifacts
@@ -31,7 +32,7 @@ process PEAK_ANNOTATOR {
 
     script:
     """
-    run_peak_annotator.py \
+    python3 '${providerProgram}' \
         --request '${request}' \
         --peaks '${peaks}' \
         --annotation '${annotation}' \
