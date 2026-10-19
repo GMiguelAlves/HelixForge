@@ -52,7 +52,17 @@ support set.
   `min_replicates` value, which must be between 2 and the number of evidence
   units.
 
-Adjacent segments with different support sets are not merged. This avoids
+An additional opt-in broad provider, `regional_catalog` (`regional_catalog_v1`
+1.0.0), preserves complete candidate envelopes and publishes the atomic support
+core separately. Its `consolidated_bed` is the candidate catalog, **not confirmed
+occupancy**. The long-form support matrix includes called bases/fractions for
+every library, including zero support. Classification distinguishes `candidate`
+from `spatially_supported_candidate`; both have `occupancy_status=not_assessed`.
+See the [provider contract](../../modules/local/regional_catalog/README.md).
+Independent scientific certification is pending; existing strategies/defaults
+and pinned results are not replaced by this opt-in implementation.
+
+For the three atomic strategies, adjacent segments with different support sets are not merged. This avoids
 fabricating one support value for a region whose evidence changes across its
 length. Output columns are `peak_id`, `chrom`, `start`, `end`, `support`, and
 `support_replicates`.
