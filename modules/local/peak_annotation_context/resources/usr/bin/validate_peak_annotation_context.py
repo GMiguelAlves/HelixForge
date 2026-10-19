@@ -112,32 +112,6 @@ def artifact_checksum(document, preferred):
     return None
 
 
-def regional_representation(document):
-    """Carry catalog semantics without substituting its support-core artifact."""
-    regional = document.get("strategy") == "regional_catalog" or document.get("provider") == "regional_catalog_v1"
-    if not regional:
-        return None
-    if document.get("type") != "consensus" or document.get("strategy") != "regional_catalog" or document.get("provider") != "regional_catalog_v1":
-        raise ValueError("inconsistent regional catalog identity")
-    semantics = document.get("semantics", {})
-    if semantics.get("consolidated_bed") != "candidate_envelopes_not_confirmed_occupancy" or semantics.get("positive_gap_filling_bp") != 0 or semantics.get("reproducible_occupancy") != "not_assessed":
-        raise ValueError("regional catalog must declare candidate envelopes, no gap filling and unassessed occupancy")
-    artifacts = document.get("artifacts", {})
-    for role in ("consolidated_bed", "core_supported_bed"):
-        artifact = artifacts.get(role, {})
-        if artifact.get("available") is not True or not artifact.get("path") or not re.fullmatch(r"[a-f0-9]{64}", str(artifact.get("sha256", ""))):
-            raise ValueError(f"regional catalog requires a checksum-declared {role} artifact")
-    return {
-        "kind": "regional_candidate_catalog", "strategy": "regional_catalog",
-        "provider": document["provider"], "provider_version": document.get("provider_version"),
-        "artifact_role": "consolidated_bed", "interval_semantics": semantics["consolidated_bed"],
-        "occupancy_status": "not_assessed", "positive_gap_filling_bp": 0,
-        "support_core": {"artifact_role": "core_supported_bed", **artifacts["core_supported_bed"]},
-        "source_statistics": {key: document.get("statistics", {}).get(key) for key in (
-            "consolidated_peaks", "candidate_bp", "core_bp", "spatially_supported_regions")},
-    }
-
-
 def validate_spec(raw):
     spec = dict(DEFAULTS)
     spec.update(raw or {})
@@ -178,6 +152,8 @@ def main():
         meta = json.loads(base64.b64decode(args.meta_base64).decode("utf-8"))
         spec = validate_spec(json.loads(base64.b64decode(args.spec_base64).decode("utf-8")))
         peak_doc = load_json(args.peak_manifest, "peak manifest")
+        if peak_doc.get("strategy") == "regional_catalog" or peak_doc.get("provider") in {"regional_catalog_v1", "broad_heldout_v1"}:
+            raise ValueError("retired experimental broad provider is not supported; no automatic fallback is performed")
         ref_doc = load_json(args.reference_manifest, "reference manifest")
         source_type = peak_doc.get("type")
         if source_type not in {"peak_calling", "consensus", "idr"}:
@@ -194,9 +170,7 @@ def main():
         if str(meta.get("genome_id")) != genome_id:
             raise ValueError("metadata genome_id does not match peak manifest")
         peak_sha = sha256(args.peaks)
-        representation = regional_representation(peak_doc)
-        preferred = ("consolidated_bed",) if representation else ("peaks", "consolidated_bed", "consolidated_peaks")
-        expected_peak_sha = artifact_checksum(peak_doc, preferred)
+        expected_peak_sha = artifact_checksum(peak_doc, ("peaks", "consolidated_bed", "consolidated_peaks"))
         if expected_peak_sha and expected_peak_sha != peak_sha:
             raise ValueError("peak artifact checksum does not match peak manifest")
         ref_sha = sha256(args.reference)
@@ -245,8 +219,6 @@ def main():
             }, "seqnames": {"peaks": sorted(peak_contigs), "annotation": sorted(annotation_contigs), "reference": sorted(reference_contigs)},
             "status": "valid",
         }
-        if representation:
-            request["source_representation"] = representation
         with open(args.request, "w", encoding="utf-8") as handle:
             json.dump(request, handle, indent=2, sort_keys=True); handle.write("\n")
         with open(args.report, "w", encoding="utf-8") as handle:

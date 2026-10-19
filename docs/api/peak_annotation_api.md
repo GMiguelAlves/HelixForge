@@ -98,44 +98,6 @@ provider/version, parameters, input checksums, semantic artifact roles, and
 status. The aggregate has `type=peak_annotation_aggregate` and references every
 per-set manifest by ID and checksum.
 
-## Regional broad-candidate catalogs
-
-For a Consensus manifest with `strategy=regional_catalog` and
-`provider=regional_catalog_v1`, supply its **`consolidated_bed`** artifact.
-Annotation uses every complete candidate envelope, including intervals with
-only one calling library. It does not substitute `core_supported_bed` or
-`spatially_supported_bed`, shrink envelopes to their core, or fill a positive
-gap between calls. The reference, annotation priority and gene-assignment
-policy are unchanged. The envelope may consolidate overlapping or touching
-calls; it is not necessarily one original MACS3 record.
-
-The context requires the checksum-declared candidate BED and a separate
-checksum-declared core artifact. It verifies that the supplied BED matches
-the candidate artifact, and the annotator rejects substitution after context
-validation. The core stays available in the source Consensus output. Its
-declaration/checksum is propagated for provenance; annotation does not
-recompute or independently revalidate that core file.
-
-Regional annotation manifests carry `source_representation`, including
-`kind=regional_candidate_catalog`, `occupancy_status=not_assessed`, the
-separate-core declaration and source candidate/core statistics. Regional
-annotated-peak and association tables append `source_representation` and
-`occupancy_status`; aggregation preserves them, including in mixed inputs.
-Non-regional per-set table layouts and scientific parameters are unchanged.
-
-The ChIP-seq report displays candidate counts/coverage and core coverage
-separately, identifies the source core artifact, and explicitly labels these
-as candidate gene associations, not established occupancy or regulatory
-causality. A gene associated with a candidate tail is not thereby supported
-by every library contributing to that envelope. Per-region library support
-remains in the source catalog's `regional_support.tsv`.
-
-Select this path explicitly with
-`--chipseq_consensus_method regional_catalog` in a composed execution, or
-re-enter annotation with the regional Consensus manifest and its declared
-candidate BED. Existing consensus defaults and pinned executions do not
-change. See [broad-peak semantics](../guides/broad-peak-consensus.md).
-
 ## Workflow and cache semantics
 
 `--chipseq_run_mode annotation` consumes external, tracked manifests and their
@@ -152,6 +114,10 @@ The subworkflow stages each Python implementation as an explicit process
 Python rather than resolving a potentially different program on `PATH`.
 Source changes therefore participate in deep-cache identity without changing
 the external `PEAK_ANNOTATION` channel contract.
+
+Experimental `regional_catalog_v1` and `broad_heldout_v1` sources are not
+supported. Requests using these retired providers fail explicitly instead of
+silently converting their candidate catalogs into another evidence type.
 
 Peak Annotation API v1 does not claim scientific equivalence. Biological
 regression against the legacy implementation is deferred to the consolidated

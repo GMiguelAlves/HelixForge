@@ -85,6 +85,33 @@ class ProviderContractTest(unittest.TestCase):
 
 
 class FullContextTest(unittest.TestCase):
+    def test_retired_broad_manifests_fail_without_fallback(self):
+        retired = [
+            {"strategy": "regional_catalog"},
+            {"provider": "regional_catalog_v1"},
+            {"provider": "broad_heldout_v1"},
+        ]
+        for marker in retired:
+            with self.subTest(marker=marker), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                manifest = root / "peak_manifest.json"
+                manifest.write_text(json.dumps({"type": "consensus", **marker}), encoding="utf-8")
+                result = subprocess.run([
+                    sys.executable, str(ROOT / "modules/local/peak_annotation_context/resources/usr/bin/validate_peak_annotation_context.py"),
+                    "--meta-base64", base64.b64encode(b"{}").decode(),
+                    "--spec-base64", base64.b64encode(b"{}").decode(),
+                    "--peak-manifest", str(manifest),
+                    "--peaks", str(root / "missing.bed"),
+                    "--reference", str(root / "missing.fa"),
+                    "--reference-manifest", str(root / "missing.json"),
+                    "--annotation", str(root / "missing.gtf"),
+                    "--request", str(root / "request.json"),
+                    "--report", str(root / "report.json"),
+                ], capture_output=True, text=True, check=False)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("retired experimental broad provider", result.stderr)
+                self.assertFalse((root / "request.json").exists())
+
     def test_build_mismatch_fails_early(self):
         with tempfile.TemporaryDirectory() as directory:
             fixture = Path(directory)

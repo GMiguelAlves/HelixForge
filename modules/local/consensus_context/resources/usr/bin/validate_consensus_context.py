@@ -127,11 +127,9 @@ def validate_group(records, spec):
 def build_request(records, peak_dirs, peak_manifests, qc_manifests, spec):
     replicate_mode, replicate_policy = validate_group(records, spec)
     strategy = str(spec.get("strategy", "")).lower()
-    if strategy not in {"union", "intersection", "replicate_support", "idr", "regional_catalog"}:
-        raise ValueError("strategy must be union, intersection, replicate_support, idr, or regional_catalog")
+    if strategy not in {"union", "intersection", "replicate_support", "idr"}:
+        raise ValueError("strategy must be union, intersection, replicate_support, or idr")
     peak_type = records[0]["peak_type"]
-    if strategy == "regional_catalog" and peak_type != "broad":
-        raise ValueError("regional_catalog v1 requires broadPeak inputs")
     directory_index = index_paths(peak_dirs, "peak directory")
     peak_manifest_docs = {document["id"]: (document, path) for path in peak_manifests for document in [load_json(path, "peak manifest")]}
     qc_manifest_docs = {document["id"]: (document, path) for path in qc_manifests for document in [load_json(path, "Peak QC manifest")]}
@@ -158,16 +156,11 @@ def build_request(records, peak_dirs, peak_manifests, qc_manifests, spec):
         extension = "narrowPeak" if peak_type == "narrow" else "broadPeak"
         peak_file = os.path.join(directory_index[directory_name], f"peaks.{extension}")
         peak_count = validate_peak_file(peak_file, peak_type)
-        if strategy == "regional_catalog":
-            expected = peak_document.get("artifacts", {}).get("peaks", {}).get("sha256")
-            if not expected or sha256(peak_file) != expected:
-                raise ValueError(f"{peak_id}: regional catalog requires a matching source peak checksum")
         normalized.append({
             **record,
             "peak_directory": directory_name,
             "peak_file": f"peaks.{extension}",
             "peak_count": peak_count,
-            **({"peak_sha256": expected} if strategy == "regional_catalog" else {}),
             "peak_manifest": os.path.basename(peak_manifest_path),
             "peak_manifest_sha256": sha256(peak_manifest_path),
             "peak_qc_manifest": os.path.basename(qc_manifest_path),
@@ -180,15 +173,13 @@ def build_request(records, peak_dirs, peak_manifests, qc_manifests, spec):
         support_threshold = 1
     elif strategy == "intersection":
         support_threshold = count
-    elif strategy in {"replicate_support", "regional_catalog"}:
+    elif strategy == "replicate_support":
         try:
             support_threshold = int(min_replicates)
         except (TypeError, ValueError):
             raise ValueError("replicate_support requires explicit integer min_replicates")
         if not 2 <= support_threshold <= count:
             raise ValueError(f"min_replicates must be between 2 and replicate count {count}")
-        if strategy == "regional_catalog" and (isinstance(min_replicates, bool) or str(min_replicates) != str(support_threshold)):
-            raise ValueError("min_replicates must be an explicit integer")
     else:
         support_threshold = None
         if replicate_mode != "biological" or replicate_policy != "require_premerged":
@@ -209,8 +200,8 @@ def build_request(records, peak_dirs, peak_manifests, qc_manifests, spec):
     return {
         "schema_version": "1.0", "type": "consensus_idr_request",
         "id": first["group_id"], "strategy": strategy,
-        "provider": "idr" if strategy == "idr" else "regional_catalog_v1" if strategy == "regional_catalog" else "bedtools_multiinter",
-        "provider_version": "2.0.4.2" if strategy == "idr" else "1.0.0" if strategy == "regional_catalog" else "2.31.1",
+        "provider": "idr" if strategy == "idr" else "bedtools_multiinter",
+        "provider_version": "2.0.4.2" if strategy == "idr" else "2.31.1",
         "dataset": first["dataset"], "experiment_id": first["experiment_id"],
         "condition": first["condition"], "treatment": first.get("treatment") or None,
         "target": first["target"], "genome_id": first["genome_id"],

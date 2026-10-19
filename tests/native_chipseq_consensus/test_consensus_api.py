@@ -33,6 +33,15 @@ def records(count=2, peak_type="narrow"):
 
 
 class ContextContractTest(unittest.TestCase):
+    def test_retired_broad_strategies_have_no_fallback(self):
+        for strategy in ("regional_catalog", "broad_heldout_v1"):
+            with self.subTest(strategy=strategy):
+                with self.assertRaisesRegex(ValueError, "strategy must be"):
+                    CONTEXT.build_request(records(peak_type="broad"), [], [], [], {
+                        "strategy": strategy, "replicate_mode": "biological",
+                        "replicate_policy": "require_premerged",
+                    })
+
     def test_biological_replicates_are_explicit_and_unique(self):
         data = records()
         mode, policy = CONTEXT.validate_group(data, {"replicate_mode": "biological", "replicate_policy": "require_premerged"})

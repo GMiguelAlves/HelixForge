@@ -419,8 +419,8 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
 
                     if (mode in ['consensus', 'idr', 'differential_binding', 'full']) {
                         def strategy = mode == 'idr' ? 'idr' : params.chipseq_consensus_method?.toString()?.toLowerCase()
-                        if (!(strategy in ['union', 'intersection', 'replicate_support', 'idr', 'regional_catalog'])) {
-                            error 'Consensus mode requires explicit --chipseq_consensus_method union|intersection|replicate_support|idr|regional_catalog'
+                        if (!(strategy in ['union', 'intersection', 'replicate_support', 'idr'])) {
+                            error 'Consensus mode requires explicit --chipseq_consensus_method union|intersection|replicate_support|idr'
                         }
                         def consensus_spec = [
                             strategy            : strategy,
