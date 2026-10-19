@@ -72,8 +72,9 @@ compares fixed alternatives and checks exact reconstruction of the native
 baseline. It is a diagnostic, not a newly certified consensus provider.
 An opt-in [regional catalog provider](../../modules/local/regional_catalog/README.md)
 now preserves full envelopes, an explicit library support matrix and the
-separate core. Its scientific validation is pending under a
-[prospective protocol](../../validation/broad_consensus/regional_catalog_v1/README.md).
+separate core. It passed the
+[prospective synthetic validation](../../validation/broad_consensus/regional_catalog_v1/RESULTS.md)
+under a protocol frozen before generating new data.
 It does not infer quantitative enrichment or reproducible occupancy from
 spatial overlap alone. Existing providers and current defaults are unchanged. Any replacement
 must declare its interval/support semantics, preserve source evidence,

@@ -159,7 +159,7 @@ workflow CONSENSUS_IDR {
         provider_manifest_ch = CONSENSUS_SUPPORT.out.manifest
         provider_status_ch = CONSENSUS_SUPPORT.out.status
     } else if (strategy == 'regional_catalog') {
-        catalogProgram = file("${projectDir}/modules/local/regional_catalog/resources/usr/bin/run_regional_catalog.py", checkIfExists: true)
+        catalogProgram = file("${moduleDir}/../../../modules/local/regional_catalog/resources/usr/bin/run_regional_catalog.py", checkIfExists: true)
         provider_inputs = validated.map { _id, request, meta, result_dirs -> tuple(meta, result_dirs, request, catalogProgram) }
         REGIONAL_CATALOG(provider_inputs)
         provider_artifacts_ch = REGIONAL_CATALOG.out.artifacts

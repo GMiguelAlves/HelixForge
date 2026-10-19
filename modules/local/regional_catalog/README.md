@@ -9,6 +9,9 @@ Every candidate retains its full envelope. `core_supported.bed` contains the
 separate atomic segments covered by at least the explicit number of evidence
 units. `regional_support.tsv` records called bases and fraction for every
 candidate/library pair, including zeros. It is spatial support, not read depth.
+Transitive overlap may produce long envelopes; multiple units touching different
+parts do not establish co-occupancy of the entire region. Inspect the core
+fraction and per-unit coverage rather than treating the envelope as uniformly supported.
 
 Classification:
 
@@ -29,5 +32,8 @@ and BEDTools 2.31.1. The provider source is staged explicitly as a cache input.
 
 Tests: [contract tests](../../../tests/native_chipseq_consensus/test_regional_catalog.py)
 and [separate scientific validation](../../../validation/broad_consensus/regional_catalog_v1/README.md).
-Independent scientific validation is required before promoting this opt-in
-provider. It does not retrospectively replace a frozen benchmark or pinned run.
+The [18-case prospective synthetic validation](../../../validation/broad_consensus/regional_catalog_v1/RESULTS.md)
+and native Nextflow stub/real/cache/integration tests passed. This validates the
+declared synthetic challenge, not biological occupancy or universal broad-mark
+performance. The provider remains opt-in and does not retrospectively replace
+a frozen benchmark or pinned run.

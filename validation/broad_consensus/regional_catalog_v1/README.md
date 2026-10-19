@@ -5,6 +5,9 @@ ChIP-seq benchmarks. Its seeds and generated data were not used in the previous
 HP1/H3K27me3 development comparisons. All scientific execution must take place
 in an explicitly allocated compute environment.
 
+The completed run passed all 18 cases and the native runtime/integration tests;
+see [results and boundaries](RESULTS.md) and the [machine-readable evidence](validation_summary.json).
+
 The [protocol](protocol.json) is frozen before scientific execution. It defines
 three seeds and six scenarios: balanced signal, heterogeneous enrichment, one
 unenriched library, library-specific domains, variable intradomain signal and

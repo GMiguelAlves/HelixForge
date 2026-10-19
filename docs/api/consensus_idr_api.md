@@ -59,8 +59,10 @@ occupancy**. The long-form support matrix includes called bases/fractions for
 every library, including zero support. Classification distinguishes `candidate`
 from `spatially_supported_candidate`; both have `occupancy_status=not_assessed`.
 See the [provider contract](../../modules/local/regional_catalog/README.md).
-Independent scientific certification is pending; existing strategies/defaults
-and pinned results are not replaced by this opt-in implementation.
+The [prospective synthetic validation](../../validation/broad_consensus/regional_catalog_v1/RESULTS.md)
+passed 18 new aligned-read cases and native runtime/cache tests. This is not
+biological-occupancy certification; existing strategies/defaults and pinned
+results are not replaced by this opt-in implementation.
 
 For the three atomic strategies, adjacent segments with different support sets are not merged. This avoids
 fabricating one support value for a region whose evidence changes across its

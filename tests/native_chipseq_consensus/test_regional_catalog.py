@@ -58,6 +58,12 @@ class RegionalCatalogTests(unittest.TestCase):
         rows,_,core = P.consolidate([('c',0,5,('A','B')),('c',5,10,('A','B','C'))],['A','B','C'],3,'g')
         self.assertEqual(rows[0]['core_bp'],5)
         self.assertEqual(core[0][1:3],(5,10))
+        # A chain touching three units is not three-unit co-occupancy.
+        chain = [('c',0,90,('A',)),('c',90,100,('A','B')),('c',100,110,('B','C')),('c',110,200,('C',))]
+        rows,_,core = P.consolidate(chain,['A','B','C'],3,'g')
+        self.assertEqual(rows[0]['support'],3)
+        self.assertEqual(rows[0]['classification'],'candidate')
+        self.assertEqual(core,[])
 
     def test_unit_coverage_and_core_match_independent_per_base_truth(self):
         rng = random.Random(53)
