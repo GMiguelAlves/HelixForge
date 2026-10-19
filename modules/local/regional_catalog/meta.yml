@@ -1,0 +1,19 @@
+name: regional_catalog
+description: Preserve broad candidate envelopes with spatial support and a separate support core.
+keywords: [chipseq, broad, consensus, regional-catalog, bedtools]
+tools:
+  - bedtools:
+      description: Sorted per-library merging and exact atomic support.
+      homepage: https://bedtools.readthedocs.io/
+input:
+  - meta: Validated experiment identity.
+  - peak_dirs: Semantic broadPeak directories.
+  - request: Validated regional_catalog_v1 1.0.0 request, including peak checksums.
+  - program: Staged provider source; changes invalidate the deep cache.
+output:
+  - artifacts: Candidate BED/table, supported-envelope BED, core BED, support matrix and original evidence.
+  - reports: Atomic support and executed commands.
+  - versions: Provider, Python and BEDTools.
+  - execution_metadata: Resources, commands, runtime and environment.
+  - manifest: Versioned semantics and checksummed artifacts.
+  - status: Task completion, not biological acceptance.

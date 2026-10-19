@@ -30,9 +30,14 @@ process CONSENSUS_AGGREGATE {
     tuple val(meta), path('consensus_aggregate.done'), emit: status
 
     script:
+    def aggregateCommand = 'consensus_aggregate.py'
+    if (meta.strategy == 'regional_catalog') {
+        def programBase64 = new File("${moduleDir}/resources/usr/bin/consensus_aggregate.py").bytes.encodeBase64().toString()
+        aggregateCommand = "python3 -c \"import base64;exec(compile(base64.b64decode('${programBase64}'),'consensus_aggregate.py','exec'))\""
+    }
     def manifestArgs = provider_manifests.collect { manifest -> "--provider-manifest '${manifest}'" }.join(' ')
     """
-    consensus_aggregate.py \
+    ${aggregateCommand} \
         ${manifestArgs} \
         --summary-json consolidation_summary.json \
         --summary-tsv consolidation_summary.tsv \

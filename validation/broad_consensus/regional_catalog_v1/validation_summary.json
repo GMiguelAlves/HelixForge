@@ -1,0 +1,1852 @@
+{
+  "status": "PASS",
+  "provider": "regional_catalog_v1",
+  "provider_version": "1.0.0",
+  "protocol_sha256": "3987fbb86fca078ca947fe87af5806969641e233b1fb6049e4695046202efc0c",
+  "provider_source_sha256": "d6a3efaf291d6c2bc86f4c64ab5a2d6ecf4f0214a2b7e98fda20bea40d5e0c5e",
+  "contract_tests": 36,
+  "cases": [
+    {
+      "seed": 530101,
+      "scenario": "balanced",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "candidate_base_precision": true,
+        "supported_shared_base_precision": true,
+        "shared_domain_recall": true,
+        "shared_domain_recall_width_1500": true,
+        "shared_domain_recall_width_6000": true,
+        "shared_domain_recall_width_20000": true,
+        "recall_loss_vs_core": true,
+        "fragmentation_increase_vs_core": true,
+        "truth_merging_fraction": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 25,
+          "called_bp": 217335,
+          "truth_bp": 220000,
+          "true_positive_bp": 217085,
+          "false_positive_bp": 250,
+          "base_precision": 0.9988497020728369,
+          "base_recall": 0.98675,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "supported": {
+          "records": 24,
+          "called_bp": 217085,
+          "truth_bp": 220000,
+          "true_positive_bp": 217085,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.98675,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "core": {
+          "records": 74,
+          "called_bp": 215784,
+          "truth_bp": 220000,
+          "true_positive_bp": 215784,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9808363636363636,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.041666666666666664,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.125
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 530101,
+      "scenario": "heterogeneous",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "candidate_base_precision": true,
+        "supported_shared_base_precision": true,
+        "shared_domain_recall": true,
+        "shared_domain_recall_width_1500": true,
+        "shared_domain_recall_width_6000": true,
+        "shared_domain_recall_width_20000": true,
+        "recall_loss_vs_core": true,
+        "fragmentation_increase_vs_core": true,
+        "truth_merging_fraction": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 24,
+          "called_bp": 216077,
+          "truth_bp": 220000,
+          "true_positive_bp": 216077,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9821681818181818,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "supported": {
+          "records": 24,
+          "called_bp": 216077,
+          "truth_bp": 220000,
+          "true_positive_bp": 216077,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9821681818181818,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "core": {
+          "records": 93,
+          "called_bp": 161653,
+          "truth_bp": 220000,
+          "true_positive_bp": 161653,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.7347863636363636,
+          "domain_recall": 0.9583333333333334,
+          "fragmentation_fraction": 0.5416666666666666,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 0.875,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.625
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 530101,
+      "scenario": "discordant",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "candidate_base_precision": true,
+        "supported_shared_base_precision": true,
+        "shared_domain_recall": true,
+        "shared_domain_recall_width_1500": true,
+        "shared_domain_recall_width_6000": true,
+        "shared_domain_recall_width_20000": true,
+        "recall_loss_vs_core": true,
+        "fragmentation_increase_vs_core": true,
+        "truth_merging_fraction": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 24,
+          "called_bp": 215912,
+          "truth_bp": 220000,
+          "true_positive_bp": 215912,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9814181818181819,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "supported": {
+          "records": 24,
+          "called_bp": 215912,
+          "truth_bp": 220000,
+          "true_positive_bp": 215912,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9814181818181819,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "core": {
+          "records": 96,
+          "called_bp": 161494,
+          "truth_bp": 220000,
+          "true_positive_bp": 161494,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.7340636363636364,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.625,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.875
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 530101,
+      "scenario": "library_specific",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "candidate_base_precision": true,
+        "supported_shared_base_precision": true,
+        "shared_domain_recall": true,
+        "shared_domain_recall_width_1500": true,
+        "shared_domain_recall_width_6000": true,
+        "shared_domain_recall_width_20000": true,
+        "recall_loss_vs_core": true,
+        "fragmentation_increase_vs_core": true,
+        "truth_merging_fraction": true,
+        "private_domain_recovery": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 32,
+          "called_bp": 335628,
+          "truth_bp": 340000,
+          "true_positive_bp": 335112,
+          "false_positive_bp": 516,
+          "base_precision": 0.998462583574672,
+          "base_recall": 0.9856235294117647,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 14,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "supported": {
+          "records": 24,
+          "called_bp": 216207,
+          "truth_bp": 220000,
+          "true_positive_bp": 216207,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9827590909090909,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "core": {
+          "records": 110,
+          "called_bp": 214264,
+          "truth_bp": 220000,
+          "true_positive_bp": 214264,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9739272727272728,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.4583333333333333,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.375
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 530101,
+      "scenario": "variable_signal",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "candidate_base_precision": true,
+        "supported_shared_base_precision": true,
+        "shared_domain_recall": true,
+        "shared_domain_recall_width_1500": true,
+        "shared_domain_recall_width_6000": true,
+        "shared_domain_recall_width_20000": true,
+        "recall_loss_vs_core": true,
+        "fragmentation_increase_vs_core": true,
+        "truth_merging_fraction": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 25,
+          "called_bp": 217359,
+          "truth_bp": 220000,
+          "true_positive_bp": 216591,
+          "false_positive_bp": 768,
+          "base_precision": 0.9964666749478973,
+          "base_recall": 0.9845045454545455,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "supported": {
+          "records": 24,
+          "called_bp": 216889,
+          "truth_bp": 220000,
+          "true_positive_bp": 216591,
+          "false_positive_bp": 298,
+          "base_precision": 0.9986260252940444,
+          "base_recall": 0.9845045454545455,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "core": {
+          "records": 144,
+          "called_bp": 195065,
+          "truth_bp": 220000,
+          "true_positive_bp": 195065,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.8866590909090909,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.8333333333333334,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.5
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 1.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 530101,
+      "scenario": "null",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "null_supported_regions": true,
+        "null_candidate_genome_fraction": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 0,
+          "called_bp": 0,
+          "truth_bp": 0,
+          "true_positive_bp": 0,
+          "false_positive_bp": 0,
+          "base_precision": null,
+          "base_recall": null,
+          "domain_recall": null,
+          "fragmentation_fraction": null,
+          "merging_fraction": null,
+          "width_strata": {}
+        },
+        "supported": {
+          "records": 0,
+          "called_bp": 0,
+          "truth_bp": 0,
+          "true_positive_bp": 0,
+          "false_positive_bp": 0,
+          "base_precision": null,
+          "base_recall": null,
+          "domain_recall": null,
+          "fragmentation_fraction": null,
+          "merging_fraction": null,
+          "width_strata": {}
+        },
+        "core": {
+          "records": 0,
+          "called_bp": 0,
+          "truth_bp": 0,
+          "true_positive_bp": 0,
+          "false_positive_bp": 0,
+          "base_precision": null,
+          "base_recall": null,
+          "domain_recall": null,
+          "fragmentation_fraction": null,
+          "merging_fraction": null,
+          "width_strata": {}
+        }
+      }
+    },
+    {
+      "seed": 530102,
+      "scenario": "balanced",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "candidate_base_precision": true,
+        "supported_shared_base_precision": true,
+        "shared_domain_recall": true,
+        "shared_domain_recall_width_1500": true,
+        "shared_domain_recall_width_6000": true,
+        "shared_domain_recall_width_20000": true,
+        "recall_loss_vs_core": true,
+        "fragmentation_increase_vs_core": true,
+        "truth_merging_fraction": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 24,
+          "called_bp": 217163,
+          "truth_bp": 220000,
+          "true_positive_bp": 217163,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9871045454545454,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "supported": {
+          "records": 24,
+          "called_bp": 217163,
+          "truth_bp": 220000,
+          "true_positive_bp": 217163,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9871045454545454,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "core": {
+          "records": 72,
+          "called_bp": 216020,
+          "truth_bp": 220000,
+          "true_positive_bp": 216020,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.981909090909091,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 530102,
+      "scenario": "heterogeneous",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "candidate_base_precision": true,
+        "supported_shared_base_precision": true,
+        "shared_domain_recall": true,
+        "shared_domain_recall_width_1500": true,
+        "shared_domain_recall_width_6000": true,
+        "shared_domain_recall_width_20000": true,
+        "recall_loss_vs_core": true,
+        "fragmentation_increase_vs_core": true,
+        "truth_merging_fraction": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 25,
+          "called_bp": 215892,
+          "truth_bp": 220000,
+          "true_positive_bp": 215692,
+          "false_positive_bp": 200,
+          "base_precision": 0.9990736108795139,
+          "base_recall": 0.9804181818181819,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "supported": {
+          "records": 24,
+          "called_bp": 215692,
+          "truth_bp": 220000,
+          "true_positive_bp": 215692,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9804181818181819,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "core": {
+          "records": 108,
+          "called_bp": 153786,
+          "truth_bp": 220000,
+          "true_positive_bp": 153786,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.6990272727272727,
+          "domain_recall": 0.9166666666666666,
+          "fragmentation_fraction": 0.7083333333333334,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 0.875,
+              "fragmentation_fraction": 0.125
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 0.875,
+              "fragmentation_fraction": 1.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 530102,
+      "scenario": "discordant",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "candidate_base_precision": true,
+        "supported_shared_base_precision": true,
+        "shared_domain_recall": true,
+        "shared_domain_recall_width_1500": true,
+        "shared_domain_recall_width_6000": true,
+        "shared_domain_recall_width_20000": true,
+        "recall_loss_vs_core": true,
+        "fragmentation_increase_vs_core": true,
+        "truth_merging_fraction": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 24,
+          "called_bp": 216275,
+          "truth_bp": 220000,
+          "true_positive_bp": 216275,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9830681818181818,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "supported": {
+          "records": 24,
+          "called_bp": 216275,
+          "truth_bp": 220000,
+          "true_positive_bp": 216275,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9830681818181818,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "core": {
+          "records": 101,
+          "called_bp": 165668,
+          "truth_bp": 220000,
+          "true_positive_bp": 165668,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.7530363636363636,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.75,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.25
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 1.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 530102,
+      "scenario": "library_specific",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "candidate_base_precision": true,
+        "supported_shared_base_precision": true,
+        "shared_domain_recall": true,
+        "shared_domain_recall_width_1500": true,
+        "shared_domain_recall_width_6000": true,
+        "shared_domain_recall_width_20000": true,
+        "recall_loss_vs_core": true,
+        "fragmentation_increase_vs_core": true,
+        "truth_merging_fraction": true,
+        "private_domain_recovery": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 31,
+          "called_bp": 334841,
+          "truth_bp": 340000,
+          "true_positive_bp": 334594,
+          "false_positive_bp": 247,
+          "base_precision": 0.9992623364522266,
+          "base_recall": 0.9841,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 14,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "supported": {
+          "records": 24,
+          "called_bp": 215546,
+          "truth_bp": 220000,
+          "true_positive_bp": 215546,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9797545454545454,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "core": {
+          "records": 110,
+          "called_bp": 213593,
+          "truth_bp": 220000,
+          "true_positive_bp": 213593,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9708772727272728,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.4583333333333333,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.125
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.25
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 530102,
+      "scenario": "variable_signal",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "candidate_base_precision": true,
+        "supported_shared_base_precision": true,
+        "shared_domain_recall": true,
+        "shared_domain_recall_width_1500": true,
+        "shared_domain_recall_width_6000": true,
+        "shared_domain_recall_width_20000": true,
+        "recall_loss_vs_core": true,
+        "fragmentation_increase_vs_core": true,
+        "truth_merging_fraction": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 24,
+          "called_bp": 216878,
+          "truth_bp": 220000,
+          "true_positive_bp": 216500,
+          "false_positive_bp": 378,
+          "base_precision": 0.9982570846282242,
+          "base_recall": 0.9840909090909091,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "supported": {
+          "records": 24,
+          "called_bp": 216878,
+          "truth_bp": 220000,
+          "true_positive_bp": 216500,
+          "false_positive_bp": 378,
+          "base_precision": 0.9982570846282242,
+          "base_recall": 0.9840909090909091,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "core": {
+          "records": 149,
+          "called_bp": 195201,
+          "truth_bp": 220000,
+          "true_positive_bp": 195201,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.8872772727272727,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.8333333333333334,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.5
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 1.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 530102,
+      "scenario": "null",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "null_supported_regions": true,
+        "null_candidate_genome_fraction": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 0,
+          "called_bp": 0,
+          "truth_bp": 0,
+          "true_positive_bp": 0,
+          "false_positive_bp": 0,
+          "base_precision": null,
+          "base_recall": null,
+          "domain_recall": null,
+          "fragmentation_fraction": null,
+          "merging_fraction": null,
+          "width_strata": {}
+        },
+        "supported": {
+          "records": 0,
+          "called_bp": 0,
+          "truth_bp": 0,
+          "true_positive_bp": 0,
+          "false_positive_bp": 0,
+          "base_precision": null,
+          "base_recall": null,
+          "domain_recall": null,
+          "fragmentation_fraction": null,
+          "merging_fraction": null,
+          "width_strata": {}
+        },
+        "core": {
+          "records": 0,
+          "called_bp": 0,
+          "truth_bp": 0,
+          "true_positive_bp": 0,
+          "false_positive_bp": 0,
+          "base_precision": null,
+          "base_recall": null,
+          "domain_recall": null,
+          "fragmentation_fraction": null,
+          "merging_fraction": null,
+          "width_strata": {}
+        }
+      }
+    },
+    {
+      "seed": 530103,
+      "scenario": "balanced",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "candidate_base_precision": true,
+        "supported_shared_base_precision": true,
+        "shared_domain_recall": true,
+        "shared_domain_recall_width_1500": true,
+        "shared_domain_recall_width_6000": true,
+        "shared_domain_recall_width_20000": true,
+        "recall_loss_vs_core": true,
+        "fragmentation_increase_vs_core": true,
+        "truth_merging_fraction": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 24,
+          "called_bp": 217489,
+          "truth_bp": 220000,
+          "true_positive_bp": 217489,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9885863636363637,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "supported": {
+          "records": 24,
+          "called_bp": 217489,
+          "truth_bp": 220000,
+          "true_positive_bp": 217489,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9885863636363637,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "core": {
+          "records": 72,
+          "called_bp": 216147,
+          "truth_bp": 220000,
+          "true_positive_bp": 216147,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9824863636363637,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 530103,
+      "scenario": "heterogeneous",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "candidate_base_precision": true,
+        "supported_shared_base_precision": true,
+        "shared_domain_recall": true,
+        "shared_domain_recall_width_1500": true,
+        "shared_domain_recall_width_6000": true,
+        "shared_domain_recall_width_20000": true,
+        "recall_loss_vs_core": true,
+        "fragmentation_increase_vs_core": true,
+        "truth_merging_fraction": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 24,
+          "called_bp": 216161,
+          "truth_bp": 220000,
+          "true_positive_bp": 216161,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.98255,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "supported": {
+          "records": 24,
+          "called_bp": 216161,
+          "truth_bp": 220000,
+          "true_positive_bp": 216161,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.98255,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "core": {
+          "records": 93,
+          "called_bp": 168779,
+          "truth_bp": 220000,
+          "true_positive_bp": 168779,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.7671772727272728,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.6666666666666666,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.125
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.875
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 530103,
+      "scenario": "discordant",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "candidate_base_precision": true,
+        "supported_shared_base_precision": true,
+        "shared_domain_recall": true,
+        "shared_domain_recall_width_1500": true,
+        "shared_domain_recall_width_6000": true,
+        "shared_domain_recall_width_20000": true,
+        "recall_loss_vs_core": true,
+        "fragmentation_increase_vs_core": true,
+        "truth_merging_fraction": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 26,
+          "called_bp": 216616,
+          "truth_bp": 220000,
+          "true_positive_bp": 216181,
+          "false_positive_bp": 435,
+          "base_precision": 0.997991838091369,
+          "base_recall": 0.9826409090909091,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "supported": {
+          "records": 24,
+          "called_bp": 216181,
+          "truth_bp": 220000,
+          "true_positive_bp": 216181,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9826409090909091,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "core": {
+          "records": 94,
+          "called_bp": 167993,
+          "truth_bp": 220000,
+          "true_positive_bp": 167993,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.7636045454545455,
+          "domain_recall": 0.9583333333333334,
+          "fragmentation_fraction": 0.7083333333333334,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 0.875,
+              "fragmentation_fraction": 0.25
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.875
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 530103,
+      "scenario": "library_specific",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "candidate_base_precision": true,
+        "supported_shared_base_precision": true,
+        "shared_domain_recall": true,
+        "shared_domain_recall_width_1500": true,
+        "shared_domain_recall_width_6000": true,
+        "shared_domain_recall_width_20000": true,
+        "recall_loss_vs_core": true,
+        "fragmentation_increase_vs_core": true,
+        "truth_merging_fraction": true,
+        "private_domain_recovery": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 30,
+          "called_bp": 334903,
+          "truth_bp": 340000,
+          "true_positive_bp": 334711,
+          "false_positive_bp": 192,
+          "base_precision": 0.9994266996712481,
+          "base_recall": 0.9844441176470589,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 14,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "supported": {
+          "records": 24,
+          "called_bp": 216009,
+          "truth_bp": 220000,
+          "true_positive_bp": 215817,
+          "false_positive_bp": 192,
+          "base_precision": 0.999111148146605,
+          "base_recall": 0.9809863636363636,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "core": {
+          "records": 106,
+          "called_bp": 213877,
+          "truth_bp": 220000,
+          "true_positive_bp": 213877,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9721681818181818,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.4583333333333333,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.125
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.375
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.875
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 530103,
+      "scenario": "variable_signal",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "candidate_base_precision": true,
+        "supported_shared_base_precision": true,
+        "shared_domain_recall": true,
+        "shared_domain_recall_width_1500": true,
+        "shared_domain_recall_width_6000": true,
+        "shared_domain_recall_width_20000": true,
+        "recall_loss_vs_core": true,
+        "fragmentation_increase_vs_core": true,
+        "truth_merging_fraction": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 24,
+          "called_bp": 216708,
+          "truth_bp": 220000,
+          "true_positive_bp": 216708,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9850363636363636,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "supported": {
+          "records": 24,
+          "called_bp": 216708,
+          "truth_bp": 220000,
+          "true_positive_bp": 216708,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.9850363636363636,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.0,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.0
+            }
+          }
+        },
+        "core": {
+          "records": 144,
+          "called_bp": 195624,
+          "truth_bp": 220000,
+          "true_positive_bp": 195624,
+          "false_positive_bp": 0,
+          "base_precision": 1.0,
+          "base_recall": 0.8892,
+          "domain_recall": 1.0,
+          "fragmentation_fraction": 0.7916666666666666,
+          "merging_fraction": 0.0,
+          "width_strata": {
+            "1500": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 0.375
+            },
+            "6000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 1.0
+            },
+            "20000": {
+              "domains": 8,
+              "domain_recall": 1.0,
+              "fragmentation_fraction": 1.0
+            }
+          }
+        }
+      }
+    },
+    {
+      "seed": 530103,
+      "scenario": "null",
+      "status": "PASS",
+      "checks": {
+        "catalog_union_exact": true,
+        "core_matches_independent_bedtools": true,
+        "original_calls_not_split": true,
+        "null_supported_regions": true,
+        "null_candidate_genome_fraction": true
+      },
+      "metrics": {
+        "candidate": {
+          "records": 0,
+          "called_bp": 0,
+          "truth_bp": 0,
+          "true_positive_bp": 0,
+          "false_positive_bp": 0,
+          "base_precision": null,
+          "base_recall": null,
+          "domain_recall": null,
+          "fragmentation_fraction": null,
+          "merging_fraction": null,
+          "width_strata": {}
+        },
+        "supported": {
+          "records": 0,
+          "called_bp": 0,
+          "truth_bp": 0,
+          "true_positive_bp": 0,
+          "false_positive_bp": 0,
+          "base_precision": null,
+          "base_recall": null,
+          "domain_recall": null,
+          "fragmentation_fraction": null,
+          "merging_fraction": null,
+          "width_strata": {}
+        },
+        "core": {
+          "records": 0,
+          "called_bp": 0,
+          "truth_bp": 0,
+          "true_positive_bp": 0,
+          "false_positive_bp": 0,
+          "base_precision": null,
+          "base_recall": null,
+          "domain_recall": null,
+          "fragmentation_fraction": null,
+          "merging_fraction": null,
+          "width_strata": {}
+        }
+      }
+    }
+  ],
+  "runtime": {
+    "python": "3.13.14",
+    "bedtools": "bedtools v2.31.1",
+    "samtools": "samtools 1.23.1",
+    "macs3": "macs3 3.0.4",
+    "nextflow": "25.10.7",
+    "environment": "existing Conda environment; OCI and new Conda solve not certified by this run"
+  },
+  "module_tests": [
+    {
+      "run": "stub",
+      "status": "COMPLETED",
+      "process": "REGIONAL_CATALOG (validation.530101.balanced:regional_catalog_v1)"
+    },
+    {
+      "run": "real",
+      "status": "COMPLETED",
+      "process": "REGIONAL_CATALOG (validation.530101.balanced:regional_catalog_v1)"
+    },
+    {
+      "run": "resume-identical",
+      "status": "CACHED",
+      "process": "REGIONAL_CATALOG (validation.530101.balanced:regional_catalog_v1)"
+    },
+    {
+      "run": "changed-program",
+      "status": "COMPLETED",
+      "process": "REGIONAL_CATALOG (validation.530101.balanced:regional_catalog_v1)"
+    },
+    {
+      "run": "changed-threshold",
+      "status": "COMPLETED",
+      "process": "REGIONAL_CATALOG (validation.530101.balanced:regional_catalog_v1)"
+    }
+  ],
+  "integrated_context_catalog_aggregate": [
+    {
+      "run": "real",
+      "processes": 3,
+      "statuses": [
+        "COMPLETED",
+        "COMPLETED",
+        "COMPLETED"
+      ]
+    },
+    {
+      "run": "resume",
+      "processes": 3,
+      "statuses": [
+        "CACHED",
+        "CACHED",
+        "CACHED"
+      ]
+    }
+  ],
+  "data_independence": "New synthetic data/seeds, not development studies or prior frozen benchmark inputs; not independent external authorship or biological validation.",
+  "scope": "Aligned-read synthetic caller-to-catalog validation; no alignment/mappability/repeat or biological-occupancy certification.",
+  "historical_benchmarks_changed": false,
+  "default_promoted": false,
+  "occupancy_reproducibility_assessed": false
+}
