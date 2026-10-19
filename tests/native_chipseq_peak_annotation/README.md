@@ -27,3 +27,11 @@ for the real run. The entry point also supports `-stub-run`; the scientific
 output validator is for the real run, not mock outputs. An identical run with
 `-resume` should cache all nine eligible tasks. No FASTQs, alignment, peak
 calling, new significance threshold or biological benchmark is involved.
+
+Verified reduced integration: lint, nine stub tasks, nine real tasks and an
+identical resume with all nine tasks cached. Published-output checks confirm
+two candidate envelopes covering 500 bp, a separate 1-bp core and three
+associated genes. Genes in candidate tails remain associated; the gene in
+the 1-bp gap is not associated. The 64 focused annotation, consensus,
+composition and report contract/regression tests also passed. This is a
+functional integration check, not biological validation of every candidate.
