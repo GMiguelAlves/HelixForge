@@ -174,6 +174,11 @@ def main():
             request = json.load(handle)
         if request.get("status") not in {"valid", "stub"} or request.get("provider") != "python_interval_v1":
             raise ValueError("PEAK_ANNOTATOR requires a validated python_interval_v1 request")
+        representation = request.get("source_representation")
+        if representation and representation.get("kind") == "regional_candidate_catalog":
+            expected = request.get("inputs", {}).get("peaks", {}).get("sha256")
+            if not expected or sha256(args.peaks) != expected:
+                raise ValueError("regional candidate artifact differs from the validated request")
         parameters = request["parameters"]
         features = read_annotation(args.annotation, parameters["promoter_upstream"], parameters["promoter_downstream"])
         feature_indexes = {name: build_interval_index(group) for name, group in features.items()}
@@ -209,8 +214,13 @@ def main():
                 })
         annotated_path = output / "annotated_peaks.tsv"
         association_path = output / "peak_gene_associations.tsv"
-        write_tsv(annotated_path, ("peak_id", "chrom", "start", "end", "category", "gene_ids", "gene_count", "distance_to_tss", "record_id", "source_id", "included"), annotated)
-        write_tsv(association_path, ("peak_id", "gene_id", "category", "distance_to_tss", "record_id", "source_id"), associations)
+        evidence_columns = ()
+        if representation:
+            evidence_columns = ("source_representation", "occupancy_status")
+            for row in annotated + associations:
+                row.update(source_representation=representation["kind"], occupancy_status=representation["occupancy_status"])
+        write_tsv(annotated_path, ("peak_id", "chrom", "start", "end", "category", "gene_ids", "gene_count", "distance_to_tss", "record_id", "source_id", "included") + evidence_columns, annotated)
+        write_tsv(association_path, ("peak_id", "gene_id", "category", "distance_to_tss", "record_id", "source_id") + evidence_columns, associations)
         feature_rows = []
         for name in ("gene", "exon", "intron", "promoter", "downstream"):
             feature_rows.append({"feature": name, "count": sum(len(rows) for rows in features[name].values())})
@@ -249,6 +259,8 @@ def main():
                 "annotation_sha256": request["inputs"]["annotation"]["sha256"],
             }, "status": status,
         }
+        if representation:
+            manifest["source_representation"] = representation
         with open(args.manifest, "w", encoding="utf-8") as handle:
             json.dump(manifest, handle, indent=2, sort_keys=True); handle.write("\n")
         with open(output / "manifest.json", "w", encoding="utf-8") as handle:

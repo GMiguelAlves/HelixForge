@@ -105,6 +105,31 @@ def generate_html(data, presentation):
         section = data.get("sections", {}).get(key, {"status": "not_requested", "data": None})
         status = section.get("status", "incomplete")
         content = '<p class="not-executed">Not executed</p>' if status == "not_requested" else render_value(section.get("data"))
+        if key == "annotation" and status != "not_requested":
+            representations = (section.get("data") or {}).get("source_representations", [])
+            regional = [entry for entry in representations if entry.get("kind") == "regional_candidate_catalog"]
+            if regional:
+                catalog_rows = []
+                for entry in regional:
+                    statistics = entry.get("source_statistics", {})
+                    core = entry.get("support_core", {})
+                    catalog_rows.append({
+                        "source_id": entry["source_id"],
+                        "candidate_regions": statistics.get("consolidated_peaks"),
+                        "candidate_bp": statistics.get("candidate_bp"),
+                        "core_bp": statistics.get("core_bp"),
+                        "regions_containing_core": statistics.get("spatially_supported_regions"),
+                        "core_artifact_in_source": core.get("path"),
+                        "core_sha256": core.get("sha256"),
+                        "occupancy_status": entry["occupancy_status"],
+                    })
+                content = (
+                    '<p class="regional-catalog-note"><strong>Regional candidate associations.</strong> '
+                    'Gene associations use complete candidate envelopes, not only shared support cores. '
+                    'Overlapping or touching calls are consolidated without filling positive gaps. '
+                    'The support core remains a separate consensus artifact. Candidate gene associations '
+                    'do not establish reproducible occupancy or regulatory causality.</p>'
+                ) + render_table(catalog_rows) + content
         sections.append(
             f'<section id="{html.escape(key)}"><div class=section-title><h2>{html.escape(label)}</h2>'
             f'<span class="status status-{html.escape(status)}">{html.escape(status)}</span></div>{content}</section>'

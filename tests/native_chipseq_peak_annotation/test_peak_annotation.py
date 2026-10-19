@@ -137,6 +137,8 @@ class LightweightChainTest(unittest.TestCase):
                 "--task-time", "1m", "--nextflow-version", "test",
             ], check=True)
             rows = (output / "annotated_peaks.tsv").read_text(encoding="utf-8").splitlines()
+            self.assertEqual(rows[0], "peak_id\tchrom\tstart\tend\tcategory\tgene_ids\tgene_count\tdistance_to_tss\trecord_id\tsource_id\tincluded")
+            self.assertNotIn("source_representation", json.loads(provider_manifest.read_text(encoding="utf-8")))
             self.assertIn("peak_promoter\tchrStub\t8\t12\tpromoter", rows[1])
             self.assertIn("peak_intron\tchrStub\t16\t19\tintron", rows[2])
             self.assertIn("peak_intergenic\tchrStub\t50\t55\tintergenic", rows[3])

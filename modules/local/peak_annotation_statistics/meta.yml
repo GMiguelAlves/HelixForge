@@ -5,6 +5,7 @@ input:
   - meta: Stable annotation identity.
   - annotation_dir: PEAK_ANNOTATOR semantic artifacts.
   - annotation_manifest: Provider manifest.
+  - providerProgram: Versioned Python source staged as a separate deep-cache path input.
 output:
   - artifacts: Statistics JSON and TSV.
   - reports: Category, chromosome, record, and TSS-distance tables.

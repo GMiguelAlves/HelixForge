@@ -18,6 +18,7 @@ process REPORT_CONTEXT {
 
     input:
     tuple val(meta), path(inventory), path(manifests, stageAs: 'manifests??/*')
+    path(providerProgram)
 
     output:
     tuple val(meta), path("${meta.id}.report_context.json"), emit: artifacts
@@ -29,7 +30,7 @@ process REPORT_CONTEXT {
     def manifestArgs = manifests.collect { value -> "--manifest '${value}'" }.join(' ')
     """
     set -o pipefail
-    validate_report_context.py \
+    python3 '${providerProgram}' \
         --inventory '${inventory}' \
         ${manifestArgs} \
         --output '${meta.id}.report_context.json' \

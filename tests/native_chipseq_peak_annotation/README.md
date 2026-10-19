@@ -5,5 +5,33 @@
 - `run_stub.sh`: subworkflow stub, `-resume`, and top-level
   `chipseq_run_mode=annotation` stub.
 
-Biological datasets, legacy regression, benchmarks, containers, Slurm, and
-production reference bundles are deliberately deferred.
+## Regional-catalog integration
+
+`test_regional_annotation.py` checks complete candidate coordinates, genes
+outside a one-base core, an unfilled one-base gap, empty catalogs, checksum
+substitution failures and candidate semantics through aggregation and HTML.
+The existing non-regional contract tests remain applicable.
+
+For a reduced native execution, generate the interval fixture:
+
+```bash
+python3 tests/native_chipseq_peak_annotation/generate_regional_fixture.py --outdir /path/to/fixture
+nextflow run tests/native_chipseq_peak_annotation/regional_report.nf \
+  -c tests/native_chipseq_peak_annotation/nextflow.config \
+  --fixture_dir /path/to/fixture --outdir /path/to/results
+python3 tests/native_chipseq_peak_annotation/validate_regional_result.py --results /path/to/results
+```
+
+Use an execution profile/site configuration with Python and BEDTools available
+for the real run. The entry point also supports `-stub-run`; the scientific
+output validator is for the real run, not mock outputs. An identical run with
+`-resume` should cache all nine eligible tasks. No FASTQs, alignment, peak
+calling, new significance threshold or biological benchmark is involved.
+
+Verified reduced integration: lint, nine stub tasks, nine real tasks and an
+identical resume with all nine tasks cached. Published-output checks confirm
+two candidate envelopes covering 500 bp, a separate 1-bp core and three
+associated genes. Genes in candidate tails remain associated; the gene in
+the 1-bp gap is not associated. The 64 focused annotation, consensus,
+composition and report contract/regression tests also passed. This is a
+functional integration check, not biological validation of every candidate.

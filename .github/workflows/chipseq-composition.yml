@@ -10,6 +10,9 @@ on:
       - 'modules/local/chipseq_continuation_context/**'
       - 'modules/local/chipseq_full_report_input/**'
       - 'modules/local/report_*/**'
+      - 'modules/local/peak_annot*/**'
+      - 'modules/local/regional_catalog/**'
+      - 'tests/native_chipseq_peak_annotation/**'
       - 'tests/native_chipseq_composition/**'
       - '.github/workflows/chipseq-composition.yml'
   push:
@@ -21,6 +24,9 @@ on:
       - 'modules/local/chipseq_continuation_context/**'
       - 'modules/local/chipseq_full_report_input/**'
       - 'modules/local/report_*/**'
+      - 'modules/local/peak_annot*/**'
+      - 'modules/local/regional_catalog/**'
+      - 'tests/native_chipseq_peak_annotation/**'
       - 'tests/native_chipseq_composition/**'
       - '.github/workflows/chipseq-composition.yml'
 
@@ -40,7 +46,7 @@ jobs:
       - name: Install certified Nextflow launcher
         run: curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
       - name: Validate plans, continuation and report contracts
-        run: python3 -m unittest tests.native_chipseq_composition.test_plan tests.native_chipseq_composition.test_continuation tests.native_chipseq_full.test_full_coordinator tests.native_chipseq_report.test_report -v
+        run: python3 -m unittest tests.native_chipseq_composition.test_plan tests.native_chipseq_composition.test_continuation tests.native_chipseq_full.test_full_coordinator tests.native_chipseq_report.test_report tests.native_chipseq_peak_annotation.test_peak_annotation tests.native_chipseq_peak_annotation.test_regional_annotation tests.native_chipseq_consensus.test_regional_catalog -v
       - name: Exercise composition and isolated report re-entry
         env:
           NEXTFLOW_BIN: ${{ github.workspace }}/nextflow

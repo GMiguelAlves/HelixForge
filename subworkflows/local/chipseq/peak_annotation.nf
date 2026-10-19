@@ -17,7 +17,7 @@ workflow PEAK_ANNOTATION {
         }
         records
     }
-    PEAK_ANNOTATION_CONTEXT(annotation_records)
+    PEAK_ANNOTATION_CONTEXT(annotation_records, file("${moduleDir}/../../../modules/local/peak_annotation_context/resources/usr/bin/validate_peak_annotation_context.py", checkIfExists: true))
 
     sources = annotation_records.map { meta, peaks, _peak_manifest, _reference, _reference_manifest, annotation, _spec ->
         tuple(meta.id, meta, peaks, annotation)
@@ -26,13 +26,13 @@ workflow PEAK_ANNOTATION {
         .map { meta, request -> tuple(meta.id, request) }
         .join(sources)
         .map { _id, request, meta, peaks, annotation -> tuple(meta, peaks, annotation, request) }
-    PEAK_ANNOTATOR(provider_inputs)
+    PEAK_ANNOTATOR(provider_inputs, file("${moduleDir}/../../../modules/local/peak_annotator/resources/usr/bin/run_peak_annotator.py", checkIfExists: true))
 
     provider_by_id = PEAK_ANNOTATOR.out.artifacts
         .map { meta, directory -> tuple(meta.id, meta, directory) }
         .join(PEAK_ANNOTATOR.out.manifest.map { meta, manifest -> tuple(meta.id, manifest) })
         .map { _id, meta, directory, manifest -> tuple(meta, directory, manifest) }
-    PEAK_ANNOTATION_STATISTICS(provider_by_id)
+    PEAK_ANNOTATION_STATISTICS(provider_by_id, file("${moduleDir}/../../../modules/local/peak_annotation_statistics/resources/usr/bin/peak_annotation_statistics.py", checkIfExists: true))
 
     aggregate_records = PEAK_ANNOTATOR.out.artifacts
         .map { meta, directory -> tuple(meta.id, directory) }
@@ -49,7 +49,7 @@ workflow PEAK_ANNOTATION {
                 records.collect { record -> record[4] }
             )
         }
-    PEAK_ANNOTATION_AGGREGATE(aggregate_inputs)
+    PEAK_ANNOTATION_AGGREGATE(aggregate_inputs, file("${moduleDir}/../../../modules/local/peak_annotation_aggregate/resources/usr/bin/peak_annotation_aggregate.py", checkIfExists: true))
 
     emit:
     artifacts          = PEAK_ANNOTATION_AGGREGATE.out.artifacts

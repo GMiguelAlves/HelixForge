@@ -14,20 +14,20 @@ workflow CHIPSEQ_REPORT {
     context_inputs = report_records.map { meta, inventory, manifests, _semantic_artifacts, _presentation ->
         tuple(meta, inventory, manifests)
     }
-    REPORT_CONTEXT(context_inputs)
+    REPORT_CONTEXT(context_inputs, file("${moduleDir}/../../../modules/local/report_context/resources/usr/bin/validate_report_context.py", checkIfExists: true))
 
     aggregate_inputs = sources
         .join(REPORT_CONTEXT.out.artifacts.map { meta, context -> tuple(meta.id, context) })
         .map { _id, meta, manifests, semantic_artifacts, _presentation, context ->
             tuple(meta, context, manifests, semantic_artifacts)
         }
-    REPORT_AGGREGATE(aggregate_inputs)
+    REPORT_AGGREGATE(aggregate_inputs, file("${moduleDir}/../../../modules/local/report_aggregate/resources/usr/bin/report_aggregate.py", checkIfExists: true))
 
     generator_inputs = sources
         .map { id, meta, _manifests, _semantic_artifacts, presentation -> tuple(id, meta, presentation) }
         .join(REPORT_AGGREGATE.out.artifacts.map { meta, aggregate_dir -> tuple(meta.id, aggregate_dir) })
         .map { _id, meta, presentation, aggregate_dir -> tuple(meta, aggregate_dir, presentation) }
-    REPORT_GENERATOR(generator_inputs)
+    REPORT_GENERATOR(generator_inputs, file("${moduleDir}/../../../modules/local/report_generator/resources/usr/bin/generate_chipseq_report.py", checkIfExists: true))
 
     emit:
     artifacts = REPORT_GENERATOR.out.artifacts
