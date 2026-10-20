@@ -131,12 +131,34 @@ A region called in every library can still have an ambiguous nearest-gene
 assignment. Conversely, a single-library candidate can have a well-defined
 nearest annotated promoter without proving regulation.
 
-The HOMER adapter currently preserves the single `Nearest PromoterID` returned
-by HOMER, its native annotation and TSS distance. It does **not** enumerate
-alternative genes or emit an automatic ambiguity flag. Consequently,
-`gene_count=1` means one reported assignment, not that every possible competing
-assignment was excluded. A missing ambiguity flag must not be interpreted as
-an unambiguous relationship.
+The HOMER adapter preserves the single `Nearest PromoterID` returned by HOMER,
+its native annotation and TSS distance. It additionally checks distance ties
+against a preserved `parseGTF.pl annotation.gtf tss -gid` snapshot produced by
+the same HOMER 4.11 package. TSVs, including annotation aggregates, expose:
+
+| Column | Meaning |
+|---|---|
+| `gene_assignment_ambiguous` | `true`, `false`, or `not_assessed` within the stated scope |
+| `gene_assignment_ambiguity_reason` | Tie detected, no tie detected, or why assessment was unavailable |
+| `gene_assignment_ambiguity_scope` | `homer_nearest_tss_distance_ties_v1` |
+| `alternative_gene_ids` | Sorted JSON array of distinct tied gene IDs, excluding the provider-selected gene |
+
+`true` means distinct genes have equally nearest TSS positions on the peak's
+chromosome, consistent with HOMER's reported distance and native peak midpoint.
+This covers shared TSS coordinates and equidistant TSS on opposite sides of the
+midpoint. Transcript duplicates from the same gene do not create gene-level
+ambiguity. `false` means no tie was detected **by this distance-based check**,
+not proof of a uniquely regulated gene. Broader regulatory ambiguity is outside
+this scope. `not_assessed` is used for no assigned gene, missing evidence in
+older results, or a provider position/distance that cannot be reconciled with
+the snapshot. Missing columns in compatibility/older results also mean not
+assessed; they must never be treated as `false`.
+
+The flag does not reassign the selected gene, alter `gene_count`, create extra
+association rows, or change HOMER parameters. `gene_count=1` remains one reported
+assignment. TSS snapshots and metadata are checksummed against the supplied GTF;
+the manifest records scope, checksums and assessment counts. A checksum mismatch
+fails rather than silently declaring a relationship unambiguous.
 
 Distinct annotated genes may share a TSS. A disagreement between otherwise
 identical direct and orchestrated HOMER runs can expose that ambiguity; it
@@ -146,13 +168,12 @@ differences are ignored by the reduced comparator, but a changed gene identity
 still fails exact record equivalence. A deterministic selected ID would not,
 by itself, establish a uniquely correct biological target.
 
-Downstream atlas consumers should display known ambiguous assignments as
-**ambiguous**, retain the provider-selected gene separately from reviewed
-alternative IDs, and link their evidence to the region, reference and provider
-version. Alternatives must come from an explicit annotation review, not be
-inferred from library support. If no ambiguity review has been performed,
-assignment ambiguity is **not assessed**, not automatically absent. Automatic
-detection and transport of alternative assignments are not yet implemented.
+Downstream atlas consumers should display flagged assignments as **ambiguous**,
+retain the provider-selected gene separately from `alternative_gene_ids`, and
+link evidence to the region, reference, provider and assessment scope. Additional
+reviewed alternatives should be distinguished from these automatically detected
+distance ties. Alternatives must not be inferred from library support. This flag
+is computed during normal annotation, not only during method comparison.
 
 `excluded_regions.tsv` uses the same library columns when a higher threshold
 is selected. Its `calling_libraries` field now contains identifiers rather than

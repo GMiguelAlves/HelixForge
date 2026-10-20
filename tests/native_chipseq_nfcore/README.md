@@ -23,3 +23,8 @@ support counts/categories and transport into aggregated gene associations.
 Unit cases also cover support in all libraries, mixed-provider aggregates,
 empty tables and invalid evidence. HOMER comparisons use peak IDs to ignore
 row ordering, but require exact annotations and reject missing/duplicate IDs.
+
+Ambiguity checks cover shared/equidistant TSS, opposite strands, chromosome
+isolation, duplicate transcripts, missing evidence and checksum rejection.
+A separate tiny real-HOMER annotation fixture verifies tied gene flags without
+replacing the selected gene or changing the workflow-equivalence reference.
