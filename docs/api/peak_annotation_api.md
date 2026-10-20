@@ -6,6 +6,11 @@ transports declared regional evidence; `python_interval_v1` remains available
 for compatibility. These methods are not interchangeable. See the
 [HOMER and evidence contract](../guides/nfcore-consensus-homer.md).
 
+Regional HOMER TSVs and their aggregate retain `calling_libraries`,
+`calling_samples`, `calling_library_count`, `total_library_count` and
+`library_support_category`, alongside full per-library coverage evidence.
+These describe membership in called regional candidates, not proven occupancy.
+
 Peak Annotation API v1 associates an explicitly identified peak set with a
 user-supplied genomic annotation. It is provider-neutral: downstream consumers
 read semantic artifacts and manifests, never provider-specific filenames.

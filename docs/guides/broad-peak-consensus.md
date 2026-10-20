@@ -2,6 +2,12 @@
 
 ## Current interval semantics
 
+For complete regional candidates, the opt-in `nfcore_2_1` method defaults to
+minimum library support 1 and preserves calling library IDs, counts and support
+categories through annotation. See the [regional policy guide](nfcore-consensus-homer.md).
+Its shared core is supplementary, not the annotation input. The atomic
+compatibility methods described below remain distinct and unchanged.
+
 The interval Consensus provider uses BEDTools `multiinter` and filters its
 atomic, half-open segments by support. With `replicate_support` and
 `min_replicates=2`, **every retained base must be covered by calls from at
