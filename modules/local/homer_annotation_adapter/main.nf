@@ -38,8 +38,8 @@ process HOMER_ANNOTATION_ADAPTER {
     """
     mkdir -p '${meta.id}.peak_annotation/provider_reports'
     cp -r '${raw_dir}'/. '${meta.id}.peak_annotation/provider_reports/'
-    printf 'peak_id\tchrom\tstart\tend\tcategory\tgene_ids\tgene_count\tdistance_to_tss\trecord_id\tsource_id\tincluded\npeak_stub\tchrStub\t4\t12\tpromoter\tgene_stub\t1\t0\tstub_record\tstub.peaks\ttrue\n' > '${meta.id}.peak_annotation/annotated_peaks.tsv'
-    printf 'peak_id\tgene_id\tcategory\tdistance_to_tss\trecord_id\tsource_id\npeak_stub\tgene_stub\tpromoter\t0\tstub_record\tstub.peaks\n' > '${meta.id}.peak_annotation/peak_gene_associations.tsv'
+    printf 'peak_id\tchrom\tstart\tend\tcategory\tgene_ids\tgene_count\tdistance_to_tss\trecord_id\tsource_id\tincluded\tcalling_libraries\tcalling_samples\tcalling_library_count\ttotal_library_count\tlibrary_support_category\tgene_assignment_ambiguous\tgene_assignment_ambiguity_reason\tgene_assignment_ambiguity_scope\talternative_gene_ids\npeak_stub\tchrStub\t4\t12\tpromoter\tgene_stub\t1\t0\tstub_record\tstub.peaks\ttrue\tstub1,stub2\tstub1,stub2\t2\t2\tall_libraries\tnot_assessed\tstub\thomer_nearest_tss_distance_ties_v1\t[]\n' > '${meta.id}.peak_annotation/annotated_peaks.tsv'
+    printf 'peak_id\tgene_id\tcategory\tdistance_to_tss\trecord_id\tsource_id\tcalling_libraries\tcalling_samples\tcalling_library_count\ttotal_library_count\tlibrary_support_category\tgene_assignment_ambiguous\tgene_assignment_ambiguity_reason\tgene_assignment_ambiguity_scope\talternative_gene_ids\npeak_stub\tgene_stub\tpromoter\t0\tstub_record\tstub.peaks\tstub1,stub2\tstub1,stub2\t2\t2\tall_libraries\tnot_assessed\tstub\thomer_nearest_tss_distance_ties_v1\t[]\n' > '${meta.id}.peak_annotation/peak_gene_associations.tsv'
     printf '{"schema_version":"1.0","type":"peak_annotation","id":"%s","source_id":"stub.peaks","provider":"homer_4_11","provider_version":"4.11","status":"stub"}\n' '${meta.id}' > '${meta.id}.homer_adapter.manifest.json'
     cp '${meta.id}.homer_adapter.manifest.json' '${meta.id}.peak_annotation/manifest.json'
     printf '{"status":"stub"}\n' > '${meta.id}.homer_adapter.execution.json'

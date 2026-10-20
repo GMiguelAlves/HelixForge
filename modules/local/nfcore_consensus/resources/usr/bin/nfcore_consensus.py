@@ -30,6 +30,23 @@ def table(path, columns, rows):
         writer.writerows(rows)
 
 
+def library_summary(calling, total):
+    """Describe called-library membership, not basewise or biological replication."""
+    calling = sorted(calling, key=lambda row: row['record_id'])
+    count = len(calling)
+    if not 1 <= count <= total:
+        raise ValueError('regional candidate must have between one and all libraries')
+    return dict(calling_libraries=','.join(row['record_id'] for row in calling),
+                calling_samples=','.join(row['sample_id'] for row in calling),
+                calling_library_count=count, total_library_count=total,
+                library_support_category=('single_library' if count == 1 else
+                                          'all_libraries' if count == total else 'multiple_libraries'))
+
+
+LIBRARY_COLUMNS = ('calling_libraries', 'calling_samples', 'calling_library_count',
+                   'total_library_count', 'library_support_category')
+
+
 def run(request, directories, output, helper, cpus=1):
     if request.get('status') != 'valid' or request.get('strategy') != 'nfcore_2_1':
         raise ValueError('requires a validated nfcore_2_1 consensus request')
@@ -40,6 +57,9 @@ def run(request, directories, output, helper, cpus=1):
     minimum = request['support_threshold']
     if isinstance(minimum, bool) or not isinstance(minimum, int) or not 1 <= minimum <= len(request['replicates']):
         raise ValueError('explicit min_replicates must be between 1 and library count')
+    record_ids = [row['record_id'] for row in request['replicates']]
+    if any(not value or any(char in value for char in ',\t\r\n') for value in record_ids) or len(set(record_ids)) != len(record_ids):
+        raise ValueError('library record IDs must be unique, nonempty and delimiter-free')
     output.mkdir(parents=True, exist_ok=False)
     reports = output / 'provider_reports'
     reports.mkdir()
@@ -87,7 +107,8 @@ def run(request, directories, output, helper, cpus=1):
                 original = fields[3]
                 fields[3] = f'{token}_peak_{number}'
                 membership.append(dict(upstream_name=fields[3], original_peak_name=original,
-                    library_id=replicate['evidence_replicate_id'], record_id=replicate['record_id'], peak_id=replicate['peak_id']))
+                    library_id=replicate['evidence_replicate_id'], record_id=replicate['record_id'],
+                    sample_id=replicate['sample_id'], peak_id=replicate['peak_id']))
                 target.write('\t'.join(fields) + '\n')
         native.append(normalized)
         sorted_path = reports / f'{token}.sorted.bed'
@@ -100,7 +121,7 @@ def run(request, directories, output, helper, cpus=1):
             merged.append((token, merged_path))
         original_peaks.append((token, sorted_path))
     table(output / 'source_peak_mapping.tsv', tuple(membership[0]) if membership else
-          ('upstream_name', 'original_peak_name', 'library_id', 'record_id', 'peak_id'), membership)
+          ('upstream_name', 'original_peak_name', 'library_id', 'record_id', 'sample_id', 'peak_id'), membership)
     sorted_all = reports / 'all.sorted.peaks'
     execute(['sort', '-T', '.', '-k1,1', '-k2,2n', *native], sorted_all)
     collapsed = reports / 'merged.txt'
@@ -132,16 +153,18 @@ def run(request, directories, output, helper, cpus=1):
                           support=len(tokens), support_replicates=','.join(support),
                           classification='candidate_with_library_support' if len(tokens) >= 2 else 'candidate',
                           occupancy_status='not_assessed', upstream_interval_id=row['interval_id'])
+            region.update(library_summary([identity[token] for token in tokens], len(identity)))
             regions.append(region)
             bed.write(f"{row['chr']}\t{row['start']}\t{row['end']}\t{identifier}\n")
             raw.write(f"{row['chr']}\t{row['start']}\t{row['end']}\t{row['interval_id']}\t0\t+\n")
     table(output / 'consolidated_peaks.tsv', ('peak_id','chrom','start','end','support','support_replicates',
-          'classification','occupancy_status','upstream_interval_id'), regions)
+          'classification','occupancy_status','upstream_interval_id') + LIBRARY_COLUMNS, regions)
     retained = {(row['chrom'], str(row['start']), str(row['end'])) for row in regions}
     excluded = [dict(peak_id=f"{request['id']}.{row['interval_id']}", chrom=row['chr'], start=row['start'],
-                     end=row['end'], calling_libraries=row['num_samples'], reason='below_min_replicates')
+                     end=row['end'], **library_summary([identity[token] for token in identity
+                         if row[token + '.bool'] == 'TRUE'], len(identity)), reason='below_min_replicates')
                 for row in unfiltered_rows if (row['chr'], row['start'], row['end']) not in retained]
-    table(output / 'excluded_regions.tsv', ('peak_id','chrom','start','end','calling_libraries','reason'), excluded)
+    table(output / 'excluded_regions.tsv', ('peak_id','chrom','start','end') + LIBRARY_COLUMNS + ('reason',), excluded)
     core_threshold = max(2, minimum)
     atomic = reports / 'atomic.tsv'
     core = output / 'support_core.bed'
@@ -224,7 +247,9 @@ def main():
             'schema_version':'1.0', 'type':'consensus', 'strategy':'nfcore_2_1', 'provider':'nfcore_chipseq_2.1.0',
             'provider_version':'2.1.0', 'upstream_commit':UPSTREAM_COMMIT, 'status':status, 'statistics':stats,
             'semantics':dict(consolidated_bed='merged_regional_candidates', support_core='atomic_shared_bases',
-                             occupancy_status='not_assessed', merge_distance=0, bookended_intervals='merged'),
+                             occupancy_status='not_assessed', merge_distance=0, bookended_intervals='merged',
+                             calling_libraries='source_record_ids',
+                             library_support_category='called_library_membership_within_group'),
             'artifacts':artifacts, 'execution':execution}
         Path(args.manifest).write_text(json.dumps(manifest, indent=2) + '\n')
         shutil.copy2(args.manifest, output / 'manifest.json')

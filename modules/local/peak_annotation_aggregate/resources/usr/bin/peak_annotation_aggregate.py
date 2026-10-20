@@ -42,9 +42,12 @@ def index_directories(paths):
     return result
 
 
-def read_rows(path):
+def read_rows(path, columns=None):
     with open(path, encoding="utf-8", newline="") as handle:
-        return list(csv.DictReader(handle, delimiter="\t"))
+        reader = csv.DictReader(handle, delimiter="\t")
+        if columns is not None:
+            columns.update(reader.fieldnames or [])
+        return list(reader)
 
 
 def write_rows(path, columns, rows):
@@ -84,11 +87,12 @@ def main():
         if identities != set(stats_docs) or identities != set(directories) or identities != set(stats_values):
             raise ValueError("annotation directories/manifests/statistics disagree on IDs")
         annotated_rows, association_rows, summary_rows = [], [], []
+        annotated_fields, association_fields = set(), set()
         for identifier in sorted(identities):
             doc = docs[identifier][0]
-            for row in read_rows(directories[identifier] / "annotated_peaks.tsv"):
+            for row in read_rows(directories[identifier] / "annotated_peaks.tsv", annotated_fields):
                 annotated_rows.append({"annotation_id": identifier, **row})
-            for row in read_rows(directories[identifier] / "peak_gene_associations.tsv"):
+            for row in read_rows(directories[identifier] / "peak_gene_associations.tsv", association_fields):
                 association_rows.append({"annotation_id": identifier, **row})
             value = stats_values[identifier]
             summary_rows.append({
@@ -102,9 +106,11 @@ def main():
         annotated_columns = ("annotation_id", "peak_id", "chrom", "start", "end", "category", "gene_ids", "gene_count", "distance_to_tss", "record_id", "source_id", "included")
         association_columns = ("annotation_id", "peak_id", "gene_id", "category", "distance_to_tss", "record_id", "source_id")
         evidence_columns = ("annotation_provider", "association_method", "homer_annotation", "calling_libraries",
+                            "gene_assignment_ambiguous", "gene_assignment_ambiguity_reason", "gene_assignment_ambiguity_scope", "alternative_gene_ids",
+                            "calling_samples", "calling_library_count", "total_library_count", "library_support_category",
                             "support_core_bp", "evidence_classification", "occupancy_status", "library_support_json")
-        annotated_columns += tuple(key for key in evidence_columns if any(key in row for row in annotated_rows))
-        association_columns += tuple(key for key in evidence_columns if any(key in row for row in association_rows))
+        annotated_columns += tuple(key for key in evidence_columns if key in annotated_fields)
+        association_columns += tuple(key for key in evidence_columns if key in association_fields)
         summary_columns = ("annotation_id", "source_id", "record_id", "total_peaks", "annotated_peaks", "unassociated_peaks", "unique_genes", "mean_genes_per_peak", "status")
         write_rows(output / "annotated_peaks.tsv", annotated_columns, annotated_rows)
         write_rows(output / "peak_gene_associations.tsv", association_columns, association_rows)
@@ -123,6 +129,10 @@ def main():
                 {"annotation_id": identifier, "source_id": doc["source_id"],
                  **{key: value for key, value in doc["consensus_evidence"].items() if key != "artifacts"}}
                 for identifier, (doc, _path) in sorted(docs.items()) if doc.get("consensus_evidence")
+            ]
+            manifest["gene_assignment_ambiguity"] = [
+                {"annotation_id": identifier, **doc["gene_assignment_ambiguity"]}
+                for identifier, (doc, _path) in sorted(docs.items()) if doc.get("gene_assignment_ambiguity")
             ]
         with open(args.manifest, "w", encoding="utf-8") as handle:
             json.dump(manifest, handle, indent=2, sort_keys=True); handle.write("\n")

@@ -34,7 +34,14 @@ process HOMER_ANNOTATEPEAKS {
     test "\${#package_files[@]}" -eq 1 && test -f "\${package_files[0]}"
     cp "\${package_files[0]}" '${meta.id}.homer/homer.package.json'
     sha256sum "\$homer_path" > '${meta.id}.homer/homer.executable.sha256'
+    sha256sum "\$(command -v parseGTF.pl)" >> '${meta.id}.homer/homer.executable.sha256'
     printf '%s\n' 'annotatePeaks.pl ${peaks} ${reference} -gid -gtf ${annotation} -cpu ${task.cpus}' > '${meta.id}.homer/command.txt'
+    printf '%s\n' 'parseGTF.pl ${annotation} tss -gid' >> '${meta.id}.homer/command.txt'
+    parseGTF.pl '${annotation}' tss -gid > '${meta.id}.homer/reference_tss.tsv' 2> '${meta.id}.homer/reference_tss.log'
+    annotation_sha=\$(sha256sum '${annotation}' | cut -d ' ' -f 1)
+    tss_sha=\$(sha256sum '${meta.id}.homer/reference_tss.tsv' | cut -d ' ' -f 1)
+    printf '{"provider":"homer_4_11","annotation_sha256":"%s","tss_sha256":"%s"}\n' \
+        "\$annotation_sha" "\$tss_sha" > '${meta.id}.homer/reference_tss.metadata.json'
     if test -s '${peaks}'; then
         annotatePeaks.pl '${peaks}' '${reference}' -gid -gtf '${annotation}' -cpu '${task.cpus}' \
             > '${meta.id}.homer/annotatePeaks.txt' 2> '${meta.id}.homer/homer.log'

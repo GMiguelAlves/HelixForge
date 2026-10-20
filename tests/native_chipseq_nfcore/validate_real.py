@@ -1,6 +1,7 @@
 """Compare the HF fixture with direct pinned-tool commands, independently."""
 import argparse
 import csv
+import importlib.util
 import json
 from pathlib import Path
 import subprocess
@@ -17,7 +18,16 @@ def locate(root, pattern):
     return found[0]
 
 
-def validate(fixture, results, output):
+def compare_homer_tables(direct, native):
+    # HOMER may emit peaks in a different order. Compare by explicit ID while
+    # retaining exact values and rejecting duplicate, missing or changed rows.
+    assert direct[0][1:] == native[0][1:], 'HOMER headers differ beyond command header'
+    for table in (direct,native):
+        assert len({row[0] for row in table[1:]}) == len(table)-1, 'duplicate HOMER peak IDs'
+    assert sorted(direct[1:],key=lambda row:row[0]) == sorted(native[1:],key=lambda row:row[0]), 'HOMER records differ'
+
+
+def validate(fixture, results, output, minimum=2):
     output.mkdir(parents=True, exist_ok=False)
     consensus = locate(results, 'chipseq/consensus/*/*.consensus_result')
     provider = locate(results, 'chipseq/peak_annotation/*.peak_annotation')
@@ -46,7 +56,7 @@ def validate(fixture, results, output):
 export LC_ALL=C
 sort -T . -k1,1 -k2,2n HF_REP*_peaks.broadPeak | mergeBed -c 2,3,4,5,6,7,8,9 -o collapse,collapse,collapse,collapse,collapse,collapse,collapse,collapse > merged.txt
 python3 /repo/vendor/nfcore_chipseq/2.1.0/macs3_merged_expand.py merged.txt {','.join(tokens)} unfiltered.txt --min_replicates 1
-python3 /repo/vendor/nfcore_chipseq/2.1.0/macs3_merged_expand.py merged.txt {','.join(tokens)} filtered.txt --min_replicates 2
+python3 /repo/vendor/nfcore_chipseq/2.1.0/macs3_merged_expand.py merged.txt {','.join(tokens)} filtered.txt --min_replicates {minimum}
 python3 /repo/vendor/nfcore_chipseq/2.1.0/macs3_merged_expand.py merged.txt {','.join(tokens)} empty.txt --min_replicates 4
 ''', 'direct-consensus.log')
     assert (output/'unfiltered.txt').read_bytes() == (consensus/'upstream.unfiltered.boolean.txt').read_bytes(), 'unfiltered consensus differs'
@@ -56,13 +66,31 @@ python3 /repo/vendor/nfcore_chipseq/2.1.0/macs3_merged_expand.py merged.txt {','
     document = json.loads((consensus/'manifest.json').read_text())
     assert document['status'] == 'complete'
     statistics = document['statistics']
-    assert (statistics['unfiltered_regions'],statistics['excluded_regions'],statistics['consolidated_peaks']) == (4,3,1)
-    assert statistics['unfiltered_bp'] == 1050 and statistics['candidate_bp'] == 650
+    retained, excluded, retained_bp = (4,0,1050) if minimum == 1 else (1,3,650)
+    assert (statistics['unfiltered_regions'],statistics['excluded_regions'],statistics['consolidated_peaks']) == (4,excluded,retained)
+    assert statistics['unfiltered_bp'] == 1050 and statistics['candidate_bp'] == retained_bp
     assert statistics['core_bp'] == 60, 'core should not trim the 650 bp regional candidate'
-    columns = (consensus/'consolidated_peaks.bed').read_text().strip().split('\t')
+    columns = (consensus/'consolidated_peaks.bed').read_text().splitlines()[0].split('\t')
     assert (int(columns[1]),int(columns[2])) == (100,750)
     support = list(csv.DictReader((consensus/'support_by_library.tsv').open(), delimiter='\t'))
-    assert len(support) == 4 and sum(int(row['covered_bp']) == 0 for row in support) == 1
+    assert len(support) == retained*4
+    regions = list(csv.DictReader((consensus/'consolidated_peaks.tsv').open(), delimiter='\t'))
+    for region in regions:
+        start,end = int(region['start']),int(region['end'])
+        # Derive expected membership from original intervals, independently of
+        # the provider's boolean and coverage summaries.
+        expected = []
+        for record in records:
+            intervals = (fixture/record['peak_directory']/'peaks.broadPeak').read_text().splitlines()
+            if any(int(line.split('\t')[1]) < end and int(line.split('\t')[2]) > start for line in intervals):
+                expected.append(record['record_id'])
+        expected.sort()
+        assert region['calling_libraries'] == ','.join(expected)
+        assert region['calling_samples'] == ','.join(expected)  # fixture sample IDs equal library IDs
+        assert int(region['calling_library_count']) == len(expected)
+        assert region['total_library_count'] == '4', 'empty libraries must remain in denominator'
+        assert region['library_support_category'] == ('multiple_libraries' if len(expected) == 3 else 'single_library')
+    assert sum(int(row['covered_bp']) == 0 for row in support) == (10 if minimum == 1 else 1)
 
     relative = (consensus/'consolidated_peaks.bed').relative_to(results).as_posix()
     docker(HOMER_IMAGE, f'''set -euo pipefail
@@ -72,22 +100,55 @@ annotatePeaks.pl '/results/{relative}' /fixture/reference.fa -gid -gtf /fixture/
         direct = list(csv.reader(handle, delimiter='\t'))
     with (provider/'provider_reports/annotatePeaks.txt').open() as handle:
         native = list(csv.reader(handle, delimiter='\t'))
-    assert direct[0][1:] == native[0][1:] and direct[1:] == native[1:], 'HOMER output differs beyond command header'
+    compare_homer_tables(direct,native)
     projected = list(csv.DictReader((provider/'peak_gene_associations.tsv').open(), delimiter='\t'))
-    assert len(projected) == 1 and projected[0]['gene_id'] == 'gene_plus', 'GTF gene_id not preserved'
+    assert len(projected) == retained and all(row['gene_id'] == 'gene_plus' for row in projected), 'GTF gene_id not preserved'
     evidence = json.loads(projected[0]['library_support_json'])
     assert {row['record_id'] for row in evidence} == {row['record_id'] for row in records}
-    assert projected[0]['support_core_bp'] == '60'
-    assert projected[0]['evidence_classification'] == 'candidate_with_library_support'
-    assert projected[0]['occupancy_status'] == 'not_assessed'
+    by_id = {row['peak_id']:row for row in regions}
+    for row in projected:
+        region = by_id[row['peak_id']]
+        assert row['gene_assignment_ambiguous'] == 'false'
+        assert row['gene_assignment_ambiguity_scope'] == 'homer_nearest_tss_distance_ties_v1'
+        assert row['alternative_gene_ids'] == '[]'
+        assert row['support_core_bp'] == ('60' if int(region['start']) == 100 else '0')
+        assert row['evidence_classification'] == region['classification']
+        assert row['occupancy_status'] == 'not_assessed'
+        for key in ('calling_libraries','calling_samples','calling_library_count','total_library_count','library_support_category'):
+            assert row[key] == region[key], f'association dropped {key}'
     aggregate = results/'chipseq/peak_annotation/peak_annotation_aggregate/peak_gene_associations.tsv'
     rows = list(csv.DictReader(aggregate.open(), delimiter='\t'))
-    assert rows[0]['library_support_json'] == projected[0]['library_support_json'], 'aggregation dropped library evidence'
+    assert {row['peak_id'] for row in rows} == set(by_id)
+    aggregated = {row['peak_id']:row for row in rows}
+    for row in projected:
+        for key in ('library_support_json','calling_libraries','calling_samples','calling_library_count','total_library_count','library_support_category',
+                    'gene_assignment_ambiguous','gene_assignment_ambiguity_reason','gene_assignment_ambiguity_scope','alternative_gene_ids'):
+            assert aggregated[row['peak_id']][key] == row[key], f'aggregation dropped {key}'
+    # A separate tiny annotation-only fixture verifies the flag against real
+    # HOMER ties without changing the reference of the equivalence workflow.
+    gtf = (fixture/'annotation.gtf').read_text()
+    (output/'tied.gtf').write_text(gtf + ''.join(line.replace('gene_plus','gene_tied')+'\n'
+        for line in gtf.splitlines() if 'gene_plus' in line))
+    docker(HOMER_IMAGE, f'''set -euo pipefail
+parseGTF.pl /direct/tied.gtf tss -gid > tied.tss.tsv
+annotatePeaks.pl '/results/{relative}' /fixture/reference.fa -gid -gtf /direct/tied.gtf -cpu 1 > tied.annotatePeaks.txt
+''', 'direct-homer-tied.log')
+    spec = importlib.util.spec_from_file_location('fixture_ambiguity_adapter',ROOT/'modules/local/homer_annotation_adapter/resources/usr/bin/normalize_homer.py')
+    adapter = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(adapter)
+    annotated,associations = adapter.normalize(output/'tied.annotatePeaks.txt',adapter.read_peaks(consensus/'consolidated_peaks.bed'),{'source_id':'fixture.tied'})
+    selected = [row['gene_id'] for row in associations]
+    adapter.assess_ambiguity(output/'tied.annotatePeaks.txt',output/'tied.tss.tsv',annotated,associations)
+    assert [row['gene_id'] for row in associations] == selected
+    assert len(associations) == retained
+    for row in associations:
+        assert row['gene_assignment_ambiguous'] == 'true'
+        assert {row['gene_id'],*json.loads(row['alternative_gene_ids'])} == {'gene_plus','gene_tied'}
     doc = dict(status='PASS', benchmark=False, scope='reduced_tool_equivalence',
                checks=['upstream_unfiltered_exact','upstream_filtered_exact','support_exclusions',
                        'zero_support_library','unclipped_catalog','homer_direct_equivalence','gtf_gene_id',
-                       'association_evidence','aggregate_evidence'],
-               unfiltered_regions=4, retained_regions=1, unfiltered_bp=1050, retained_bp=650, core_bp=60)
+                       'association_evidence','aggregate_evidence','real_homer_distance_tie_flags'],
+               unfiltered_regions=4, retained_regions=retained, unfiltered_bp=1050, retained_bp=retained_bp, core_bp=60)
     (output/'validation.json').write_text(json.dumps(doc, indent=2) + '\n')
     print(json.dumps(doc))
 
@@ -96,5 +157,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     for argument in ('fixture','results','output'):
         parser.add_argument('--'+argument, required=True, type=Path)
+    parser.add_argument('--min-replicates', type=int, choices=[1,2], default=2)
     args = parser.parse_args()
-    validate(args.fixture.resolve(), args.results.resolve(), args.output.resolve())
+    validate(args.fixture.resolve(), args.results.resolve(), args.output.resolve(), args.min_replicates)

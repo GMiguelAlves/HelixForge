@@ -6,7 +6,8 @@ regional boundaries and presence filtering. Inputs are grouped by the existing
 HF dataset/experiment/condition/target/reference/peak-type key; different marks
 or conditions are not silently pooled.
 
-An explicit `min_replicates` from 1 to the library count is required. Library
+The context resolves an unset `min_replicates` to 1 for this provider; explicit
+thresholds from 1 to the library count remain available. Library
 tokens are mapped reversibly to stable metadata IDs before the upstream helper
 runs; original peak names and quantitative fields remain available. BEDTools
 merges overlapping **and bookended** intervals (`-d 0`); connected chains may
@@ -14,6 +15,8 @@ span several source peaks. No positive gap distance is introduced.
 
 `consolidated_peaks.bed` contains regional candidates, not confirmed occupancy.
 `support_by_library.tsv` describes all libraries, including zero support.
+`consolidated_peaks.tsv` also lists source library/sample IDs, calling/total
+library counts and `single_library`, `multiple_libraries` or `all_libraries`.
 `support_core.bed` separately retains atomic bases supported by at least
 `max(2, min_replicates)` libraries. Shared bases and regional presence answer
 different questions; neither is a statistical test of occupancy.

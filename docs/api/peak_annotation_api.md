@@ -6,6 +6,18 @@ transports declared regional evidence; `python_interval_v1` remains available
 for compatibility. These methods are not interchangeable. See the
 [HOMER and evidence contract](../guides/nfcore-consensus-homer.md).
 
+Regional HOMER TSVs and their aggregate retain `calling_libraries`,
+`calling_samples`, `calling_library_count`, `total_library_count` and
+`library_support_category`, alongside full per-library coverage evidence.
+These describe membership in called regional candidates, not proven occupancy.
+
+The HOMER adapter preserves one provider-selected gene per association and adds
+`gene_assignment_ambiguous` (`true`, `false`, `not_assessed`), a reason, assessment
+scope and `alternative_gene_ids` (JSON). The scoped check identifies nearest-TSS
+distance ties using HOMER's own checksummed TSS snapshot. It never reassigns genes
+or changes association cardinality. `gene_count=1` remains a reported-assignment
+count, not proof of unique regulation. See [ambiguity semantics](../guides/nfcore-consensus-homer.md#ambiguous-gene-associations).
+
 Peak Annotation API v1 associates an explicitly identified peak set with a
 user-supplied genomic annotation. It is provider-neutral: downstream consumers
 read semantic artifacts and manifests, never provider-specific filenames.

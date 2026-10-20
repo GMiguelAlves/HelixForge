@@ -186,9 +186,12 @@ def build_request(records, peak_dirs, peak_manifests, qc_manifests, spec):
         if not 2 <= support_threshold <= count:
             raise ValueError(f"min_replicates must be between 2 and replicate count {count}")
     elif strategy == "nfcore_2_1":
+        if min_replicates is None:
+            min_replicates = 1
         if isinstance(min_replicates, bool) or not isinstance(min_replicates, int) or not 1 <= min_replicates <= count:
             raise ValueError(f"nfcore_2_1 requires explicit integer min_replicates between 1 and {count}")
         support_threshold = min_replicates
+        spec = {**spec, "min_replicates": support_threshold}
         if not spec.get("require_same_caller", True) or records[0]["caller"] != "macs3":
             raise ValueError("nfcore_2_1 requires compatible MACS3 peak inputs")
     else:

@@ -8,7 +8,7 @@ workflow {
     manifests = channel.fromList(records).map { row -> tuple([id: row.peak_id], file("${fixture}/${row.record_id}.peak.json")) }
     qc = channel.fromList(records).map { row -> tuple([id: row.peak_id], file("${fixture}/${row.record_id}.qc.json")) }
     plan = file("${fixture}/plan.tsv")
-    spec = groovy.json.JsonOutput.toJson([strategy: 'nfcore_2_1', min_replicates: 2,
+    spec = groovy.json.JsonOutput.toJson([strategy: 'nfcore_2_1', min_replicates: params.fixture_min_replicates,
         replicate_mode: 'biological', replicate_policy: 'require_premerged', require_same_caller: true]).bytes.encodeBase64().toString()
     CONSENSUS_IDR(artifacts, manifests, qc, channel.of(tuple([id: 'fixture.plan'], plan, plan)), channel.value(spec))
     annotationSpec = groovy.json.JsonOutput.toJson([provider: 'homer_4_11', mode: 'homer_native']).bytes.encodeBase64().toString()

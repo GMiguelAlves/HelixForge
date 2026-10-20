@@ -5,6 +5,11 @@ regional policy, preserving unfiltered/filtered catalogs, exclusions and source
 identities. Its supplementary HF core never clips the catalog. See the
 [method and evidence contract](../guides/nfcore-consensus-homer.md).
 
+For this provider only, an unset support threshold defaults to 1. Regional
+TSVs expose calling library/sample IDs, calling and total library counts, and
+`library_support_category` (`single_library`, `multiple_libraries`, `all_libraries`).
+Empty libraries remain in the total; “all” means all libraries in that group.
+
 Consensus/IDR API v1 consolidates evidence across explicitly identified
 ChIP-seq replicates. Consensus and IDR are distinct strategies with different
 scientific meanings and providers. A union is reported as `strategy=union`; it

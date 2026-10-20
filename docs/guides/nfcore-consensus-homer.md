@@ -6,13 +6,28 @@ evidence transport. This opt-in method is not numerical compatibility with
 `python_interval_v1`. HelixForge is not an official or certified nf-core
 pipeline. Existing modes and frozen benchmark classifications are unchanged.
 
+## Available and retired methods
+
+| Component | Current status |
+|---|---|
+| `nfcore_2_1` regional consensus + `homer_4_11` annotation | Available through explicit selection below |
+| Atomic `union`, `intersection`, `replicate_support` consensus | Retained for compatibility; their existing geometry and support rules are unchanged |
+| `python_interval_v1` annotation | Retained for compatibility and still the configured default annotation provider |
+| IDR | Retained as a separate optional reproducibility analysis for supported narrow-peak inputs |
+| Experimental `regional_catalog_v1` and `broad_heldout_v1` | Removed; their manifests are rejected rather than silently converted |
+
+Retiring the two experimental providers did **not** remove the atomic consensus
+or the compatibility annotator. Consensus selection remains explicit; adding
+nf-core/HOMER did not switch existing executions automatically. To use the
+regional policy, select both consensus and annotation providers as shown below.
+
 ## Explicit selection
 
 Add these options to an otherwise configured ChIP-seq execution:
 
 ```bash
 --chipseq_consensus_method nfcore_2_1 \
---chipseq_min_replicates 2 \
+--chipseq_min_replicates 1 \
 --chipseq_annotation_provider homer_4_11 \
 --chipseq_annotation_mode homer_native
 ```
@@ -20,6 +35,11 @@ Add these options to an otherwise configured ChIP-seq execution:
 The existing `full` coordinator runs annotation, tracks and reporting; DB
 remains optional through `--chipseq_db_enabled false`. These options do not
 change alignment, duplicate handling, fragment-size policy or MACS3 thresholds.
+
+For `nfcore_2_1`, an unset/null `chipseq_min_replicates` resolves to **1**:
+retain every regional candidate and describe support rather than discard
+single-library regions. Explicit higher thresholds remain available. This does
+not change the default consensus provider or the legacy atomic strategies.
 
 ## Regional policy and evidence
 
@@ -75,6 +95,90 @@ Each regional gene association retains calling libraries, per-library coverage/
 fraction, shared-core bases and candidate classification. Original evidence
 artifacts are copied into a checksum-verified bundle. Aggregation preserves the
 association fields, and report manifests retain the method/evidence semantics.
+
+### TSV library provenance
+
+`consolidated_peaks.tsv`, HOMER `annotated_peaks.tsv` and
+`peak_gene_associations.tsv`, including the annotation aggregate, carry:
+
+| Column | Meaning |
+|---|---|
+| `calling_libraries` | Comma-separated source `record_id` values, sorted by ID |
+| `calling_samples` | Corresponding `sample_id` values in the same order; repeated sample IDs are preserved |
+| `calling_library_count` | Number of distinct libraries with an original called peak in the region |
+| `total_library_count` | All libraries in this condition/target group, including libraries with no calls |
+| `library_support_category` | `single_library` (1), `multiple_libraries` (2 to N−1), or `all_libraries` (N) |
+
+For two-library groups, support in both is `all_libraries`, not the middle
+category. “All” refers only to the declared group, never all studies or marks.
+Consensus still requires at least two declared evidence units, even with
+minimum support 1. Biological/technical replicate policies remain explicit.
+`support` and `support_replicates` remain available for compatibility; the latter
+contains replicate keys, not the source library identifiers.
+
+`support_by_library.tsv` retains the complete region × library matrix with
+`record_id`, `sample_id`, source peak ID, coverage and zero-support rows.
+The annotation TSVs preserve this detail in `library_support_json`, together
+with `support_core_bp`, `evidence_classification` and `occupancy_status`.
+Support categories describe called-library membership, not significance,
+basewise reproducibility, or confirmed occupancy. A regional chain can have
+multiple calling libraries and little or no shared core.
+
+### Ambiguous gene associations
+
+Library support and gene-assignment ambiguity are independent evidence axes.
+A region called in every library can still have an ambiguous nearest-gene
+assignment. Conversely, a single-library candidate can have a well-defined
+nearest annotated promoter without proving regulation.
+
+The HOMER adapter preserves the single `Nearest PromoterID` returned by HOMER,
+its native annotation and TSS distance. It additionally checks distance ties
+against a preserved `parseGTF.pl annotation.gtf tss -gid` snapshot produced by
+the same HOMER 4.11 package. TSVs, including annotation aggregates, expose:
+
+| Column | Meaning |
+|---|---|
+| `gene_assignment_ambiguous` | `true`, `false`, or `not_assessed` within the stated scope |
+| `gene_assignment_ambiguity_reason` | Tie detected, no tie detected, or why assessment was unavailable |
+| `gene_assignment_ambiguity_scope` | `homer_nearest_tss_distance_ties_v1` |
+| `alternative_gene_ids` | Sorted JSON array of distinct tied gene IDs, excluding the provider-selected gene |
+
+`true` means distinct genes have equally nearest TSS positions on the peak's
+chromosome, consistent with HOMER's reported distance and native peak midpoint.
+This covers shared TSS coordinates and equidistant TSS on opposite sides of the
+midpoint. Transcript duplicates from the same gene do not create gene-level
+ambiguity. `false` means no tie was detected **by this distance-based check**,
+not proof of a uniquely regulated gene. Broader regulatory ambiguity is outside
+this scope. `not_assessed` is used for no assigned gene, missing evidence in
+older results, or a provider position/distance that cannot be reconciled with
+the snapshot. Missing columns in compatibility/older results also mean not
+assessed; they must never be treated as `false`.
+
+The flag does not reassign the selected gene, alter `gene_count`, create extra
+association rows, or change HOMER parameters. `gene_count=1` remains one reported
+assignment. TSS snapshots and metadata are checksummed against the supplied GTF;
+the manifest records scope, checksums and assessment counts. A checksum mismatch
+fails rather than silently declaring a relationship unambiguous.
+
+Distinct annotated genes may share a TSS. A disagreement between otherwise
+identical direct and orchestrated HOMER runs can expose that ambiguity; it
+does not create it. The same reference-level ambiguity can be relevant in an
+ordinary annotation run even when no comparison is performed. Row-order-only
+differences are ignored by the reduced comparator, but a changed gene identity
+still fails exact record equivalence. A deterministic selected ID would not,
+by itself, establish a uniquely correct biological target.
+
+Downstream atlas consumers should display flagged assignments as **ambiguous**,
+retain the provider-selected gene separately from `alternative_gene_ids`, and
+link evidence to the region, reference, provider and assessment scope. Additional
+reviewed alternatives should be distinguished from these automatically detected
+distance ties. Alternatives must not be inferred from library support. This flag
+is computed during normal annotation, not only during method comparison.
+
+`excluded_regions.tsv` uses the same library columns when a higher threshold
+is selected. Its `calling_libraries` field now contains identifiers rather than
+the earlier numeric count; consumers needing the count must use
+`calling_library_count`. Original upstream boolean tables remain unchanged.
 
 Standalone annotation requires the existing peak/reference/annotation parameters
 plus `--chipseq_annotation_evidence_bundle /path/to/consensus_result` for regional
