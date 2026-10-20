@@ -6,6 +6,21 @@ evidence transport. This opt-in method is not numerical compatibility with
 `python_interval_v1`. HelixForge is not an official or certified nf-core
 pipeline. Existing modes and frozen benchmark classifications are unchanged.
 
+## Available and retired methods
+
+| Component | Current status |
+|---|---|
+| `nfcore_2_1` regional consensus + `homer_4_11` annotation | Available through explicit selection below |
+| Atomic `union`, `intersection`, `replicate_support` consensus | Retained for compatibility; their existing geometry and support rules are unchanged |
+| `python_interval_v1` annotation | Retained for compatibility and still the configured default annotation provider |
+| IDR | Retained as a separate optional reproducibility analysis for supported narrow-peak inputs |
+| Experimental `regional_catalog_v1` and `broad_heldout_v1` | Removed; their manifests are rejected rather than silently converted |
+
+Retiring the two experimental providers did **not** remove the atomic consensus
+or the compatibility annotator. Consensus selection remains explicit; adding
+nf-core/HOMER did not switch existing executions automatically. To use the
+regional policy, select both consensus and annotation providers as shown below.
+
 ## Explicit selection
 
 Add these options to an otherwise configured ChIP-seq execution:
@@ -108,6 +123,36 @@ with `support_core_bp`, `evidence_classification` and `occupancy_status`.
 Support categories describe called-library membership, not significance,
 basewise reproducibility, or confirmed occupancy. A regional chain can have
 multiple calling libraries and little or no shared core.
+
+### Ambiguous gene associations
+
+Library support and gene-assignment ambiguity are independent evidence axes.
+A region called in every library can still have an ambiguous nearest-gene
+assignment. Conversely, a single-library candidate can have a well-defined
+nearest annotated promoter without proving regulation.
+
+The HOMER adapter currently preserves the single `Nearest PromoterID` returned
+by HOMER, its native annotation and TSS distance. It does **not** enumerate
+alternative genes or emit an automatic ambiguity flag. Consequently,
+`gene_count=1` means one reported assignment, not that every possible competing
+assignment was excluded. A missing ambiguity flag must not be interpreted as
+an unambiguous relationship.
+
+Distinct annotated genes may share a TSS. A disagreement between otherwise
+identical direct and orchestrated HOMER runs can expose that ambiguity; it
+does not create it. The same reference-level ambiguity can be relevant in an
+ordinary annotation run even when no comparison is performed. Row-order-only
+differences are ignored by the reduced comparator, but a changed gene identity
+still fails exact record equivalence. A deterministic selected ID would not,
+by itself, establish a uniquely correct biological target.
+
+Downstream atlas consumers should display known ambiguous assignments as
+**ambiguous**, retain the provider-selected gene separately from reviewed
+alternative IDs, and link their evidence to the region, reference and provider
+version. Alternatives must come from an explicit annotation review, not be
+inferred from library support. If no ambiguity review has been performed,
+assignment ambiguity is **not assessed**, not automatically absent. Automatic
+detection and transport of alternative assignments are not yet implemented.
 
 `excluded_regions.tsv` uses the same library columns when a higher threshold
 is selected. Its `calling_libraries` field now contains identifiers rather than

@@ -11,6 +11,12 @@ Regional HOMER TSVs and their aggregate retain `calling_libraries`,
 `library_support_category`, alongside full per-library coverage evidence.
 These describe membership in called regional candidates, not proven occupancy.
 
+The current HOMER adapter preserves one provider-selected gene per association;
+it does not enumerate tied genes or expose an automatic ambiguity flag.
+`gene_count=1` is a reported-assignment count, not proof of unique assignment.
+Known ambiguities require explicit downstream labeling independently of library
+support; see [ambiguity semantics](../guides/nfcore-consensus-homer.md#ambiguous-gene-associations).
+
 Peak Annotation API v1 associates an explicitly identified peak set with a
 user-supplied genomic annotation. It is provider-neutral: downstream consumers
 read semantic artifacts and manifests, never provider-specific filenames.
