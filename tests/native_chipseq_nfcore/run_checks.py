@@ -16,6 +16,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--stub', action='store_true')
+    parser.add_argument('--min-replicates', type=int, choices=[1,2], default=2)
     args = parser.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
@@ -29,6 +30,7 @@ def main():
         command = [launcher,'-log',str(output/f'nextflow.{attempt}.log'),'run',str(ROOT/'tests/native_chipseq_nfcore/main.nf'),
                    '-c',str(ROOT/'tests/native_chipseq_nfcore/nextflow.config'),'-ansi-log','false',
                    '--fixture_dir',str(output/'fixture'),'--outdir',str(output/'results'),
+                   '--fixture_min_replicates',str(args.min_replicates),
                    '-work-dir',str(output/'work'),'-with-trace',str(trace)]
         if args.stub:
             command.append('-stub-run')
@@ -48,7 +50,7 @@ def main():
             raise AssertionError('first execution did not complete every task')
         runs.append(dict(attempt=attempt, tasks=len(tasks), cached=sum(t['status']=='CACHED' for t in tasks)))
     if not args.stub:
-        validate(output/'fixture', output/'results', output/'direct')
+        validate(output/'fixture', output/'results', output/'direct', args.min_replicates)
     (output/'validation.json').write_text(json.dumps(dict(status='PASS', benchmark=False, stub=args.stub, runs=runs), indent=2)+'\n')
     print(json.dumps(dict(status='PASS', stub=args.stub, runs=runs)))
 

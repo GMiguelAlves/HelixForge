@@ -8,6 +8,7 @@ import sys
 import tempfile
 import unittest
 from .generate_fixture import generate, sha
+from .validate_real import compare_homer_tables
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -22,7 +23,9 @@ def load(name, relative):
 CONTEXT = load('nfcore_context', 'modules/local/consensus_context/resources/usr/bin/validate_consensus_context.py')
 ANNOTATION = load('homer_context', 'modules/local/peak_annotation_context/resources/usr/bin/validate_peak_annotation_context.py')
 ADAPTER = load('homer_adapter', 'modules/local/homer_annotation_adapter/resources/usr/bin/normalize_homer.py')
+CONSENSUS = load('nfcore_provider', 'modules/local/nfcore_consensus/resources/usr/bin/nfcore_consensus.py')
 REPORT = load('nfcore_report', 'modules/local/report_aggregate/resources/usr/bin/report_aggregate.py')
+AGGREGATE = load('nfcore_annotation_aggregate', 'modules/local/peak_annotation_aggregate/resources/usr/bin/peak_annotation_aggregate.py')
 
 
 class UpstreamTest(unittest.TestCase):
@@ -73,7 +76,14 @@ class ContextTest(unittest.TestCase):
                 self.assertEqual(request['provider'], 'nfcore_chipseq_2.1.0')
                 self.assertEqual(request['support_threshold'], minimum)
                 self.assertTrue(all(len(row['peak_sha256']) == 64 for row in request['replicates']))
-            for minimum in (None, True, 0, 5, '2', 1.5):
+            default = CONTEXT.build_request(records, directories, manifests, qc, {'strategy':'nfcore_2_1'})
+            self.assertEqual(default['support_threshold'], 1)
+            self.assertEqual(default['parameters']['min_replicates'], 1)
+            self.assertEqual(CONTEXT.build_request(records, directories, manifests, qc,
+                             {'strategy':'nfcore_2_1', 'min_replicates':None})['support_threshold'], 1)
+            with self.assertRaisesRegex(ValueError, 'explicit integer'):
+                CONTEXT.build_request(records, directories, manifests, qc, {'strategy':'replicate_support'})
+            for minimum in (True, 0, 5, '2', 1.5):
                 with self.subTest(minimum=minimum), self.assertRaisesRegex(ValueError, 'explicit integer'):
                     CONTEXT.build_request(records, directories, manifests, qc, {'strategy':'nfcore_2_1','min_replicates':minimum})
 
@@ -101,15 +111,26 @@ class ContextTest(unittest.TestCase):
 
 
 class HomerProjectionTest(unittest.TestCase):
-    def evidence_fixture(self, root):
+    def test_direct_comparison_uses_ids_without_hiding_annotation_changes(self):
+        direct = [['PeakID (direct)','Nearest PromoterID'],['p1','g1'],['p2','g2']]
+        native = [['PeakID (native)','Nearest PromoterID'],['p2','g2'],['p1','g1']]
+        compare_homer_tables(direct,native)
+        for rows in [[['p1','other_gene'],['p2','g2']], [['p1','g1']],
+                     [['p1','g1'],['p1','g1'],['p2','g2']]]:
+            with self.subTest(rows=rows), self.assertRaises(AssertionError):
+                compare_homer_tables(direct,[native[0],*rows])
+
+    def evidence_fixture(self, root, callers=1, total=2):
         bundle = root/'bundle'
         bundle.mkdir()
         output = root/'output'
         output.mkdir()
         columns = ['peak_id','library_id','record_id','sample_id','source_peak_id','called_peak_count',
                    'covered_bp','region_bp','covered_fraction','region_core_bp','classification','occupancy_status']
-        rows = [dict(zip(columns, ['p1',str(i),f'r{i}',f's{i}',f'source{i}',str(count),str(bp),'10',str(bp/10),'0','candidate','not_assessed']))
-                for i,count,bp in [(1,1,10),(2,0,0)]]
+        classification = 'candidate' if callers == 1 else 'candidate_with_library_support'
+        rows = [dict(zip(columns, ['p1',str(i),f'r{i}',f's{i}',f'source{i}',str(int(i <= callers)),
+                                   str(10 if i <= callers else 0),'10',str(int(i <= callers)),
+                                   '0',classification,'not_assessed'])) for i in range(1,total+1)]
         support = bundle/'support.tsv'
         with support.open('w', newline='') as handle:
             writer = csv.DictWriter(handle, fieldnames=columns, delimiter='\t', lineterminator='\n')
@@ -122,7 +143,7 @@ class HomerProjectionTest(unittest.TestCase):
         source = dict(id='s',provider='nfcore_chipseq_2.1.0',strategy='nfcore_2_1',semantics={'occupancy_status':'not_assessed'},
                       artifacts={role:dict(path=path.name,sha256=sha(path),available=True) for role,path in files.items()})
         (bundle/'manifest.json').write_text(json.dumps(source))
-        request = dict(source_consensus=source, record_ids=['r1','r2'], inputs={'peak_manifest':{'sha256':sha(bundle/'manifest.json')}})
+        request = dict(source_consensus=source, record_ids=[f'r{i}' for i in range(1,total+1)], inputs={'peak_manifest':{'sha256':sha(bundle/'manifest.json')}})
         return bundle, output, request
 
     def test_evidence_keeps_zero_support_and_rejects_corruption(self):
@@ -134,6 +155,10 @@ class HomerProjectionTest(unittest.TestCase):
             self.assertEqual(len(evidence),2)
             self.assertEqual(evidence[1]['covered_bp'],'0')
             self.assertEqual(rows[0]['calling_libraries'],'r1')
+            self.assertEqual(rows[0]['calling_samples'],'s1')
+            self.assertEqual(rows[0]['calling_library_count'],1)
+            self.assertEqual(rows[0]['total_library_count'],2)
+            self.assertEqual(rows[0]['library_support_category'],'single_library')
             self.assertEqual(rows[0]['occupancy_status'],'not_assessed')
             self.assertEqual(result['libraries'],2)
         with tempfile.TemporaryDirectory() as tmp:
@@ -141,6 +166,118 @@ class HomerProjectionTest(unittest.TestCase):
             (bundle/'support.tsv').write_text('corrupted')
             with self.assertRaisesRegex(ValueError,'checksum mismatch'):
                 ADAPTER.attach_evidence(request,[bundle],{'p1':{}},[],[],output)
+
+    def test_library_categories_agree_in_catalog_and_gene_associations(self):
+        for callers,total,category in [(1,3,'single_library'),(2,3,'multiple_libraries'),
+                                        (3,3,'all_libraries'),(2,2,'all_libraries')]:
+            with self.subTest(callers=callers,total=total), tempfile.TemporaryDirectory() as tmp:
+                bundle,output,request = self.evidence_fixture(Path(tmp),callers,total)
+                annotated,associations = [dict(peak_id='p1')],[dict(peak_id='p1',gene_id='g')]
+                ADAPTER.attach_evidence(request,[bundle],{'p1':{}},annotated,associations,output)
+                summary = CONSENSUS.library_summary([
+                    dict(record_id=f'r{i}',sample_id=f's{i}') for i in reversed(range(1,callers+1))],total)
+                self.assertEqual(summary['library_support_category'],category)
+                self.assertEqual(summary['calling_libraries'],','.join(f'r{i}' for i in range(1,callers+1)))
+                for row in annotated+associations:
+                    for key,value in summary.items():
+                        self.assertEqual(row[key],value)
+                    self.assertEqual(len(json.loads(row['library_support_json'])),total)
+
+    def test_invalid_evidence_fails_even_with_updated_checksums(self):
+        cases = [('missing_library',lambda rows: rows.pop()),
+                 ('duplicate_library',lambda rows: rows.append(dict(rows[0]))),
+                 ('wrong_class',lambda rows: rows[0].update(classification='candidate_with_library_support')),
+                 ('negative_calls',lambda rows: rows[1].update(called_peak_count='-1')),
+                 ('false_presence',lambda rows: rows[1].update(called_peak_count='1')),
+                 ('wrong_core',lambda rows: rows[1].update(region_core_bp='1'))]
+        for name,mutate in cases:
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as tmp:
+                bundle,output,request = self.evidence_fixture(Path(tmp))
+                path = bundle/'support.tsv'
+                with path.open(newline='') as handle:
+                    reader = csv.DictReader(handle,delimiter='\t')
+                    columns,rows = reader.fieldnames,list(reader)
+                mutate(rows)
+                ADAPTER.write_table(path,columns,rows)
+                request['source_consensus']['artifacts']['regional_support']['sha256'] = sha(path)
+                (bundle/'manifest.json').write_text(json.dumps(request['source_consensus']))
+                request['inputs']['peak_manifest']['sha256'] = sha(bundle/'manifest.json')
+                with self.assertRaises(ValueError):
+                    ADAPTER.attach_evidence(request,[bundle],{'p1':{}},[],[],output)
+
+    def test_empty_annotation_preserves_zero_region_result(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            bundle,output,request = self.evidence_fixture(Path(tmp))
+            path = bundle/'support.tsv'
+            path.write_text(path.read_text().splitlines()[0]+'\n')
+            request['source_consensus']['artifacts']['regional_support']['sha256'] = sha(path)
+            (bundle/'manifest.json').write_text(json.dumps(request['source_consensus']))
+            request['inputs']['peak_manifest']['sha256'] = sha(bundle/'manifest.json')
+            result = ADAPTER.attach_evidence(request,[bundle],{},[],[],output)
+            self.assertEqual(result['regions'],0)
+            self.assertEqual(result['libraries'],2)
+
+    def test_empty_tsv_preserves_library_contract_headers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp)/'empty.tsv'
+            columns = ['peak_id', *CONSENSUS.LIBRARY_COLUMNS]
+            ADAPTER.write_table(path,columns,[])
+            found = set()
+            self.assertEqual(AGGREGATE.read_rows(path,found),[])
+            self.assertEqual(found,set(columns))
+
+    def test_catalog_rejects_impossible_support_counts(self):
+        for calling,total in [([],3),([dict(record_id='r1',sample_id='s1')],0)]:
+            with self.subTest(total=total), self.assertRaises(ValueError):
+                CONSENSUS.library_summary(calling,total)
+
+    def test_catalog_rejects_ambiguous_source_library_ids_before_tools(self):
+        for identifiers in [('same','same'),('','r2'),('r1,r2','r3'),('r1\tr2','r3')]:
+            with self.subTest(identifiers=identifiers), tempfile.TemporaryDirectory() as tmp:
+                request = dict(status='valid',strategy='nfcore_2_1',provider='nfcore_chipseq_2.1.0',
+                               support_threshold=1,replicates=[dict(record_id=value) for value in identifiers])
+                with self.assertRaisesRegex(ValueError,'library record IDs'):
+                    CONSENSUS.run(request,[],Path(tmp)/'output',ROOT/'vendor/nfcore_chipseq/2.1.0/macs3_merged_expand.py')
+
+    def test_aggregate_preserves_mixed_and_empty_library_columns(self):
+        for empty in (False,True):
+            with self.subTest(empty=empty), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                command = [sys.executable,str(ROOT/'modules/local/peak_annotation_aggregate/resources/usr/bin/peak_annotation_aggregate.py')]
+                for identifier,regional in [('regional',True),('compatibility',False)]:
+                    directory = root/identifier
+                    directory.mkdir()
+                    doc = dict(id=identifier,type='peak_annotation',source_id=identifier,status='complete_empty' if empty else 'complete',
+                               provider='homer_4_11' if regional else 'python_interval_v1')
+                    (directory/'manifest.json').write_text(json.dumps(doc))
+                    rows = [] if empty else [dict(peak_id=identifier,gene_id='g',**(
+                        CONSENSUS.library_summary([dict(record_id='r1',sample_id='s1')],2) if regional else {}))]
+                    columns = ['peak_id','gene_id',*(CONSENSUS.LIBRARY_COLUMNS if regional else ())]
+                    for name in ('annotated_peaks.tsv','peak_gene_associations.tsv'):
+                        ADAPTER.write_table(directory/name,columns,rows)
+                    stats = dict(id=identifier,total_peaks=len(rows),annotated_peaks=len(rows),unassociated_peaks=0,
+                                 unique_genes=len(rows),mean_genes_per_peak=1 if rows else 0,status=doc['status'])
+                    stats_path,stats_manifest = root/(identifier+'.stats.json'),root/(identifier+'.stats_manifest.json')
+                    stats_path.write_text(json.dumps(stats))
+                    stats_manifest.write_text(json.dumps(dict(id=identifier,type='peak_annotation_statistics')))
+                    command += ['--annotation-dir',str(directory),'--annotation-manifest',str(directory/'manifest.json'),
+                                '--statistics-json',str(stats_path),'--statistics-manifest',str(stats_manifest)]
+                command += ['--output-dir',str(root/'aggregate'),'--manifest',str(root/'manifest.json'),
+                            '--execution',str(root/'execution.json'),'--versions',str(root/'versions.yml'),
+                            '--cpus','1','--memory-bytes','1000','--task-time','1m']
+                subprocess.run(command,check=True,capture_output=True,text=True)
+                for name in ('annotated_peaks.tsv','peak_gene_associations.tsv'):
+                    with (root/'aggregate'/name).open() as handle:
+                        reader = csv.DictReader(handle,delimiter='\t')
+                        self.assertTrue(set(CONSENSUS.LIBRARY_COLUMNS).issubset(reader.fieldnames))
+                        result = {row['peak_id']:row for row in reader}
+                    if empty:
+                        self.assertEqual(result,{})
+                    else:
+                        self.assertEqual(result['regional']['calling_libraries'],'r1')
+                        self.assertEqual(result['regional']['library_support_category'],'single_library')
+                        for key in CONSENSUS.LIBRARY_COLUMNS:
+                            self.assertEqual(result['compatibility'][key],'')
 
     def test_missing_gene_and_native_feature_are_preserved(self):
         with tempfile.TemporaryDirectory() as tmp:

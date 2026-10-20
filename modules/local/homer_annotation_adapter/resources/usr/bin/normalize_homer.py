@@ -113,6 +113,8 @@ def attach_evidence(request, directories, peaks, annotated, associations, output
     support = defaultdict(list)
     seen = set()
     expected_records = set(request['record_ids'])
+    if len(expected_records) != len(request['record_ids']) or not expected_records or any(not value for value in expected_records):
+        raise ValueError('regional evidence requires unique nonempty library identities')
     with files['regional_support'].open(newline='') as handle:
         for row in csv.DictReader(handle, delimiter='\t'):
             identifier, record = row['peak_id'], row['record_id']
@@ -123,6 +125,9 @@ def attach_evidence(request, directories, peaks, annotated, associations, output
                 raise ValueError('regional support must not assert proven occupancy')
             covered, length, core = int(row['covered_bp']), int(row['region_bp']), int(row['region_core_bp'])
             fraction = float(row['covered_fraction'])
+            calls = int(row['called_peak_count'])
+            if calls < 0 or (calls > 0) != (covered > 0):
+                raise ValueError('called peak count is inconsistent with covered bases')
             if length <= 0 or not 0 <= covered <= length or not 0 <= core <= length or not math.isfinite(fraction) or not 0 <= fraction <= 1:
                 raise ValueError('invalid regional coverage evidence')
             if abs(fraction - covered / length) > 1e-6:
@@ -132,10 +137,26 @@ def attach_evidence(request, directories, peaks, annotated, associations, output
             support[identifier].append(row)
     if len(seen) != len(peaks) * len(expected_records):
         raise ValueError('regional evidence must include every library, including zero support')
+    summaries = {}
+    for identifier, evidence in support.items():
+        evidence.sort(key=lambda item: item['record_id'])
+        calling = [item for item in evidence if int(item['called_peak_count']) > 0]
+        count, total = len(calling), len(expected_records)
+        classification = 'candidate_with_library_support' if count >= 2 else 'candidate'
+        if not count or any(item['classification'] != classification for item in evidence):
+            raise ValueError('candidate classification disagrees with calling libraries')
+        if len({item['region_core_bp'] for item in evidence}) != 1:
+            raise ValueError('inconsistent shared core across library evidence')
+        summaries[identifier] = dict(
+            calling_libraries=','.join(item['record_id'] for item in calling),
+            calling_samples=','.join(item['sample_id'] for item in calling),
+            calling_library_count=count, total_library_count=total,
+            library_support_category=('single_library' if count == 1 else
+                                      'all_libraries' if count == total else 'multiple_libraries'))
     for row in annotated + associations:
         evidence = sorted(support[row['peak_id']], key=lambda item: item['record_id'])
         row.update(library_support_json=json.dumps(evidence, sort_keys=True, separators=(',', ':')),
-                   calling_libraries=','.join(item['record_id'] for item in evidence if int(item['called_peak_count']) > 0),
+                   **summaries[row['peak_id']],
                    support_core_bp=evidence[0]['region_core_bp'], evidence_classification=evidence[0]['classification'],
                    occupancy_status='not_assessed')
     return dict(provider=source['provider'], strategy=source['strategy'], semantics=source['semantics'],
@@ -171,7 +192,8 @@ def main():
         shutil.copytree(raw, output / 'provider_reports')
         evidence = attach_evidence(request, args.support_dir, peaks, annotated, associations, output)
         common = ('peak_id','category','distance_to_tss','record_id','source_id','annotation_provider','association_method','homer_annotation')
-        extra = ('calling_libraries','support_core_bp','evidence_classification','occupancy_status','library_support_json') if evidence else ()
+        extra = ('calling_libraries','calling_samples','calling_library_count','total_library_count',
+                 'library_support_category','support_core_bp','evidence_classification','occupancy_status','library_support_json') if evidence else ()
         write_table(output / 'annotated_peaks.tsv', common + ('chrom','start','end','gene_ids','gene_count','included') + extra, annotated)
         write_table(output / 'peak_gene_associations.tsv', common + ('gene_id',) + extra, associations)
         execution = dict(process='HOMER_ANNOTATION_ADAPTER', elapsed_seconds=time.time()-started,

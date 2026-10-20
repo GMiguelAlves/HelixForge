@@ -216,7 +216,7 @@
       "type": ["integer", "null"],
       "minimum": 1,
       "default": null,
-      "description": "Explicit support threshold: at least 2 for atomic replicate_support or 1 for nfcore_2_1; cannot exceed the validated library count."
+      "description": "Library support threshold. nfcore_2_1 defaults to 1 when unset; atomic replicate_support requires an explicit value of at least 2. Cannot exceed the validated library count."
     },
     "chipseq_replicate_mode": {
       "type": "string",

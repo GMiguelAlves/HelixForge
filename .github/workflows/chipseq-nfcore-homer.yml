@@ -37,6 +37,10 @@ jobs:
         env:
           NEXTFLOW_BIN: ${{ github.workspace }}/nextflow
         run: python3 tests/native_chipseq_nfcore/run_checks.py --output "$RUNNER_TEMP/hf-nfcore-real"
+      - name: One-library catalog and evidence transport
+        env:
+          NEXTFLOW_BIN: ${{ github.workspace }}/nextflow
+        run: python3 tests/native_chipseq_nfcore/run_checks.py --min-replicates 1 --output "$RUNNER_TEMP/hf-nfcore-min1"
       - name: Stub and resume
         env:
           NEXTFLOW_BIN: ${{ github.workspace }}/nextflow
