@@ -2,13 +2,14 @@
 import argparse
 import csv
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import sys
-from generate_fixture import generate
+from generate_fixture import generate, indexed_request
 
 ROOT = Path(__file__).resolve().parents[2]
 UPSTREAM = ('FASTQC', 'MULTIQC', 'BOWTIE2', 'BAM_SELECT', 'BAM_DUPLICATES', 'BAM_BLACKLIST', 'BAM_INDEX_QC', 'MACS3', 'PEAK_CALLING', 'CONSENSUS_CONTEXT', 'CONSENSUS_UNION', 'IDR_PROVIDER')
@@ -27,6 +28,7 @@ def main():
     if not nextflow:
         raise RuntimeError('official Nextflow launcher is required')
     records = []
+    fanout_checks = []
 
     def run(name, options, resume=False, expected_failure=None):
         case = root / name
@@ -63,7 +65,24 @@ def main():
     if not args.only_full:
         fixture = generate(root / 'accepted', real=not args.stub, status='stub' if args.stub else 'complete')
         before = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in fixture.iterdir() if p.is_file()}
+        context_spec = importlib.util.spec_from_file_location('composition_context', ROOT / 'modules/local/chipseq_continuation_context/validate.py')
+        context = importlib.util.module_from_spec(context_spec)
+        context_spec.loader.exec_module(context)
         for kind in ('consensus', 'idr'):
+            request, paths = indexed_request(fixture, kind)
+            plan = root / f'{kind}.plan.json'
+            plan.write_text(json.dumps(context.validate(request, paths, stub=args.stub)))
+            fanout = root / f'{kind}-fanout'
+            fanout.mkdir()
+            check = subprocess.run([nextflow, '-log', str(fanout/'nextflow.log'), 'run',
+                str(ROOT/'tests/native_chipseq_composition/plan_fanout.nf'), '-c', str(ROOT/'nextflow.config'), '-ansi-log', 'false',
+                '--plan', str(plan), '--expected_kind', 'idr_peaks' if kind == 'idr' else 'consensus_peaks',
+                '--expected_id', f'fixture.{kind}'], cwd=fanout, text=True,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            (fanout/'console.0.log').write_text(check.stdout)
+            if check.returncode or '1024 verified reads' not in check.stdout:
+                raise AssertionError(f'{kind}: concurrent continuation-plan regression failed')
+            fanout_checks.append(dict(kind=kind, plans=128, readers=8, verified_reads=1024))
             tasks = run(kind, ['--chipseq_run_mode', 'post_consensus', '--chipseq_continuation_manifest', str(fixture / f'{kind}_input.json')])
             assert_no(tasks, UPSTREAM + DB)
             terminal = json.loads((root / kind / 'results/chipseq/chipseq_run_manifest.json').read_text())
@@ -73,7 +92,7 @@ def main():
                 raise AssertionError('terminal omission status missing')
             kinds = {a['artifact_type'] for a in terminal['artifacts']}
             if not {'peak_gene_annotation', 'signal_track', 'chipseq_report', 'aligned_bam', 'idr_peaks' if kind == 'idr' else 'consensus_peaks'} <= kinds:
-                raise AssertionError('incomplete continuation terminal inventory')
+                raise AssertionError(f'{kind}: incomplete continuation terminal inventory; found {sorted(kinds)}')
             if f'fixture.{kind}' not in terminal['provenance']['source_manifest_ids']:
                 raise AssertionError('original producer identity lost')
             report_inventory = root / kind / 'results/pipeline_info/native_chipseq/full/chipseq_full_report_input.json'
@@ -123,7 +142,8 @@ def main():
     if not args.stub and (not doc['contrasts'] or not any(a['artifact_type'] == 'differential_binding' for a in doc['artifacts'])):
         raise AssertionError('DB-enabled terminal results missing')
     (root / 'validation.json').write_text(json.dumps(dict(status='PASS', benchmark=False, stub=args.stub,
-        accepted_inputs_unchanged=None if args.only_full else True, scope='full' if args.only_full else 'all', cases=records), indent=2) + '\n')
+        accepted_inputs_unchanged=None if args.only_full else True, scope='full' if args.only_full else 'all',
+        continuation_plan_fanout=fanout_checks, cases=records), indent=2) + '\n')
     print(json.dumps(dict(status='PASS', benchmark=False, stub=args.stub)))
 
 
