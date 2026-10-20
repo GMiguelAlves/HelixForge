@@ -124,16 +124,6 @@ def aggregate(context, documents, artifacts):
     consensus_docs = select_docs(documents, "consensus", "consensus_idr", "consensus_idr_summary", "idr")
     db_docs = select_docs(documents, "differential_binding", "differential_binding_contrast")
     annotation_docs = select_docs(documents, "peak_annotation", "peak_annotation_aggregate")
-    source_representations = {}
-    for document in annotation_docs:
-        entries = document.get("source_representations", [])
-        if document.get("source_representation"):
-            entries = entries + [{"annotation_id": document["id"], "source_id": document["source_id"], **document["source_representation"]}]
-        for entry in entries:
-            key = (entry["annotation_id"], entry["source_id"])
-            if key in source_representations and source_representations[key] != entry:
-                raise ValueError(f"conflicting annotation source representation: {key}")
-            source_representations[key] = entry
     track_docs = select_docs(documents, "track_generation", "track_aggregate")
 
     sample_records = {}
@@ -218,8 +208,6 @@ def aggregate(context, documents, artifacts):
         "tracks": section(status_for(context, "tracks"), {"manifests": track_docs, "records": track_rows}),
         "provenance": section("available", {"versions": context.get("versions", {}), "sources": provenance_sources}),
     }
-    if source_representations and sections["annotation"]["data"] is not None:
-        sections["annotation"]["data"]["source_representations"] = [source_representations[key] for key in sorted(source_representations)]
     return {
         "schema_version": "1.0", "type": "chipseq_report_data", "id": context["id"],
         "project": project, "sections": sections, "source_manifest_count": len(documents),

@@ -29,16 +29,9 @@ process CONSENSUS_CONTEXT {
     def peakDirArgs = peak_dirs.collect { directory -> "--peak-dir '${directory}'" }.join(' ')
     def peakManifestArgs = peak_manifests.collect { manifest -> "--peak-manifest '${manifest}'" }.join(' ')
     def qcManifestArgs = qc_manifests.collect { manifest -> "--qc-manifest '${manifest}'" }.join(' ')
-    def contextCommand = 'validate_consensus_context.py'
-    if (meta.strategy == 'regional_catalog') {
-        // Keep the new opt-in contract independent of helpers baked into older
-        // runtime images. The rendered command also tracks this source in cache.
-        def programBase64 = new File("${moduleDir}/resources/usr/bin/validate_consensus_context.py").bytes.encodeBase64().toString()
-        contextCommand = "python3 -c \"import base64;exec(compile(base64.b64decode('${programBase64}'),'validate_consensus_context.py','exec'))\""
-    }
     """
     set -o pipefail
-    ${contextCommand} \
+    validate_consensus_context.py \
         ${peakDirArgs} \
         ${peakManifestArgs} \
         ${qcManifestArgs} \

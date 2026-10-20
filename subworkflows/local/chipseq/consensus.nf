@@ -4,7 +4,6 @@ include { CONSENSUS_INTERVALS as CONSENSUS_INTERSECTION } from '../../../modules
 include { CONSENSUS_INTERVALS as CONSENSUS_SUPPORT } from '../../../modules/local/consensus_intervals/main'
 include { IDR_PROVIDER } from '../../../modules/local/idr_provider/main'
 include { CONSENSUS_AGGREGATE } from '../../../modules/local/consensus_aggregate/main'
-include { REGIONAL_CATALOG } from '../../../modules/local/regional_catalog/main'
 
 
 workflow CONSENSUS_IDR {
@@ -158,16 +157,6 @@ workflow CONSENSUS_IDR {
         provider_execution_ch = CONSENSUS_SUPPORT.out.execution_metadata
         provider_manifest_ch = CONSENSUS_SUPPORT.out.manifest
         provider_status_ch = CONSENSUS_SUPPORT.out.status
-    } else if (strategy == 'regional_catalog') {
-        catalogProgram = file("${moduleDir}/../../../modules/local/regional_catalog/resources/usr/bin/run_regional_catalog.py", checkIfExists: true)
-        provider_inputs = validated.map { _id, request, meta, result_dirs -> tuple(meta, result_dirs, request, catalogProgram) }
-        REGIONAL_CATALOG(provider_inputs)
-        provider_artifacts_ch = REGIONAL_CATALOG.out.artifacts
-        provider_reports_ch = REGIONAL_CATALOG.out.reports
-        provider_versions_ch = REGIONAL_CATALOG.out.versions
-        provider_execution_ch = REGIONAL_CATALOG.out.execution_metadata
-        provider_manifest_ch = REGIONAL_CATALOG.out.manifest
-        provider_status_ch = REGIONAL_CATALOG.out.status
     } else if (strategy == 'idr') {
         provider_inputs = validated.map { _id, request, meta, result_dirs -> tuple(meta, result_dirs, request) }
         IDR_PROVIDER(provider_inputs)
