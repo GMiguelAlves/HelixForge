@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Lossless identity/evidence transport; scientific annotation is HOMER's."""
 import argparse
+from bisect import bisect_left
 from collections import defaultdict
 import csv
 import hashlib
@@ -10,6 +11,10 @@ from pathlib import Path
 import shutil
 import sys
 import time
+
+AMBIGUITY_SCOPE = 'homer_nearest_tss_distance_ties_v1'
+AMBIGUITY_COLUMNS = ('gene_assignment_ambiguous', 'gene_assignment_ambiguity_reason',
+                     'gene_assignment_ambiguity_scope', 'alternative_gene_ids')
 
 
 def sha(path):
@@ -79,6 +84,66 @@ def normalize(raw, peaks, request):
     if seen != set(peaks):
         raise ValueError('HOMER output does not cover the input peak IDs exactly')
     return annotated, associations
+
+
+def assess_ambiguity(raw, tss, annotated, associations):
+    """Flag distance ties using HOMER's own TSS snapshot, never reassign genes."""
+    by_position = defaultdict(lambda: defaultdict(set))
+    if tss is not None:
+        with Path(tss).open() as handle:
+            for line in handle:
+                if not line.strip() or line.startswith('#'):
+                    continue
+                fields = line.rstrip('\n').split('\t')
+                if len(fields) != 6 or fields[4] not in {'+', '-'}:
+                    raise ValueError('invalid HOMER TSS snapshot')
+                start, end = int(fields[2]), int(fields[3])
+                if end - start != 4000:
+                    raise ValueError('unexpected HOMER 4.11 TSS window')
+                position = (start + end) // 2
+                if position < 1 or not fields[0] or not fields[1]:
+                    raise ValueError('invalid HOMER TSS identity or position')
+                # HOMER strips this suffix when reporting Nearest PromoterID.
+                gene = fields[0].split('-HOMER', 1)[0]
+                by_position[fields[1]][position].add(gene)
+    coordinates = {chrom: sorted(values) for chrom, values in by_position.items()}
+    with Path(raw).open(newline='') as handle:
+        reader = csv.DictReader(handle, delimiter='\t')
+        native = {row[reader.fieldnames[0]]: {key: row.get(key) for key in ('Chr', 'Start', 'End')}
+                  for row in reader}
+    summaries = {}
+    for row in annotated:
+        gene = row['gene_ids']
+        result = dict(gene_assignment_ambiguous='not_assessed',
+                      gene_assignment_ambiguity_reason='missing_tss_snapshot',
+                      gene_assignment_ambiguity_scope=AMBIGUITY_SCOPE, alternative_gene_ids='[]')
+        record = native[row['peak_id']]
+        if not gene:
+            result['gene_assignment_ambiguity_reason'] = 'no_gene_assignment'
+        elif tss is not None:
+            result['gene_assignment_ambiguity_reason'] = 'unmatched_provider_position_or_distance'
+            if all(record.get(key) not in (None, '', 'NA') for key in ('Chr', 'Start', 'End')) and row['distance_to_tss'] != '':
+                center = (int(record['Start']) + int(record['End'])) // 2
+                distance = abs(float(row['distance_to_tss']))
+                positions = coordinates.get(record['Chr'], [])
+                offset = bisect_left(positions, center)
+                closest = positions[max(0, offset-1):offset+1]
+                if closest and distance.is_integer() and min(abs(value-center) for value in closest) == distance:
+                    candidates = set()
+                    for position in {center-int(distance), center+int(distance)}:
+                        candidates.update(by_position[record['Chr']].get(position, set()))
+                    if gene in candidates:
+                        alternatives = sorted(candidates - {gene})
+                        result.update(gene_assignment_ambiguous='true' if alternatives else 'false',
+                                      gene_assignment_ambiguity_reason='nearest_tss_distance_tie' if alternatives else 'no_distance_tie_detected',
+                                      alternative_gene_ids=json.dumps(alternatives, separators=(',', ':')))
+        summaries[row['peak_id']] = result
+        row.update(result)
+    for row in associations:
+        row.update(summaries[row['peak_id']])
+    return dict(scope=AMBIGUITY_SCOPE, changes_provider_assignment=False,
+                counts={flag: sum(row['gene_assignment_ambiguous'] == flag for row in annotated)
+                        for flag in ('true', 'false', 'not_assessed')})
 
 
 def attach_evidence(request, directories, peaks, annotated, associations, output):
@@ -187,11 +252,18 @@ def main():
             raise ValueError('HOMER package version mismatch')
         peaks = read_peaks(args.peaks)
         annotated, associations = normalize(raw / 'annotatePeaks.txt', peaks, request)
+        tss = raw / 'reference_tss.tsv'
+        tss_metadata = raw / 'reference_tss.metadata.json'
+        if tss.exists() or tss_metadata.exists():
+            metadata = json.loads(tss_metadata.read_text())
+            if metadata.get('provider') != 'homer_4_11' or metadata.get('tss_sha256') != sha(tss) or metadata.get('annotation_sha256') != request['inputs']['annotation']['sha256']:
+                raise ValueError('HOMER TSS snapshot checksum or annotation mismatch')
+        ambiguity = assess_ambiguity(raw / 'annotatePeaks.txt', tss if tss.exists() else None, annotated, associations)
         output = Path(args.output_dir)
         output.mkdir(parents=True, exist_ok=False)
         shutil.copytree(raw, output / 'provider_reports')
         evidence = attach_evidence(request, args.support_dir, peaks, annotated, associations, output)
-        common = ('peak_id','category','distance_to_tss','record_id','source_id','annotation_provider','association_method','homer_annotation')
+        common = ('peak_id','category','distance_to_tss','record_id','source_id','annotation_provider','association_method','homer_annotation') + AMBIGUITY_COLUMNS
         extra = ('calling_libraries','calling_samples','calling_library_count','total_library_count',
                  'library_support_category','support_core_bp','evidence_classification','occupancy_status','library_support_json') if evidence else ()
         write_table(output / 'annotated_peaks.tsv', common + ('chrom','start','end','gene_ids','gene_count','included') + extra, annotated)
@@ -205,10 +277,16 @@ def main():
         artifacts = {role:dict(path=name, sha256=sha(output/name), available=True) for role,name in {
             'annotated_peaks':'annotated_peaks.tsv', 'peak_gene_associations':'peak_gene_associations.tsv',
             'homer_native':'provider_reports/annotatePeaks.txt'}.items()}
+        if tss.exists():
+            for role, name in [('annotation_tss', 'reference_tss.tsv'), ('annotation_tss_metadata', 'reference_tss.metadata.json')]:
+                artifacts[role] = dict(path='provider_reports/' + name, sha256=sha(raw / name), available=True)
+            ambiguity['annotation_sha256'] = metadata['annotation_sha256']
+            ambiguity['tss_sha256'] = metadata['tss_sha256']
         manifest = {**{key:request.get(key) for key in ('id','source_id','source_type','record_id','record_ids','sample_ids',
                     'dataset','experiment_id','target','genome_id','build','organism','inputs','parameters')},
                     'schema_version':'1.0', 'type':'peak_annotation', 'provider':'homer_4_11', 'provider_version':'4.11',
                     'artifacts':artifacts, 'execution':execution, 'status':'complete' if annotated else 'complete_empty'}
+        manifest['gene_assignment_ambiguity'] = ambiguity
         if evidence:
             manifest['consensus_evidence'] = evidence
         Path(args.manifest).write_text(json.dumps(manifest, indent=2) + '\n')

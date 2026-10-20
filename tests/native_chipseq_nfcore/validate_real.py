@@ -1,6 +1,7 @@
 """Compare the HF fixture with direct pinned-tool commands, independently."""
 import argparse
 import csv
+import importlib.util
 import json
 from pathlib import Path
 import subprocess
@@ -107,6 +108,9 @@ annotatePeaks.pl '/results/{relative}' /fixture/reference.fa -gid -gtf /fixture/
     by_id = {row['peak_id']:row for row in regions}
     for row in projected:
         region = by_id[row['peak_id']]
+        assert row['gene_assignment_ambiguous'] == 'false'
+        assert row['gene_assignment_ambiguity_scope'] == 'homer_nearest_tss_distance_ties_v1'
+        assert row['alternative_gene_ids'] == '[]'
         assert row['support_core_bp'] == ('60' if int(region['start']) == 100 else '0')
         assert row['evidence_classification'] == region['classification']
         assert row['occupancy_status'] == 'not_assessed'
@@ -117,12 +121,33 @@ annotatePeaks.pl '/results/{relative}' /fixture/reference.fa -gid -gtf /fixture/
     assert {row['peak_id'] for row in rows} == set(by_id)
     aggregated = {row['peak_id']:row for row in rows}
     for row in projected:
-        for key in ('library_support_json','calling_libraries','calling_samples','calling_library_count','total_library_count','library_support_category'):
+        for key in ('library_support_json','calling_libraries','calling_samples','calling_library_count','total_library_count','library_support_category',
+                    'gene_assignment_ambiguous','gene_assignment_ambiguity_reason','gene_assignment_ambiguity_scope','alternative_gene_ids'):
             assert aggregated[row['peak_id']][key] == row[key], f'aggregation dropped {key}'
+    # A separate tiny annotation-only fixture verifies the flag against real
+    # HOMER ties without changing the reference of the equivalence workflow.
+    gtf = (fixture/'annotation.gtf').read_text()
+    (output/'tied.gtf').write_text(gtf + ''.join(line.replace('gene_plus','gene_tied')+'\n'
+        for line in gtf.splitlines() if 'gene_plus' in line))
+    docker(HOMER_IMAGE, f'''set -euo pipefail
+parseGTF.pl /direct/tied.gtf tss -gid > tied.tss.tsv
+annotatePeaks.pl '/results/{relative}' /fixture/reference.fa -gid -gtf /direct/tied.gtf -cpu 1 > tied.annotatePeaks.txt
+''', 'direct-homer-tied.log')
+    spec = importlib.util.spec_from_file_location('fixture_ambiguity_adapter',ROOT/'modules/local/homer_annotation_adapter/resources/usr/bin/normalize_homer.py')
+    adapter = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(adapter)
+    annotated,associations = adapter.normalize(output/'tied.annotatePeaks.txt',adapter.read_peaks(consensus/'consolidated_peaks.bed'),{'source_id':'fixture.tied'})
+    selected = [row['gene_id'] for row in associations]
+    adapter.assess_ambiguity(output/'tied.annotatePeaks.txt',output/'tied.tss.tsv',annotated,associations)
+    assert [row['gene_id'] for row in associations] == selected
+    assert len(associations) == retained
+    for row in associations:
+        assert row['gene_assignment_ambiguous'] == 'true'
+        assert {row['gene_id'],*json.loads(row['alternative_gene_ids'])} == {'gene_plus','gene_tied'}
     doc = dict(status='PASS', benchmark=False, scope='reduced_tool_equivalence',
                checks=['upstream_unfiltered_exact','upstream_filtered_exact','support_exclusions',
                        'zero_support_library','unclipped_catalog','homer_direct_equivalence','gtf_gene_id',
-                       'association_evidence','aggregate_evidence'],
+                       'association_evidence','aggregate_evidence','real_homer_distance_tie_flags'],
                unfiltered_regions=4, retained_regions=retained, unfiltered_bp=1050, retained_bp=retained_bp, core_bp=60)
     (output/'validation.json').write_text(json.dumps(doc, indent=2) + '\n')
     print(json.dumps(doc))

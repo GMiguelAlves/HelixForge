@@ -111,6 +111,102 @@ class ContextTest(unittest.TestCase):
 
 
 class HomerProjectionTest(unittest.TestCase):
+    def test_ambiguity_flags_tied_genes_without_reassigning_homer(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            raw,tss = root/'homer.txt',root/'tss.tsv'
+            tss.write_text('g1\tchr1\t-1800\t2200\t+\t0\ng2\tchr1\t-1800\t2200\t-\t0\n'
+                           'g2\tchr1\t-1800\t2200\t-\t0\nother\tchr2\t-1800\t2200\t+\t0\n')
+            for selected,alternative in [('g1','g2'),('g2','g1')]:
+                raw.write_text('PeakID\tChr\tStart\tEnd\tAnnotation\tDistance to TSS\tNearest PromoterID\n'
+                               f'p1\tchr1\t290\t310\tintron\t100\t{selected}\n')
+                annotated,associations = ADAPTER.normalize(raw,{'p1':dict(chrom='chr1',start=289,end=310)},{'source_id':'s'})
+                summary = ADAPTER.assess_ambiguity(raw,tss,annotated,associations)
+                for row in annotated+associations:
+                    self.assertEqual(row['gene_assignment_ambiguous'],'true')
+                    self.assertEqual(row['gene_assignment_ambiguity_reason'],'nearest_tss_distance_tie')
+                    self.assertEqual(json.loads(row['alternative_gene_ids']),[alternative])
+                    self.assertEqual(row['distance_to_tss'],'100')
+                self.assertEqual(associations[0]['gene_id'],selected)
+                self.assertEqual(annotated[0]['gene_ids'],selected)
+                self.assertEqual(annotated[0]['gene_count'],1)
+                self.assertEqual(summary['counts'],{'true':1,'false':0,'not_assessed':0})
+
+    def test_ambiguity_checks_equidistant_positions_and_distinct_genes(self):
+        cases = [('g1\tchr1\t-1800\t2200\t+\t0\ng2\tchr1\t-1600\t2400\t+\t0\n','true'),
+                 ('g1\tchr1\t-1800\t2200\t+\t0\ng1\tchr1\t-1600\t2400\t+\t0\n','false'),
+                 ('g1\tchr1\t-1800\t2200\t+\t0\ng2\tchr2\t-1800\t2200\t+\t0\n','false'),
+                 ('g1\tchr1\t-1800\t2200\t+\t0\ng2\tchr1\t-1720\t2280\t+\t0\n','not_assessed')]
+        for snapshot,flag in cases:
+            with self.subTest(flag=flag,snapshot=snapshot), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                raw,tss = root/'homer.txt',root/'tss.tsv'
+                raw.write_text('PeakID\tChr\tStart\tEnd\n'+'p1\tchr1\t290\t310\n')
+                tss.write_text(snapshot)
+                rows = [dict(peak_id='p1',gene_ids='g1',distance_to_tss='100')]
+                ADAPTER.assess_ambiguity(raw,tss,rows,[])
+                self.assertEqual(rows[0]['gene_assignment_ambiguous'],flag)
+
+    def test_ambiguity_is_not_assessed_without_required_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            raw,tss = root/'homer.txt',root/'tss.tsv'
+            raw.write_text('PeakID\n'+'p1\n')
+            tss.write_text('g1\tchr1\t-1800\t2200\t+\t0\n')
+            for snapshot,gene in [(None,'g1'),(tss,'g1'),(tss,''),(tss,'unknown')]:
+                rows = [dict(peak_id='p1',gene_ids=gene,distance_to_tss='100')]
+                ADAPTER.assess_ambiguity(raw,snapshot,rows,[])
+                self.assertEqual(rows[0]['gene_assignment_ambiguous'],'not_assessed')
+                self.assertEqual(rows[0]['alternative_gene_ids'],'[]')
+            tss.write_text('g1\tchr1\t0\t100\t+\t0\n')
+            with self.assertRaisesRegex(ValueError,'TSS window'):
+                ADAPTER.assess_ambiguity(raw,tss,rows,[])
+
+    def test_adapter_validates_snapshot_provenance_and_publishes_flags(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            raw = root/'raw'
+            raw.mkdir()
+            (raw/'homer.package.json').write_text(json.dumps(dict(name='homer',version='4.11')))
+            (raw/'annotatePeaks.txt').write_text('PeakID\tChr\tStart\tEnd\tAnnotation\tDistance to TSS\tNearest PromoterID\n'
+                                               'p1\tchr1\t290\t310\tintron\t100\tg1\n')
+            peaks = root/'peaks.bed'
+            peaks.write_text('chr1\t289\t310\tp1\n')
+            tss = raw/'reference_tss.tsv'
+            tss.write_text('g1\tchr1\t-1800\t2200\t+\t0\ng2\tchr1\t-1800\t2200\t+\t0\n')
+            request = root/'request.json'
+            request.write_text(json.dumps(dict(status='valid',provider='homer_4_11',id='annotation',source_id='source',
+                               inputs=dict(peaks=dict(sha256=sha(peaks)),annotation=dict(sha256='a'*64),
+                                           peak_manifest=dict(sha256='c'*64)))))
+            for mode in ('valid','bad_tss_checksum','wrong_annotation'):
+                metadata = dict(provider='homer_4_11',annotation_sha256='a'*64,tss_sha256=sha(tss))
+                if mode == 'bad_tss_checksum':
+                    metadata['tss_sha256'] = '0'*64
+                if mode == 'wrong_annotation':
+                    metadata['annotation_sha256'] = 'b'*64
+                (raw/'reference_tss.metadata.json').write_text(json.dumps(metadata))
+                output = root/mode
+                command = [sys.executable,str(ROOT/'modules/local/homer_annotation_adapter/resources/usr/bin/normalize_homer.py'),
+                           '--request',str(request),'--peaks',str(peaks),'--raw-dir',str(raw),'--output-dir',str(output),
+                           '--manifest',str(root/(mode+'.json')),'--execution',str(root/(mode+'.execution.json')),
+                           '--versions',str(root/(mode+'.yml'))]
+                result = subprocess.run(command,capture_output=True,text=True)
+                if mode != 'valid':
+                    self.assertEqual(result.returncode,2)
+                    self.assertIn('snapshot checksum or annotation mismatch',result.stderr)
+                    self.assertFalse(output.exists())
+                    continue
+                self.assertEqual(result.returncode,0,result.stderr)
+                with (output/'peak_gene_associations.tsv').open() as handle:
+                    rows = list(csv.DictReader(handle,delimiter='\t'))
+                self.assertEqual(len(rows),1)
+                self.assertEqual(rows[0]['gene_id'],'g1')
+                self.assertEqual(rows[0]['gene_assignment_ambiguous'],'true')
+                self.assertEqual(json.loads(rows[0]['alternative_gene_ids']),['g2'])
+                manifest = json.loads((output/'manifest.json').read_text())
+                self.assertEqual(manifest['gene_assignment_ambiguity']['counts']['true'],1)
+                self.assertEqual(manifest['artifacts']['annotation_tss']['sha256'],sha(tss))
+
     def test_direct_comparison_uses_ids_without_hiding_annotation_changes(self):
         direct = [['PeakID (direct)','Nearest PromoterID'],['p1','g1'],['p2','g2']]
         native = [['PeakID (native)','Nearest PromoterID'],['p2','g2'],['p1','g1']]
@@ -252,7 +348,10 @@ class HomerProjectionTest(unittest.TestCase):
                     (directory/'manifest.json').write_text(json.dumps(doc))
                     rows = [] if empty else [dict(peak_id=identifier,gene_id='g',**(
                         CONSENSUS.library_summary([dict(record_id='r1',sample_id='s1')],2) if regional else {}))]
-                    columns = ['peak_id','gene_id',*(CONSENSUS.LIBRARY_COLUMNS if regional else ())]
+                    if regional and rows:
+                        rows[0].update(gene_assignment_ambiguous='true',gene_assignment_ambiguity_reason='nearest_tss_distance_tie',
+                                       gene_assignment_ambiguity_scope=ADAPTER.AMBIGUITY_SCOPE,alternative_gene_ids='["g2"]')
+                    columns = ['peak_id','gene_id',*(CONSENSUS.LIBRARY_COLUMNS + ADAPTER.AMBIGUITY_COLUMNS if regional else ())]
                     for name in ('annotated_peaks.tsv','peak_gene_associations.tsv'):
                         ADAPTER.write_table(directory/name,columns,rows)
                     stats = dict(id=identifier,total_peaks=len(rows),annotated_peaks=len(rows),unassociated_peaks=0,
@@ -270,12 +369,16 @@ class HomerProjectionTest(unittest.TestCase):
                     with (root/'aggregate'/name).open() as handle:
                         reader = csv.DictReader(handle,delimiter='\t')
                         self.assertTrue(set(CONSENSUS.LIBRARY_COLUMNS).issubset(reader.fieldnames))
+                        self.assertTrue(set(ADAPTER.AMBIGUITY_COLUMNS).issubset(reader.fieldnames))
                         result = {row['peak_id']:row for row in reader}
                     if empty:
                         self.assertEqual(result,{})
                     else:
                         self.assertEqual(result['regional']['calling_libraries'],'r1')
                         self.assertEqual(result['regional']['library_support_category'],'single_library')
+                        self.assertEqual(result['regional']['gene_assignment_ambiguous'],'true')
+                        self.assertEqual(json.loads(result['regional']['alternative_gene_ids']),['g2'])
+                        self.assertEqual(result['compatibility']['gene_assignment_ambiguous'],'')
                         for key in CONSENSUS.LIBRARY_COLUMNS:
                             self.assertEqual(result['compatibility'][key],'')
 

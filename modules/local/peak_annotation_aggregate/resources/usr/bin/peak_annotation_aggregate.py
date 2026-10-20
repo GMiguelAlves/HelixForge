@@ -106,6 +106,7 @@ def main():
         annotated_columns = ("annotation_id", "peak_id", "chrom", "start", "end", "category", "gene_ids", "gene_count", "distance_to_tss", "record_id", "source_id", "included")
         association_columns = ("annotation_id", "peak_id", "gene_id", "category", "distance_to_tss", "record_id", "source_id")
         evidence_columns = ("annotation_provider", "association_method", "homer_annotation", "calling_libraries",
+                            "gene_assignment_ambiguous", "gene_assignment_ambiguity_reason", "gene_assignment_ambiguity_scope", "alternative_gene_ids",
                             "calling_samples", "calling_library_count", "total_library_count", "library_support_category",
                             "support_core_bp", "evidence_classification", "occupancy_status", "library_support_json")
         annotated_columns += tuple(key for key in evidence_columns if key in annotated_fields)
@@ -128,6 +129,10 @@ def main():
                 {"annotation_id": identifier, "source_id": doc["source_id"],
                  **{key: value for key, value in doc["consensus_evidence"].items() if key != "artifacts"}}
                 for identifier, (doc, _path) in sorted(docs.items()) if doc.get("consensus_evidence")
+            ]
+            manifest["gene_assignment_ambiguity"] = [
+                {"annotation_id": identifier, **doc["gene_assignment_ambiguity"]}
+                for identifier, (doc, _path) in sorted(docs.items()) if doc.get("gene_assignment_ambiguity")
             ]
         with open(args.manifest, "w", encoding="utf-8") as handle:
             json.dump(manifest, handle, indent=2, sort_keys=True); handle.write("\n")
