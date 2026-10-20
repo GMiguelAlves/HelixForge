@@ -4,6 +4,7 @@ include { CONSENSUS_INTERVALS as CONSENSUS_INTERSECTION } from '../../../modules
 include { CONSENSUS_INTERVALS as CONSENSUS_SUPPORT } from '../../../modules/local/consensus_intervals/main'
 include { IDR_PROVIDER } from '../../../modules/local/idr_provider/main'
 include { CONSENSUS_AGGREGATE } from '../../../modules/local/consensus_aggregate/main'
+include { NFCORE_CONSENSUS } from '../../../modules/local/nfcore_consensus/main'
 
 
 workflow CONSENSUS_IDR {
@@ -115,7 +116,7 @@ workflow CONSENSUS_IDR {
         .map { meta, result_dirs, manifests, qc_files, records_base64, spec ->
             tuple(meta, result_dirs, manifests, qc_files, records_base64, spec)
         }
-    CONSENSUS_CONTEXT(context_inputs)
+    CONSENSUS_CONTEXT(context_inputs, file("${moduleDir}/../../../modules/local/consensus_context/resources/usr/bin/validate_consensus_context.py", checkIfExists: true))
 
     sources = context_inputs.map { meta, result_dirs, _manifests, _qc_files, _records, _spec ->
         tuple(meta.id, meta, result_dirs)
@@ -157,6 +158,18 @@ workflow CONSENSUS_IDR {
         provider_execution_ch = CONSENSUS_SUPPORT.out.execution_metadata
         provider_manifest_ch = CONSENSUS_SUPPORT.out.manifest
         provider_status_ch = CONSENSUS_SUPPORT.out.status
+    } else if (strategy == 'nfcore_2_1') {
+        NFCORE_CONSENSUS(
+            validated.map { _id, request, meta, result_dirs -> tuple(meta, result_dirs, request) },
+            file("${moduleDir}/../../../modules/local/nfcore_consensus/resources/usr/bin/nfcore_consensus.py", checkIfExists: true),
+            file("${moduleDir}/../../../vendor/nfcore_chipseq/2.1.0/macs3_merged_expand.py", checkIfExists: true)
+        )
+        provider_artifacts_ch = NFCORE_CONSENSUS.out.artifacts
+        provider_reports_ch = NFCORE_CONSENSUS.out.reports
+        provider_versions_ch = NFCORE_CONSENSUS.out.versions
+        provider_execution_ch = NFCORE_CONSENSUS.out.execution_metadata
+        provider_manifest_ch = NFCORE_CONSENSUS.out.manifest
+        provider_status_ch = NFCORE_CONSENSUS.out.status
     } else if (strategy == 'idr') {
         provider_inputs = validated.map { _id, request, meta, result_dirs -> tuple(meta, result_dirs, request) }
         IDR_PROVIDER(provider_inputs)
@@ -174,7 +187,7 @@ workflow CONSENSUS_IDR {
         .map { _meta, manifest -> manifest }
         .collect()
         .map { manifests -> tuple([id: 'chipseq.consensus.aggregate', strategy: strategy], manifests) }
-    CONSENSUS_AGGREGATE(aggregate_inputs)
+    CONSENSUS_AGGREGATE(aggregate_inputs, file("${moduleDir}/../../../modules/local/consensus_aggregate/resources/usr/bin/consensus_aggregate.py", checkIfExists: true))
 
     emit:
     artifacts          = provider_artifacts_ch

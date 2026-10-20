@@ -1,0 +1,14 @@
+{
+  "project": "nf-core/chipseq",
+  "release": "2.1.0",
+  "commit": "76e2382b6d443db4dc2396e6831d1243256d80b0",
+  "license": "MIT",
+  "source_url": "https://github.com/nf-core/chipseq/tree/76e2382b6d443db4dc2396e6831d1243256d80b0",
+  "modifications": "None. HF adapters are separate modules outside this directory.",
+  "files": {
+    "macs3_merged_expand.py": {"source": "bin/macs3_merged_expand.py", "sha256": "71f9867dcec8ed1209df9d4e8772bb260b2057f62a95497dadea35779b19bcbe"},
+    "macs3_consensus.nf": {"source": "modules/local/macs3_consensus.nf", "sha256": "71230c8283d70d773bfefaf4032a63eea8712f7e63fe8bd108407646e9586c4f"},
+    "homer_annotatepeaks.nf": {"source": "modules/nf-core/homer/annotatepeaks/main.nf", "sha256": "c5eca8ece3f959aca9473ca51ce220a4f1775193a93d36be6ddf37c166961a0d"},
+    "LICENSE": {"source": "LICENSE", "sha256": "fb1d2f116078969afe3eba33cf332ae0e05b9f646303d3e5d1e00ffe6041fd55"}
+  }
+}

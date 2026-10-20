@@ -115,6 +115,15 @@ def artifact_checksum(document, preferred):
 def validate_spec(raw):
     spec = dict(DEFAULTS)
     spec.update(raw or {})
+    if spec["provider"] == "homer_4_11":
+        if spec["mode"] != "homer_native":
+            raise ValueError("homer_4_11 requires explicit mode=homer_native; overlap_priority is not equivalent")
+        for key in DEFAULTS.keys() - {"provider", "mode"}:
+            if spec[key] != DEFAULTS[key]:
+                raise ValueError(f"homer_native does not accept compatibility parameter {key}")
+        return {"provider": "homer_4_11", "mode": "homer_native", "gene_id_mode": "gtf_gene_id",
+                "association_method": "homer_nearest_promoter", "upstream_policy": "nf-core/chipseq:2.1.0",
+                "arguments": ["-gid"]}
     if spec["provider"] != "python_interval_v1":
         raise ValueError(f"unsupported peak annotation provider {spec['provider']!r}")
     if spec["mode"] != "overlap_priority" or spec["overlap_mode"] != "any":
@@ -134,6 +143,21 @@ def validate_spec(raw):
     if spec["intergenic_policy"] not in {"retain", "drop"}:
         raise ValueError("intergenic_policy must be retain or drop")
     return spec
+
+
+def validate_homer_gtf(path):
+    exons = 0
+    with open(path, encoding="utf-8") as handle:
+        for line in handle:
+            if not line.strip() or line.startswith("#"):
+                continue
+            fields = line.rstrip("\n").split("\t")
+            if len(fields) == 9 and fields[2] == "exon":
+                if not re.search(r'\bgene_id\s+"[^"]+"', fields[8]) or not re.search(r'\btranscript_id\s+"[^"]+"', fields[8]):
+                    raise ValueError("HOMER requires GTF exon gene_id and transcript_id attributes; GFF is not converted implicitly")
+                exons += 1
+    if not exons:
+        raise ValueError("HOMER requires a GTF containing annotated exons")
 
 
 def main():
@@ -179,6 +203,8 @@ def main():
             raise ValueError("reference checksum does not match reference manifest")
         reference_contigs = parse_fasta_contigs(args.reference)
         annotation_contigs = parse_annotation_contigs(args.annotation)
+        if spec["provider"] == "homer_4_11":
+            validate_homer_gtf(args.annotation)
         peak_contigs, peak_count = parse_peak_contigs(args.peaks)
         missing_annotation = annotation_contigs - reference_contigs
         missing_peaks = peak_contigs - reference_contigs
@@ -201,6 +227,7 @@ def main():
             sample_ids = [safe_id(item.get("sample_id"), "sample_id") for item in replicates]
         if len(record_ids) != len(set(record_ids)):
             raise ValueError("duplicate record_id in source manifest")
+        raw_provider = spec["provider"]
         request = {
             "schema_version": "1.0", "type": "peak_annotation_request", "id": request_id,
             "source_type": source_type, "source_id": source_id,
@@ -210,7 +237,7 @@ def main():
             "target": peak_doc.get("target"), "genome_id": genome_id, "build": build,
             "organism": meta.get("organism") or ref_doc.get("organism"),
             "peak_type": peak_doc.get("peak_type") or "bed", "provider": spec.pop("provider"),
-            "provider_version": "1.0.0", "parameters": spec, "inputs": {
+            "provider_version": "4.11" if raw_provider == "homer_4_11" else "1.0.0", "parameters": spec, "inputs": {
                 "peaks": {"name": os.path.basename(args.peaks), "sha256": peak_sha, "rows": peak_count},
                 "peak_manifest": {"name": os.path.basename(args.peak_manifest), "sha256": sha256(args.peak_manifest)},
                 "reference": {"name": os.path.basename(args.reference), "sha256": ref_sha},
@@ -219,6 +246,13 @@ def main():
             }, "seqnames": {"peaks": sorted(peak_contigs), "annotation": sorted(annotation_contigs), "reference": sorted(reference_contigs)},
             "status": "valid",
         }
+        if peak_doc.get("strategy") == "nfcore_2_1":
+            if raw_provider != "homer_4_11" or peak_doc.get("provider") != "nfcore_chipseq_2.1.0":
+                raise ValueError("nfcore_2_1 annotation requires homer_4_11 and a matching consensus provider")
+            request["source_consensus"] = {
+                "id": source_id, "strategy": "nfcore_2_1", "provider": peak_doc["provider"],
+                "artifacts": peak_doc["artifacts"], "semantics": peak_doc["semantics"],
+            }
         with open(args.request, "w", encoding="utf-8") as handle:
             json.dump(request, handle, indent=2, sort_keys=True); handle.write("\n")
         with open(args.report, "w", encoding="utf-8") as handle:

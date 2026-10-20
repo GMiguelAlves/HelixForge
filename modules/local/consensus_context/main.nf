@@ -18,6 +18,7 @@ process CONSENSUS_CONTEXT {
 
     input:
     tuple val(meta), path(peak_dirs), path(peak_manifests, stageAs: 'peak_manifests??/*'), path(qc_manifests, stageAs: 'qc_manifests??/*'), val(records_base64), val(spec_base64)
+    path(providerProgram)
 
     output:
     tuple val(meta), path("${meta.id}.consensus_request.json"), emit: artifacts
@@ -31,7 +32,7 @@ process CONSENSUS_CONTEXT {
     def qcManifestArgs = qc_manifests.collect { manifest -> "--qc-manifest '${manifest}'" }.join(' ')
     """
     set -o pipefail
-    validate_consensus_context.py \
+    python3 '${providerProgram}' \
         ${peakDirArgs} \
         ${peakManifestArgs} \
         ${qcManifestArgs} \

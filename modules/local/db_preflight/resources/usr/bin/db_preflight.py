@@ -77,7 +77,7 @@ def consensus_inputs(directories, manifests):
         provider_type = document.get("type")
         strategy = document.get("strategy")
         valid_provider = (
-            (provider_type == "consensus" and strategy in {"union", "intersection", "replicate_support"})
+            (provider_type == "consensus" and strategy in {"union", "intersection", "replicate_support", "nfcore_2_1"})
             or (provider_type == "idr" and strategy == "idr")
         )
         if not valid_provider:

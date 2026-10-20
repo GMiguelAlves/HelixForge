@@ -1,0 +1,17 @@
+name: homer_annotatepeaks
+description: Native HOMER annotation using the supplied FASTA and GTF
+keywords: [chipseq, annotation, homer]
+tools:
+  - homer:
+      version: '4.11'
+      homepage: http://homer.ucsd.edu/homer/
+input:
+  - meta: {type: map, description: Stable source identity}
+  - peaks: {type: file, description: BED peaks}
+  - reference: {type: file, description: Matching FASTA}
+  - annotation: {type: file, description: Matching GTF}
+output:
+  - artifacts: {type: directory, description: Unchanged HOMER output and runtime metadata}
+  - reports: {type: file, description: HOMER log}
+  - versions: {type: file, description: Verified HOMER package version}
+  - status: {type: file, description: Completion status}

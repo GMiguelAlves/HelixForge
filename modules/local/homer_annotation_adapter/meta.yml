@@ -1,0 +1,12 @@
+name: homer_annotation_adapter
+description: Normalize HOMER tables and preserve declared regional library evidence
+keywords: [annotation, metadata, provenance]
+input:
+  - meta: {type: map, description: Stable source identity}
+  - raw_dir: {type: directory, description: Original HOMER output}
+  - support_dirs: {type: directory, description: Optional explicitly staged consensus evidence bundle}
+output:
+  - artifacts: {type: directory, description: API tables, original output and support evidence}
+  - reports: {type: directory, description: Unchanged HOMER reports}
+  - versions: {type: file, description: Adapter and HOMER versions}
+  - status: {type: file, description: Completion status}

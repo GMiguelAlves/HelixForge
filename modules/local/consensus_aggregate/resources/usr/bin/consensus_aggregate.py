@@ -27,7 +27,7 @@ def load_manifests(paths):
             raise ValueError(f"empty or duplicate provider group id: {identifier!r}")
         if document["type"] == "idr" and document.get("strategy") != "idr":
             raise ValueError(f"{path}: IDR manifest has incompatible strategy")
-        if document["type"] == "consensus" and document.get("strategy") not in {"union", "intersection", "replicate_support"}:
+        if document["type"] == "consensus" and document.get("strategy") not in {"union", "intersection", "replicate_support", "nfcore_2_1"}:
             raise ValueError(f"{path}: consensus manifest has incompatible strategy")
         documents[identifier] = (document, path)
     if not documents:

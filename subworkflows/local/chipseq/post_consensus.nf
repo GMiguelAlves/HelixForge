@@ -32,7 +32,8 @@ workflow CHIPSEQ_POST_CONSENSUS {
     def annotation_encoded = groovy.json.JsonOutput.toJson(annotation_spec).bytes.encodeBase64().toString()
     annotation_inputs = bundle.flatMap { _meta, plan, paths -> plan.peaks.collect { entry ->
         tuple(entry.meta + [id: "${entry.meta.id}.annotation", source_id: entry.meta.id], paths[entry.peaks], paths[entry.manifest],
-            paths[plan.reference.fasta], paths[plan.reference.manifest], paths[plan.reference.annotation], annotation_encoded)
+            paths[plan.reference.fasta], paths[plan.reference.manifest], paths[plan.reference.annotation], annotation_encoded,
+            entry.evidence_bundle != null ? [paths[entry.evidence_bundle]] : [])
     } }
     PEAK_ANNOTATION(annotation_inputs)
 

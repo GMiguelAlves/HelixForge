@@ -20,6 +20,7 @@ process CONSENSUS_AGGREGATE {
 
     input:
     tuple val(meta), path(provider_manifests)
+    path(providerProgram)
 
     output:
     tuple val(meta), path('consolidation_summary.json'), path('consolidation_summary.tsv'), emit: artifacts
@@ -32,7 +33,7 @@ process CONSENSUS_AGGREGATE {
     script:
     def manifestArgs = provider_manifests.collect { manifest -> "--provider-manifest '${manifest}'" }.join(' ')
     """
-    consensus_aggregate.py \
+    python3 '${providerProgram}' \
         ${manifestArgs} \
         --summary-json consolidation_summary.json \
         --summary-tsv consolidation_summary.tsv \

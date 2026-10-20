@@ -1,5 +1,11 @@
 # Peak Annotation API v1
 
+The explicit `homer_4_11` / `homer_native` provider delegates annotation to
+HOMER with the supplied FASTA/GTF. A separate adapter normalizes output and
+transports declared regional evidence; `python_interval_v1` remains available
+for compatibility. These methods are not interchangeable. See the
+[HOMER and evidence contract](../guides/nfcore-consensus-homer.md).
+
 Peak Annotation API v1 associates an explicitly identified peak set with a
 user-supplied genomic annotation. It is provider-neutral: downstream consumers
 read semantic artifacts and manifests, never provider-specific filenames.
@@ -11,7 +17,7 @@ One request represents one peak set and contains:
 - a Peak Calling (`type=peak_calling`) or Consensus (`type=consensus`) manifest;
 - the semantic BED, narrowPeak, or broadPeak artifact referenced by that manifest;
 - a reference manifest or equivalent reference envelope;
-- a tracked GTF or GFF annotation;
+- a tracked GTF/GFF for the compatibility provider, or GTF for HOMER;
 - metadata containing `record_id` (replicate peaks) or the preserved source
   record IDs (consensus peaks), sample IDs, dataset/experiment, target,
   organism, and explicit genome/build;
@@ -26,7 +32,7 @@ coordinates, strip ID versions, or repair annotations silently.
 
 ## Scientific parameters
 
-The versioned parameter object contains:
+The compatibility provider's versioned parameter object contains:
 
 | Field | v1 values | Compatibility default |
 |---|---|---|
@@ -40,7 +46,7 @@ The versioned parameter object contains:
 | `strand_aware` | boolean | `false` |
 | `intergenic_policy` | `retain` or `drop` | `retain` |
 
-The provider implemented in v1 supports `overlap_priority`, `any`, and
+The compatibility provider supports `overlap_priority`, `any`, and
 `strand_aware=false`. `max_tss_distance` is recorded but must be null because
 the legacy method does not perform nearest-TSS assignment. Unsupported values
 fail explicitly.
@@ -65,7 +71,7 @@ annotation. A provider emits:
 - provider auxiliary files and command/report metadata;
 - `versions.yml`, execution metadata, provenance, manifest, and status.
 
-The initial provider is `python_interval_v1`. It implements the explicit legacy
+The compatibility provider is `python_interval_v1`. It implements the explicit legacy
 overlap model with Python standard-library interval indexing. It does not
 invoke the legacy R wrapper and does not submit scheduler jobs.
 
@@ -113,7 +119,8 @@ The subworkflow stages each Python implementation as an explicit process
 `path` input (`providerProgram`). Modules execute that staged source with
 Python rather than resolving a potentially different program on `PATH`.
 Source changes therefore participate in deep-cache identity without changing
-the external `PEAK_ANNOTATION` channel contract.
+the existing seven-field `PEAK_ANNOTATION` input. Regional HOMER inputs add an
+explicit eighth field carrying the evidence-directory list.
 
 Experimental `regional_catalog_v1` and `broad_heldout_v1` sources are not
 supported. Requests using these retired providers fail explicitly instead of

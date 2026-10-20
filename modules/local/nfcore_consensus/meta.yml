@@ -1,0 +1,16 @@
+name: nfcore_consensus
+description: Adapter for the pinned nf-core/chipseq 2.1.0 regional consensus policy
+keywords: [chipseq, consensus, bedtools, nf-core]
+tools:
+  - bedtools:
+      version: 2.30.0
+      homepage: https://bedtools.readthedocs.io/
+input:
+  - meta: {type: map, description: Stable scientific group identity}
+  - peak_dirs: {type: directory, description: Validated MACS peak directories}
+  - request: {type: file, description: Explicit consensus request}
+output:
+  - artifacts: {type: directory, description: Regional catalog, raw upstream table, support matrix and separate core}
+  - reports: {type: directory, description: Commands and tool logs}
+  - versions: {type: file, description: Tool and upstream versions}
+  - status: {type: file, description: Completion status}

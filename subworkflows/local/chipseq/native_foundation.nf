@@ -419,8 +419,8 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
 
                     if (mode in ['consensus', 'idr', 'differential_binding', 'full']) {
                         def strategy = mode == 'idr' ? 'idr' : params.chipseq_consensus_method?.toString()?.toLowerCase()
-                        if (!(strategy in ['union', 'intersection', 'replicate_support', 'idr'])) {
-                            error 'Consensus mode requires explicit --chipseq_consensus_method union|intersection|replicate_support|idr'
+                        if (!(strategy in ['union', 'intersection', 'replicate_support', 'idr', 'nfcore_2_1'])) {
+                            error 'Consensus mode requires explicit --chipseq_consensus_method union|intersection|replicate_support|idr|nfcore_2_1'
                         }
                         def consensus_spec = [
                             strategy            : strategy,
@@ -524,7 +524,8 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                             reference,
                                             reference_manifest,
                                             annotation,
-                                            annotation_spec_base64
+                                            annotation_spec_base64,
+                                            strategy == 'nfcore_2_1' ? [directory] : []
                                         )
                                     }
                                 PEAK_ANNOTATION(annotation_inputs)
@@ -723,7 +724,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                         marks_or_factors: [], peak_type: consensus_meta.peak_type, role: 'consolidated_peaks',
                                         producer_manifest_id: consensus_meta.id, producer_process: strategy == 'idr' ? 'IDR_PROVIDER' : 'CONSENSUS_INTERVALS',
                                         location: [kind: 'producer_relative', path: 'consolidated_peaks.bed', base_path: null, producer_manifest_id: consensus_meta.id],
-                                        source: [type: 'helixforge', name: strategy, version: '1.0'], metadata: [strategy: strategy]
+                                        source: [type: 'helixforge', name: strategy, version: strategy == 'nfcore_2_1' ? '2.1.0' : '1.0'], metadata: [strategy: strategy]
                                     ], file("${directory}/consolidated_peaks.bed", checkIfExists: true))
                                 }
                                 db_terminal_records = db_results_ch
@@ -762,7 +763,7 @@ workflow CHIPSEQ_NATIVE_FOUNDATION {
                                         stage: null, mark_or_factor: null, marks_or_factors: marks, peak_type: null,
                                         role: 'peak_gene_associations', producer_manifest_id: annotation_meta.id, producer_process: 'PEAK_ANNOTATION_AGGREGATE',
                                         location: [kind: 'producer_relative', path: 'peak_gene_associations.tsv', base_path: null, producer_manifest_id: annotation_meta.id],
-                                        source: [type: 'helixforge', name: params.chipseq_annotation_provider, version: '1.0'], metadata: [:]
+                                        source: [type: 'helixforge', name: params.chipseq_annotation_provider, version: params.chipseq_annotation_provider == 'homer_4_11' ? '4.11' : '1.0'], metadata: [:]
                                     ], file("${directory}/peak_gene_associations.tsv", checkIfExists: true))
                                 }
                                 track_terminal_records = TRACK_GENERATION.out.artifacts
