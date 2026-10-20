@@ -57,4 +57,6 @@ jobs:
             ${{ runner.temp }}/chipseq-composition/validation.json
             ${{ runner.temp }}/chipseq-composition/**/trace.*.tsv
             ${{ runner.temp }}/chipseq-composition/**/console.*.log
+            ${{ runner.temp }}/chipseq-composition/**/nextflow*.log
+            ${{ runner.temp }}/chipseq-composition/**/results/chipseq/chipseq_run_manifest.json
           if-no-files-found: warn

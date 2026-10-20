@@ -23,6 +23,11 @@ Coverage includes DB enabled/disabled, consensus and IDR provider inputs,
 metadata/control/replicate identity, mandatory checksums, missing/incompatible
 inputs, omission semantics, terminal producer links, report-only isolation and
 cached reuse of compatible QC/alignment/peak tasks when DB is enabled later.
+The continuation regression checks fully materialized nested JSON maps before
+fan-out: 128 plans are read by eight channels for both consensus and IDR.
+It verifies producer identities and terminal artifact types without retrying
+failed executions or weakening completeness checks. CI retains terminal
+manifests and workflow logs when an execution fails.
 Fixtures are artificial and do not measure biological accuracy or performance.
 Use `--only-full` to check only full composition with DB disabled/enabled.
 Unit tests use labelled placeholder files only to exercise checksum contracts;

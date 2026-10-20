@@ -5,6 +5,11 @@ include { CHIPSEQ_FULL_REPORT_INPUT } from '../../../modules/local/chipseq_full_
 include { CHIPSEQ_REPORT } from './report'
 include { RUN_MANIFEST } from '../../../modules/local/run_manifest/main'
 
+def read_continuation_plan(path) {
+    // Every nested map must be materialized before the plan fans out to readers.
+    new groovy.json.JsonSlurperClassic().parseText(path.toFile().getText('UTF-8'))
+}
+
 def continuation_descriptor(meta, type, artifact, level, role, producer) {
     [artifact_id: "${meta.id}.${type}", artifact_type: type, assay: 'chipseq', format: artifact.toFile().isDirectory() ? 'directory' : (type == 'aligned_bam' ? 'bam' : (type in ['consensus_peaks', 'idr_peaks'] ? 'bed' : 'tsv')),
      entity_level: level, contrast_id: null, sample_ids: meta.sample_ids ?: [], condition: meta.condition,
@@ -21,7 +26,7 @@ workflow CHIPSEQ_POST_CONSENSUS {
     main:
     CHIPSEQ_CONTINUATION_CONTEXT(continuation_inputs)
     bundle = CHIPSEQ_CONTINUATION_CONTEXT.out.artifacts.map { meta, plan, paths ->
-        tuple(meta, new groovy.json.JsonSlurper().parse(plan.toFile()), paths)
+        tuple(meta, read_continuation_plan(plan), paths)
     }
     def annotation_spec = [provider: params.chipseq_annotation_provider, mode: params.chipseq_annotation_mode,
         overlap_mode: params.chipseq_annotation_overlap_mode, promoter_upstream: params.chipseq_annotation_promoter_upstream as Integer,
