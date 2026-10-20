@@ -127,8 +127,8 @@ def validate_group(records, spec):
 def build_request(records, peak_dirs, peak_manifests, qc_manifests, spec):
     replicate_mode, replicate_policy = validate_group(records, spec)
     strategy = str(spec.get("strategy", "")).lower()
-    if strategy not in {"union", "intersection", "replicate_support", "idr"}:
-        raise ValueError("strategy must be union, intersection, replicate_support, or idr")
+    if strategy not in {"union", "intersection", "replicate_support", "idr", "nfcore_2_1"}:
+        raise ValueError("strategy must be union, intersection, replicate_support, idr, or nfcore_2_1")
     peak_type = records[0]["peak_type"]
     directory_index = index_paths(peak_dirs, "peak directory")
     peak_manifest_docs = {document["id"]: (document, path) for path in peak_manifests for document in [load_json(path, "peak manifest")]}
@@ -166,6 +166,11 @@ def build_request(records, peak_dirs, peak_manifests, qc_manifests, spec):
             "peak_qc_manifest": os.path.basename(qc_manifest_path),
             "peak_qc_manifest_sha256": sha256(qc_manifest_path),
         })
+        if strategy == "nfcore_2_1":
+            normalized[-1]["peak_sha256"] = sha256(peak_file)
+            declared = peak_document.get("artifacts", {}).get("peaks", {})
+            if declared.get("sha256") != normalized[-1]["peak_sha256"]:
+                raise ValueError("nfcore_2_1 source peak artifact checksum mismatch")
 
     count = len(normalized)
     min_replicates = spec.get("min_replicates")
@@ -180,6 +185,12 @@ def build_request(records, peak_dirs, peak_manifests, qc_manifests, spec):
             raise ValueError("replicate_support requires explicit integer min_replicates")
         if not 2 <= support_threshold <= count:
             raise ValueError(f"min_replicates must be between 2 and replicate count {count}")
+    elif strategy == "nfcore_2_1":
+        if isinstance(min_replicates, bool) or not isinstance(min_replicates, int) or not 1 <= min_replicates <= count:
+            raise ValueError(f"nfcore_2_1 requires explicit integer min_replicates between 1 and {count}")
+        support_threshold = min_replicates
+        if not spec.get("require_same_caller", True) or records[0]["caller"] != "macs3":
+            raise ValueError("nfcore_2_1 requires compatible MACS3 peak inputs")
     else:
         support_threshold = None
         if replicate_mode != "biological" or replicate_policy != "require_premerged":
@@ -200,8 +211,8 @@ def build_request(records, peak_dirs, peak_manifests, qc_manifests, spec):
     return {
         "schema_version": "1.0", "type": "consensus_idr_request",
         "id": first["group_id"], "strategy": strategy,
-        "provider": "idr" if strategy == "idr" else "bedtools_multiinter",
-        "provider_version": "2.0.4.2" if strategy == "idr" else "2.31.1",
+        "provider": "nfcore_chipseq_2.1.0" if strategy == "nfcore_2_1" else "idr" if strategy == "idr" else "bedtools_multiinter",
+        "provider_version": "2.1.0" if strategy == "nfcore_2_1" else "2.0.4.2" if strategy == "idr" else "2.31.1",
         "dataset": first["dataset"], "experiment_id": first["experiment_id"],
         "condition": first["condition"], "treatment": first.get("treatment") or None,
         "target": first["target"], "genome_id": first["genome_id"],

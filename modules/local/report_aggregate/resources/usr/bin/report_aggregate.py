@@ -208,6 +208,11 @@ def aggregate(context, documents, artifacts):
         "tracks": section(status_for(context, "tracks"), {"manifests": track_docs, "records": track_rows}),
         "provenance": section("available", {"versions": context.get("versions", {}), "sources": provenance_sources}),
     }
+    if any(document.get("provider") == "homer_4_11" or "homer_4_11" in document.get("annotation_providers", []) for document in annotation_docs):
+        sections["annotation"]["data"]["interpretation"] = (
+            "HOMER nearest-promoter associations are not overlap-only assignments or proof of regulation. "
+            "Regional candidates and library support do not establish confirmed occupancy; the supplementary HF core does not clip the catalog."
+        )
     return {
         "schema_version": "1.0", "type": "chipseq_report_data", "id": context["id"],
         "project": project, "sections": sections, "source_manifest_count": len(documents),

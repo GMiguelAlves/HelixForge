@@ -101,7 +101,7 @@ def validate(request, paths, stub=False):
         if doc.get('type') not in {'consensus', 'idr'} or doc['id'] in peak_ids:
             raise ValueError('unique consensus/IDR provider manifests are required')
         peak_ids.add(doc['id'])
-        allowed = {'idr'} if doc['type'] == 'idr' else {'union', 'intersection', 'replicate_support'}
+        allowed = {'idr'} if doc['type'] == 'idr' else {'union', 'intersection', 'replicate_support', 'nfcore_2_1'}
         if doc.get('strategy') not in allowed or doc.get('replicate_mode') not in {'biological', 'technical'}:
             raise ValueError('peak strategy/replicate mode is not declared consistently')
         if doc.get('build') not in (None, project['build']) or doc.get('organism') not in (None, ref_doc['organism']):
@@ -113,6 +113,15 @@ def validate(request, paths, stub=False):
                 raise ValueError('peak set project/reference mismatch')
         artifact = doc.get('artifacts', {}).get('consolidated_bed') or doc.get('artifacts', {}).get('consolidated_peaks') or {}
         checked(entry['peaks'], artifact.get('sha256'), 'consolidated peaks')
+        if doc.get('strategy') == 'nfcore_2_1':
+            index = entry.get('evidence_bundle')
+            if isinstance(index, bool) or not isinstance(index, int) or not 0 <= index < len(paths):
+                raise ValueError('nfcore_2_1 continuation requires an explicit evidence_bundle')
+            bundle = Path(paths[index])
+            if not bundle.is_dir() or not (bundle / 'manifest.json').is_file():
+                raise ValueError('consensus evidence_bundle must contain its manifest')
+            if not stub and sha256(bundle / 'manifest.json') != sha256(path(entry['manifest'])):
+                raise ValueError('consensus evidence bundle identity mismatch')
         replicates = doc.get('replicates', [])
         if not replicates or len({r.get('record_id') for r in replicates}) != len(replicates):
             raise ValueError('peak set lacks unique biological/technical identities')

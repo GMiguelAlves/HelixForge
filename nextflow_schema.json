@@ -208,15 +208,15 @@
     "peak_qc_queue": { "type": ["string", "null"], "default": null },
     "chipseq_consensus_method": {
       "type": ["string", "null"],
-      "enum": ["union", "intersection", "replicate_support", null],
+      "enum": ["union", "intersection", "replicate_support", "nfcore_2_1", null],
       "default": null,
       "description": "Explicit consensus strategy. Required for chipseq_run_mode=consensus."
     },
     "chipseq_min_replicates": {
       "type": ["integer", "null"],
-      "minimum": 2,
+      "minimum": 1,
       "default": null,
-      "description": "Required support threshold for replicate_support; cannot exceed the validated replicate count."
+      "description": "Explicit support threshold: at least 2 for atomic replicate_support or 1 for nfcore_2_1; cannot exceed the validated library count."
     },
     "chipseq_replicate_mode": {
       "type": "string",
@@ -288,8 +288,11 @@
     "chipseq_annotation_reference": { "type": ["string", "null"], "default": null },
     "chipseq_annotation_reference_manifest": { "type": ["string", "null"], "default": null },
     "chipseq_annotation_gtf": { "type": ["string", "null"], "default": null },
-    "chipseq_annotation_provider": { "type": "string", "enum": ["python_interval_v1"], "default": "python_interval_v1" },
-    "chipseq_annotation_mode": { "type": "string", "enum": ["overlap_priority", "nearest_tss"], "default": "overlap_priority" },
+    "nfcore_consensus_container": { "type": "string", "description": "Pinned runtime for the nf-core/chipseq 2.1.0 consensus policy." },
+    "homer_container": { "type": "string", "description": "Pinned external HOMER 4.11 runtime." },
+    "chipseq_annotation_evidence_bundle": { "type": ["string", "null"], "default": null, "description": "Explicit consensus result directory for standalone nfcore_2_1 annotation." },
+    "chipseq_annotation_provider": { "type": "string", "enum": ["python_interval_v1", "homer_4_11"], "default": "python_interval_v1" },
+    "chipseq_annotation_mode": { "type": "string", "enum": ["overlap_priority", "nearest_tss", "homer_native"], "default": "overlap_priority" },
     "chipseq_annotation_overlap_mode": { "type": "string", "enum": ["any", "center", "summit"], "default": "any" },
     "chipseq_annotation_promoter_upstream": { "type": "integer", "minimum": 0, "default": 2000 },
     "chipseq_annotation_promoter_downstream": { "type": "integer", "minimum": 0, "default": 500 },

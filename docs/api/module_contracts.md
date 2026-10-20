@@ -4,7 +4,17 @@ This document defines the interface required for every new native Nextflow DSL2
 module in HelixForge. The contract standardizes orchestration and provenance; it
 does not force unrelated scientific tools to produce the same file types.
 
-Contract version: `3.0`
+Contract version: `3.1`
+
+Contract 3.1 adds opt-in external regional consensus and HOMER annotation.
+Imported helpers are immutable, licensed and checksum-pinned task inputs.
+Unfiltered catalogs, support-filtered catalogs and exclusions are distinct
+products. The supplementary HF core may not clip candidate annotation inputs.
+Annotation retains its seven-field input; an optional eighth field explicitly
+stages consensus evidence directories. HOMER normalization preserves native
+output and per-association evidence without running another annotation or
+occupancy test. Existing interfaces remain valid. See the
+[provider policy](../guides/nfcore-consensus-homer.md).
 
 This contract applies to Trim Galore, FastQC, FASTQ merge, MultiQC, and every
 later native module.

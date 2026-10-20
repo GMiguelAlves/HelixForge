@@ -1,5 +1,10 @@
 # Consensus / IDR API v1
 
+The opt-in `nfcore_2_1` provider reuses the pinned nf-core/chipseq 2.1.0
+regional policy, preserving unfiltered/filtered catalogs, exclusions and source
+identities. Its supplementary HF core never clips the catalog. See the
+[method and evidence contract](../guides/nfcore-consensus-homer.md).
+
 Consensus/IDR API v1 consolidates evidence across explicitly identified
 ChIP-seq replicates. Consensus and IDR are distinct strategies with different
 scientific meanings and providers. A union is reported as `strategy=union`; it
@@ -40,7 +45,8 @@ validation.
 
 ## Consensus providers
 
-All implemented consensus methods use half-open genomic intervals and preserve
+All implemented consensus methods use half-open genomic intervals. The existing
+atomic providers preserve
 the original peak files as replicate evidence. Within each replicate,
 overlapping intervals are merged before cross-replicate comparison. BEDTools
 `multiinter` then produces atomic, non-overlapping segments with a constant
@@ -62,7 +68,7 @@ there is no universal defensible aggregation rule. Exact per-replicate peak
 records are retained in an evidence table and referenced by the manifest.
 BroadPeak remains broadPeak evidence and is never converted to narrowPeak.
 
-For broad inputs, the consolidated intervals are **per-base support cores**,
+For broad inputs to these atomic providers, the consolidated intervals are **per-base support cores**,
 not inferred complete broad domains. Subintervals shorter than the caller's
 minimum peak length, including one-base overlaps, can arise legitimately from
 the intersection operation. A high fraction of discarded input-union coverage

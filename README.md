@@ -23,6 +23,10 @@ Salmon is the certified RNA-seq production provider. STAR implements the
 Alignment API but remains experimental and is never selected implicitly.
 IDR is an optional ChIP-seq branch for exactly two compatible biological
 replicates.
+An opt-in [regional consensus and HOMER path](docs/guides/nfcore-consensus-homer.md)
+reuses nf-core/chipseq 2.1.0 and HOMER while retaining library evidence. This is
+a separate methodological choice, not an official nf-core certification or a
+retrospective change to frozen benchmarks.
 Differential Binding is optional: `full --chipseq_db_enabled false` completes
 annotation, tracks and reporting without contrasts. Accepted consensus/IDR
 artifacts can also enter `post_consensus` without repeating upstream work;

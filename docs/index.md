@@ -16,6 +16,7 @@ available when they were written.
   [Single-end RNA-seq](guides/rnaseq-single-end.md) ·
   [ChIP-seq stage composition](guides/chipseq-stage-composition.md) ·
   [Broad-peak consensus and gene associations](guides/broad-peak-consensus.md) ·
+  [nf-core regional consensus and HOMER](guides/nfcore-consensus-homer.md) ·
   [Runtime and container inventory](guides/runtime-inventory.md)
 - [Developer guide](guides/developer-guide.md) ·
   [Limitations](guides/limitations.md) ·

@@ -54,7 +54,11 @@ workflow CHIPSEQ {
         def request = [project: document.project,
             metadata: [table: register.call(document.metadata.table), manifest: register.call(document.metadata.manifest)],
             reference: [fasta: register.call(document.reference.fasta), annotation: register.call(document.reference.annotation), manifest: register.call(document.reference.manifest)],
-            peaks: document.peaks.collect { entry -> [peaks: register.call(entry.peaks), manifest: register.call(entry.manifest)] },
+            peaks: document.peaks.collect { entry ->
+                def item = [peaks: register.call(entry.peaks), manifest: register.call(entry.manifest)]
+                if (entry.evidence_bundle != null) { item.evidence_bundle = register.call(entry.evidence_bundle) }
+                item
+            },
             records: document.records.collect { record -> [record_id: record.record_id, bam: register.call(record.bam), bai: register.call(record.bai), manifest: register.call(record.manifest)] },
             source_manifests: (document.source_manifests ?: []).collect { value -> register.call(value) }]
         CHIPSEQ_POST_CONSENSUS(channel.value(tuple([id: 'chipseq.continuation'], request, paths)))
@@ -241,7 +245,8 @@ workflow CHIPSEQ {
             intergenic_policy   : params.chipseq_annotation_intergenic_policy,
         ]
         annotation_spec_base64 = groovy.json.JsonOutput.toJson(annotation_spec).getBytes('UTF-8').encodeBase64().toString()
-        annotation_inputs = channel.value(tuple(annotation_meta, peak_file, peak_manifest_file, reference_file, reference_manifest_file, annotation_file, annotation_spec_base64))
+        evidence_bundle = params.chipseq_annotation_evidence_bundle ? [file(params.chipseq_annotation_evidence_bundle, checkIfExists: true)] : []
+        annotation_inputs = channel.value(tuple(annotation_meta, peak_file, peak_manifest_file, reference_file, reference_manifest_file, annotation_file, annotation_spec_base64, evidence_bundle))
         PEAK_ANNOTATION(annotation_inputs)
         completed_ch = PEAK_ANNOTATION.out.status
         logs_ch = PEAK_ANNOTATION.out.reports

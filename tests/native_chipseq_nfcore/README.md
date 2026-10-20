@@ -1,0 +1,18 @@
+# nf-core consensus and HOMER integration tests
+
+These are reduced implementation checks, not biological benchmarks.
+
+```bash
+python3 -m unittest tests.native_chipseq_nfcore.test_contracts -v
+docker build -t hf-nfcore-fixture-python:1.0 -f tests/native_chipseq_nfcore/Dockerfile.python tests/native_chipseq_nfcore
+NXF_VER=25.10.7 python3 tests/native_chipseq_nfcore/run_checks.py --output /path/to/new-test-directory
+NXF_VER=25.10.7 python3 tests/native_chipseq_nfcore/run_checks.py --stub --output /path/to/another-new-directory
+```
+
+The fixture contains connected/partial overlaps, bookended same-library calls,
+unique regions and an empty fourth library. Real checks compare the unchanged
+upstream tables and HOMER raw output with direct commands; they verify support
+exclusions separately from core geometry, gene IDs, zero support, evidence
+transport and identical-run cache reuse. Stub checks validate only DAG/output
+contracts. Docker, an official Nextflow launcher and the pinned images are
+required; a missing runtime is a failed/unavailable test, not a scientific pass.

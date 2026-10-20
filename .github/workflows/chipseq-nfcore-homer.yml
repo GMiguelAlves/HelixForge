@@ -1,0 +1,53 @@
+name: Regional consensus and HOMER
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'vendor/nfcore_chipseq/**'
+      - 'modules/local/nfcore_consensus/**'
+      - 'modules/local/homer_*/**'
+      - 'modules/local/consensus_*/**'
+      - 'modules/local/peak_annotation_*/**'
+      - 'subworkflows/local/chipseq/**'
+      - 'workflows/chipseq.nf'
+      - 'tests/native_chipseq_nfcore/**'
+      - '.github/workflows/chipseq-nfcore-homer.yml'
+permissions:
+  contents: read
+jobs:
+  reduced-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install certified launcher
+        run: curl -fsSL https://get.nextflow.io | NXF_VER=25.10.7 bash
+      - name: Unit and source-integrity contracts
+        run: python3 -m unittest tests.native_chipseq_nfcore.test_contracts tests.native_chipseq_consensus.test_consensus_api tests.native_chipseq_peak_annotation.test_peak_annotation -v
+      - name: Build small test metadata runtime
+        run: docker build -t hf-nfcore-fixture-python:1.0 -f tests/native_chipseq_nfcore/Dockerfile.python tests/native_chipseq_nfcore
+      - name: Real tools and direct equivalence
+        env:
+          NEXTFLOW_BIN: ${{ github.workspace }}/nextflow
+        run: python3 tests/native_chipseq_nfcore/run_checks.py --output "$RUNNER_TEMP/hf-nfcore-real"
+      - name: Stub and resume
+        env:
+          NEXTFLOW_BIN: ${{ github.workspace }}/nextflow
+        run: python3 tests/native_chipseq_nfcore/run_checks.py --stub --output "$RUNNER_TEMP/hf-nfcore-stub"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: regional-homer-reduced-validation
+          path: |
+            ${{ runner.temp }}/hf-nfcore-*/validation.json
+            ${{ runner.temp }}/hf-nfcore-*/direct/validation.json
+            ${{ runner.temp }}/hf-nfcore-*/trace.*.tsv
+            ${{ runner.temp }}/hf-nfcore-*/console.*.log
+          if-no-files-found: warn
