@@ -2,3 +2,13 @@ HelixForge
 Copyright 2026 Gustavo Miguel Caxias Alves
 
 This product includes software developed by the HelixForge contributors.
+
+This product includes selected source files from nf-core/chipseq 2.1.0,
+commit 76e2382b6d443db4dc2396e6831d1243256d80b0.
+Copyright (c) Espinosa-Carrasco J, Patel H, Wang C, Ewels P.
+The imported files retain their MIT license in vendor/nfcore_chipseq/2.1.0/LICENSE.
+HelixForge is not an official or certified nf-core pipeline.
+
+HOMER is invoked as a separately installed external tool. HOMER source is not
+included in this repository. Consult the exact package's license and source
+distribution when redistributing HOMER or a container containing it.

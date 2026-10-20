@@ -1,0 +1,6 @@
+name: hf-nfcore-consensus-2.1.0
+channels: [conda-forge, bioconda]
+dependencies:
+  - python=3.11.9
+  - bedtools=2.30.0
+  - coreutils=9.5
