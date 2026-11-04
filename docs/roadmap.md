@@ -33,6 +33,30 @@ Status: **implemented in v1.2.0; reduced functional validation passed**.
 See [stage composition](guides/chipseq-stage-composition.md) and the
 [v1.2.0 release notes](releases/release-notes-v1.2.0.md).
 
+## ChIP-seq providers for published workflows
+
+Status: **planned; not supported in the current workflow**.
+
+Add opt-in providers for reanalyses that follow published processing methods,
+starting with the approach described by
+[Augusto et al. (2025)](https://pmc.ncbi.nlm.nih.gov/articles/PMC11932260/).
+The existing MACS3 workflow remains the default.
+
+- **ChromstaR:** prioritize Input-aware enrichment calling and interval export
+  per mark. Make bin size explicit, retain model diagnostics and keep
+  combinatorial chromatin states separate from per-mark intervals.
+- **PeakRanger:** evaluate as an optional caller for published protocols and
+  calibration. Record the subcommand and parameters explicitly.
+- **MACS2:** evaluate as an opt-in compatibility provider when reproducing or
+  comparing a published MACS2 protocol. Do not assume MACS3 is numerically
+  equivalent or change the default caller.
+
+Record the IP-to-Input mapping, reference, software versions, parameters
+and any deviations from the published method. Before promotion, compare the
+integrated providers with direct tool runs on the same inputs, and validate
+their output contracts and behaviour on reduced fixtures and reviewed
+biological data. A calibration setting is not a default for every library.
+
 ## RNA-seq inference policy already adopted
 
 - Differential Expression consumes the uncorrected count artifact from the
@@ -112,6 +136,8 @@ scientific work is:
 2. Implement Pathway Enrichment providers behind the common downstream API.
 3. Validate the single-end path with a reviewed biological study and its
    fragment-length prior while preserving the paired-end baseline.
+4. Add optional ChIP-seq providers for published workflows, starting with
+   ChromstaR.
 
 RNA-seq and ChIP-seq reviewed biological benchmarks are complete. Their frozen
 administrative entry points are
